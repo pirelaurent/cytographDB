@@ -1,0 +1,19 @@
+# Node
+node_modules/
+npm-debug.log*
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
+
+# Logs
+logs
+*.log
+
+# save dir 
+saved-graphs

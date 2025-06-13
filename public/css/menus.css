@@ -55,11 +55,13 @@
   min-width: 150px;
 }
 
-.menu > li {
+.menu>li {
   position: relative;
   display: flex;
-  align-items: center; /* ✅ Centre verticalement */
-  justify-content: center; /* ✅ Centre horizontalement */
+  align-items: center;
+  /* ✅ Centre verticalement */
+  justify-content: center;
+  /* ✅ Centre horizontalement */
   padding: 0;
   border-radius: 1px;
   cursor: pointer;
@@ -85,13 +87,13 @@
   white-space: nowrap;
 }
 
-.menu > li,
-.submenu > li {
+.menu>li,
+.submenu>li {
   position: relative;
 }
 
-.menu li:hover > .submenu,
-.submenu li:hover > .submenu {
+.menu li:hover>.submenu,
+.submenu li:hover>.submenu {
   display: block;
 }
 
@@ -100,6 +102,7 @@
   margin: 0;
   white-space: nowrap;
 }
+
 .menu {
   top: 100%;
   left: 0;
@@ -118,8 +121,10 @@
   margin: 0px;
   position: relative;
   display: flex;
-  align-items: center; /* ✅ Centre verticalement */
-  justify-content: center; /* ✅ Centre horizontalement */
+  align-items: center;
+  /* ✅ Centre verticalement */
+  justify-content: center;
+  /* ✅ Centre horizontalement */
   color: var(--submenu-color, black);
   cursor: pointer;
   background-color: var(--main-bg, #fff);
@@ -138,10 +143,9 @@
 
 .submenu li.clicked,
 .menu li.clicked {
-  background-color: var(
-    --submenu-click-bg,
-    red
-  ); /* couleur différente du hover */
+  background-color: var(--submenu-click-bg,
+      red);
+  /* couleur différente du hover */
   color: var(--text-click-color, white);
 }
 
@@ -152,19 +156,19 @@
 .menu .separator,
 .submenu .separator {
   height: 2px;
-  min-height: 0; /* ✅ annule le min-height hérité */
+  min-height: 0;
+  /* ✅ annule le min-height hérité */
   background-color: var(--border-color);
   margin: 3px 0;
   padding: 0;
   list-style: none;
-  pointer-events: none; /* not clickable */
+  pointer-events: none;
+  /* not clickable */
 }
 
 .submenu-content {
   padding: 10px 12px;
-
   border-radius: 6px;
-
   min-height: 155px;
 }
 
@@ -224,7 +228,7 @@
 .db-prompt-box {
   position: absolute;
   z-index: 1000;
-  background:var(--underBox);
+  background: var(--underBox);
   border: 1px solid #ccc;
   padding: 6px;
   border-radius: 4px;
@@ -238,28 +242,31 @@
   padding: 4px 4px;
   white-space: nowrap;
   flex-shrink: 0;
- background-color:  var(--main-bg);
-   border: 1px solid #ccc;
+  background-color: var(--main-bg);
+  border: 1px solid #ccc;
   width: 80px;
   color: white
 }
 
 .db-prompt-box button:hover {
- background-color:var(--submenu-click-bg);
+  background-color: var(--submenu-click-bg);
 }
 
-.db-prompt-select{
-  outline:none;
+.db-prompt-select {
+  outline: none;
 
   background-color: light-grey;
-   border: 1px solid white;
+  border: 1px solid white;
 }
 
 .db-prompt-select:focus {
-  outline: none; /* supprime la bordure par défaut */
-  border: 1px solid #4ff195; /* bordure personnalisée au focus */
-  box-shadow: 0 0 3px #4ff195; /* optionnel : effet léger */
-} 
+  outline: none;
+  /* supprime la bordure par défaut */
+  border: 1px solid #4ff195;
+  /* bordure personnalisée au focus */
+  box-shadow: 0 0 3px #4ff195;
+  /* optionnel : effet léger */
+}
 
 
 
@@ -278,7 +285,26 @@
 
 .red-select {
   background-color: red;
-  color: white; /* pour rendre le texte lisible sur fond rouge */
+  color: white;
+  /* pour rendre le texte lisible sur fond rouge */
 }
 
+#versionInfo {
+  margin-left: auto;
+  padding-right: 15px;
+  font-size: 0.7em;
+  color: rgb(39, 97, 133);
+}
 
+#graphName {
+  margin-left: 9px;
+  width: 155px;
+  
+}
+
+#current-db {
+ font-family: Arial,sans-serif;
+    font-size: 14px;
+    text-shadow: none;
+   color: black
+}

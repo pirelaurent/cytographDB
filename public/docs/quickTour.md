@@ -1,12 +1,12 @@
 # Quick tour around demo  model 
 
-## main screen with demoCytoEnglish graph
+## main screen with democytoscapedb graph
 
-![demoCytoEnglish](./img/demoCytoEnglish.png)
+![democytoscapedb](./img/democytoscapedb.png)
 
-### demoCytoEnglish database
+### democytoscapedb database
 
-This fake DB can be created with the script [demoCytoEnglish.sql](./sql/demoCytoEnglish.sql) 
+This fake DB can be created with the script [democytoscapedb.sql](./sql/democytoscapedb.sql) 
 
 Menu ***DB -create graph from DB*** show available DBs in your Postgres. Choose one to create graph.
  

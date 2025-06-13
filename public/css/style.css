@@ -313,11 +313,7 @@ button:hover {
   padding-right: 15px;
 
 }
-#moreInfo {
-    margin-left: auto;
-  padding-right: 15px;
-    font-size: 0.8em;
-}
+
 
 .doc-link:hover {
   color: red;           /* couleur au survol */

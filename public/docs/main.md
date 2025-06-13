@@ -34,6 +34,6 @@ By using selection and filtering capabilities on nodes and edges, leveraging bot
 
 ---
 
-* #### [start project](./getttingStarted.md)
+#### [getting started](./getttingStarted.md)
 
 ---

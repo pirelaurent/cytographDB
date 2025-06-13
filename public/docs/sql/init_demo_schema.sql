@@ -1,12 +1,25 @@
+-- once democytodb db created , create tables and triggers
+psql -U postgres -d democytodb -f ./public/docs/sql/init_demo_schema.sql 
 
 
--- to be run with: psql -U postgres -f ./public/docs/sql/demoCytoEnglish.sql
 
--- Create the database
-CREATE DATABASE demoCytoEnglish;
+-- Supprimer les triggers
+DROP TRIGGER IF EXISTS trg_increment_points ON intervention;
+DROP TRIGGER IF EXISTS trg_check_authorization ON intervention;
 
--- Connect to the new database
-\connect demoCytoEnglish
+-- Supprimer les fonctions
+DROP FUNCTION IF EXISTS increment_activity_points() CASCADE;
+DROP FUNCTION IF EXISTS check_authorization_before_intervention() CASCADE;
+
+-- Supprimer les tables (dans l'ordre des dépendances inverses)
+DROP TABLE IF EXISTS intervention;
+DROP TABLE IF EXISTS "authorization";
+DROP TABLE IF EXISTS employee;
+DROP TABLE IF EXISTS line_product;
+DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS production_line;
+DROP TABLE IF EXISTS factory;
+DROP TABLE IF EXISTS company;
 
 
 -- COMPANIES
@@ -51,7 +64,7 @@ CREATE TABLE employee (
 );
 
 -- AUTHORIZATIONS: which production lines each employee is authorized to work on
-CREATE TABLE authorization (
+CREATE TABLE "authorization" (
     employee_id INT NOT NULL REFERENCES employee(id) ON DELETE CASCADE,
     production_line_id INT NOT NULL REFERENCES production_line(id) ON DELETE CASCADE,
     PRIMARY KEY (employee_id, production_line_id)
@@ -87,7 +100,7 @@ RETURNS TRIGGER AS $$
 BEGIN
     IF NOT EXISTS (
         SELECT 1
-        FROM authorization
+        FROM "authorization"
         WHERE employee_id = NEW.employee_id
           AND production_line_id = NEW.production_line_id
     ) THEN

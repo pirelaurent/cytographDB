@@ -673,7 +673,6 @@ document.getElementById("dataSelector").addEventListener("click", (e) => {
 
     // special trigers
     if (key == "hasTriggers") {
-      let info = document.getElementById("moreInfo");
 
       let totalTriggers = 0;
 
@@ -683,7 +682,7 @@ document.getElementById("dataSelector").addEventListener("click", (e) => {
           totalTriggers += triggers.length;
         }
       });
-      info.innerText = totalTriggers + " triggers";
+      alert(`${matchingNodes.length} selected nodes for ${totalTriggers} total triggers`);
     }
   }
 });

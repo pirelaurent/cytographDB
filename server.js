@@ -2,12 +2,15 @@
 import express from "express";
 import dotenv from "dotenv";
 import fs from "fs";
+import { readFile } from 'fs/promises';
 import path from "path";
 import { fileURLToPath } from "url";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 import pkg from "pg";
 const { Pool } = pkg;
+
 import { getPoolFor, getCurrentPool, getCurrentDBName } from "./db.js";
 import {
   collectFunctionBodies,
@@ -47,6 +50,14 @@ const GRAPH_DIR = path.join(__dirname, "saved-graphs");
 if (!fs.existsSync(GRAPH_DIR)) {
   fs.mkdirSync(GRAPH_DIR);
 }
+
+const pkgPath = path.join(__dirname, 'package.json');
+
+console.log(pkgPath)
+const pkgRaw = await readFile(pkgPath, 'utf-8');
+const appPkg = JSON.parse(pkgRaw);
+
+
 
 app.use(express.static("public"));
 
@@ -93,6 +104,7 @@ app.post("/load-from-db", async (req, res) => {
     const triggerRows = await client.query(triggerQuery); // ou client.query...
 
     //organize per table
+
     const triggersByTable = new Map();
 
     for (const row of triggerRows.rows) {
@@ -109,18 +121,9 @@ app.post("/load-from-db", async (req, res) => {
       triggersByTable.get(row.table_name).push(trigger);
     }
 
-    /* sample
-'bire_variant_version' => [
-    {
-      name: 'tiuda_bire_variant_version',
-      on: 'INSERT, DELETE, UPDATE',
-      timing: 'AFTER',
-      definition: 'EXECUTE FUNCTION func_tiuda_bire_variant_version()'
-    }
-  ],
-*/
-
-    // Build nodes  ⚡
+    /*
+     Build nodes 
+    */
     const nodes = tableNames.map((name) => {
       const allCols = columnMap[name] || [];
       const fkCols = fkColumnMap[name] ? [...fkColumnMap[name]] : [];
@@ -142,7 +145,9 @@ app.post("/load-from-db", async (req, res) => {
       return { data };
     });
 
-    // build edges
+    /* 
+     build edges
+     */
     const filteredEdges = fkResult.rows
       .filter(
         (e) => tableNames.includes(e.source) && tableNames.includes(e.target)
@@ -167,9 +172,10 @@ app.post("/load-from-db", async (req, res) => {
 
 /*
 
-Table list 
+Table details  
 
 */
+
 app.get("/table/:name", async (req, res) => {
   const pool = getCurrentPool();
   if (!pool) return res.status(400).send("No DB in place.");
@@ -185,6 +191,7 @@ app.get("/table/:name", async (req, res) => {
     }
 
     // check if table exist to avoid error
+
     try {
       await client.query(`SELECT 1 FROM "${table}" LIMIT 1`);
     } catch {
@@ -247,7 +254,7 @@ app.get("/api/databases", async (req, res) => {
     host: process.env.PGHOST,
     password: process.env.PGPASSWORD,
     port: process.env.PGPORT,
-    database: "postgres", // utiliser cette base temporairement
+    database: "postgres", // use default postgres db temporarily
   });
 
   let client;
@@ -269,7 +276,7 @@ app.get("/api/databases", async (req, res) => {
 });
 
 /*
- test for overwrite 
+ test for file overwrite 
 */
 app.get("/check-file", (req, res) => {
   const filename = req.query.filename;
@@ -286,6 +293,7 @@ app.get("/check-file", (req, res) => {
 /*
  save current graph on GRAPH_DIR directory on server 
 */
+
 app.post("/save-graph", (req, res) => {
   let { filename, data } = req.body;
   if (!filename.endsWith(".json")) {
@@ -305,6 +313,7 @@ app.post("/save-graph", (req, res) => {
 /*
  get list of files in GRAPH_DIR to be picked
 */
+
 app.get("/list-saves", (req, res) => {
   fs.readdir(GRAPH_DIR, (err, files) => {
     if (err) return res.status(500).send("Erreur lecture répertoire");
@@ -316,6 +325,7 @@ app.get("/list-saves", (req, res) => {
 /*
  Load a named graph from GRAPH_DIR 
 */
+
 app.get("/load-graph/:filename", (req, res) => {
   let filename = req.params.filename;
   if (!filename.endsWith(".json")) {
@@ -335,6 +345,7 @@ app.get("/load-graph/:filename", (req, res) => {
 /*
   generate an html page with list of selected nodes
 */
+
 app.post("/list-nodes", (req, res) => {
   const { nodes, selectedOnly } = req.body;
 
@@ -379,7 +390,9 @@ app.post("/connect-db", async (req, res) => {
 /*
  get code of a unique trigger and generate a result page
  used also to show a function code 
+ html result page is dynamically constructed here
 */
+
 app.get("/function", async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   const pool = getCurrentPool();
@@ -450,7 +463,7 @@ app.get("/triggers", async (req, res) => {
     return res.status(400).json({ error: "Missing table parameter" });
   }
 
-
+ // search keywords in source code 
 
   try {
     const { rows } = await client.query(triggerQuery);
@@ -533,6 +546,14 @@ app.get("/current-db", (req, res) => {
   } else {
     res.status(404).send("No connection to DB");
   }
+});
+
+/*
+ app version 
+*/
+
+app.get("/api/version", (req, res) => {
+  res.json({ version: appPkg.version });
 });
 
 

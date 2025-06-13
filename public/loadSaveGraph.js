@@ -44,7 +44,7 @@ export function connectToDb(menuItemElement) {
       setLocalDBName(dbName);
       document.getElementById(
         "current-db"
-      ).innerHTML = `<small>connected to </small><em>${dbName}</em>`;
+      ).innerHTML = `<small>connected to: </small> ${dbName}`;
 // clean current graph 
       cy.elements().remove();
       return res.text(); // ou `return dbName` si tu veux

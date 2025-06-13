@@ -1,5 +1,5 @@
-# cytoGraphDD
+# cytoGraphDB
 
-Graphic tools to analyze and display tables and relationships in a postgres Model
+Graphic tools to analyze and display tables and relationships in a postgreSQL data Model
 
-Have a look on documentation [cytoGraphDB docs ](./public/docs/main.md)
+See docs [cytoGraphDB docs ](./public/docs/main.md)

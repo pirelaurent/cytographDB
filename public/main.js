@@ -423,6 +423,8 @@ export function main() {
       }, 0); // ⚡ 0 millisecondes suffit pour passer au cycle suivant
     }
   });
+  cytogaphdb_version();
+
 } // main
 /*
  run main once dom is loaded 
@@ -467,6 +469,31 @@ function checkCurrentDb() {
       alert("Erreur : " + err.message);
     });
 }
+
+
+function cytogaphdb_version(){
+
+  fetch('/api/version')
+    .then(response => response.json())
+    .then(data => {
+      const versionElement = document.getElementById('versionInfo');
+      if (versionElement && data.version) {
+        versionElement.textContent = `cytographdb V${data.version}`;
+      } else {
+        versionElement.textContent = 'unknown version';
+      }
+    })
+    .catch(error => {
+      console.error('Erreur de récupération de la version :', error);
+      const versionElement = document.getElementById('versionInfo');
+      if (versionElement) {
+        versionElement.textContent = 'Erreur';
+      }
+    });
+}
+
+
+
 
 //------------- display counts ------------
 export function metrologie() {
@@ -514,7 +541,7 @@ export function setAndRunLayoutOptions(option) {
 
   let selectedNodes = perimeterForAction();
   if (selectedNodes.length < 4) {
-    alert("Warning: not enough nodes in layout (4 min).Check your selection");
+    alert("Warning: not enough nodes for layout (4 min). Verify your selection");
     return;
   }
   // add edges to selection to see them after reord

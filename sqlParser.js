@@ -43,9 +43,9 @@ export function extractCalledFunctions(text) {
   const raw = [...text.matchAll(/\b(PERFORM|SELECT|CALL)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g)].map(m => m[2]);
 
   return raw.filter(fn =>
-    /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(fn) &&  // identifiant SQL valide
-    isNaN(Number(fn)) &&                   // exclut les nombres comme "1"
-    !["true", "false", "null","concat"].includes(fn.toLowerCase())  // valeurs spéciales
+    /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(fn) &&  // identifiant SQL valid
+    isNaN(Number(fn)) &&                   // exclude numbers
+    !["true", "false", "null","concat","length"].includes(fn.toLowerCase())  // avoid 
   );
 }
 

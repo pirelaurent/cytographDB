@@ -45,7 +45,7 @@ export function connectToDb(menuItemElement) {
       document.getElementById(
         "current-db"
       ).innerHTML = `<small>connected to: </small> ${dbName}`;
-// clean current graph 
+      // clean current graph
       cy.elements().remove();
       return res.text(); // ou `return dbName` si tu veux
     });
@@ -250,7 +250,7 @@ function sendGraphState(filename) {
     });
 }
 /*
-
+ generate list of nodes label on a new html page 
 */
 export function sendNodeListToServer(selectedOnly = true) {
   let nodes;
@@ -274,6 +274,67 @@ export function sendNodeListToServer(selectedOnly = true) {
       win.document.body.innerHTML = html;
       win.document.close();
     });
+}
+
+/*
+ generate list of nodes label on a new html page 
+*/
+export function sendEdgeListToHtml(selectedOnly = true) {
+  let edges;
+  if (restrictToVisible()) {
+    edges = selectedOnly ? cy.edges(":selected:visible") : cy.edges(":visible");
+  } else {
+    edges = selectedOnly ? cy.edges(":selected") : cy.edges();
+  }
+
+  const sortedEdges = edges.sort((a, b) => {
+    const labelA = a.data("label") || "";
+    const labelB = b.data("label") || "";
+    return labelA.localeCompare(labelB);
+  });
+  //const names = edges.map((n) => n.data("id")).sort();
+
+  const win = window.open("", "nodeListWindow");
+
+  let outputLines = "<ul>";
+
+  sortedEdges.forEach((edge) => {
+    const label = edge.data("label");
+
+    //const classList = edge.classes(); // c'est une cytoscape collection
+    // Convertir en tableau de chaînes
+    //const classArray = Array.from(classList);
+    //let libelArray='';
+    //if( classArray.length>0) libelArray =`<br/>[${classArray.join(", ")}]`;
+    //${libelArray}
+
+    outputLines += ` 
+         <li>
+         ${label} 
+      <small>(
+      ${edge.source().id()} --> 
+      ${edge.target().id()}
+      )</small> 
+      </li>
+      `;
+  });
+  outputLines += "</ul>";
+
+  const html = `
+    <html>
+    <head><title>Edge List</title></head>
+    <body>
+      <h2>${selectedOnly ? "Selected Edges" : "All Edges"} (${
+    edges.length
+  })</h2>
+       ${outputLines}
+    </body>
+    </html>
+  `;
+  // ${edges.map((name) => `<li>${name}</li>`).join("")}
+  // win.document.write(html);
+  win.document.body.innerHTML = html;
+  win.document.close();
 }
 
 // uses sweetAlert to complicated here in synchrone code.
@@ -376,7 +437,6 @@ function promptDatabaseSelectionNear(targetElement) {
 
     const box = document.createElement("div");
     box.className = "db-prompt-box";
-    
 
     const select = document.createElement("select");
     select.className = "db-prompt-select";
@@ -459,8 +519,6 @@ function promptDatabaseSelectionNear(targetElement) {
     document.addEventListener("click", outsideClickHandler);
   });
 }
-
-
 
 function waitLoading(message) {
   document.getElementById("waitLoading").style.display = "block";

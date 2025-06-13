@@ -1,14 +1,16 @@
 # Quick tour around demo  model 
 
-## main screen with democytoscapedb graph
+## main screen with loaded demo graph
 
 ![democytoscapedb](./img/democytoscapedb.png)
 
-### democytoscapedb database
+### create graph from a DB
 
-This fake DB can be created with the script [democytoscapedb.sql](./sql/democytoscapedb.sql) 
 
-Menu ***DB -create graph from DB*** show available DBs in your Postgres. Choose one to create graph.
+Menu ***DB -create graph from DB*** 
+it show available DBs in your PostgreSQL. 
+Choose one to create graph.
+*democytoscapedb* is the fake DB used in documentation. To create by yourself, see files in *docs/sql*
  
 - Default layout is a *Cose-bilkent*. 
     To change: ***Display ->Layout ->*** some other

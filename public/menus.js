@@ -7,6 +7,7 @@ import {
   showOverlayWithFiles,
   saveGraphState,
   sendNodeListToServer,
+  sendEdgeListToHtml,
   saveGraphToFile,
   okToLoadGraph,
 } from "./loadSaveGraph.js";
@@ -640,6 +641,7 @@ export function menuEdges(option) {
       break;
 
     //--- select by data Snapshot done into function
+
     case "selectEdgesByCategory":
       fillInEdgesCategories();
       break;
@@ -678,6 +680,14 @@ export function menuEdges(option) {
       pushSnapshot();
       cy.edges().show();
       break;
+
+    case "listAllEdges":
+      sendEdgeListToHtml(false);
+      break;
+  case "listSelectedEdges":
+      sendEdgeListToHtml(true);
+      break;
+
 
     case "collapseAssociations":
       pushSnapshot();

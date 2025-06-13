@@ -222,12 +222,12 @@ export function main() {
       if( classArray.length>0) libelArray =`<br/>[${classArray.join(", ")}]`;
 
       output = ` 
-   ${edge.source().id()} --> 
-   ${edge.target().id()}
-   <br/><small>
-   (${label}) ${libelArray}
-  </small>
-   `;
+        ${edge.source().id()} --> 
+        ${edge.target().id()}
+        <br/><small>
+        (${label}) ${libelArray}
+        </small>
+      `;
       // debug  output+= Array.from(edge.classes()).join(' ');
     }
     document.getElementById("nodeDetails").innerHTML = output;

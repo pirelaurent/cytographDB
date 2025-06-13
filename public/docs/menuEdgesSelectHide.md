@@ -27,6 +27,10 @@ obvious.
 
 Show or hide the edge label on their respective lines. 
 
+## List 
+
+List edges informations on a new html page , all edges or selected only.
+
 ## data model 
 
 Specific actions dealing with a database. 

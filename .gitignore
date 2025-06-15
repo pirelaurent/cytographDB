@@ -3,7 +3,7 @@ node_modules/
 npm-debug.log*
 .env
 
-# OS
+# OS mac
 .DS_Store
 Thumbs.db
 
@@ -15,5 +15,14 @@ Thumbs.db
 logs
 *.log
 
-# save dir 
+# optional specfic categories not to be saved
+ 
+public/custom/*.js
+
+
+custom
+
+
+
+# save dir for results 
 saved-graphs

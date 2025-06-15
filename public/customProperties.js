@@ -2,7 +2,7 @@
  adaptation to specific database 
 */
 
-import {cy} from "./main.js";
+import {cy, addNativeProperties } from "./main.js";
 
 /*
  associated classes to separate nodes into catagories . 
@@ -44,19 +44,15 @@ export function createCustomAerowebbProperties(){
         const fkCols = node.data.foreignKeys || [];
         // association porteuse de sens ou pas
         const hasOnlyColsForFK = allCols.length === fkCols.length;
-        if (hasOnlyColsForFK) node.data("association", "true");
+        if (hasOnlyColsForFK) node.addClass("association");
       } else {
-        node.data("multiAssociation", "true");
+        node.addClass('multiAssociation');
       }
-    } else {
-      node.data("association", "false");
-    }
+    } 
 
     if (nbOut == 0 && nbIn == 0) {
-      node.data("orphan", "true");
-    } else {
-      node.data("orphan", "false");
-    }
+      node.addClass("orphan");
+    } 
     // type de couleurs spécial Aerowebb
 
     // spécial AW en se basant sur les noms de tables par domaine
@@ -65,7 +61,7 @@ export function createCustomAerowebbProperties(){
     if (match) {
       node.data("category", match[1]); // ex : 'h_bidm' ou 'bidm'
     }
-    if (node.id().startsWith("h_")) node.data("historic", "true");
+    if (node.id().startsWith("h_")) node.addClass("historic");
   });
 }
 
@@ -135,7 +131,7 @@ return [
   },
 
   {
-    selector: 'node[association = "true"]',
+    selector: 'node.association',
     style: {
       shape: "ellipse",
       color: "#222",
@@ -144,7 +140,7 @@ return [
     },
   },
   {
-    selector: 'node[multiAssociation = "true"]',
+    selector: 'node.multiAssociation',
     style: {
       shape: "ellipse",
       "border-width": 6,
@@ -154,14 +150,14 @@ return [
   },
 
   {
-    selector: 'node[orphan = "true"]',
+    selector: 'node.orphan',
     style: {
       shape: "octagon",
     },
   },
  
   {
-    selector: 'node[historic = "true"]',
+    selector: 'node.historic',
     style: {
       shape: "triangle",
       color: "black",

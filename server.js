@@ -139,7 +139,8 @@ app.post("/load-from-db", async (req, res) => {
       };
 
       if (trigs.length > 0) {
-        data.hasTriggers = trigs;
+        data.nativeCategories = ['hasTriggers'];
+        data.triggers = trigs;
       }
 
       return { data };
@@ -524,7 +525,7 @@ app.get("/triggers", async (req, res) => {
       })
     );
 
-    res.json({ hasTriggers: enriched });
+    res.json({ triggers: enriched });
   } catch (err) {
     console.error("Error querying triggers:", err);
     res

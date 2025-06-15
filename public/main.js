@@ -84,13 +84,12 @@ export function popSnapshot() {
   snapshot.selectedIds.forEach((id) => {
     const el = cy.getElementById(id);
     el.select();
-
   });
   cy.elements().removeClass("faded");
   cy.elements().show(); // réinitialise tout
   snapshot.hiddenIds.forEach((id) => cy.getElementById(id).hide());
 
-restoreProportionalSize();
+  restoreProportionalSize();
 
   //cy.fit(); // optionnel, pour bien voir le résultat
 }
@@ -172,11 +171,10 @@ export function main() {
       if (classArray.length > 0) {
         classInfo = `<small>[${classArray.join(", ")}]</small>`;
       }
-      
-   
+
       const data = node.data();
 
-/*    can be added to hover for debug   
+      /*    can be added to hover for debug   
    let dataInfo = "";
 
 
@@ -201,12 +199,12 @@ export function main() {
       output = `${data.id || ""} <br\>`;
       output += `<small>${outgoers} □ ${incomers} </small><br\>`;
 
-
       if (classInfo) output += ` ${classInfo}<br/> `;
-      // ${dataInfo}  can be added to hover for debug   
+      // ${dataInfo}  can be added to hover for debug
 
-      if (node.data("hasTriggers")) {
-        let nbTrigs = node.data("hasTriggers").length;
+      const categories = node.data("nativeCategories");
+      if (Array.isArray(categories) && categories.includes("hasTriggers")) {
+        let nbTrigs = node.data("triggers").length;
         if (nbTrigs > 0) {
           output += `<small>${nbTrigs} trigger(s)</small>`;
         }
@@ -218,8 +216,8 @@ export function main() {
 
       // Convertir en tableau de chaînes
       const classArray = Array.from(classList);
-      let libelArray='';
-      if( classArray.length>0) libelArray =`<br/>[${classArray.join(", ")}]`;
+      let libelArray = "";
+      if (classArray.length > 0) libelArray = `<br/>[${classArray.join(", ")}]`;
 
       output = ` 
         ${edge.source().id()} --> 
@@ -304,10 +302,10 @@ export function main() {
       }
     }
   });
-  // button undo 
+  // button undo
   document.getElementById("undo-btn").addEventListener("click", () => {
-  popSnapshot();
-});
+    popSnapshot();
+  });
 
   document.addEventListener("keyup", (e) => {
     if (e.key === "Control") {
@@ -384,11 +382,11 @@ export function main() {
     if (event.target === cy) {
       cy.elements().unselect();
       cy.edges(":selected").removeClass("internal outgoing incoming");
-    }  else if (event.target.isNode && event.target.isNode()) {
+    } else if (event.target.isNode && event.target.isNode()) {
       pushSnapshot();
-  } else if (event.target.isEdge && event.target.isEdge()) {
+    } else if (event.target.isEdge && event.target.isEdge()) {
       pushSnapshot();
-  }
+    }
   });
 
   // pouvoir déselectionner un rectangle en maintenant ctrl
@@ -424,7 +422,6 @@ export function main() {
     }
   });
   cytogaphdb_version();
-
 } // main
 /*
  run main once dom is loaded 
@@ -470,30 +467,25 @@ function checkCurrentDb() {
     });
 }
 
-
-function cytogaphdb_version(){
-
-  fetch('/api/version')
-    .then(response => response.json())
-    .then(data => {
-      const versionElement = document.getElementById('versionInfo');
+function cytogaphdb_version() {
+  fetch("/api/version")
+    .then((response) => response.json())
+    .then((data) => {
+      const versionElement = document.getElementById("versionInfo");
       if (versionElement && data.version) {
         versionElement.textContent = `cytographdb V${data.version}`;
       } else {
-        versionElement.textContent = 'unknown version';
+        versionElement.textContent = "unknown version";
       }
     })
-    .catch(error => {
-      console.error('Erreur de récupération de la version :', error);
-      const versionElement = document.getElementById('versionInfo');
+    .catch((error) => {
+      console.error("Erreur de récupération de la version :", error);
+      const versionElement = document.getElementById("versionInfo");
       if (versionElement) {
-        versionElement.textContent = 'Erreur';
+        versionElement.textContent = "Erreur";
       }
     });
 }
-
-
-
 
 //------------- display counts ------------
 export function metrologie() {
@@ -535,13 +527,14 @@ export function metrologie() {
 //----------- some layouts parameters
 
 export function setAndRunLayoutOptions(option) {
-
   let layoutName = option ?? "cose-bilkent";
   // choix du périmètre
 
   let selectedNodes = perimeterForAction();
   if (selectedNodes.length < 4) {
-    alert("Warning: not enough nodes for layout (4 min). Verify your selection");
+    alert(
+      "Warning: not enough nodes for layout (4 min). Verify your selection"
+    );
     return;
   }
   // add edges to selection to see them after reord
@@ -557,78 +550,77 @@ export function setAndRunLayoutOptions(option) {
 
   //console.log("setAndRunLayoutOptions:" + layoutName);
   //common
-let layoutOptions = {
-  name: layoutName,
-  animate: true,
-  nodeDimensionsIncludeLabels: true,
-  fit: true,
-};
+  let layoutOptions = {
+    name: layoutName,
+    animate: true,
+    nodeDimensionsIncludeLabels: true,
+    fit: true,
+  };
 
-switch (layoutName) {
-  case "dagre":
-    Object.assign(layoutOptions, {
-      rankDir: "LR",           // Left to Right
-      nodeSep: 50,
-      edgeSep: 10,
-      rankSep: 100,
-      numIter: 1000,
-    });
-    break;
+  switch (layoutName) {
+    case "dagre":
+      Object.assign(layoutOptions, {
+        rankDir: "LR", // Left to Right
+        nodeSep: 50,
+        edgeSep: 10,
+        rankSep: 100,
+        numIter: 1000,
+      });
+      break;
 
-  case "cose":
-    Object.assign(layoutOptions, {
-      nodeRepulsion: 1000000,
-      gravity: 10,
-      // idealEdgeLength: 100,
-      // edgeElasticity: 0.4,
-      // numIter: 1000,
-    });
-    break;
+    case "cose":
+      Object.assign(layoutOptions, {
+        nodeRepulsion: 1000000,
+        gravity: 10,
+        // idealEdgeLength: 100,
+        // edgeElasticity: 0.4,
+        // numIter: 1000,
+      });
+      break;
 
-  case "cose-bilkent":
-    Object.assign(layoutOptions, {
-      name: "cose-bilkent", // redéclaré explicitement si nécessaire
-      nodeRepulsion: 1000000,
-      idealEdgeLength: 160,
-      edgeElasticity: 0.1,
-      gravity: 0.25,
-      numIter: 1000,
-    });
-    break;
+    case "cose-bilkent":
+      Object.assign(layoutOptions, {
+        name: "cose-bilkent", // redéclaré explicitement si nécessaire
+        nodeRepulsion: 1000000,
+        idealEdgeLength: 160,
+        edgeElasticity: 0.1,
+        gravity: 0.25,
+        numIter: 1000,
+      });
+      break;
 
-  case "circle":
-    Object.assign(layoutOptions, {
-      avoidOverlap: true,
-      padding: 30,
-      numIter: 1000,
-    });
-    break;
+    case "circle":
+      Object.assign(layoutOptions, {
+        avoidOverlap: true,
+        padding: 30,
+        numIter: 1000,
+      });
+      break;
 
-  case "breadthfirst":
-    const roots = selectedNodes.filter((n) =>
-      n.incomers("edge").length === 0
-    );
-    Object.assign(layoutOptions, {
-      orientation: "horizontal",
-      directed: true,
-      spacingFactor: 0.7,
-      roots: roots,
-    });
-    break;
+    case "breadthfirst":
+      const roots = selectedNodes.filter(
+        (n) => n.incomers("edge").length === 0
+      );
+      Object.assign(layoutOptions, {
+        orientation: "horizontal",
+        directed: true,
+        spacingFactor: 0.7,
+        roots: roots,
+      });
+      break;
 
-  case "elk":
-    Object.assign(layoutOptions, {
-      algorithm: "layered",
-      direction: "RIGHT",
-      spacing: 50,
-      nodePlacement: "BRANDES_KOEPF",
-    });
-    break;
-}
+    case "elk":
+      Object.assign(layoutOptions, {
+        algorithm: "layered",
+        direction: "RIGHT",
+        spacing: 50,
+        nodePlacement: "BRANDES_KOEPF",
+      });
+      break;
+  }
 
-selection.layout(layoutOptions).run();
-cy.fit();
-
+  selection.layout(layoutOptions).run();
+  cy.fit();
 }
 
 //-------------------
@@ -707,7 +699,7 @@ export function restoreProportionalSize() {
   //console.log("restore  size");
   cy.nodes().forEach((node) => {
     const degree = node.data("degree");
-    if (degree>=0) {
+    if (degree >= 0) {
       const size = mapValue(degree, 1, 40, 20, 100);
       node.style({ width: size, height: size });
     }
@@ -718,4 +710,15 @@ export function mapValue(value, inMin, inMax, outMin, outMax) {
   const clamped = Math.max(inMin, Math.min(value, inMax));
   const ratio = (clamped - inMin) / (inMax - inMin);
   return outMin + ratio * (outMax - outMin);
+}
+
+/*
+ add a set of entries [ a,b,c] into nativeProperties 
+ at this day, add native to index.html to see the option
+*/
+
+export function addNativeProperties(element, props) {
+  const current = element.data('nativeCategories') || [];
+  const merged = Array.from(new Set([...current, ...props]));
+  element.data('nativeCategories', merged);
 }

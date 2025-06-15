@@ -5,6 +5,7 @@ import {
   perimeterForAction,
   restrictToVisible,
   pushSnapshot,
+  addNativeProperties
 } from "./main.js";
 
 //------------------------
@@ -184,57 +185,56 @@ export function follow(direction = "outgoing") {
     return;
   }
 
- let nodesMarked = new Set();
-let edgesToShow = new Set();
+  let nodesMarked = new Set();
+  let edgesToShow = new Set();
 
-const restrict = restrictToVisible();
-const allowedNodes = new Set(
-  (restrict ? cy.nodes(":visible") : cy.nodes()).map(n => n.id())
-);
+  const restrict = restrictToVisible();
+  const allowedNodes = new Set(
+    (restrict ? cy.nodes(":visible") : cy.nodes()).map((n) => n.id())
+  );
 
-selectedNodes.forEach((node) => {
-  const nodeId = node.id();
+  selectedNodes.forEach((node) => {
+    const nodeId = node.id();
 
-  if (direction === "outgoing" || direction === "both") {
-    node
-      .outgoers(restrict ? "edge:visible" : "edge")
-      .filter((e) => !e.hasClass("simplified"))
-      .forEach((edge) => {
-        const target = edge.target();
-        if (allowedNodes.has(target.id())) {
-          nodesMarked.add(target.id());
-          edgesToShow.add(edge.id());
-        }
-      });
-  }
+    if (direction === "outgoing" || direction === "both") {
+      node
+        .outgoers(restrict ? "edge:visible" : "edge")
+        .filter((e) => !e.hasClass("simplified"))
+        .forEach((edge) => {
+          const target = edge.target();
+          if (allowedNodes.has(target.id())) {
+            nodesMarked.add(target.id());
+            edgesToShow.add(edge.id());
+          }
+        });
+    }
 
-  if (direction === "incoming" || direction === "both") {
-    node
-      .incomers(restrict ? "edge:visible" : "edge")
-      .filter((e) => !e.hasClass("simplified"))
-      .forEach((edge) => {
-        const source = edge.source();
-        if (allowedNodes.has(source.id())) {
-          nodesMarked.add(source.id());
-          edgesToShow.add(edge.id());
-        }
-      });
+    if (direction === "incoming" || direction === "both") {
+      node
+        .incomers(restrict ? "edge:visible" : "edge")
+        .filter((e) => !e.hasClass("simplified"))
+        .forEach((edge) => {
+          const source = edge.source();
+          if (allowedNodes.has(source.id())) {
+            nodesMarked.add(source.id());
+            edgesToShow.add(edge.id());
+          }
+        });
 
-    // simplifiés non-orientés
-    node
-      .connectedEdges(restrict ? ":visible" : "")
-      .filter((e) => e.hasClass("simplified"))
-      .forEach((edge) => {
-        const other =
-          edge.source().id() === nodeId ? edge.target() : edge.source();
-        if (allowedNodes.has(other.id())) {
-          nodesMarked.add(other.id());
-          edgesToShow.add(edge.id());
-        }
-      });
-  }
-});
-
+      // simplifiés non-orientés
+      node
+        .connectedEdges(restrict ? ":visible" : "")
+        .filter((e) => e.hasClass("simplified"))
+        .forEach((edge) => {
+          const other =
+            edge.source().id() === nodeId ? edge.target() : edge.source();
+          if (allowedNodes.has(other.id())) {
+            nodesMarked.add(other.id());
+            edgesToShow.add(edge.id());
+          }
+        });
+    }
+  });
 
   // Cacher uniquement les arêtes non souhaitées NE MARCHE PAS en cas de nouvel essai
   nodesMarked.forEach((id) => {
@@ -334,7 +334,7 @@ export function collapseAssociations() {
   }
   let done = 0;
   nodes.forEach(function (node) {
-    if (node.data("association") !== "true") return;
+    if (!node.hasClass("association")) return;
 
     let outEdges = node.outgoers("edge");
     let shouldSelect = outEdges.some((e) => e.selected());
@@ -359,15 +359,6 @@ export function collapseAssociations() {
       const width = node.style("width");
       const height = node.style("height");
 
-      let backup = {
-        id: node.id(),
-        label: node.data("label") || node.id(),
-        position: node.position(),
-        style: node.style(),
-        classes: node.classes(),
-        hasTriggers: node.data("hasTriggers")
-      };
-
       // Add the generated edge
 
       cy.add({
@@ -378,17 +369,19 @@ export function collapseAssociations() {
           source: a.id(),
           target: b.id(),
           generated: true,
-          originalNode: backup.id,
-          originalLabel: backup.label,
-          originalStyle: JSON.stringify(backup.style), // styles doivent être sérialisés
-          originalPosition: JSON.stringify(backup.position),
-          originalClasses: backup.classes.join(" "),
+          originalNode: node.id(),
+          originalLabel: node.data("label") || node.id(),
+          originalStyle: JSON.stringify(node.style()),
+          originalPosition: JSON.stringify(node.position()),
+          originalClasses: node.classes().join(" "),
           originalWidth: width,
           originalHeight: height,
-          originalHasTriggers:  backup.hasTriggers,
+          originalHasTriggers: node.data("hasTriggers"),
+          originalTriggers: node.data("triggers"),
+          originalNativeCategories: node.data("nativeCategories"),
           collapsed_association: true,
         },
-        classes: "simplified", // todo replace usage by collapsedAssociation
+        classes: "simplified",
         selected: shouldSelect,
       });
 
@@ -446,7 +439,9 @@ export function restoreAssociations() {
         id: originalId,
         label: originalLabel,
         association: "true",
-        hasTriggers: edge.data("originalHasTriggers")  //PLA
+        hasTriggers: edge.data("originalHasTriggers"), //PLA
+        triggers: edge.data("originalTriggers"),
+        nativeCategories: edge.data("originalNativeCategories"),
       },
       position: position,
     });
@@ -517,7 +512,7 @@ export async function generateTriggers() {
   const nodes = perimeterForAction();
 
   const nodesWithTriggers = nodes.filter((node) => {
-    const trigs = node.data("hasTriggers");
+    const trigs = node.data("triggers");
 
     return Array.isArray(trigs) && trigs.length > 0;
   });
@@ -537,13 +532,13 @@ export async function generateTriggers() {
       return;
     }
 
-    if (!data || data.hasTriggers.length === 0) {
+    if (!data || data.triggers.length === 0) {
       alert(`no trigger for table ${node.id()}`);
       return;
     }
 
     const allImpacted = new Set();
-    data.hasTriggers.forEach((t) => {
+    data.triggers.forEach((t) => {
       //must calculate impacted table
       (t.impactedTables || []).forEach((tbl) => allImpacted.add(tbl));
     });
@@ -564,9 +559,11 @@ export async function generateTriggers() {
               label: "trigger generated",
               source: table,
               target: target,
-              trigger_generated: true,
             },
           });
+          edge.addClass("trigger_generated");
+          addNativeProperties(edge,["trigger_generated"]);
+          edge.native
           edge.show();
           targetNode.show(); // facultatif si déjà visible
         }
@@ -616,6 +613,7 @@ export function fillInNodesCategories() {
         allKeys.add(key);
       }
     });
+    node;
   });
 
   // show results
@@ -652,40 +650,29 @@ export function fillInNodesCategories() {
   });
 }
 
-/*
- install listener on parent and filter directly with data selected
-*/
-document.getElementById("dataSelector").addEventListener("click", (e) => {
-  const target = e.target;
+export function selectNodesByNativeCategories(aCategory) {
+  const nodes = perimeterForAction();
 
-  if (target.matches("li.dynamic-data-key")) {
-    const key = target.getAttribute("data-key");
-
-    // Exemple : sélectionner les nœuds ayant cette clé
-    const matchingNodes = cy.nodes().filter((n) => {
-      const data = n.data();
-      return data.hasOwnProperty(key) && data[key] != null;
-    });
-    pushSnapshot();
-    cy.nodes().unselect();
-    matchingNodes.select();
-    cy.fit(matchingNodes, 50);
-
-    // special trigers
-    if (key == "hasTriggers") {
-
-      let totalTriggers = 0;
-
-      matchingNodes.forEach((node) => {
-        const triggers = node.data("hasTriggers");
-        if (Array.isArray(triggers)) {
-          totalTriggers += triggers.length;
-        }
-      });
-      alert(`${matchingNodes.length} selected nodes for ${totalTriggers} total triggers`);
+  nodes.forEach((node) => {
+    const categories = node.data("nativeCategories");
+    if (Array.isArray(categories) && categories.includes(aCategory)) {
+      node.select();
     }
-  }
-});
+  });
+}
+
+export function selectEdgesByNativeCategories(aCategory) {
+  const edges = cy.edges();
+
+  edges.forEach((edge) => {
+    console.log(edge.data("nativeCategories"));
+    const categories = edge.data("nativeCategories");
+    if (Array.isArray(categories) && categories.includes(aCategory)) {
+      edge.select();
+    }
+  });
+}
+
 
 /*
  selection of edges by categories 
@@ -698,7 +685,7 @@ export function fillInEdgesCategories() {
     "target",
     "category",
     "hidden",
-    "generated"
+    "generated",
   ];
 
   const edges = cy.edges();

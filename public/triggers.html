@@ -84,12 +84,12 @@
                 return;
             }
 
-            if (!data || data.hasTriggers.length === 0) {
+            if (!data || data.triggers.length === 0) {
                 document.getElementById("content").innerHTML = "<p>No triggers defined.</p>";
                 return;
             }
 
-            const rows = data.hasTriggers.map(t => {
+            const rows = data.triggers.map(t => {
 
                 const fnLink = (t.functionNames && t.functionNames.length > 0)
                     ? t.functionNames.map(fn =>
@@ -128,45 +128,6 @@
           <tbody>${rows}</tbody>
         </table>
       `;
-            /*
-             intercept weave ????old button ???
-       
-            document.getElementById('associateTriggersBtn').addEventListener('click', async () => {
-                const allImpacted = new Set();
-
-                data.hasTriggers.forEach(t => {
-              
-                    (t.impactedTables || []).forEach(tbl => allImpacted.add(tbl));
-                });
-
-                const impacted= Array.from(allImpacted);
-                const payload = {
-                    source: table, impacted
-                };
-
-                try {
-                    const res = await fetch('/api/trigger-links', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (res.ok) {
-                        const msg = await res.json();
-                        alert(msg.message);
-                    } else {
-                        const err = await res.json();
-                        alert(`Erreur : ${err.error}`);
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert('Erreur réseau ou serveur.');
-                }
-
-        });
-
-       */
-
         }
         main();
     </script>

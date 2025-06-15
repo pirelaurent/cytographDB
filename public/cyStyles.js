@@ -108,7 +108,7 @@ export const cyStyles = [
 
   // add a class edge.addClass et edge.removeClass
   {
-    selector: "edge[trigger_generated]",
+    selector: "edge.trigger_generated",
     style: {
       "line-color": "darkOrchid",
       "target-arrow-color": "darkOrchid",
@@ -119,7 +119,7 @@ export const cyStyles = [
   },
 
 {
-    selector: "edge[trigger_generated]:selected",
+    selector: "edge.trigger_generated:selected",
     style: {
       width: 4,
     },

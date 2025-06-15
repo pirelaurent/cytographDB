@@ -41,6 +41,8 @@ import {
   generateTriggers,
   fillInNodesCategories,
   fillInEdgesCategories,
+  selectNodesByNativeCategories,
+  selectEdgesByNativeCategories,
 } from "./selectors.js";
 
 import { createCustomProperties } from "./customProperties.js";
@@ -390,6 +392,10 @@ export function menuNodes(option) {
       fillInNodesCategories();
       break;
 
+    case "nodeHasTriggers":
+      selectNodesByNativeCategories("hasTriggers");
+      break;
+
     //---------- hide nodes -
 
     /*
@@ -646,6 +652,15 @@ export function menuEdges(option) {
       fillInEdgesCategories();
       break;
 
+case "edgeIsTriggerGenerated":
+   selectEdgesByNativeCategories("trigger_generated");
+   break;
+
+
+
+
+
+
     case "labelShow":
       cy.edges().addClass("showLabel");
       break;
@@ -684,10 +699,9 @@ export function menuEdges(option) {
     case "listAllEdges":
       sendEdgeListToHtml(false);
       break;
-  case "listSelectedEdges":
+    case "listSelectedEdges":
       sendEdgeListToHtml(true);
       break;
-
 
     case "collapseAssociations":
       pushSnapshot();

@@ -5,7 +5,7 @@ import {
   perimeterForAction,
   restrictToVisible,
   pushSnapshot,
-  addNativeProperties
+  addNativeCategories
 } from "./main.js";
 
 //------------------------
@@ -439,7 +439,7 @@ export function restoreAssociations() {
         id: originalId,
         label: originalLabel,
         association: "true",
-        hasTriggers: edge.data("originalHasTriggers"), //PLA
+        hasTriggers: edge.data("originalHasTriggers"), 
         triggers: edge.data("originalTriggers"),
         nativeCategories: edge.data("originalNativeCategories"),
       },
@@ -562,7 +562,7 @@ export async function generateTriggers() {
             },
           });
           edge.addClass("trigger_generated");
-          addNativeProperties(edge,["trigger_generated"]);
+          addNativeCategories(edge,["trigger_generated"]);
           edge.native
           edge.show();
           targetNode.show(); // facultatif si déjà visible

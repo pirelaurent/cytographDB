@@ -77,7 +77,9 @@ export function loadInitialGraph() {
     .then((res) => res.json())
     .then((data) => {
       resetPositionStackUndo();
+
       initializeGraph(data);
+
       hideWaitLoading();
       proportionalSizeNodeSizeByLinks();
       setAndRunLayoutOptions();

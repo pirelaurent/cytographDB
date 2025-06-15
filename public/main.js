@@ -1,7 +1,10 @@
 "use strict";
 
 import { cyStyles } from "./cyStyles.js";
-import { createCustomProperties, getCustomStyles } from "./customProperties.js";
+import { createCustomCategories, getCustomStyles } from "./customCategories.js";
+import './customCategoriesIndex.js';
+
+
 
 // global var
 let postgresConnected = false;
@@ -50,7 +53,6 @@ export function pushSnapshot() {
   // Ajouter en haut de la pile
   positionStackUndo.push(snapshot);
 
-  //console.log("PLA: pushSnapshot:" + positionStackUndo.length);
 
   // limit to a max
   if (positionStackUndo.length > maxUndo) {
@@ -75,7 +77,7 @@ export function popSnapshot() {
     console.log("No snapshot — reset?");
     return;
   }
-  //console.log("PLA: popSnapshot:" + positionStackUndo.length);
+
 
   cy.elements().remove();
   cy.json(snapshot.json);
@@ -131,16 +133,16 @@ export function main() {
   // autre layout
   cytoscape.use(cytoscapeDagre);
 
-  mergedStyles = cyStyles.concat(getCustomStyles());
-
   cy = cytoscape({
     container: document.getElementById("cy"),
     elements: [],
-    style: mergedStyles,
     boxSelectionEnabled: true, // ✅ OBLIGATOIRE pour pouvoir draguer
     autounselectify: false, // ✅ Permet sélection multiple
     wheelSensitivity: 0.5, // Valeur par défaut = 1
   });
+
+ 
+
   document.getElementById("cy").style.backgroundColor = "white";
 
   //--------- set events'trap for cy
@@ -437,8 +439,10 @@ function openTable(tableId) {
     alert("no connection to database. Connect first to the original DB");
     return;
   }
-  //@todo checker qu'on a bien la bonne base ouverte avec checkCurrentDb
-  checkCurrentDb();
+  //@ todo checker qu'on a bien la bonne base ouverte avec setCurrent_db
+  //WARNING async below bad code 
+  // @todo save db used with graoh, then compare at uload 
+  // checkWithCurrent_db();
 
   window.open(
     `/table.html?name=${tableId}&currentDBName=${localDBName}`,
@@ -450,17 +454,20 @@ function openTable(tableId) {
  and diplay name on the top of screen
 
 */
-function checkCurrentDb() {
+function setCurrent_db() {
+
+  // the name is on server. Bring back to nav code
   fetch("/current-db")
     .then((res) => {
       if (!res.ok) throw new Error("no database connected");
       return res.json();
     })
     .then((data) => {
+      let current_db = data.dbName;
       //alert("currently connected to : " + data.dbName);
       document.getElementById(
         "current-db"
-      ).innerHTML = `<em>${data.dbName}</em>`;
+      ).innerHTML = ` DB:<em>${current_db}</em>`;
     })
     .catch((err) => {
       alert("Erreur : " + err.message);
@@ -629,17 +636,28 @@ export function initializeGraph(data, fromDisk = false) {
   cy.elements().remove();
   cy.add(data);
 
-  // customize nodes
-  createCustomProperties();
+ let current_db = getLocalDBName();
 
+  // customize nodes // PLA a relayer coté front : getXurrentDBName 
+
+
+  createCustomCategories(current_db); // PLQ
+
+  let moreStyles = getCustomStyles(current_db); 
+  //console.log(JSON.stringify(moreStyles));
+  let mergedStyles = cyStyles.concat(moreStyles);
+  cy.style(mergedStyles).update();
+ 
   cy.once("layoutstop", () => {});
 
-  //PLA : avoid layout when come from disk
+  //avoid layout when come from disk
   if (!fromDisk) {
     setAndRunLayoutOptions();
   }
   metrologie();
 }
+
+
 /*
  fix the perimer of actions
  if selection : acts on selection
@@ -717,8 +735,20 @@ export function mapValue(value, inMin, inMax, outMin, outMax) {
  at this day, add native to index.html to see the option
 */
 
-export function addNativeProperties(element, props) {
+export function addNativeCategories(element, props) {
   const current = element.data('nativeCategories') || [];
   const merged = Array.from(new Set([...current, ...props]));
   element.data('nativeCategories', merged);
+}
+
+
+/*
+ add a set of entries [ a,b,c] into nativeProperties 
+ at this day, add native to index.html to see the option
+*/
+
+export function addCustomCategories(element, props) {
+  const current = element.data('customCategories') || [];
+  const merged = Array.from(new Set([...current, ...props]));
+  element.data('customCategories', merged);
 }

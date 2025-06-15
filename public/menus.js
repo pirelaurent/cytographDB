@@ -45,7 +45,7 @@ import {
   selectEdgesByNativeCategories,
 } from "./selectors.js";
 
-import { createCustomProperties } from "./customProperties.js";
+import { createCustomCategories } from "./customCategories.js";
 /*
  connect an html menu object to a treatment function with action selected
 */
@@ -711,7 +711,7 @@ case "edgeIsTriggerGenerated":
     case "restoreAssociations":
       pushSnapshot();
       restoreAssociations();
-      createCustomProperties();
+      createCustomCategories(getLocalDBName());
       break;
 
     case "selectAssociations":

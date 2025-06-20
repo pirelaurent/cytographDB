@@ -10,4 +10,9 @@ The simple graph below is taken from the test database used in this documentatio
 <img src="./public/docs/img/simpleGraph.png" alt="simple graph" width="400">
 
 
-After installing the application, you can access the documentation in the application or browse it directly: [CytographDB main documentation](https://github.com/pirelaurent/cytographDB/blob/main/public/docs/main.md)
+After installing the application, you can access the documentation in the application or browse it directly here: 
+[CytographDB main documentation](https://github.com/pirelaurent/cytographDB/blob/main/public/docs/main.md)
+
+## License
+
+This project is licensed under the GNU General Public License v3.0 – see the [LICENSE](./LICENSE) file for details.

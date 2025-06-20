@@ -1,3 +1,19 @@
+// Copyright (C) 2025 Laurent P.
+// This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 "use strict";
 
 import { customCategories } from "./customCategories.js";
@@ -5,7 +21,7 @@ import {
   cy,
   perimeterForAction,
   restrictToVisible,
-  addNativeCategories
+  addNativeCategories,
 } from "./main.js";
 
 //------------------------
@@ -337,7 +353,7 @@ export function collapseAssociations() {
     let outEdges = node.outgoers("edge");
     let inEdges = node.incomers("edge");
 
-    if ((outEdges.length !=2)||(inEdges.length != 0)) return;
+    if (outEdges.length != 2 || inEdges.length != 0) return;
 
     let shouldSelect = outEdges.some((e) => e.selected());
 
@@ -441,7 +457,7 @@ export function restoreAssociations() {
         id: originalId,
         label: originalLabel,
         association: "true",
-        hasTriggers: edge.data("originalHasTriggers"), 
+        hasTriggers: edge.data("originalHasTriggers"),
         triggers: edge.data("originalTriggers"),
         nativeCategories: edge.data("originalNativeCategories"),
       },
@@ -564,8 +580,8 @@ export async function generateTriggers() {
             },
           });
           edge.addClass("trigger_impact");
-          addNativeCategories(edge,["trigger_impact"]);
-          edge.native
+          addNativeCategories(edge, ["trigger_impact"]);
+          edge.native;
           edge.show();
           targetNode.show(); // facultatif si déjà visible
         }
@@ -587,7 +603,6 @@ export async function generateTriggers() {
 */
 
 export function fillInGuiNodesCustomCategories() {
-
   // find position in menus
   const container = document.getElementById("customList");
   // create or get submenu
@@ -608,10 +623,10 @@ export function fillInGuiNodesCustomCategories() {
     li.setAttribute("data-key", key);
     li.textContent = key;
     li.addEventListener("click", () => {
-    selectNodesByCustomcategories(key);
-  });
+      selectNodesByCustomcategories(key);
+    });
     submenu.appendChild(li);
-  };
+  }
 }
 
 /*
@@ -619,9 +634,9 @@ export function fillInGuiNodesCustomCategories() {
   filter nodes 
 */
 
- function selectNodesByCustomcategories(aCategory){
-    const nodes = perimeterForAction();
-      nodes.forEach((node) => {
+function selectNodesByCustomcategories(aCategory) {
+  const nodes = perimeterForAction();
+  nodes.forEach((node) => {
     const categories = node.data("customCategories");
     if (Array.isArray(categories) && categories.includes(aCategory)) {
       node.select();
@@ -632,7 +647,6 @@ export function fillInGuiNodesCustomCategories() {
 /*
   discrete native categories are set in index.html with dedicated actions 
 */
-
 
 export function selectNodesByNativeCategories(aCategory) {
   const nodes = perimeterForAction();
@@ -645,7 +659,6 @@ export function selectNodesByNativeCategories(aCategory) {
   });
 }
 
-
 export function selectEdgesByNativeCategories(aCategory) {
   const edges = cy.edges();
 
@@ -656,84 +669,3 @@ export function selectEdgesByNativeCategories(aCategory) {
     }
   });
 }
-
-
-/*
- selection of edges by categories -- not mature --next : use node sample
-
-export function fillInEdgesCategories() {
-  const excludedKeys = [
-    "id",
-    "label",
-    "source",
-    "target",
-    "category",
-    "hidden",
-    "generated",
-  ];
-
-  const edges = cy.edges();
-
-  const allKeys = new Set();
-
-  edges.forEach((edge) => {
-    const data = edge.data();
-
-    Object.keys(data).forEach((key) => {
-      if (data[key] !== undefined) {
-        if (!key.startsWith("original")) allKeys.add(key);
-      }
-    });
-  });
-
-  const filteredKeys = [...allKeys].filter(
-    (key) => !excludedKeys.includes(key)
-  );
-
-  if (filteredKeys.length == 0) {
-    alert(" no categories within current edges");
-    return;
-  }
-
-  const container = document.getElementById("dataSelectorEdges"); // a container for edge custom
-  let submenu = container.querySelector(".submenu");
-  if (!submenu) {
-    submenu = document.createElement("ul");
-    submenu.classList.add("submenu");
-    container.appendChild(submenu);
-  }
-
-  submenu.querySelectorAll("li.dynamic-data-key").forEach((el) => el.remove());
-
-  filteredKeys.forEach((key) => {
-    const li = document.createElement("li");
-    li.classList.add("dynamic-data-key");
-    li.setAttribute("data-key", key);
-    li.textContent = key;
-    submenu.appendChild(li);
-  });
-}
-  */
-
-
-/*
- when a category is clicked, select 
-
-document.getElementById("dataSelectorEdges").addEventListener("click", (e) => {
-  const target = e.target;
-
-  if (target.matches("li.dynamic-data-key")) {
-    const key = target.getAttribute("data-key");
-
-    const matchingEdges = cy.edges().filter((e) => {
-      const data = e.data();
-      return data.hasOwnProperty(key) && data[key] != null;
-    });
-
-    pushSnapshot();
-    cy.edges().unselect();
-    matchingEdges.select();
-    cy.fit(matchingEdges, 50);
-  }
-});
-*/

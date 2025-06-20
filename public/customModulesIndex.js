@@ -5,4 +5,4 @@
 import './custom/democytodb.js';
 
 // adding myModule
-import './custom/myModule.js';
+//import './custom/myModule.js';

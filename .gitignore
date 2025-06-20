@@ -1,0 +1,25 @@
+# Node
+node_modules/
+npm-debug.log*
+.env
+
+# OS mac
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
+
+# Logs
+logs
+*.log
+
+# optional specfic categories not to be saved
+ 
+/public/custom/*
+!/public/custom/democytodb.js
+
+
+# exclude save dir for results on server 
+saved-graphs

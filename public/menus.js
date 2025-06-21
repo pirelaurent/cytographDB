@@ -50,9 +50,7 @@ import {
 
 import {
   follow,
-  //followBoth,
-  // followIncoming,
-  // followOutgoing,
+
   followCross,
   collapseAssociations,
   restoreAssociations,

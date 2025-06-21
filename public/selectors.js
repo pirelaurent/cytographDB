@@ -26,195 +26,35 @@ import {
 
 //------------------------
 
-/*
- some operation works on selected in priority, otherwise on all 
- Against checkbox visibility : 
-  work only on visible 
-  or work on all nodes, visible or not 
- Against selected nodes exists : 
-  act only on selected 
-  act on all nodes  
-*/
 
 /*
- add nodes that follow an outgoing edge 
-*/
-
-export function followOutgoing(selectedNodes) {
-  if (selectedNodes == null) {
-    // not perimeterForAction to avoid full nodes.
-    selectedNodes = restrictToVisible()
-      ? cy.nodes(":visible:selected")
-      : cy.nodes(":selected");
-    if (selectedNodes.length === 0) {
-      alert("no selected nodes");
-      return;
-    }
-  }
-
-  let nodesMarked = new Set();
-  let edgesToShow = new Set();
-
-  // Marquer les nœuds cibles et les arêtes sortantes valides
-  selectedNodes.forEach(function (node) {
-    const outgoingEdges = node
-      .outgoers("edge")
-      .filter((e) => !e.hasClass("simplified"));
-
-    outgoingEdges.forEach((edge) => {
-      const target = edge.target();
-      nodesMarked.add(target.id());
-      edgesToShow.add(edge.id());
-    });
-  });
-
-  // Cacher toutes les arêtes des nœuds à afficher, pour éviter les arêtes parasites
-  nodesMarked.forEach((id) => {
-    const node = cy.getElementById(id);
-    node.connectedEdges().forEach((edge) => {
-      if (!edgesToShow.has(edge.id())) {
-        edge.hide();
-      }
-    });
-  });
-
-  // Afficher et sélectionner uniquement les nœuds ciblés
-  nodesMarked.forEach((id) => {
-    const node = cy.getElementById(id);
-    node.show();
-    node.select();
-  });
-
-  // Réinitialiser la sélection visuelle
-  cy.nodes(":selected").css("z-index", 100);
-  cy.nodes(":unselected").css("z-index", 10);
-
-  // Afficher uniquement les arêtes choisies
-  cy.edges().unselect();
-  edgesToShow.forEach((id) => {
-    const edge = cy.getElementById(id);
-    edge.show();
-    edge.select();
-  });
-}
-
-/*
- incomers pursuit
-*/
-export function followIncoming(selectedNodes) {
-  if (selectedNodes == null) {
-    selectedNodes = restrictToVisible()
-      ? cy.nodes(":visible:selected")
-      : cy.nodes(":selected");
-    if (selectedNodes.length === 0) {
-      alert("no selected nodes");
-      return;
-    }
-  }
-
-  let nodesMarked = new Set();
-  let edgesToShow = new Set();
-
-  selectedNodes.forEach(function (node) {
-    // Arêtes entrantes (hors simplifiées)
-    const incomingEdges = node
-      .incomers("edge")
-      .filter((e) => !e.hasClass("simplified"));
-
-    incomingEdges.forEach((edge) => {
-      const source = edge.source();
-      nodesMarked.add(source.id());
-      edgesToShow.add(edge.id());
-    });
-
-    // Arêtes "simplifiées" (non orientées) associatives
-    const simplifiedEdges = node
-      .connectedEdges()
-      .filter((e) => e.hasClass("simplified"));
-
-    simplifiedEdges.forEach((edge) => {
-      const otherNode =
-        edge.source().id() === node.id() ? edge.target() : edge.source();
-      nodesMarked.add(otherNode.id());
-      edgesToShow.add(edge.id());
-    });
-  });
-
-  // Cacher toutes les arêtes des nœuds marqués pour éviter le bruit visuel
-  nodesMarked.forEach((id) => {
-    const node = cy.getElementById(id);
-    node.connectedEdges().forEach((edge) => {
-      if (!edgesToShow.has(edge.id())) {
-        edge.hide();
-      }
-    });
-  });
-
-  // Afficher et sélectionner les nœuds d’origine
-  nodesMarked.forEach((id) => {
-    const node = cy.getElementById(id);
-    node.show();
-    node.select();
-  });
-
-  cy.nodes(":selected").css("z-index", 100);
-  cy.nodes(":unselected").css("z-index", 10);
-
-  cy.edges().unselect();
-
-  edgesToShow.forEach((id) => {
-    const edge = cy.getElementById(id);
-    edge.show();
-    edge.select();
-  });
-}
-
-/*
- cannot use outgoing then incoming as perimeter of selected had changed
-*/
-
-export function followBoth() {
-  let selectedNodes = restrictToVisible()
-    ? cy.nodes(":visible:selected")
-    : cy.nodes(":selected");
-
-  let nbSelectBefore = selectedNodes.length;
-  if (nbSelectBefore == 0) {
-    alert("no selected nodes");
-    return;
-  }
-  followOutgoing(selectedNodes);
-  followIncoming(selectedNodes);
-}
-
-/*
- factorisation . défaut ougoing sinon 'incoming' ou 'both'
+ factorisation . défault outgoing supports 'incoming' ou 'both'
 */
 
 export function follow(direction = "outgoing") {
   // not perimeterForAction to avoid full nodes.
-  let selectedNodes = restrictToVisible()
-    ? cy.nodes(":visible:selected")
-    : cy.nodes(":selected");
+  let selectedNodes =  cy.nodes(":visible:selected")
   if (selectedNodes.length === 0) {
-    alert("no selected nodes");
+    alert("no selected nodes to follow");
     return;
   }
 
   let nodesMarked = new Set();
   let edgesToShow = new Set();
 
-  const restrict = restrictToVisible();
+  //const restrict = restrictToVisible();
+  // allow everywhere 
   const allowedNodes = new Set(
-    (restrict ? cy.nodes(":visible") : cy.nodes()).map((n) => n.id())
+     cy.nodes().map((n) => n.id())
   );
+
 
   selectedNodes.forEach((node) => {
     const nodeId = node.id();
 
     if (direction === "outgoing" || direction === "both") {
       node
-        .outgoers(restrict ? "edge:visible" : "edge")
+        .outgoers("edge")
         .filter((e) => !e.hasClass("simplified"))
         .forEach((edge) => {
           const target = edge.target();
@@ -227,7 +67,7 @@ export function follow(direction = "outgoing") {
 
     if (direction === "incoming" || direction === "both") {
       node
-        .incomers(restrict ? "edge:visible" : "edge")
+        .incomers("edge")
         .filter((e) => !e.hasClass("simplified"))
         .forEach((edge) => {
           const source = edge.source();
@@ -239,7 +79,7 @@ export function follow(direction = "outgoing") {
 
       // simplifiés non-orientés
       node
-        .connectedEdges(restrict ? ":visible" : "")
+        .connectedEdges()
         .filter((e) => e.hasClass("simplified"))
         .forEach((edge) => {
           const other =
@@ -285,7 +125,7 @@ export function follow(direction = "outgoing") {
 /*
  when an association node is selected by a side, 
  continue with node linked to the other side 
- So selection 'cross' the ssociation. 
+ So selection 'cross' the association. 
  If collapsed, will select through simplified edges 
  */
 
@@ -542,14 +382,19 @@ export async function generateTriggers() {
 
   for (const aNode of nodesWithTriggers) {
     let table = aNode.id();
-    const response = await fetch(`/triggers?table=${table}`);
-    const data = await response.json();
+    let data;
+    try {
+      const response = await fetch(`/triggers?table=${table}`);
+       data = await response.json();
 
-    if (!response.ok) {
-      alert(`${data.error}`);
-      return;
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}`);
+      }
+    } catch (error) {
+      console.error(`Error fetching triggers for table ${table}:`, error);
+      alert("🚫 Database is not accessible. Please check your connection.");
+      break; // on peut arrêter la boucle ici si ça ne sert à rien de continuer
     }
-
     if (!data || data.triggers.length === 0) {
       alert(`no trigger for table ${node.id()}`);
       return;

@@ -63,7 +63,7 @@
             <li action="localUpload">Upload</li>
 
 
-<!--  uncomment to use a shared storage on the server 
+            <!--  uncomment to use a shared storage on the server 
 
 
         <li class="separator"></li>
@@ -361,22 +361,22 @@
                   <span class="label">generate trigger impacts</span>
                 </li>
 
-                    <li action="collapseAssociations">
-                      <span class="label">collapse association</span>
-                    </li>
-                    <li action="restoreAssociations">
-                      <span class="label">restore association</span>
-                    </li>
+                <li action="collapseAssociations">
+                  <span class="label">collapse association</span>
+                </li>
+                <li action="restoreAssociations">
+                  <span class="label">restore association</span>
+                </li>
               </ul>
             </li>
 
             <li data-category="filterEdges">filter &gt;
 
-                  <ul class="submenu">
-                    <li action="edgeIsTriggerGenerated">generated triggers </li>
-                    <li action="edgeIsACollapsedNode">collapsed associations</li>
-                  </ul>
-                </li>
+              <ul class="submenu">
+                <li action="edgeIsTriggerGenerated">generated triggers </li>
+                <li action="edgeIsACollapsedNode">collapsed associations</li>
+              </ul>
+            </li>
 
             <li class="separator"></li>
 
@@ -388,6 +388,10 @@
       <!-- Controls -->
       <button id="undo-btn" title="Undo (Ctrl+Z)">
         <img src="./img/rollback2.png" alt="Undo" style="width: 20px; height: 20px;">
+      </button>
+      <button id="btn-export" title="PNG Snapshot">
+        <img src="./img/redCapture.png" alt="PNG Snapshot" style="width: 22px; height: 22px;">
+
       </button>
 
       <span class="labelPrevious">select</span>

@@ -7,12 +7,23 @@ Menus and submenus appear on hover and disappear when the cursor leaves.
 
 ---
 
-## 🔁 Undo
+## <img src ="../img/rollback2.png" height =20px/> Undo
 
 The **counterclockwise symbol** in the menu restores the previous state.  
 You can also use the keyboard shortcut **Ctrl + Z**.
 
 ---
+
+
+## <img src ="../img/redCapture.png" height =25px/> PNG Snapshot
+
+This button captures the current view of the graph and prompts you to download it as a PNG image.
+
+---
+## Hover toggle 
+
+Displays element details when the cursor hovers over them.
+
 
 ## 🔎 Select Mode: OR / AND
 

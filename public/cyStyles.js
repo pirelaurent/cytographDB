@@ -45,17 +45,16 @@ export const cyStyles = [
     selector: "edge",
     style: {
       width: 2,
-      "line-color": "#aaa",
-      "target-arrow-color": "#aaa",
+      "line-color": "#888",
+      "target-arrow-color": "#888",
       "target-arrow-shape": "vee",
       "arrow-scale": 1.2,
       "curve-style": "straight",
       label: "",
       "font-size": "8px",
       "text-rotation": "autorotate",
-      "line-color": "#ccc",
       "target-arrow-shape": "triangle",
-      "target-arrow-color": "#ccc",
+
     },
   },
   {

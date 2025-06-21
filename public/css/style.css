@@ -60,21 +60,24 @@ button:hover {
   color: black;
   /* au choix */
 }
-#undo-btn {
+#undo-btn,#btn-export {
   all: unset;
   cursor: pointer;
-  padding: 4px;
+  padding: 8px;
   border-radius: 4px;
 }
 
-#undo-btn:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+#undo-btn:hover{
+  background-color: cornsilk;
 }
 
 #undo-btn:active {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
+#btn-export:hover {
+  background-color: cornsilk;
+} 
 
 
 .metrologie {
@@ -345,8 +348,8 @@ button:hover {
 }
 
 .smallPerim {
-  font-size: 0.8em;
-  color: lightgrey;
+  font-size: 0.9em;
+  color: cornsilk;
 }
 
 

@@ -273,7 +273,7 @@ export function metrologie() {
   // ------------ edges info
 
   const labelEdges = document.querySelector("#EdgesId");
-  display = `Edges&nbsp;&nbsp;&nbsp; <small>${selectedEdges}/${allEdges}&nbsp;</small>`;
+  display = `Edges&nbsp;&nbsp;&nbsp; ${small}${selectedEdges}/${allEdges}&nbsp;</span>`;
   labelEdges.innerHTML = display;
 
   /* const labelDelete = document.querySelector(

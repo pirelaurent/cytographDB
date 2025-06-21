@@ -329,4 +329,19 @@ export function setInterceptors() {
   */
 
   document.getElementById("cy").style.backgroundColor = "white";
+/*
+ add capture png
+*/
+document.getElementById("btn-export").addEventListener("click", () => {
+    const png = cy.png({ full: false, scale: 2, bg: 'white' });
+
+    const link = document.createElement("a");
+    link.href = png;
+    link.download = "graph-capture.png";
+    link.click();
+  });
+
+
+
 } // setInterceptor
+

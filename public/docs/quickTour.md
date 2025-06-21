@@ -1,85 +1,106 @@
-# Quick tour around demo  model 
+# Quick Tour of the Demo Model
 
-## main screen with loaded democytodb graph
+## Main Screen: Loaded `democytodb` Graph
 
 ![democytoscapedb](./img/democytoscapedb.png)
 
-### create graph from a DB
+---
 
+### Create a Graph from a Database
 
-Menu ***DB -create graph from DB*** 
--shows available DBs in your PostgreSQL. 
--Choose one to create graph.
-*democytoscapedb* is the empty demo DB used in this documentation. To create by yourself, see *install* 
- 
-- Default layout is a *Cose-bilkent*. 
-- nodes have for label the table name 
-- under the label ***stars represent trigger*** if any (look at *intervention table* )
-- pure ***association tables*** have a round shape , others a rounded rectangle. 
-- Size is proportional to degree ( number of edges) 
+From the menu: **DB → Create graph from DB**
 
-### basic informations 
+- Displays available PostgreSQL databases
+- Select one to generate its graph  
+- The demo database used here is `democytoscapedb` (empty by default). To generate it yourself, see the [Installation Guide](./install.md)
+
+**Default graph layout**: `Cose-Bilkent`  
+**Node labels**: table names  
+- ⭐ Stars beneath labels indicate triggers (e.g., in the *intervention* table)  
+- 🔵 **Association tables**: round shape  
+- 🟦 Other tables: rounded rectangles  
+- 🔠 Node size is proportional to degree (number of edges)
+
+---
+
+### Node Hover: Basic Information
 
 ![basicInformation](./img/basicInformations.png)
 
-When ***hover*** is on ,the cursor show info on node:  name, number of ***outgoing edges (FK)***, number of ***incoming edges*** (referenced by a FK). 
-Edges are colored against their orientations and non implied elements are faded while hovering.
+When hovering over a node:
+- Name of the table
+- **Outgoing edges** (foreign keys)
+- **Incoming edges** (referenced by other tables)
 
-#### hver menu 
+Edges are color-coded by orientation. Unrelated elements are faded for clarity.
 
-A right mouse click on a node display a menu to access details:
-![hoverMenu](./img/hoverMenu.png) 
+---
 
+### Right-Click Node Menu
 
-----
-### Table definition sample
+Right-click on a node to access its contextual menu:
+
+![hoverMenu](./img/hoverMenu.png)
+
+---
+
+### Sample: Table Definition
 
 ![tableDefinition](./img/table-intervention.png)
 
-----
-### trigger definition sample
+---
+
+### Sample: Trigger Definition
 
 ![triggerDefinition](./img/trigger-intervention.png)
 
-### impacted tables
+---
 
-The column show the result of a syntaxic analysis of code looking for operation *Update,Delete,Create* in source code. 
-In this sample ***employee*** was found in the detailed code below with an *update* clause. 
+### Impacted Tables
 
-----   
+This view shows the result of code analysis identifying `UPDATE`, `DELETE`, or `CREATE` operations.
 
+In the example below, the `employee` table was referenced via an `UPDATE` clause:
 
-### details of code 
+---
+
+### Trigger Code Details
 
 ![triggerDefinition](./img/function-intervention-code.png)
 
---- 
-## adding triggers impacts to network 
+---
 
-Use of impacted tables of a source table : 
+## Visualizing Trigger Impacts in the Network
 
-Menus: ***Edges ->datamodel->generate triggers impact***  add new edges with specific color and line-style. 
+To visualize tables impacted by triggers:
+
+From the menu:  
+**Edges → Data Model → Generate Trigger Impact**
+
+This adds new, specially styled edges to represent trigger-based relationships:
 
 ![triggerNetwork](./img/triggerNetwork.png)
 
-These special edges can be retrieved and selected by : 
-**Edges->filter- trigger_impact**  (think about clicking on each step) 
+To filter and highlight these edges:  
+**Edges → Filter → `trigger_impact`**  
+*(Make sure to click through each step.)*
 
---- 
+---
 
-## Reduce associations 
+## Reducing Association Tables
 
-To lighten a graph, simple associations can be shrinked into a new edge category (simplified) and a new visual style. 
-Moving cursor over a edge show the details with in the middle the name of the shrinked association table.
+To simplify the graph, basic association tables can be collapsed into stylized edges.
+
+Hovering over such an edge reveals the name of the collapsed association table:
 
 ![reduceAssociations](./img/collapseAssociations.png)
 
-This way of reducing association simplify a graph that become closer to its MCD ancestor. 
+This approach brings the graph closer to a conceptual model (MCD).
 
-- a ***simple association*** table that can be collapsed is defined as 
-    - only two outgoing edges
-    - no proprietary column, only those involved in FKs
-- be aware that orientation (in/out) has been arbitrarily choosen and is no more significant. 
+A table is eligible for **collapse** if:
+- It has exactly **two outgoing foreign keys**
+- It contains **no proprietary columns** (only foreign keys)
+
+⚠️ The edge direction becomes arbitrary after collapsing and may no longer carry semantic meaning.
 
 ---
- 

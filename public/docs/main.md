@@ -1,31 +1,35 @@
+# <img src="./img/pep-inno2.png" style="width: 40px; vertical-align: top;" /> CytographDB
 
+## Overview
 
-# <img src ="./img/pep-inno2.png" style ="width : 40px;  vertical-align: top;" />CytographDB
+**CytographDB** transforms a PostgreSQL schema into an interactive, directed graph using schema introspection:
 
-## Features
+- Each **table** is represented as a **node**
+- Each **foreign key** is rendered as a **directed edge** between nodes
 
-- Generate a directed graph from a PostgreSQL schema using introspection:
-    - Each table is a *node*
-    - Each foreign key defines a directed *edge* between nodes
+This graph-based representation supports large and complex schemas, with color-coded links that enhance the visibility of table relationships.
 
-The graph supports large schemas and uses color-coded links to visualize table dependencies.
+<img src="./img/aNetwork.png" style="width: 500px;">
 
- <img src ="./img/aNetwork.png" style ="width : 500px;">   
+With powerful selection, filtering, and path traversal features—spanning both visible and hidden graph layers—CytographDB helps users to:
 
-By using selection and filtering capabilities on nodes and edges—leveraging both visible and hidden layers—and traversing paths between nodes, users can more easily:
+- Visualize and explore table dependencies  
+- Identify logical and functional consistency domains  
+- Detect and document business aggregates  
+- Save and reload business-relevant subsets to communicate the model effectively
 
-- Visualize and navigate table dependencies  
-- Distinguish logical or functional consistency domains 
-- Identify and document business aggregates  
-- Save and reload relevant business-level subsets to better explain the model
+---
 
+## Documentation
 
+- ▶️ [Quick Tour](./quickTour.md)  
+- 🧭 [Main Menu Bar](./menuBar.md)  
+- 🟦 [Node Menu](./menuNodesSelectHide.md)  
+- 🟥 [Edge Menu](./menuEdgesSelectHide.md)  
 
-#### [Quick tour ](./quickTour.md)
-#### [Main menu Bar](./menuBar.md)
-#### [Menu Nodes](./menuNodesSelectHide.md)
-#### [Menu Edges](./menuEdgesSelectHide.md)
---- 
-#### [Customization](./customization.md)
---- 
-#### [Installation](./install.md)
+---
+
+## Configuration
+
+- 🎨 [Customization Options](./customization.md)  
+- ⚙️ [Installation Guide](./install.md)  

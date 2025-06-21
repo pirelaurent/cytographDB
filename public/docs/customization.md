@@ -1,75 +1,86 @@
-# Customization 
+# 🎨 Customization
 
-To enhance a specific database graph one can add : 
-- custom styles for choosen tables 
-- custom tags to filter elements 
+You can enhance your graph for a specific database by adding:
+- Custom styles for selected tables
+- Custom tags to enable element filtering
 
-## Extension points : customModules 
+---
 
-On loading a graph, the code call the following internal methods: 
+## 🔌 Extension Points: `customModules`
 
-``` js
+When a graph is loaded, the app automatically calls two internal methods:
+
+```js
 getCustomStyle();
-createCustomCategories(); 
+createCustomCategories();
 ```
 
-These methods can be automatically relayed to custom modules that rewrite there own equivalent methods. 
+You can override these methods by defining your own versions in a custom module.
 
-in the module must be declared the overlapping function 
+### Example Custom Module
 
-``` js
+```js
 import { cy } from "../main.js";
 import { addCustomCategories, registerCustomModule } from "../customCategories.js";
 
-// declare module inline with expected functions
 const myModule = {
- getCustomStyles(){
-  //some code taht return an array 
- },
-  createCustomCategories(){
-//some code to ass classes and tags to nodes 
+  getCustomStyles() {
+    // Return an array of styling rules
+  },
+  createCustomCategories() {
+    // Add custom classes and tags to nodes
   }
+};
 
- } 
- //module must registered itself with one or several dbnames in order to be loaded such a DB is used.
- registerCustomModule("myDBtest", myModule);
- registerCustomModule("myDBstaging", myModule);
-``` 
+// Register the module with DB names it applies to
+registerCustomModule("myDBtest", myModule);
+registerCustomModule("myDBstaging", myModule);
+```
 
+---
 
-## Create your own customization module
+## 🧱 Create Your Own Custom Module
 
-#### create a *myModule.js*  file 
- use democytodb.js as a sample 
+1. **Create a `myModule.js` file**  
+   Use `democytodb.js` as a reference template.
 
-#### deposit your file into public/custom 
+2. **Place the file in**:  
+   `public/custom`
 
-As an opensource, this app cannot embark customer code by inadvertence.
-Putting a file under *custom* prevents from an upload in repository  using **.gitignore** 
-``` bash
-# optional specfic categories not to be saved
+> 📁 This folder is excluded from version control to protect user-specific code.
+
+####  `.gitignore` Rule
+
+```bash
+# Optional: exclude custom modules except for democytodb.js
 /public/custom/*
 !/public/custom/democytodb.js
-``` 
+```
 
-## weave the module  
+---
 
-Your module must be imported within the application to be operationnal 
+## 🧵 Weave Your Module Into the App
 
-### patch customModulesIndex.js 
+To activate your module:
 
-``` javascript
+1. **Edit `customModulesIndex.js`**  
+   Add your import in the custom block:
+
+```js
 /*
-    set here import to let modules visible into the application
-    set  them into ./custom  directory as this one is out of the git upload 
+  Add imports for custom modules here
+  Modules must be placed in the ./custom directory (not versioned)
 */
+
 import './custom/democytodb.js';
 
-// ------------ adding myModule -----------------
+// ----- Add your module below -----
 import './custom/myModule.js';
-``` 
-restart the application. 
+```
 
-Each time you pen a db named *myDBtest* or *myDBstaging* myModule will be called to adapt aspect and tags of the generated graph. 
+2. **Restart the application**
 
----- 
+✅ From now on, whenever you open a DB named `myDBtest` or `myDBstaging`,  
+the `myModule` customization will be applied automatically.
+
+---

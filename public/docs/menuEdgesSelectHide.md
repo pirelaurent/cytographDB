@@ -1,92 +1,125 @@
-# Menu Edges
+# Edge Menu
 
-![MenuEdges](./img/edgesMenu.png)
+![Edge Menu](./img/edgesMenu.png)
 
-#### status 
-In the Edges main menu are informations about selected and hidden nodes  
- ( 0 / 11 ) **Edges:  0 Selected / 11 Visibles** 
+---
 
-## Select menu
+## 📊 Status
 
-Can also select edges by click,  shift-click on the screen
+Displays selected and visible edges:  
+Example: `(0 / 11)` → **0 Selected / 11 Visible**
 
-- all
-- none
-- swap selected 
-- edges from selected nodes
-    - all edges
-    - outgoing edges 
-    - incoming edges 
-    - edges connected nodes : search egdes tha can rely currently selected nodes
+---
 
- ### comparing with menu : nodes > follow & show
+## 🔍 Select
 
- Quite the same selection except that the node at the extremity of a selected edge is not selected here. Only the edge.    
+Edges can be selected directly via:
+- Click
+- Shift + Click
 
-## Hide 
+Menu options:
 
-- none
-- not selected
-- selected
-- swap  (selected)
+- **All** → Select all visible edges
+- **None** → Deselect all edges
+- **Swap Selected** → Invert current selection
+- **Edges from Selected Nodes**:
+  - **All Edges** → All edges connected to selected nodes
+  - **Outgoing Edges** → Only edges going out of selected nodes
+  - **Incoming Edges** → Only incoming edges to selected nodes
+  - **Edges Between Selected Nodes** → Select edges connecting currently selected nodes
 
-## Label aspect
+💡 **Comparison:**  
+Similar to **Nodes > Follow & Show**, except this selects only the edges—**not** the terminal nodes.
 
-Show or hide the edge label on their respective lines. 
-edge links are enlarged and name of the fk (if fk link) is written on it. 
+---
 
-<img src ="./img/edgeLabels.png" width ="500px" />
+## 🙈 Hide
 
-## List 
-Apply to current scope (all if no selected, selected if any)
+- **None** → Show all edges
+- **Not Selected** → Hide all except selected edges
+- **Selected** → Hide selected edges
+- **Swap** → Invert visible and hidden edges
 
-List edges informations on a new html page.
+---
 
-```authorization_employee_id_fkey ( authorization --> employee )```
+## 🏷️ Label Display
 
-## data model 
+Toggle edge labels and visual emphasis:
 
-Specific actions dealing with a database. 
+- Highlights edge lines
+- Displays the foreign key name (if applicable)
 
-### generate triggers impacts 
+<img src="./img/edgeLabels.png" width="500px" />
 
-Need to be connected to the original database for this graph. 
+---
 
-Analyse all source code of triggers and associated functions to find operations CrUD on other tables meaning an impact.  
-The generated edge is oriented : from owner of the trigger to impacted table. 
-These edges have their own color. 
+## 📋 List Edges
 
-See ***[quick tour ](./quickTour.md)*** for example.
+Generates an HTML file listing edge details based on current scope:
 
-### collapse association 
+Format example:  
+```authorization_employee_id_fkey (authorization --> employee)```
 
-when a table B is a strict association ( 2 fk, no other property) thie entry : 
-- delete the node from the graph 
-- create a direct link between A and C, the tables associated through B
-- the edge is not oriented graphically using balls instead of arrow
-    - internally the edge is oriented as cytograph has no unoriented edge in a general oriented network.
-    - be careful using incoming/outgoing actions , not relevant for this kind 
-- the generated label remembers the name of the assocation table at origin. 
+---
 
+## 🧩 Data Model Actions
 
-<img src ="./img/collapsedLabel.png" width ="500px" />
+Special functions for advanced structural modifications:
 
-### restore  association 
+### 🔁 Generate Trigger Impacts
 
-Restore the original node B at middle place between A and B as the previous places on screen were lost.
+⚠️ Requires connection to the **original database** used to build the graph.
 
-## Filter
-A way to select generated edges in the graph 
+- Analyzes all trigger and function code
+- Identifies CRUD operations that imply impact on other tables
+- Adds **oriented edges** from the trigger's source table to the impacted table
+- Edges are styled distinctly
 
-- generated triggers 
-- collapsed associations 
+📖 See the [Quick Tour](./quickTour.md) for visuals.
 
+---
 
-- native category : category set by the application. For edges there is no custom category in this version. ( nodes have)
+### 🔄 Collapse Associations
 
-Select edges with dynamic added category : ***must click on  "by category >"*** to retrieve available categories before a choice. 
-## delete selected 
+For **strict association tables** (2 foreign keys, no extra columns):
 
- remove definitively the edges from the graph.
+- Removes the association node
+- Creates a **direct edge** between the linked tables (A → C)
+- Edge is visually **non-oriented** (uses circles, not arrows)
+- Internally, orientation still exists (for compatibility with Cytograph)
 
-----
+⚠️ **Caution** when using actions based on edge direction—these may not behave as expected with collapsed associations.
+
+- The label retains the original association table name
+
+<img src="./img/collapsedLabel.png" width="500px" />
+
+---
+
+### ♻️ Restore Association
+
+Restores the original association node between tables.  
+Note: The exact screen position may be lost during restoration.
+
+---
+
+## 🧼 Filter
+
+Select specific generated edge types:
+
+- **Generated Triggers**
+- **Collapsed Associations**
+- **Native Categories** (predefined types)
+
+⚠️ Edges do **not** currently support custom categories.
+
+💡 **Tip:** Use **"By Category >"** to load available options before selecting.
+
+---
+
+## 🗑️ Delete Selected
+
+Permanently removes selected edges from the graph.  
+Undo is **not mentioned** here—use cautiously.
+
+---

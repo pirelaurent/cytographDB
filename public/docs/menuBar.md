@@ -1,120 +1,121 @@
-
 # Menu Bar
 
-![all menus](./img/allMenus.png)
+![All Menus](./img/allMenus.png)
 
-
-Menus and submenus appear on hover and disappear when cursor leaves their positions.
-***Better to click on each entry to fix them temporarily.***
-
-### Undo symbol
-
-the ***counterclockwise symbol*** in menu restore a previous state. 
-***Ctrl-z*** do the same with keyboard rtcut.
-
-#### Select: OR / AND
-
-By default (OR) a new selection is added to the currently selected elements.
-
-The **AND** option will apply the selection criteria ***only on selected elements***.
-
-**Advice:** Don't forget to return to **OR** once done otherwise further select can have no results.   
-
----
-## Scope of actions 
-
-#### acts on *Visible/All*
-
- ***Visible*** target only visible elements , main case. 
-
- ***All*** In some cases, it's useful to include hidden elements in the action.  
- 
- As main case : ***follow menus*** can be allowed to search into hidden elements to  bring back linked ones to visible plan. 
-
-
- #### automatic scoping 
-
-- if *selected nodes* actions apply to the selection 
-- if no selection, actions target whole graph (according to *Visible or ALL* )
-
-#### Visualize the current scope 
-
-
-In the status, current scope is using highlighted and bigger numbers :
-No selection: action will apply to all nodes ( 9 in democytodb)
-![scoepAll](./img/scope9.png)
-action only on the 4 selected 
-![scoepAll](./img/scope4.png)
-actson ALL (not restrict to Visible) action will apply to 9 nodes
-![scoepAll](./img/scope6-3.png)
-
----
-### DB
-
-#### create graph from DB
-  - Choose a  DB in select box 
-  - OK will construct its graphic representation. 
-
-#### connect to DB only 
-
-When you upload a json graph saved by dowload , it is autonomous and has no more link to any database.  
-To access to the tables'details , you must connect to the DB to be used with this saved graph. 
-
-***be aware of connecting to the DB used when graph was created***
-
---- 
-
-### Files 
-
-Used to save graph as a json document
-
-#### Upload /  Download
-
-- through Navigator 
-
-#### Input box '*Graph Name*' 
-
-You can give here a name for the download file ( avoid to modified within navigator )
-
---- 
-
-### Display 
-
-#### fit screen
-
- Works out of scope as one can fit a graph with both kind of nodes. 
- **All** : whole graph is resized to fit in screen
- **Selected**: zoom enough to have all selected nodes in the screen. 
-
-
-#### layout >
-Apply to current scope : can reorganize parts by selecction. 
-Collection of algorithms to self organize nodes and edges.  
-Successive calls can give different results.
-Some can use huge place :nodes are so far that quite invisible.  Try fit screen,  zoom, resize  or change layout.  
-Better to try.
-Undo wil work. 
-
-#### move >
-
-  You can drag a single node with the mouse.
-  You can drag the set of selected nodes by moving an element.
-
-##### resize >
-
-Allow to expand or contract the scoped graph in the two directions. 
-
-##### align and Distribute >
-
-organize nodes on a same axis.
-distribute equally the space betwween extremes 
-
-##### rotate >
-Apply to current scope.  
-Rotates the selection  by 15°.
-Labels allways remain horizontally oriented.
-Useful when modes label overlap horizontally.   
+Menus and submenus appear on hover and disappear when the cursor leaves.  
+💡 **Tip:** Click on a menu entry to keep it temporarily open.
 
 ---
 
+## 🔁 Undo
 
+The **counterclockwise symbol** in the menu restores the previous state.  
+You can also use the keyboard shortcut **Ctrl + Z**.
+
+---
+
+## 🔎 Select Mode: OR / AND
+
+- **OR (default):** Adds new selections to the current selection.
+- **AND:** Applies the selection criteria **only to already selected elements**.
+
+💡 **Advice:** Switch back to **OR** after using **AND**—further selections may otherwise return no results.
+
+---
+
+## 🎯 Action Scope
+
+### Visible / All
+
+- **Visible:** Applies only to elements currently visible (default).
+- **All:** Includes hidden elements—useful for operations like *follow links* to restore hidden nodes.
+
+### Automatic Scoping
+
+- If nodes are **selected**, actions apply only to them.
+- If **no selection**, actions apply to the entire graph (based on Visible/All toggle).
+
+### 🔍 Scope Visualization
+
+The current scope is displayed in the status bar, with emphasized numbers:
+
+- **No selection** → action applies to all nodes (e.g., 9 in `democytodb`):  
+  ![Scope All](./img/scope9.png)
+
+- **Selection of 4 nodes** → action applies only to those:  
+  ![Scope 4](./img/scope4.png)
+
+- **ALL mode with 6 visible and 3 hidden nodes** → action applies to all 9:  
+  ![Scope 6-3](./img/scope6-3.png)
+
+---
+
+## 🗃️ DB Menu
+
+### Create Graph from DB
+
+- Select a database from the dropdown.
+- Click **OK** to generate the graph.
+
+### Connect to DB Only
+
+Graphs loaded from a saved JSON file are disconnected from the database.  
+To access **table details**, reconnect to the **original database** used when the graph was created.
+
+⚠️ Ensure you're connecting to the same DB used to generate the graph.
+
+---
+
+## 📁 Files
+
+Used to save and load graph data in JSON format.
+
+### Upload / Download
+
+- Use the browser's file dialog.
+
+### Graph Name Input
+
+- Assign a name to your downloaded graph.
+- 💡 Avoid renaming via your file navigator—use this field instead.
+
+---
+
+## 🖥️ Display Options
+
+### Fit Screen
+
+- **All:** Zooms to fit the entire graph.
+- **Selected:** Zooms to fit only selected nodes.
+
+### Layout >
+
+Applies layout algorithms to reorganize the current scope.
+
+- A variety of algorithms are available.
+- Some layouts may spread nodes very far—use **fit screen**, **zoom**, or try a different layout.
+- Layout results can vary with each execution.
+
+🔁 **Undo** is supported.
+
+### Move >
+
+- Drag a single node manually.
+- Drag a selected node to move the entire selection.
+
+### Resize >
+
+Expand or shrink the scoped graph in both directions.
+
+### Align & Distribute >
+
+- **Align:** Arrange nodes along a common axis.
+- **Distribute:** Evenly space nodes between boundary elements.
+
+### Rotate >
+
+- Rotates selected nodes by **15°** increments.
+- Node labels remain **horizontally aligned**.
+- Helps reduce label overlap.
+
+---

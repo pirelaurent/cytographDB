@@ -1,86 +1,98 @@
+# 🚀 Installation Guide
 
+---
 
-# Installation 
+## 1️⃣ Clone the Repository
 
-## clone the repo 
+```bash
+git clone git@github.com:pirelaurent/cytographDB.git
+```
 
- ``` bash
- git clone git@github.com:pirelaurent/cytographDB.git 
- ```
-### node.js  
+---
 
-At redaction time, app was using node v20.9.0 
+## 2️⃣ Node.js Setup
 
-#### node packages
+Node version must be >20  (was developed using **Node.js v20.9.0**).
 
-Install dependencies within **package.json**.
+### Install Dependencies
 
- ```bash 
- npm install 
- ```
-In case of trouble with your owwn repository manager, go to the standard 
+Install required packages listed in `package.json`:
+
+```bash
+npm install
+```
+
+If you encounter issues with your repository manager, reset the default registry, then retry. 
 
 ```bash
 npm config set registry https://registry.npmjs.org/
-``` 
+```
 
-### adapt database credentials  
-#### .env file  for your installation.
+---
 
-``` bash
+## 3️⃣ Database Credentials
+
+Create a `.env` file with your PostgreSQL access information. 
+Can be done by copying ***.env.model*** into a .env 
+
+```env
 PGUSER=postgres
 PGHOST=localhost
 PGPASSWORD=postgres
 PGPORT=5432
 ```
 
-## start http server
+Ensure your PostgreSQL server is **running and accessible**.
 
-Your  **Postgres** server must be running and accessible.
+---
 
-``` bash
-node server.js 
-``` 
+## 4️⃣ Start the HTTP Server
 
-### external links in *index.html* 
+```bash
+node server.js
+```
 
-Several links come from their own websites => **you need an internet connection.**
+---
 
-### see app in navigator 
-  
-```http://localhost:3000 ```
+## 5️⃣ Launch the App in Your Browser
 
-#### check connection
+Visit: [http://localhost:3000](http://localhost:3000)
 
-in menus  :  
+> External resources in `index.html` require an active **internet connection**.
 
-```DB> create graph from db >```     
+---
 
-you must see the list of the DB installed in your postgreSQL. 
+## 6️⃣ Verify DB Connection
 
-If you choose one, a grph will be constructed. 
+In the app menu, navigate to:
 
+```
+DB > Create graph from DB >
+```
 
-# optional 
+You should see the list of PostgreSQL databases.  
+Choose one to generate its graph.
 
-### install the documentation test base ***democytodb*** 
+---
 
-With your prefered POstgreSQL tools, apply the following scripts from ***public/docs/sql*** : 
+# 🧪 Optional: Install Demo Database `democytodb`
 
+To test the app, use the SQL scripts in `public/docs/sql`.
 
+### Step 1: Create the Database
 
-If you want a test db, it can be created with the following scripts in sql directory: 
+Run `create_demo_db.sql`:
 
-#### *create_demo_db.sql
-``` sql
+```sql
 -- Create the database
-
 DROP DATABASE IF EXISTS democytodb;
 CREATE DATABASE democytodb;
-``` 
+```
 
-#### init_demo_schema.sql*
+### Step 2: Initialize Schema
 
-[see source code](./sql/init_demo_schema.sql)
+Run `init_demo_schema.sql` from the same directory.
 
-The DB is empty but cytographDB works on the schema.  
+[View source code](./sql/init_demo_schema.sql)
+
+> The demo DB is empty, but CytographDB operates only on its schema structure.

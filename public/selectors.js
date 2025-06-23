@@ -161,37 +161,46 @@ export function followCross() {
 /*
  find path > 2 following outgoing edges
 */
-export function findLongOutgoingPaths(cy, minLength = 2) {
+export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 5) {
   const paths = [];
 
-  function dfs(path, visited) {
+  function dfs(path, visited, depth) {
+    if (depth > maxDepth) return;
+
     const last = path[path.length - 1];
     const nextNodes = last.outgoers("edge").targets();
 
     nextNodes.forEach((next) => {
-      if (!visited.has(next.id())) {
-        const newPath = [...path, next];
-        const newVisited = new Set(visited);
-        newVisited.add(next.id());
+      const nextId = next.id();
+      if (!visited.has(nextId)) {
+        path.push(next);
+        visited.add(nextId);
 
-        if (newPath.length > minLength) {
-          paths.push(newPath);
+        if (path.length > minLength) {
+          paths.push([...path]);
         }
 
-        dfs(newPath, newVisited);
+        dfs(path, visited, depth + 1);
+
+        // backtrack
+        visited.delete(nextId);
+        path.pop();
       }
     });
   }
 
-  cy.nodes().forEach((start) => {
-    dfs([start], new Set([start.id()]));
-  });
-  // return paths;  // rather than returning continue to dispay
 
-  const longPaths = paths;
+  let startNodes = cy.nodes(":visible:selected");
+  if (startNodes.length==0) startNodes = cy.nodes(":visible");
+
+
+  startNodes.forEach((start) => {
+    dfs([start], new Set([start.id()]), 1);
+  });
+
   const elementsToShow = cy.collection();
 
-  longPaths.forEach((path) => {
+  paths.forEach((path) => {
     for (let i = 0; i < path.length - 1; i++) {
       const source = path[i];
       const target = path[i + 1];
@@ -200,16 +209,21 @@ export function findLongOutgoingPaths(cy, minLength = 2) {
     }
   });
 
-  // Cacher tout
-  cy.elements().addClass("faded");
+ if(elementsToShow.length === 0){
+  alert ("no long path from the starting edges");
+  return;
+ }
 
-  // Montrer uniquement les chemins longs
+
+  cy.elements().addClass("faded");
   elementsToShow.removeClass("faded");
 
   cy.nodes().unselect();
   elementsToShow.nodes().select();
   elementsToShow.edges().select();
 }
+
+
 
 /*
  remove association (2) nodes and create new direct links 

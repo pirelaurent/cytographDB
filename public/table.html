@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Table Details</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/table.css" />
+
+</head>
+
+<body>
+  <h1 id="title">Table Details</h1>
+  <div id="badDB" style="color:red"></div>
+  <div id="tableInfo">
+    <div class="half">
+      <h2>Columns</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Type</th>
+            <th>Nullable</th>
+          </tr>
+        </thead>
+        <tbody id="columnsTable"></tbody>
+      </table>
+    </div>
+
+    <div class="half">
+      <h2>Primary Key</h2>
+      <div id="primaryKeyContainer" class="pkContainer"></div>
+
+      <h2>Foreign Keys</h2>
+      <div id="foreignKeysContainer" class="fkContainer"></div>
+    </div>
+  </div>
+
+  <script type="module" src="tableDetails.js"></script>
+</body>
+
+</html>

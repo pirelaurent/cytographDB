@@ -1,0 +1,136 @@
+<!-- public/triggers.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Triggers for table</title>
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 1em;
+        }
+
+        h1 {
+            font-size: 1.5em;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 1em;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        pre {
+            background: #f8f8f8;
+            padding: 1em;
+            overflow-x: auto;
+        }
+
+        a {
+            color: #0077cc;
+            /* bleu doux, modifiable */
+            text-decoration: underline;
+            /* soulignement */
+            text-decoration-thickness: 1px;
+            /* très fin */
+            text-underline-offset: 2px;
+            /* petit décalage */
+        }
+
+        a:hover {
+            color: #188f7b;
+            /* couleur au survol */
+            text-decoration-thickness: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id="title">⚡ get triggers</h1>
+    <div id="content">Loading...</div>
+
+    <script>
+        async function main() {
+
+            const params = new URLSearchParams(window.location.search);
+            const table = params.get("table");
+            if (!table) {
+                document.getElementById("content").textContent = "Missing table parameter.";
+                return;
+            }
+
+            document.getElementById("title").innerHTML = `⚡ Triggers in ${table}`;
+
+
+
+            const response = await fetch(`/triggers?table=${table}`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                document.getElementById("content").innerHTML = `<p style="color:red;">Erreur: ${data.error}</p>`;
+                return;
+            }
+
+            if (!data || data.triggers.length === 0) {
+                document.getElementById("content").innerHTML = "<p>No triggers defined.</p>";
+                return;
+            }
+
+            const rows = data.triggers.map(t => {
+
+                const fnLink = (t.functionNames && t.functionNames.length > 0)
+                    ? t.functionNames.map(fn =>
+                        `<a href="/function?table=${encodeURIComponent(table)}&triggerName=${encodeURIComponent(t.name)}&name=${encodeURIComponent(fn)}" target="functionPage">${fn}</a>`
+                    ).join(", ")
+                    : `<code>${t.definition}</code>`;
+
+                const impacted = (t.impactedTables || []).map(tab => `<code>${tab}</code>`).join(", ") || "-";
+                const calls = (t.calledFunctions || []).map(fn =>
+                    `<a href="/function?table=${table}&triggerName=${t.name}&name=${encodeURIComponent(fn)}" target="functionPage">${fn}</a>`).join(", ") || "-";
+
+                return `
+          <tr>
+            <td>${t.name}</td>
+            <td>${t.timing}</td>
+            <td>${t.on}</td>
+            <td>${fnLink}</td>
+            <td>${impacted}</td>
+            <td>${calls}</td>
+          </tr>`;
+            }).join("");
+
+            document.getElementById("content").innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Timing</th>
+              <th>Event(s)</th>
+              <th>Definition</th>
+              <th>Impacted Tables 
+            </th>
+              <th>Called Functions</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+        }
+        main();
+    </script>
+</body>
+
+</html>

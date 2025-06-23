@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>cytoGraphDB</title>
+  <link rel="icon" type="image/png" href="./pep-inno.png" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/menus.css" />
+  <script type="module" src="cyStyles.js"></script>
+
+
+  <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+  <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
+  <script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/cytoscape-cose-bilkent@4.0.0/cytoscape-cose-bilkent.min.js"></script>
+
+
+  <script>
+    cytoscape.use(cytoscapeCoseBilkent)
+  </script>
+
+
+
+
+
+  <!-- ELKjs (dépendance interne de cytoscape-elk) 
+<script src="https://unpkg.com/elkjs/lib/elk.bundled.js"></script>
+<script src="https://unpkg.com/cytoscape-elk/cytoscape-elk.js"></script>
+
+-->
+  <script type="module" src="main.js"></script>
+
+
+</head>
+
+<body>
+  <div id='topbar'>
+
+    <div class="loadGraphOptions">
+
+      <!-- Menu DB -->
+      <div data-menu-id="menu-db">
+        <div class="menu-wrapper">
+          <span class="menu-trigger">DB</span>
+          <div class="loadDB">
+            <ul class="menu">
+              <li action="loadFromDb"><span class="label">create graph from db</span></li>
+              <li action="connectToDb"><span class="label">connect to db only</span></li>
+            </ul>
+            <div class="db-box-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menu Files -->
+      <div data-menu-id="menu-graph">
+        <div class="menu-wrapper">
+          <span class="menu-trigger">Files</span>
+          <ul class="menu">
+            <li action="localDownload">Download</li>
+            <li action="localUpload">Upload</li>
+
+
+            <!--  uncomment to use a shared storage on the server 
+
+
+        <li class="separator"></li>
+        <li action="loadFromServer">Load</li>
+        <li action="saveToServer">Save</li>
+        <li action="pick">Pick</li>
+-->
+
+
+          </ul>
+        </div>
+        <input type="text" id="graphName" placeholder="Graph name" />
+      </div>
+
+      <!-- Hidden file input for uploads -->
+      <input type="file" id="graphUpload" accept=".json" style="display: none" />
+
+      <!-- Status display -->
+      <span id="current-db"></span>
+      <span id="versionInfo">...</span>
+
+    </div>
+
+
+    <div id="graph-controls" class="layout">
+      <!-- Menu: Display -->
+      <div data-menu-id="menu-display">
+        <div class="menu-wrapper">
+          <span class="menu-trigger">Display</span>
+          <ul class="menu">
+            <li data-category="fit" data-skip-action>
+              fit screen &gt;
+              <ul class="submenu">
+                <li aspectAction="fitScreen">all</li>
+                <li aspectAction="fitSelected">selected</li>
+              </ul>
+            </li>
+
+            <li data-category="layout">layout &gt;
+              <ul class="submenu">
+                <li aspectAction="cose-bilkent">Cose-bilkent</li>
+                <li aspectAction="cose">Cose</li>
+                <li aspectAction="grid">Grid</li>
+                <li aspectAction="circle">Circle</li>
+                <li aspectAction="concentric">Concentric</li>
+                <li aspectAction="breadthfirst">Breadthfirst</li>
+                <li aspectAction="dagre">Dagre</li>
+              </ul>
+            </li>
+
+            <li data-category="layout">move &gt;
+              <ul class="submenu">
+                <li data-category="aspect">resize &gt;
+                  <ul class="submenu">
+                    <li>Horizontal
+                      <ul class="submenu">
+                        <li aspectAction="H+">wider</li>
+                        <li aspectAction="H-">narrower</li>
+                      </ul>
+                    </li>
+                    <li>Vertical
+                      <ul class="submenu">
+                        <li aspectAction="V+">taller</li>
+                        <li aspectAction="V-">shorter</li>
+                      </ul>
+                    </li>
+                    <li>Both
+                      <ul class="submenu">
+                        <li aspectAction="B+">bigger</li>
+                        <li aspectAction="B-">smaller</li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li data-category="align">align &gt;
+                  <ul class="submenu">
+                    <li aspectAction="alignH">Horizontally</li>
+                    <li aspectAction="alignV">Vertically</li>
+                  </ul>
+                </li>
+                <li data-category="distribute">distribute &gt;
+                  <ul class="submenu">
+                    <li aspectAction="distH">Horizontally</li>
+                    <li aspectAction="distV">Vertically</li>
+                  </ul>
+                </li>
+                <li data-category="rotate">rotate &gt;
+                  <ul class="submenu">
+                    <li aspectAction="rotateL">Left</li>
+                    <li aspectAction="rotateR">Right</li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <!-- not mature
+        <li data-category="style">style &gt;
+          <ul class="submenu">
+            <li aspectAction="applyStyle">apply current style</li>
+          </ul>
+        </li>
+-->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Menu: Nodes -->
+      <div data-menu-id="menu-nodes">
+        <div class="menu-wrapper">
+          <span id="NodesId" class="menu-trigger">Nodes</span>
+          <ul class="menu">
+            <li data-category="selectNodes">select &gt;
+              <ul class="submenu">
+                <li action="all">all</li>
+                <li action="none">none</li>
+                <li action="invert">swap selected</li>
+                <li action="selectNodesFromSelectedEdges">from selected edges</li>
+              </ul>
+            </li>
+
+            <li data-category="followEdges">degree &gt;
+              <ul class="submenu">
+                <li action="noEdge">no edge</li>
+                <li data-category="looping" action="looping">looping</li>
+                <li data-category="outgoing">outgoing &gt;
+                  <ul class="submenu">
+                    <li data-skip-action>
+                      <div class="submenu-content">
+                        <span class="label"> outgoing edges</span>
+                        <select id="filter-op">
+                          <option value=">">&gt;</option>
+                          <option value=">=">&ge;</option>
+                          <option value="=">=</option>
+                          <option value="<">&lt;</option>
+                          <option value="<=">&le;</option>
+                        </select>
+                        <input type="number" id="filter-value" value="0" min="0" max="50">
+                        <button id="btnSizeOutgoing">Go</button>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <li data-category="incoming">incoming &gt;
+                  <ul class="submenu">
+                    <li data-skip-action>
+                      <div class="submenu-content">
+                        <span class="label">incoming edges</span>
+                        <select id="filter-op-in">
+                          <option value=">">&gt;</option>
+                          <option value=">=">&ge;</option>
+                          <option value="=">=</option>
+                          <option value="<">&lt;</option>
+                          <option value="<=">&le;</option>
+                        </select>
+                        <input type="number" id="filter-value-in" value="0" min="0" max="50">
+                        <button id="btnSizeIncoming">Go</button>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+
+            <li data-category="filterNodes">filter by &gt;
+              <ul class="submenu">
+                <li data-category="nodes" data-skip-action>name &gt;
+                  <ul class="submenu">
+                    <li>
+                      <span style="display: inline-flex; align-items: center; gap: 5px; height: 55px">
+                        <input type="text" id="nameFilter" class="nameFilter" placeholder="name (regex)"
+                          onkeydown="if(event.key==='Enter'){selectByName();}" />
+                        <button onclick="selectByName()">go</button>
+                      </span>
+                    </li>
+                  </ul>
+                </li>
+
+                <li data-skip-action>native category &gt;
+
+                  <ul class="submenu">
+                    <li action="nodeHasTriggers">has triggers</li>
+                  </ul>
+                <li action="noCare" id="customList">custom category &gt;</li>
+              </ul>
+            </li>
+            </li>
+
+            <li data-category="hideNode">hide &gt;
+              <ul class="submenu">
+                <li action="hideNone">none</li>
+                <li action="hideNotSelected">not selected</li>
+                <li action="hideSelected">selected</li>
+                <li action="swapHidden">swap</li>
+              </ul>
+            </li>
+
+            <li data-category="follow">follow & show &gt;
+              <ul class="submenu">
+                <li action="followOutgoing">outgoing</li>
+                <li action="followIncoming">incoming</li>
+                <li action="followBoth">both</li>
+                <li class="separator"></li>
+                <li action="followCross">association</li>
+                <li class="separator"></li>
+                <li action="findLongOutgoingPaths">long paths -> -></li>
+              </ul>
+            </li>
+
+            <li data-category="size">label &gt;
+
+              <ul class="submenu">
+                <!-- no interest simplify 
+            <li data-category="size">shape &gt;
+              <ul class="submenu">
+                <li action="noProportionalSize">standard</li>
+                <li action="proportionalSize">proportional</li>
+              </ul>
+            </li>
+           
+            <li data-category="labelNode">label &gt; -->
+               <li action="labelNodeFull">show</li>
+                <li action="labelNodeShort">hide</li>
+                       <li class="separator"></li>
+                <li action="increase-font">font +</li>
+                <li action="decrease-font">font -</li>
+
+                <!--</li> -->
+              </ul>
+            </li>
+
+            <li data-category="ListNode">list &gt;
+              <ul class="submenu">
+                <li action="listAllNodes">all</li>
+                <li action="listSelectedNodes">selected</li>
+              </ul>
+            </li>
+
+            <li class="separator"></li>
+
+            <li action="deleteNodesSelected">delete selected</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Menu: Edges -->
+      <div data-menu-id="menu-edges">
+        <div class="menu-wrapper">
+          <span id="EdgesId" class="menu-trigger">Edges</span>
+          <ul class="menu">
+            <li data-category="selection">select &gt;
+              <ul class="submenu">
+                <li action="allEdges">all</li>
+                <li action="noEdges">none</li>
+                <li action="swapEdges">swap selected</li>
+                <li data-category="selection">
+                  <span class="label">from selected nodes &gt;</span>
+                  <ul class="submenu">
+                    <li action="bothEdges">all edges</li>
+                    <li action="outgoingEdges">outgoing edges</li>
+                    <li action="incomingEdges">incoming edges</li>
+                    <li action="betweenNodes">
+                      <span class="label">edges connecting nodes</span>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+
+
+
+            <li data-category="hideEdge">
+              <span class="label">hide &gt;</span>
+              <ul class="submenu">
+                <li action="NoneEdgeSelected">none</li>
+                <li action="hideEdgeNotSelected">not selected</li>
+                <li action="hideEdgeSelected">selected</li>
+                <li action="swapEdgeHidden">swap</li>
+              </ul>
+            </li>
+
+            <li data-category="label">label aspect &gt;
+              <ul class="submenu">
+                <li action="labelShow">show</li>
+                <li action="labelHide">hide</li>
+                <li class="separator"></li>
+                <li action="increase-font-edge">font +</li>
+                <li action="decrease-font-edge">font -</li>
+              </ul>
+            </li>
+
+            <li data-category="ListEdge">list &gt;
+              <ul class="submenu">
+                <li action="listAllEdges">all</li>
+                <li action="listSelectedEdges">selected</li>
+              </ul>
+            </li>
+
+            <li class="separator"></li>
+
+            <li data-category="dataModel">data model &gt;
+              <ul class="submenu">
+                <li action="generateTriggers">
+                  <span class="label">generate trigger impacts</span>
+                </li>
+
+                <li action="collapseAssociations">
+                  <span class="label">collapse association</span>
+                </li>
+                <li action="restoreAssociations">
+                  <span class="label">restore association</span>
+                </li>
+              </ul>
+            </li>
+
+            <li data-category="filterEdges">filter &gt;
+
+              <ul class="submenu">
+                <li action="edgeIsTriggerGenerated">generated triggers </li>
+                <li action="edgeIsACollapsedNode">collapsed associations</li>
+              </ul>
+            </li>
+
+            <li class="separator"></li>
+
+            <li action="deleteEdgesSelected">delete selected</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <button id="undo-btn" title="Undo (Ctrl+Z)">
+        <img src="./img/rollback2.png" alt="Undo" style="width: 20px; height: 20px;">
+      </button>
+      <button id="btn-export" title="PNG Snapshot">
+        <img src="./img/redCapture.png" alt="PNG Snapshot" style="width: 22px; height: 22px;">
+
+      </button>
+
+      <span class="labelPrevious">select</span>
+      <select id="modeSelect">
+        <option value="or_selected" selected>OR</option>
+        <option value="AND">AND</option>
+      </select>
+
+      <span class="labelPrevious">acts on</span>
+      <select id="planSelect">
+        <option value="visible_plan" selected>Visible</option>
+        <option value="allNodes">All</option>
+      </select>
+
+      <label>
+        <span class="labelPrevious">hover</span>
+        <input type="checkbox" id="hoverInfoToggle" checked>
+      </label>
+
+      <a href="/docs/main.md" class="doc-link" target="docTab">Documentation</a>
+
+      <div id="info-panel" class="info-panel">
+        <div id="nodeDetails"></div>
+      </div>
+    </div>
+
+
+    <div id="waitLoading" style="display: none">⏳ Loading graph...</div>
+
+    <ul id="clicNodeMenu" class="hidden">
+      <li id="open-table">🔍table definition</li>
+      <li id="open-trigger">⚡table triggers</li>
+    </ul>
+
+    <div id="toast" role="status" aria-live="polite"></div>
+
+    <div id="cy"></div>
+
+  </div> <!-- from topbar-->
+
+
+
+  <div id="overlay" class="overlayXX">
+    <div id="file-list">
+      <h3>Choose a saved graph:</h3>
+      <ul id="files" style="list-style: none; padding: 0"></ul>
+      <button onclick="document.getElementById('overlay').style.display='none'">
+        Close
+      </button>
+    </div>
+  </div>
+  <!--------------------------------------->
+</body>
+
+</html>

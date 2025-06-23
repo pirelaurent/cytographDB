@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Test Cytoscape Loupe</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+    }
+
+    #cy {
+      flex: 3;
+      height: 100%;
+      border-right: 2px solid green;
+    }
+
+    #mini {
+      flex: 1;
+      height: 100%;
+      background: #eacbcb;
+      border: 2px solid yellow;
+    }
+  </style>
+</head>
+<body>
+  <div id="cy">Graphe</div>
+  <div id="mini">LOUPE</div>
+
+  <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+  <script>
+    window.onload = function () {
+      const cy = cytoscape({
+        container: document.getElementById('cy'),
+        elements: [
+          { data: { id: 'a' }, position: { x: 100, y: 100 } },
+          { data: { id: 'b' }, position: { x: 200, y: 200 } },
+          { data: { source: 'a', target: 'b' } }
+        ],
+        layout: { name: 'preset' },
+        style: [
+          {
+            selector: 'node',
+            style: {
+              'background-color': 'blue',
+              'label': 'data(id)',
+              'color': '#fff'
+            }
+          },
+          {
+            selector: 'edge',
+            style: {
+              'width': 2,
+              'line-color': '#ccc'
+            }
+          }
+        ]
+      });
+
+      // just to prove it runs
+      console.log('cy loaded with', cy.nodes().length, 'nodes');
+    };
+  </script>
+</body>
+</html>

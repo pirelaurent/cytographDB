@@ -1,0 +1,310 @@
+/* === Base layout styles shared by all menus === */
+
+.layout {
+  background-color: bisque;
+  display: flex;
+  height: 40px;
+  align-items: center;
+}
+
+.menu-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-right: 12px;
+  margin-left: 12px;
+}
+
+.menu-wrapper:hover .menu {
+  display: block;
+}
+
+.menu-trigger {
+  cursor: pointer;
+  padding: 0px 8px;
+  border: 1px solid var(--border-color, #999);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  font-size: 14px;
+  width: var(--trigger-width);
+  height: 25px;
+  background-color: var(--main-bg, #f80ab1);
+  color: var(--trigger-color, white);
+  text-align: center;
+}
+
+.menu-trigger:hover {
+  background-color: var(--border-color, #444);
+  color: var(--text-hover-color, white);
+}
+
+.menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--main-bg, #f50505);
+  color: var(--submenu-color, black);
+  text-align: center;
+  font-size: 14px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  z-index: 1000;
+  min-width: 150px;
+}
+
+.menu>li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  /* ✅ Centre verticalement */
+  justify-content: center;
+  /* ✅ Centre horizontalement */
+  padding: 0;
+  border-radius: 1px;
+  cursor: pointer;
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--border-color, black);
+  margin: 0px;
+  background-color: var(--main-bg, #0a8df8);
+  min-width: 100px;
+  min-height: 30px;
+}
+
+.submenu {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--main-bg, #0bf837);
+  z-index: 1000;
+  min-width: 150px;
+  white-space: nowrap;
+}
+
+.menu>li,
+.submenu>li {
+  position: relative;
+}
+
+.menu li:hover>.submenu,
+.submenu li:hover>.submenu {
+  display: block;
+}
+
+/* Pont invisible pour empêcher la perte du hover entre les niveaux */
+.submenu li {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.menu {
+  top: 100%;
+  left: 0;
+}
+
+.submenu {
+  top: 0;
+  left: 100%;
+}
+
+.submenu hover {
+  background-color: var(--submenu-hover-bg, #444);
+}
+
+.submenu li {
+  margin: 0px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  /* ✅ Centre verticalement */
+  justify-content: center;
+  /* ✅ Centre horizontalement */
+  color: var(--submenu-color, black);
+  cursor: pointer;
+  background-color: var(--main-bg, #fff);
+  color: var(--submenu-color, chartreuse);
+  border: 1px solid;
+  border-color: var(--border-color, black);
+  border-radius: 4px;
+  min-height: 30px;
+}
+
+.submenu li:hover,
+.menu li:hover {
+  background-color: var(--submenu-hover-bg, #444);
+  color: var(--text-hover-color, white);
+}
+
+.submenu li.clicked,
+.menu li.clicked {
+  background-color: var(--submenu-click-bg,
+      red);
+  /* couleur différente du hover */
+  color: var(--text-click-color, white);
+}
+
+.submenu li:active {
+  background-color: var(--submenu-click-bg);
+}
+
+.menu .separator,
+.submenu .separator {
+  height: 2px;
+  min-height: 0;
+  /* ✅ annule le min-height hérité */
+  background-color: var(--border-color);
+  margin: 3px 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+  /* not clickable */
+}
+
+.submenu-content {
+  padding: 10px 12px;
+  border-radius: 6px;
+  min-height: 155px;
+}
+
+.submenu-content .label {
+  color: white;
+}
+
+[data-menu-id="menu-nodes"] {
+  --main-bg: #b11e1e;
+  --trigger-color: white;
+  --trigger-hover-bg: #ca7b7b;
+  --trigger-width: 150px;
+  --text-hover-color: black;
+  --border-color: #ca7b7b;
+  --submenu-hover-bg: #f4b3b3;
+  --submenu-color: white;
+  --submenu-click-bg: red;
+}
+
+[data-menu-id="menu-display"] {
+  --main-bg: #cc5500;
+  --trigger-color: white;
+  --trigger-hover-bg: rgb(246, 223, 192);
+  --trigger-width: 150px;
+  --text-hover-color: black;
+  --border-color: #f4a261;
+  --submenu-hover-bg: rgb(246, 223, 192);
+  --submenu-color: white;
+  --submenu-click-bg: #f4a261;
+}
+
+[data-menu-id="menu-edges"] {
+  --main-bg: #8e2e2e;
+  --trigger-color: white;
+  --trigger-hover-bg: bisque;
+  --trigger-width: 150px;
+  --text-hover-color: black;
+  --border-color: #e8b6b6;
+  --submenu-hover-bg: #fbc8c8;
+  --submenu-color: white;
+  --submenu-click-bg: #be3a3a;
+}
+
+[data-menu-id="menu-db"] {
+  --main-bg: #2e8b57;
+  --trigger-color: white;
+  --trigger-hover-bg: #4ff195;
+  --trigger-width: 150px;
+  --text-hover-color: black;
+  --border-color: #a4f1c5;
+  --submenu-hover-bg: #4ff195;
+  --submenu-color: white;
+  --submenu-click-bg: #4ff195;
+  --underBox: #2e8b57;
+}
+
+.db-prompt-box {
+  position: absolute;
+  z-index: 1000;
+  background: var(--underBox);
+  border: 1px solid #ccc;
+  padding: 6px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.db-prompt-box button {
+  padding: 4px 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background-color: var(--main-bg);
+  border: 1px solid #ccc;
+  width: 80px;
+  color: white
+}
+
+.db-prompt-box button:hover {
+  background-color: var(--submenu-click-bg);
+}
+
+.db-prompt-select {
+  outline: none;
+
+  background-color: light-grey;
+  border: 1px solid white;
+}
+
+.db-prompt-select:focus {
+  outline: none;
+  /* supprime la bordure par défaut */
+  border: 1px solid #4ff195;
+  /* bordure personnalisée au focus */
+  box-shadow: 0 0 3px #4ff195;
+  /* optionnel : effet léger */
+}
+
+
+
+[data-menu-id="menu-graph"] {
+  --main-bg: rgb(66, 146, 168);
+  --trigger-color: white;
+  --trigger-hover-bg: lightskyblue;
+  --trigger-width: 150px;
+  --text-hover-color: black;
+  --border-color: rgb(119, 157, 168);
+  --main-bg: rgb(66, 146, 168);
+  --submenu-hover-bg: lightskyblue;
+  --submenu-color: white;
+  --submenu-click-bg: rgb(39, 97, 133);
+}
+
+.red-select {
+  background-color: red;
+  color: white;
+  /* pour rendre le texte lisible sur fond rouge */
+}
+
+#versionInfo {
+  margin-left: auto;
+  padding-right: 15px;
+  font-size: 0.7em;
+  color: rgb(39, 97, 133);
+}
+
+#graphName {
+  margin-left: 9px;
+  width: 155px;
+  
+}
+
+#current-db {
+ font-family: Arial,sans-serif;
+    font-size: 14px;
+    text-shadow: none;
+   color: black
+}

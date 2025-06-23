@@ -1,0 +1,29 @@
+# Node
+node_modules/
+npm-debug.log*
+.env
+
+# OS mac
+.DS_Store
+Thumbs.db
+
+# Editor folders
+.vscode/
+.idea/
+
+# Logs
+logs
+*.log
+
+# optional specfic categories not to be saved
+ 
+/public/custom/*
+!/public/custom/democytodb.js
+
+# to avoid to have an upload of public/customModulesIndex.js in repo
+# cannot ignore it here otherwise it will not be download by clone 
+# execute locally : 
+# git update-index --skip-worktree public/customModulesIndex.js
+
+# exclude save dir for results on server 
+saved-graphs

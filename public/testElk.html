@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Cytoscape ELK</title>
+  <style>
+    #cy {
+      width: 800px;
+      height: 600px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div id="cy"></div>
+
+  <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+  <script src="https://unpkg.com/elkjs/lib/elk.bundled.js"></script>
+
+  <script>
+    if (window.cytoscapeElk) {
+      cytoscape.use(window.cytoscapeElk);
+    } else {
+      console.error('cytoscapeElk is not defined');
+    }
+
+    const cy = cytoscape({
+      container: document.getElementById('cy'),
+      elements: [
+        { data: { id: 'a' } },
+        { data: { id: 'b' } },
+        { data: { id: 'c' } },
+        { data: { source: 'a', target: 'b' } },
+        { data: { source: 'b', target: 'c' } }
+      ],
+      style: [
+        {
+          selector: 'node',
+          style: {
+            'label': 'data(id)',
+            'background-color': '#61bffc'
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            'width': 2,
+            'line-color': '#ccc',
+            'target-arrow-color': '#ccc',
+            'target-arrow-shape': 'triangle'
+          }
+        }
+      ],
+      layout: {
+        name: 'elk',
+        elk: {
+          algorithm: 'layered',
+          direction: 'RIGHT',
+          spacing: 50
+        }
+      }
+    });
+  </script>
+</body>
+</html>

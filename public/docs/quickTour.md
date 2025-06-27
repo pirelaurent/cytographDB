@@ -48,6 +48,7 @@ Right-click on a node to access its contextual menu:
 
 ![tableDefinition](./img/table-intervention.png)
 
+see also [FK constraints explained](./moreSQL.md) 
 ---
 
 ### Sample: Trigger Definition
@@ -67,6 +68,8 @@ In the example below, the `employee` table was referenced via an `UPDATE` clause
 ### Trigger Code Details
 
 ![triggerDefinition](./img/function-intervention-code.png)
+
+
 
 ---
 

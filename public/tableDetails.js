@@ -75,33 +75,73 @@ getTableData(tableName).then((result) => {
     //   AB	1..1 vers 1..1	AX: NOT NULL, AY: NOT NULL, A.id et B.id sont uniques (PK ou UNIQUE)
 
     const fkDiv = document.getElementById("foreignKeysContainer");
+fkDiv.innerHTML = ""; // Clear any existing content
 
-    fkDiv.innerHTML = ""; // Clear any existing content
+if (data.foreignKeys && data.foreignKeys.length > 0) {
+  data.foreignKeys.forEach((fk) => {
+/* prepare les on delete
+      WHEN 'a' THEN 'NO ACTION'
+      WHEN 'r' THEN 'RESTRICT'
+      WHEN 'c' THEN 'CASCADE'
+      WHEN 'n' THEN 'SET NULL'
+      WHEN 'd' THEN 'SET DEFAULT'
+*/
+let allUpDelInfo="";
+let updateInfo = "";
+ switch (fk.on_update){
+  // no info displayed if default
+  //case 'a': updateInfo = "NO ACTION";break
+  case 'r': updateInfo = "RESTRICT";break
+  case 'c': updateInfo = "CASCADE";break
+  case 'n': updateInfo = "SET NULL";break
+  case 'r': updateInfo = "SET DEFAULT";break
+ }
+ 
+ if (updateInfo != ""){
+  allUpDelInfo = `    <br/><span>ON UPDATE: <code>${updateInfo}</code></span>`
+ }
 
-    if (data.foreignKeys && data.foreignKeys.length > 0) {
-      data.foreignKeys.forEach((fk) => {
-        const div = document.createElement("div");
-        div.className = "fk-block";
-        div.innerHTML = `
-            <div class="fk-title">${fk.constraint_name}</div>
-            Source:<strong> ${fk.source_table}</strong><small> (${
-          fk.all_source_not_null ? "NOT NULL" : "NULLABLE"
-        })</small><br/>
-            Target: <strong>${fk.target_table}</strong><small> (${
-          fk.is_target_unique ? "UNIQUE/PK" : "NOT UNIQUE"
-        })</small><br/>
-          <ul>
-            ${fk.column_mappings
-              .map(
-                (col) => `<li>${col.source_column} → ${col.target_column}</li>`
-              )
-              .join("")}
-          </ul>
-        </li>
-        `;
-        fkDiv.append(div);
-      });
-    }
+ let deleteInfo ="";
+ switch (fk.on_delete){
+    // no info displayed if default
+  //case 'a': deleteInfo = "NO ACTION";break
+  case 'r': deleteInfo = "RESTRICT";break
+  case 'c': deleteInfo = "CASCADE";break
+  case 'n': deleteInfo = "SET NULL";break
+  case 'r': deleteInfo = "SET DEFAULT";break
+ }
+
+ if (deleteInfo != ""){
+  allUpDelInfo += `      <br/><span>ON DELETE: <code>${deleteInfo}</code></span>`
+ }
+
+
+
+
+    const div = document.createElement("div");
+    div.className = "fk-block";
+    div.innerHTML = `
+      <div class="fk-title">${fk.constraint_name}</div>
+      Source: <strong>${fk.source_table}</strong>
+      <small> (${fk.all_source_not_null ? "NOT NULL" : "NULLABLE"})</small><br/>
+      
+      Target: <strong>${fk.target_table}</strong>
+      <small> (${fk.is_target_unique ? "UNIQUE/PK" : "NOT UNIQUE"})</small><br/>
+      
+      ${allUpDelInfo}
+
+      <ul>
+        ${fk.column_mappings
+          .map(
+            (col) => `<li>${col.source_column} → ${col.target_column}</li>`
+          )
+          .join("")}
+      </ul>
+    `;
+    fkDiv.append(div);
+  });
+}
+
 
     // 🔍 Indexes
 // 🔍 Indexes
@@ -137,6 +177,6 @@ function extractIndexColumns(def) {
 
   } else {
     console.error("Error on load :", result.error);
-    alert("Error on loading. Details unavailable.");
+    alert("Error on loading. Details unavailable.Check your DB connection");
   }
 });

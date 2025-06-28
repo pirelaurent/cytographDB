@@ -156,6 +156,7 @@ export let tableColumnsQuery = `
  get All foreign key in a connected DB 
  with this list edges will be created by caller
 */
+/*
 export let edgesQuery = `
     SELECT DISTINCT
       tc.constraint_name,
@@ -167,6 +168,26 @@ export let edgesQuery = `
     WHERE tc.constraint_type = 'FOREIGN KEY'
       AND tc.table_schema = 'public'
   `;
+*/
+export let edgesQuery = `
+  SELECT DISTINCT
+    con.conname AS constraint_name,
+    src_table.relname AS source,
+    tgt_table.relname AS target,
+    con.confdeltype AS on_delete,
+    con.confupdtype AS on_update
+  FROM pg_constraint con
+  JOIN pg_class src_table ON src_table.oid = con.conrelid
+  JOIN pg_class tgt_table ON tgt_table.oid = con.confrelid
+  JOIN pg_namespace src_ns ON src_ns.oid = src_table.relnamespace
+  JOIN pg_namespace tgt_ns ON tgt_ns.oid = tgt_table.relnamespace
+  WHERE con.contype = 'f'
+    AND src_ns.nspname = 'public'
+    AND tgt_ns.nspname = 'public'
+`;
+
+
+
 
 /*
  get foreign keys list 

@@ -35,11 +35,11 @@ CREATE TABLE company (
     name TEXT NOT NULL
 );
 
--- FACTORIES
+-- FACTORIES. can be sold to another company. weak link.
 CREATE TABLE factory (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    company_id INT NOT NULL REFERENCES company(id) ON DELETE CASCADE
+    company_id INT NOT NULL REFERENCES company(id) ON DELETE SET NULL
 );
 
 -- PRODUCTION LINES
@@ -66,7 +66,7 @@ CREATE TABLE line_product (
 CREATE TABLE employee (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    factory_id INT NOT NULL REFERENCES factory(id) ON DELETE CASCADE,
+    factory_id INT NOT NULL REFERENCES factory(id),
     activity_points INT DEFAULT 0 NOT NULL
 );
 
@@ -74,9 +74,9 @@ CREATE TABLE employee (
 ALTER TABLE employee
 ADD COLUMN works_with_id INT REFERENCES employee(id) ON DELETE SET NULL;
 
--- add an reflexive association with on delete cascade
+-- add an reflexive association . If chief deleted keep employees
 ALTER TABLE employee
-ADD COLUMN chief_id INT REFERENCES employee(id) ON DELETE CASCADE;
+ADD COLUMN chief_id INT REFERENCES employee(id) ON DELETE SET NULL;
 
 
 

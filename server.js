@@ -177,8 +177,13 @@ app.post("/load-from-db", async (req, res) => {
           source: e.source,
           target: e.target,
           label: e.constraint_name,
+          onDelete: e.on_delete, // raw code: 'a', 'c', etc.
+          onUpdate: e.on_update  // raw code
         },
+        // a no action c: cascade. 
+        classes: e.on_delete === 'c' ? 'delete_cascade' : ''
       }));
+
 
     res.json({ nodes, edges: filteredEdges });
   } catch (error) {

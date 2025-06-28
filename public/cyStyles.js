@@ -46,7 +46,7 @@ export const cyStyles = [
     style: {
       width: 2,
       "line-color": "#aaa",
-      "target-arrow-color": "#aaa",
+      "target-arrow-color": "black",
       "target-arrow-shape": "vee",
       "arrow-scale": 1.2,
       "curve-style": "straight",
@@ -70,23 +70,28 @@ export const cyStyles = [
       "z-index": 1000, // plus haut que le nœud
     },
   },
-  // when creating a PNG, edge line is not enough deep to be printed later. 
-
-{
- selector: "edge.forPNG",
- style:{
-  width: 8,
-  "line-color": "black",
-   "target-arrow-color": "black",
- } 
-},
+  // when creating a PNG, edge line is not enough deep to be printed later.
 
   {
     selector: "edge.forPNG",
     style: {
-      width: 4,
-      "line-color": "#888",
-      "target-arrow-color": "#888",
+      width: 8,
+      "line-color": "black",
+      "target-arrow-color": "black",
+    },
+  },
+
+  {
+    selector: "edge.delete_cascade",
+    style: {
+      //'line-color': '#e74c3c',
+      //'target-arrow-color': 'crimson',
+      //'target-arrow-shape': 'vee',
+      "arrow-scale": 1.2,
+      "source-arrow-shape": "circle",
+      "source-arrow-color": "black",
+      //'line-style': 'dashed',
+      //'width': 4
     },
   },
 
@@ -95,13 +100,14 @@ export const cyStyles = [
     style: {
       label: "data(label)",
       "line-style": "dotted",
-      "line-color": "lavender",
-      'text-rotation': 'none',           // garder horizontal
-    'text-margin-y': -10,              // déplacer verticalement
+      "line-color": "#aaa",
+      "text-rotation": "none", // keep horizontal
+      "text-margin-y": -10, // move vertically
       width: 2,
 
       "target-arrow-shape": "triangle", // ✅ requis
-      "target-arrow-color": "lavender",
+      "target-arrow-color": "#aaa",
+      "source-arrow-color": "#aaa",
       //'target-arrow-width': 6, // doesn't work
       //'target-arrow-height': 8,
     },
@@ -121,6 +127,7 @@ export const cyStyles = [
       "line-color": "DarkSlateGray",
       "target-arrow-color": "black",
       "line-style": "dashed",
+      "z-index": 1002, // higher than not selected
       width: 2,
     },
   },
@@ -183,7 +190,6 @@ export const cyStyles = [
     },
   },
 
-
   // must enforce the color otherwise cytoscape don't fade colored edges
   {
     selector: "edge.faded",
@@ -218,5 +224,15 @@ export const cyStyles = [
       display: "none",
     },
   },
+
+  {
+    selector: "node.start-node",
+    style: {
+      "border-width": "10px",
+      "border-color": "chartreuse",
+      "border-style": "solid",
+    },
+  },
+
   // doublons de test
 ];

@@ -131,9 +131,10 @@ export function modeSelect() {
 
 const VISIBLE_PLAN = "visible_plan";
 // default not used const ALL_PLANS = "allNodes";
-// pour restreindre certaines opérations
+// enforce visible and remove acts on in gui 
 export function restrictToVisible() {
-  return document.getElementById("planSelect").value === VISIBLE_PLAN;
+  //return document.getElementById("planSelect").value === VISIBLE_PLAN;
+  return true;
 }
 
 export let mergedStyles;
@@ -259,7 +260,7 @@ export function metrologie() {
   }
 
   // hidden
-  let dispHidden = `&nbsp; ${small}(${selectedCountHidden}/</span>${small}${wholeHidden})</span>`;
+  let dispHidden = `&nbsp;&nbsp;&nbsp; ${small}(${selectedCountHidden}/</span>${small}${wholeHidden})</span>`;
   if (!restrictToVisible()) {
     if (selectedCountHidden > 0) {
       dispHidden = `&nbsp; ${big}(${selectedCountHidden}/</span>${small}${wholeHidden})</span>`;
@@ -272,9 +273,16 @@ export function metrologie() {
 
   // ------------ edges info
 
+  display= "Edges &nbsp;";
   const labelEdges = document.querySelector("#EdgesId");
-  display = `Edges&nbsp;&nbsp;&nbsp; ${small}${selectedEdges}/${allEdges}&nbsp;</span>`;
-  labelEdges.innerHTML = display;
+ if(selectedEdges != 0){
+  display += `&nbsp;${big} ${selectedEdges}/</span>${small}${allEdges}</span>`
+ } else {
+    display += `&nbsp;${small} ${selectedEdges}/</span>${big}${allEdges}</span>`
+ }
+
+
+   labelEdges.innerHTML = display;
 
   /* const labelDelete = document.querySelector(
     '[data-menu-id="menu-nodes"] [data-category="delete"] .menu-delete'
@@ -391,6 +399,8 @@ export function initializeGraph(data, fromDisk = false) {
   // cy a été créé avec des data vides , mais si on s'en est servi, faut nettoyer
   cy.elements().remove();
   cy.add(data);
+
+
 
   let current_db = getLocalDBName();
 

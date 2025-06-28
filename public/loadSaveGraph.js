@@ -1,19 +1,18 @@
 // Copyright (C) 2025 Laurent P.
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 
 "use strict";
 
@@ -33,7 +32,7 @@ import {
 } from "./main.js";
 
 import { proportionalSizeNodeSizeByLinks } from "./menus.js";
-import {clearCustomCategories} from "./customCategories.js";
+import { clearCustomCategories } from "./customCategories.js";
 /*
  connect to db with graph or only db 
 */
@@ -274,21 +273,19 @@ function sendGraphState(filename) {
 /*
  generate list of nodes label on a new html page 
 */
-export function sendNodeListToServer(selectedOnly = true) {
+export function sendNodeListToServer() {
   let nodes;
   if (restrictToVisible()) {
     nodes = selectedOnly ? cy.nodes(":selected:visible") : cy.nodes(":visible");
-  } else {
-    nodes = selectedOnly ? cy.nodes(":selected") : cy.nodes();
   }
 
- if(nodes.length == 0 ) {
-    alert ("no nodes to list . Check selection ");
+  if (nodes.length == 0) {
+    alert("no nodes to list in current perimeter. Check selection ");
     return;
   }
 
   const names = nodes.map((n) => n.data("id")).sort();
- 
+
   fetch("/list-nodes", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -306,18 +303,14 @@ export function sendNodeListToServer(selectedOnly = true) {
 /*
  generate list of nodes label on a new html page 
 */
-export function sendEdgeListToHtml(selectedOnly = true) {
-  let edges;
-  if (restrictToVisible()) {
-    edges = selectedOnly ? cy.edges(":selected:visible") : cy.edges(":visible");
-  } else {
-    edges = selectedOnly ? cy.edges(":selected") : cy.edges();
-  }
+export function sendEdgeListToHtml() {
+  let edges = cy.edges(":selected:visible");
+  if (edges.length === 0) edges = cy.edges(":visible");
 
-if (edges.length == 0){
-  alert("no selected edges to list ");
-  return;
-}
+  if (edges.length == 0) {
+    alert("no selected edges to list ");
+    return;
+  }
 
   const sortedEdges = edges.sort((a, b) => {
     const labelA = a.data("label") || "";
@@ -355,9 +348,7 @@ if (edges.length == 0){
     <html>
     <head><title>Edge List</title></head>
     <body>
-      <h2>${selectedOnly ? "Selected Edges" : "All Edges"} (${
-    edges.length
-  })</h2>
+      <h2>Edges :  (${edges.length})</h2>
        ${outputLines}
     </body>
     </html>

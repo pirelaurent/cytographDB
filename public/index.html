@@ -75,7 +75,7 @@
 
           </ul>
         </div>
-        <input type="text" id="graphName" placeholder="Graph name" />
+        <input type="text" id="graphName" placeholder="Graph name" title="Name your graph file" />
       </div>
 
       <!-- Hidden file input for uploads -->
@@ -176,18 +176,47 @@
           <ul class="menu">
             <li data-category="selectNodes">select &gt;
               <ul class="submenu">
-                <li action="all">all</li>
-                <li action="none">none</li>
-                <li action="invert">swap selected</li>
-                <li action="selectNodesFromSelectedEdges">from selected edges</li>
+                <li action="all" title="Select every currently visible node">all</li>
+                <li action="none" title="Clear the current selection">none</li>
+                <li action="invert" title="Invert the current selection">swap selected</li>
+                <li action="selectNodesFromSelectedEdges" title="Select nodes connected by the selected edges">from selected
+                  edges</li>
+              </ul>
+            </li>
+            <li data-category="hideNode">hide &gt;
+              <ul class="submenu">
+                <li action="hideNone" title="Show the entire graph">none</li>
+                <li action="hideNotSelected" title="Hide unselected elements">not selected</li>
+                <li action="hideSelected" title="Hide the selected nodes">selected</li>
+                <li action="swapHidden" title="Toggle visibility for selected and hidden elements">swap</li>
               </ul>
             </li>
 
-            <li data-category="followEdges">degree &gt;
+            <li data-category="follow">follow & show &gt;
               <ul class="submenu">
-                <li action="noEdge">no edge</li>
-                <li data-category="looping" action="looping">looping</li>
-                <li data-category="outgoing">outgoing &gt;
+                <li action="followOutgoing" title="Follow outgoing edges and show target nodes">
+                  outgoing</li>
+
+                <li action="followIncoming" title="Follow incoming edges and show source nodes">
+                  Incoming
+                </li>
+
+                <li action="followBoth" title="Follow all connected edges and show nodes">both
+                </li>
+                <li class="separator"></li>
+                <li action="followCross" title="Select nodes linked through associations">association
+                </li>
+                <li class="separator"></li>
+                <li action="findLongOutgoingPaths" title="Find nodes reachable by long forward paths (more than 2 hops)">
+                  long paths </li>
+              </ul>
+            </li>
+
+            <li data-category="followEdges" title="Filter nodes by edge count (degree)">degree &gt;
+              <ul class="submenu">
+                <li action="noEdge" title="Select nodes without any edges">none</li>
+                <li data-category="looping" action="looping" title="Nodes with self-loops (self-reference)">looping</li>
+                <li data-category="outgoing" title="Filter nodes by number of outgoing edges">outgoing &gt;
                   <ul class="submenu">
                     <li data-skip-action>
                       <div class="submenu-content">
@@ -205,7 +234,7 @@
                     </li>
                   </ul>
                 </li>
-                <li data-category="incoming">incoming &gt;
+                <li data-category="incoming" title="Filter nodes by number of incoming edges">incoming &gt;
                   <ul class="submenu">
                     <li data-skip-action>
                       <div class="submenu-content">
@@ -231,11 +260,12 @@
                 <li data-category="nodes" data-skip-action>name &gt;
                   <ul class="submenu">
                     <li>
-                      <span style="display: inline-flex; align-items: center; gap: 5px; height: 55px">
-                        <input type="text" id="nameFilter" class="nameFilter" placeholder="name (regex)"
-                          onkeydown="if(event.key==='Enter'){selectByName();}" />
-                        <button onclick="selectByName()">go</button>
+                      <span style="display: inline-flex; align-items: flex-start; gap: 5px; height: 155px ;width:210px">
+                        <input type="text" id="nameFilter" class="nameFilter" placeholder="searched name (regex)"
+                          style="margin-top: 10px;" onkeydown="if(event.key==='Enter'){selectByName();}" />
+                        <!--button onclick="selectByName()">go</button-->
                       </span>
+
                     </li>
                   </ul>
                 </li>
@@ -250,31 +280,12 @@
             </li>
             </li>
 
-            <li data-category="hideNode">hide &gt;
-              <ul class="submenu">
-                <li action="hideNone">none</li>
-                <li action="hideNotSelected">not selected</li>
-                <li action="hideSelected">selected</li>
-                <li action="swapHidden">swap</li>
-              </ul>
-            </li>
 
-            <li data-category="follow">follow & show &gt;
-              <ul class="submenu">
-                <li action="followOutgoing">outgoing</li>
-                <li action="followIncoming">incoming</li>
-                <li action="followBoth">both</li>
-                <li class="separator"></li>
-                <li action="followCross">association</li>
-                <li class="separator"></li>
-                <li action="findLongOutgoingPaths">long paths -> -></li>
-              </ul>
-            </li>
 
             <li data-category="size">label &gt;
 
               <ul class="submenu">
-                <!-- no interest simplify 
+                <!-- no interest simplify gui
             <li data-category="size">shape &gt;
               <ul class="submenu">
                 <li action="noProportionalSize">standard</li>
@@ -283,9 +294,9 @@
             </li>
            
             <li data-category="labelNode">label &gt; -->
-               <li action="labelNodeFull">show</li>
+                <li action="labelNodeFull">show</li>
                 <li action="labelNodeShort">hide</li>
-                       <li class="separator"></li>
+                <li class="separator"></li>
                 <li action="increase-font">font +</li>
                 <li action="decrease-font">font -</li>
 
@@ -293,21 +304,21 @@
               </ul>
             </li>
 
-            <li data-category="ListNode">list &gt;
-              <ul class="submenu">
-                <li action="listAllNodes">all</li>
-                <li action="listSelectedNodes">selected</li>
-              </ul>
+            <li action="listCurrentNodes" title="List currently visible nodes"> list
+
             </li>
+
 
             <li class="separator"></li>
 
-            <li action="deleteNodesSelected">delete selected</li>
+            <li action="deleteNodesSelected" title="Delete selected nodes (confirmation required)">delete
+              selected</li>
           </ul>
         </div>
       </div>
 
       <!-- Menu: Edges -->
+
       <div data-menu-id="menu-edges">
         <div class="menu-wrapper">
           <span id="EdgesId" class="menu-trigger">Edges</span>
@@ -317,17 +328,7 @@
                 <li action="allEdges">all</li>
                 <li action="noEdges">none</li>
                 <li action="swapEdges">swap selected</li>
-                <li data-category="selection">
-                  <span class="label">from selected nodes &gt;</span>
-                  <ul class="submenu">
-                    <li action="bothEdges">all edges</li>
-                    <li action="outgoingEdges">outgoing edges</li>
-                    <li action="incomingEdges">incoming edges</li>
-                    <li action="betweenNodes">
-                      <span class="label">edges connecting nodes</span>
-                    </li>
-                  </ul>
-                </li>
+
               </ul>
             </li>
 
@@ -342,8 +343,21 @@
                 <li action="swapEdgeHidden">swap</li>
               </ul>
             </li>
+            <li data-category="selection">
+              <span class="label" title="Select edges related to selected nodes">of selected nodes </span>
+              <ul class="submenu">
+                <li action="outgoingEdges">outgoing</li>
+                <li action="incomingEdges">incoming</li>
+                <li action="bothEdges">both</li>
+                <li action="betweenNodes">
+                  <span class="label" title="Select edges between selected nodes">connecting two nodes</span>
+                </li>
+              </ul>
+            </li>
 
-            <li data-category="label">label aspect &gt;
+
+
+            <li data-category="label">label &gt;
               <ul class="submenu">
                 <li action="labelShow">show</li>
                 <li action="labelHide">hide</li>
@@ -353,35 +367,36 @@
               </ul>
             </li>
 
-            <li data-category="ListEdge">list &gt;
-              <ul class="submenu">
+            <li action="listEdges">list
+              <!--ul class="submenu">
                 <li action="listAllEdges">all</li>
                 <li action="listSelectedEdges">selected</li>
-              </ul>
+              </ul-->
             </li>
 
             <li class="separator"></li>
 
-            <li data-category="dataModel">data model &gt;
+            <li data-category="dataModel" title = "actions related to a physical data model ">data model &gt;
               <ul class="submenu">
                 <li action="generateTriggers">
-                  <span class="label">generate trigger impacts</span>
+                  <span class="label" title="Identify and materialize triggers that affect other tables">generate trigger impacts</span>
                 </li>
 
                 <li action="collapseAssociations">
-                  <span class="label">collapse association</span>
+                  <span class="label" title="Simplify associations into direct edges">collapse association</span>
                 </li>
-                <li action="restoreAssociations">
+                <li action="restoreAssociations" title="Undo simplification and restore association nodes">
                   <span class="label">restore association</span>
                 </li>
               </ul>
             </li>
 
-            <li data-category="filterEdges">filter &gt;
+            <li data-category="filterEdges" title="Filter specific edge types (data model only)">filter &gt;
 
               <ul class="submenu">
-                <li action="edgeIsTriggerGenerated">generated triggers </li>
-                <li action="edgeIsACollapsedNode">collapsed associations</li>
+                <li action="edgeIsTriggerGenerated" title="Show edges generated by trigger impacts">generated triggers </li>
+                <li action="edgeIsACollapsedNode" title="Show edges that replaced collapsed associations">collapsed associations</li>
+                <li action="edgeIsOnDeleteCascade" title="Show edges where FK is ON DELETE CASCADE">on delete cascade</li>
               </ul>
             </li>
 
@@ -396,26 +411,26 @@
       <button id="undo-btn" title="Undo (Ctrl+Z)">
         <img src="./img/rollback2.png" alt="Undo" style="width: 20px; height: 20px;">
       </button>
-      <button id="btn-export" title="PNG Snapshot">
+      <button id="btn-export" title="PNG Snapshot  (ctrl+g)">
         <img src="./img/redCapture.png" alt="PNG Snapshot" style="width: 22px; height: 22px;">
 
       </button>
 
-      <span class="labelPrevious">select</span>
-      <select id="modeSelect">
+      <!-- span class="labelPrevious">select</span-->
+      <select id="modeSelect" title="Choose how selections are combined (OR adds, AND intersects)">
         <option value="or_selected" selected>OR</option>
-        <option value="AND">AND</option>
+        <option value="AND" title="Select into already selected">AND</option>
       </select>
-
+      <!--
       <span class="labelPrevious">acts on</span>
       <select id="planSelect">
         <option value="visible_plan" selected>Visible</option>
         <option value="allNodes">All</option>
       </select>
-
+-->
       <label>
-        <span class="labelPrevious">hover</span>
-        <input type="checkbox" id="hoverInfoToggle" checked>
+        <span class="labelPrevious" title="Show node name and connected edge types on hover">hover</span>
+        <input type="checkbox" id="hoverInfoToggle" title="Show node name and connected edge types on hover"> <!--checked-->
       </label>
 
       <a href="/docs/main.md" class="doc-link" target="docTab">Documentation</a>

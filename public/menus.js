@@ -530,12 +530,10 @@ export function menuNodes(option) {
       break;
 
     //------------
-    case "listAllNodes":
-      sendNodeListToServer(false);
+    case "listCurrentNodes":
+      sendNodeListToServer();
       break;
-    case "listSelectedNodes":
-      sendNodeListToServer(true);
-      break;
+
     //---------------- nodes connected to selected edges
     case "fromEdgesSelected":
       {
@@ -676,6 +674,12 @@ export function menuEdges(option) {
     case "edgeIsTriggerGenerated":
       selectEdgesByNativeCategories("trigger_impact");
       break;
+ 
+      case "edgeIsOnDeleteCascade":
+         cy.edges()
+      const cascadeEdges = cy.edges('.delete_cascade');
+      cascadeEdges.select();
+      break;
 
     case "labelShow":
       // Show visible edges, or selected ones if any are selected
@@ -730,12 +734,8 @@ export function menuEdges(option) {
       cy.edges().show();
       break;
 
-    case "listAllEdges":
-      sendEdgeListToHtml(false);
-      break;
-
-    case "listSelectedEdges":
-      sendEdgeListToHtml(true);
+    case "listEdges":
+      sendEdgeListToHtml();
       break;
 
     case "collapseAssociations":

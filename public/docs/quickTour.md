@@ -1,38 +1,44 @@
 # Quick Tour of the Demo Model
 
 ## Main Screen: Loaded `democytodb` Graph
+A fake DB to work with several cases
 
 ![democytoscapedb](./img/democytoscapedb.png)
 
 ---
 
-### Create a Graph from a Database
+### How to obtain 
 
-From the menu: **DB → Create graph from DB**
+**DB → Create graph from DB**
 
-- Displays available PostgreSQL databases
-- Select one to generate its graph  
-- The demo database used here is `democytoscapedb` (empty by default). To generate it yourself, see the [Installation Guide](./install.md)
+- Show available PostgreSQL databases to work with.
+- The demo database used here is `democytoscapedb` (empty by default). 
+  - To generate it yourself, see the [Installation Guide](./install.md)
 
-**Default graph layout**: `Cose-Bilkent`  
-**Node labels**: table names  
-- ⭐ Stars beneath labels indicate triggers (e.g., in the *intervention* table)  
-- 🔵 **Association tables**: round shape  
-- 🟦 Other tables: rounded rectangles  
-- 🔠 Node size is proportional to degree (number of edges)
+
 
 ---
 
-### Node Hover: Basic Information
+### Displayed Informations
 
 ![basicInformation](./img/basicInformations.png)
 
-When hovering over a node:
-- Name of the table
-- **Outgoing edges** (foreign keys)
-- **Incoming edges** (referenced by other tables)
 
-Edges are color-coded by orientation. Unrelated elements are faded for clarity.
+When cursor is over a node-table : 
+- **Outgoing edges** (foreign keys) are green 
+- **Incoming edges** (referenced by other tables) are red 
+- if ***hover*** in upper menu bar is checked, a pop up show the number of edges **<-out & <-in**
+- Unrelated elements are faded for clarity.
+
+#### Aspect
+
+- main tables (*Employee*, *Factory*)are rounded rectangles while association tables are circles.
+  - A table with triggers shows one star per trigger. *Intervention* have two.
+- edges are oriented from owner of a FK to the referenced table. 
+  - the destination arrow is a triangle. 
+- if a FK is a strong link with ON CASCADE DELETE option, le source arrow is a round circle. 
+  - This is the general case on association table between two main tables as are *authorization* and *intervention* in the sample. 
+- 
 
 ---
 
@@ -48,62 +54,104 @@ Right-click on a node to access its contextual menu:
 
 ![tableDefinition](./img/table-intervention.png)
 
-see also [FK constraints explained](./moreSQL.md) 
+About ON UPDATE ON DELETE see also [FK constraints explained](./moreSQL.md) 
+
 ---
 
-### Sample: Trigger Definition
+### Table triggers 
+This open a new page with triggers definitions and access to their codes :
 
 ![triggerDefinition](./img/trigger-intervention.png)
 
----
 
-### Impacted Tables
+#### Impacted Tables
 
-This view shows the result of code analysis identifying `UPDATE`, `DELETE`, or `CREATE` operations.
-
+A code analysis of trigger and functions search for `UPDATE`, `DELETE`, or `CREATE` operations.
 In the example below, the `employee` table was referenced via an `UPDATE` clause:
 
 ---
 
-### Trigger Code Details
+#### Trigger Code Details
 
 ![triggerDefinition](./img/function-intervention-code.png)
 
-
-
 ---
 
-## Visualizing Trigger Impacts in the Network
+## Adding trigger Impacts in the Network
 
-To visualize tables impacted by triggers:
-
-From the menu:  
+From the Edges menu:  
 **Edges → Data Model → Generate Trigger Impact**
 
-This adds new, specially styled edges to represent trigger-based relationships:
+This adds new, specially styled edges to represent trigger-based relationships (violet below)
+In this capture was added Edges-Label-Show for the two edges 
 
 ![triggerNetwork](./img/triggerNetwork.png)
 
-To filter and highlight these edges:  
-**Edges → Filter → `trigger_impact`**  
+In a large graph, select these particular edges:  
+**Edges → Filter → `generated triggers`**  
 *(Make sure to click through each step.)*
 
 ---
 
-## Reducing Association Tables
+### Perimeter of actions 
 
-To simplify the graph, basic association tables can be collapsed into stylized edges.
+The common rule is : 
+- if nothing selected, action apply to all **visible** 
+- if some selected, action apply only on **selected** 
 
-Hovering over such an edge reveals the name of the collapsed association table:
+A visual help to see the current perimeter: 
+**Nodes** Selected/Visible *(hidden selected/total)*  .............. **Edges** selected/visible.  
+- Perimeter : 7 nodes 12 edges 
+![visible](./img/perimeterVisible.png) 
+- Perimeter : 3 nodes 12 edges 
+![selected](./img/perimeterSelected.png).
 
-![reduceAssociations](./img/collapseAssociations.png)
 
-This approach brings the graph closer to a conceptual model (MCD).
+## common operations on graph 
 
-A table is eligible for **collapse** if:
-- It has exactly **two outgoing foreign keys**
-- It contains **no proprietary columns** (only foreign keys)
+### explore dependencies of a main table 
 
-⚠️ The edge direction becomes arbitrary after collapsing and may no longer carry semantic meaning.
+**Select** a table by any way ( by click, by name, by category, etc. ).  
+to work in comfort, hide others : **nodes - hide - not selected** 
+
+
+Walk the edges of this node : 
+- Follow & show 
+  - Outgoing to see the related tables this one is constraint by a FK 
+  - Incoming to see which tables use this one 
+  - Both to have eco-system around the table 
+  
+  #### Below **Follow Both** from production_line 
+
+  <img src = ./img/followBoth.png width = 500px>
+
+One can see that a depency through an association table give not enough information with a half part. 
+- **Follow & show **
+ - **Association** (node associations are already selected after *follow both* , otherwise select all )
+
+
+  <img src = ./img/followAssociation.png width = 500px>
+
+### document this exploration with a photo
+
+At any time you can **make a *photo* of the graph** in a PNG format.
+
+### keep a work in its current status 
+
+At any time you can save the graph with all elements you have kept through ***File - Download*** 
+
+This is useful to work with ready to use subgraph, for example per domain. 
+
+## custom layout and category
+
+A default layout apply on graph.  
+A custom layout can be declared associated to one or more DB names.  
+For democytodb example, tables with no FK like *product* or *company* , identified as **root table** are ***green triangle***. 
+
+This custom category is directly available in a search by : 
+***Nodes - Filter by***
+
+  <img src = "./img/filterByCustom.png" width = "400px">
 
 ---
+Go back to [**documentation**](./main.md) for more details 

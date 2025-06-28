@@ -159,16 +159,17 @@ export function followCross() {
 }
 
 /*
- find path > 2 following outgoing edges
+ find path > 2 following outgoing edges 3 
 */
-export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 5) {
+export function findLongOutgoingPaths(cy, minLength = 3, maxDepth = 5) {
   const paths = [];
+  const successfulStarts = new Set();  // to remember which nodes are true starters
 
-  function dfs(path, visited, depth) {
+  function dfs(path, visited, depth, startId) {
     if (depth > maxDepth) return;
 
     const last = path[path.length - 1];
-    const nextNodes = last.outgoers("edge").targets();
+    const nextNodes = last.outgoers('edge').targets();
 
     nextNodes.forEach((next) => {
       const nextId = next.id();
@@ -178,9 +179,10 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 5) {
 
         if (path.length > minLength) {
           paths.push([...path]);
+          successfulStarts.add(startId); // register this start node
         }
 
-        dfs(path, visited, depth + 1);
+        dfs(path, visited, depth + 1, startId);
 
         // backtrack
         visited.delete(nextId);
@@ -189,13 +191,13 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 5) {
     });
   }
 
-
-  let startNodes = cy.nodes(":visible:selected");
-  if (startNodes.length==0) startNodes = cy.nodes(":visible");
-
+  let startNodes = cy.nodes(':visible:selected');
+  if (startNodes.length === 0) {
+    startNodes = cy.nodes(':visible');
+  }
 
   startNodes.forEach((start) => {
-    dfs([start], new Set([start.id()]), 1);
+    dfs([start], new Set([start.id()]), 1, start.id());
   });
 
   const elementsToShow = cy.collection();
@@ -209,19 +211,36 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 5) {
     }
   });
 
- if(elementsToShow.length === 0){
-  alert ("no long path from the starting edges");
-  return;
- }
+  if (elementsToShow.length === 0) {
+    alert('No long path from the starting nodes');
+    return;
+  }
+
+  // Clear all previous selections and fade everything
+  cy.elements().unselect().addClass('faded');
+
+  // Highlight the actual path elements
+  elementsToShow.removeClass('faded').select();
+
+  // Make sure only *starting* nodes are specially marked
+  cy.nodes().removeClass('start-node'); // optional visual marker
+  cy.nodes().filter(n => successfulStarts.has(n.id())).addClass('start-node').select();
+let result =`Found ${paths.length} long path(s):`;
+paths.forEach((path, idx) => {
+  const ids = path.map(n => n.id()).join(" → ");
+  result+=`\nPath ${idx + 1}: ${ids}`;
+});
+
+console.log(result);
 
 
-  cy.elements().addClass("faded");
-  elementsToShow.removeClass("faded");
 
-  cy.nodes().unselect();
-  elementsToShow.nodes().select();
-  elementsToShow.edges().select();
+
+
+
 }
+
+
 
 
 
@@ -566,4 +585,15 @@ export function selectEdgesByNativeCategories(aCategory) {
       edge.select();
     }
   });
+}
+
+
+export function captureGraphAsPng() {
+  const png = cy.png({ full: false, scale: 2, bg: 'white' });
+  cy.edges().addClass("forPNG");
+  const link = document.createElement("a");
+  link.href = png;
+  link.download = "graph-capture.png";
+  link.click();
+  cy.edges().removeClass("forPNG");
 }

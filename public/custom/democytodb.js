@@ -54,9 +54,20 @@ console.log("[DEBUG] democytodb.js chargé");
           color: "#222",
           "background-color": "#FFB3A7",
           "border-width": 3,
+          "border-style": "dotted",
          
         },
       },
+
+
+  {
+    selector: "node.association.start-node",
+    style: {
+      "border-width": "10px",
+         "border-style": "solid",
+    },
+  },
+
       {
         selector: "node.root",
         style: {

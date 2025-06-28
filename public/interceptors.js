@@ -25,6 +25,9 @@ import {
   restrictToVisible
 } from "./main.js";
 
+import {
+  captureGraphAsPng
+} from "./selectors.js";
 
 /*
  all the events in gui defined here 
@@ -54,6 +57,7 @@ export function setInterceptors() {
 
     let output;
     if (ele.isNode()) {
+
       let node = ele;
       let classInfo = "";
 
@@ -166,11 +170,11 @@ export function setInterceptors() {
     clicNodeMenu.style.display = "none";
   });
 
-  //visible
+  /* visible
   document.getElementById("planSelect").addEventListener("change", function () {
     metrologie(); // Appelle ta fonction quand le select change
   });
-
+*/
   // undo et select all
 
   let ctrlPressed = false;
@@ -198,7 +202,17 @@ export function setInterceptors() {
         nodes.select();
       }
     }
+// ✅ Ctrl/⌘ + Z → Undo
+    if ((e.ctrlKey || e.metaKey) && key === "g") {
+      e.preventDefault();
+      captureGraphAsPng();
+    }
+
   });
+
+  
+
+
   // button undo
   document.getElementById("undo-btn").addEventListener("click", () => {
     popSnapshot();
@@ -214,7 +228,7 @@ export function setInterceptors() {
     {
       cy.edges().removeClass("incoming outgoing faded "); // internal ?
     }
-    cy.nodes().removeClass("faded");
+    cy.nodes().removeClass("faded"); //PLA
   });
 
   document.getElementById("open-table").addEventListener("click", () => {
@@ -231,15 +245,15 @@ export function setInterceptors() {
   const select = document.getElementById("modeSelect");
   select.addEventListener("change", function () {
     if (select.value === "AND") {
-      select.classList.add("red-select");
+      select.classList.add("AND-select");
     } else {
-      select.classList.remove("red-select");
+      select.classList.remove("AND-select");
     }
   });
 
   // Facultatif : appliquer au chargement si nécessaire
   if (select.value === "AND") {
-    select.classList.add("red-select");
+    select.classList.add("AND-select");
   }
 
   // menu to continue action when a node is clicked
@@ -281,7 +295,7 @@ export function setInterceptors() {
   cy.on("tap", function (event) {
     if (event.target === cy) {
       cy.elements().unselect();
-      cy.elements().removeClass("faded")
+      cy.elements().removeClass("faded start-node")
       cy.edges(":selected").removeClass("internal outgoing incoming");
     } else if (event.target.isNode && event.target.isNode()) {
       pushSnapshot();
@@ -334,14 +348,8 @@ export function setInterceptors() {
  add capture png
 */
 document.getElementById("btn-export").addEventListener("click", () => {
-    const png = cy.png({ full: false, scale: 2, bg: 'white' });
-    cy.edges().addClass("forPNG"); // 
-    const link = document.createElement("a");
-    link.href = png;
-    link.download = "graph-capture.png";
-    link.click();
-    cy.edges().removeClass("forPNG");
-  });
+  captureGraphAsPng();
+});
 
 
 

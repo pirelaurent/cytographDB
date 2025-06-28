@@ -283,11 +283,17 @@
   --submenu-click-bg: rgb(39, 97, 133);
 }
 
-.red-select {
-  background-color: red;
-  color: white;
-  /* pour rendre le texte lisible sur fond rouge */
+#modeSelect {
+  background-color: oldLace; /* vert clair par défaut (OR) */
+  border-color: crimson;
 }
+
+#modeSelect.AND-select {
+  background-color: red; /* rouge clair ou ce que tu veux pour AND */
+  color:white;
+  border-color:white;
+}
+
 
 #versionInfo {
   margin-left: auto;

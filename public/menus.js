@@ -23,7 +23,7 @@ import {
   loadGraphState,
   showOverlayWithFiles,
   saveGraphState,
-  sendNodeListToServer,
+  sendNodeListToHtml,
   sendEdgeListToHtml,
   saveGraphToFile,
   okToLoadGraph,
@@ -39,7 +39,7 @@ import {
   resetSnapshot,
   setAndRunLayoutOptions,
   perimeterForAction,
-  perimeterForSelect,
+  perimeterForNodesSelection,
   modeSelect,
   AND_SELECTED,
   mergedStyles,
@@ -55,7 +55,6 @@ import {
   restoreAssociations,
   generateTriggers,
   //fillInEdgesCategories,
-  selectNodesByNativeCategories,
   selectEdgesByNativeCategories,
 } from "./selectors.js";
 
@@ -354,7 +353,7 @@ export function menuNodes(option) {
     //-------- select by edges
     case "noEdge":
       {
-        let nodes = perimeterForSelect();
+        let nodes = perimeterForNodesSelection();
         if (nodes == null) return;
         pushSnapshot();
         nodes.forEach((node) => {
@@ -372,7 +371,7 @@ export function menuNodes(option) {
 
     case "looping":
       {
-        let nodes = perimeterForSelect();
+        let nodes = perimeterForNodesSelection();
 
         if (nodes == null) return;
         pushSnapshot();
@@ -401,8 +400,41 @@ export function menuNodes(option) {
       selectInputBetween(0, 0);
       break;
 
+
+
+
     case "nodeHasTriggers":
-      selectNodesByNativeCategories("hasTriggers");
+      {
+        let nodes = perimeterForNodesSelection();
+        if( nodes.length===0) return;
+        nodes.filter(".hasTriggers").select();
+      }
+      break;
+
+    case "nodeIsAssociation":
+      {
+        let nodes = perimeterForNodesSelection();
+          if( nodes.length===0) return;
+        nodes.filter(".association").select();
+      }
+      break;
+
+    case "nodeIsOrphan":
+      {
+        let nodes = perimeterForNodesSelection();
+          if( nodes.length===0) return;
+        nodes.filter(".orphan").select();
+      }
+      break;
+
+    case "nodeIsMultiAssociation":
+      {
+        let nodes = perimeterForNodesSelection();
+          if( nodes.length===0) return;
+        nodes.filter(".multiAssociation").select();
+        nodes.filter(".association").select();
+      }
+
       break;
 
     //---------- hide nodes -
@@ -531,7 +563,7 @@ export function menuNodes(option) {
 
     //------------
     case "listCurrentNodes":
-      sendNodeListToServer();
+      sendNodeListToHtml();
       break;
 
     //---------------- nodes connected to selected edges
@@ -674,10 +706,10 @@ export function menuEdges(option) {
     case "edgeIsTriggerGenerated":
       selectEdgesByNativeCategories("trigger_impact");
       break;
- 
-      case "edgeIsOnDeleteCascade":
-         cy.edges()
-      const cascadeEdges = cy.edges('.delete_cascade');
+
+    case "edgeIsOnDeleteCascade":
+      cy.edges();
+      const cascadeEdges = cy.edges(".delete_cascade");
       cascadeEdges.select();
       break;
 
@@ -695,17 +727,12 @@ export function menuEdges(option) {
       cy.edges().removeClass("showLabel");
       break;
 
-
     case "increase-font-edge":
-
       increaseFontSizeEdge(3);
       break;
     case "decrease-font-edge":
       increaseFontSizeEdge(-1);
       break;
-
-
-
 
     case "hideEdgeSelected":
       pushSnapshot();
@@ -820,8 +847,9 @@ export function menuSelectSizeOutgoing() {
   const op = document.getElementById("filter-op").value;
   const val = parseInt(document.getElementById("filter-value").value);
   const test = opMap[op];
+  let nodes = perimeterForNodesSelection();
+  if (nodes.length ===0) return;
 
-  let nodes = perimeterForSelect();
   pushSnapshot();
   nodes.forEach((n) => {
     const visibleEdges = n.outgoers("edge:visible");
@@ -848,7 +876,9 @@ export function menuSelectSizeIncoming() {
   const val = parseInt(document.getElementById("filter-value-in").value);
   const test = opMap[op];
 
-  let nodes = perimeterForSelect();
+  let nodes = perimeterForNodesSelection();
+  if( nodes.length === 0) return;
+
   pushSnapshot();
   nodes.forEach((n) => {
     const visibleEdges = n.incomers("edge:visible");
@@ -968,25 +998,20 @@ function increaseFontSize(delta) {
   });
 }
 
-
 function increaseFontSizeEdge(delta) {
-  let selectedEdges = cy.edges(':visible:selected');
-  
+  let selectedEdges = cy.edges(":visible:selected");
+
   // S'il n'y a pas d'arêtes sélectionnées visibles, on prend toutes les visibles
   if (selectedEdges.length === 0) {
-    selectedEdges = cy.edges(':visible');
+    selectedEdges = cy.edges(":visible");
   }
 
   selectedEdges.forEach((edge) => {
-    const currentFontSize = parseFloat(edge.style('font-size')) || 10; // valeur par défaut
+    const currentFontSize = parseFloat(edge.style("font-size")) || 10; // valeur par défaut
     const newSize = Math.max(6, currentFontSize + delta);
-    edge.style('font-size', newSize);
+    edge.style("font-size", newSize);
   });
 }
-
-
-
-
 
 /*
  increase size of nodes against number of edges 
@@ -1131,33 +1156,26 @@ function bringSelectedToBack() {
 */
 
 function selectOutputBetween(min, max) {
-  let nodes = perimeterForSelect();
+
+  let nodes = perimeterForNodesSelection();
   if (nodes == null) return;
   pushSnapshot();
   nodes.forEach((node) => {
     // Tous les outgoers sortants
     let outgoingEdges = node.outgoers("edge:visible");
 
-    // if AND_SELECTED Nodes is the collection of selected
-
-    // Si on restreint à visibles, ne garder que les arêtes vers des cibles visibles
-    if (restrictToVisible()) {
+    // if AND_SELECTED Nodes is the collection of previously selected
       outgoingEdges = outgoingEdges.filter((edge) => edge.target().visible());
-    }
-
     const nOutput = outgoingEdges.length;
 
     // avoid loop in NO output
-
     if ((min == 0) & (max == 0)) {
       var loopEdges = outgoingEdges.filter(function (edge) {
         return edge.source().id() !== edge.target().id();
       });
-      var noLoop = loopEdges.length == 0;
-      if (modeSelect() == AND_SELECTED) node.unselect();
+      var noLoop = (loopEdges.length === 0);
       if (nOutput == 0 || noLoop) node.select();
     } else {
-      if (modeSelect() == AND_SELECTED) node.unselect();
       if (nOutput > min && nOutput < max) {
         node.select();
       }
@@ -1169,15 +1187,13 @@ function selectOutputBetween(min, max) {
 */
 
 function selectInputBetween(min, max) {
-  let nodes = perimeterForSelect();
+  let nodes = perimeterForNodesSelection();
   if (nodes == null) return;
 
   nodes.forEach((node) => {
     let incomingEdges = node.incomers("edge:visible");
-
-    if (restrictToVisible()) {
       incomingEdges = incomingEdges.filter((edge) => edge.source().visible());
-    }
+
 
     const nInput = incomingEdges.length;
 
@@ -1187,10 +1203,9 @@ function selectInputBetween(min, max) {
         return edge.source().id() !== edge.target().id();
       });
       var noLoop = loopEdges.length == 0;
-      if (modeSelect() == AND_SELECTED) node.unselect();
+
       if (nInput == 0 || noLoop) node.select();
     } else {
-      if (modeSelect() == AND_SELECTED) node.unselect();
       if (nInput > min && nInput < max) {
         node.select();
       }
@@ -1207,14 +1222,14 @@ export function selectByName() {
   try {
     regex = new RegExp(pattern);
   } catch (e) {
-    console.error("Expression régulière invalide :", e.message);
+    alert("Wrong regular expression :"+ e.message);
     return;
   }
   // unselect les cachés
   cy.nodes(":selected:hidden").unselect();
 
   // périmètre
-  let nodes = perimeterForSelect();
+  let nodes = perimeterForNodesSelection();
   if (nodes == null) return;
 
   nodes.forEach((node) => {
@@ -1224,11 +1239,16 @@ export function selectByName() {
       if (modeSelect() == AND_SELECTED) node.unselect();
     }
   });
+
+  document.getElementById("nameFilterResult").textContent = `${nodes.filter(':selected').length}`;
 }
 
-// la rendre accessible globalement To be changed by an event listener
+// to can see function globally => To be changed by an event listener
 window.selectByName = selectByName;
 
+/*
+  full graph visible
+*/
 function showAll() {
   cy.nodes().show();
   cy.edges().show();

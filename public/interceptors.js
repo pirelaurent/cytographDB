@@ -98,8 +98,8 @@ export function setInterceptors() {
       if (classInfo) output += ` ${classInfo}<br/> `;
       // ${dataInfo}  can be added to hover for debug
 
-      const categories = node.data("nativeCategories");
-      if (Array.isArray(categories) && categories.includes("hasTriggers")) {
+    
+      if (node.hasClass("hasTriggers")) {
         let nbTrigs = node.data("triggers").length;
         if (nbTrigs > 0) {
           output += `<small>${nbTrigs} trigger(s)</small>`;
@@ -207,10 +207,25 @@ export function setInterceptors() {
       e.preventDefault();
       captureGraphAsPng();
     }
-
   });
 
-  
+  /*
+    some cleaning action between two actions on Nodes menu
+  */
+
+
+document.getElementById('NodesId').addEventListener('click', () => {
+  // clean input text 
+  const input = document.getElementById('nameFilter');
+  if (input) input.value = "";
+
+  // clean result 
+  const result = document.getElementById('nameFilterResult');
+  if (result) result.textContent = "";
+});
+
+
+
 
 
   // button undo

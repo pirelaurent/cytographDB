@@ -1,19 +1,18 @@
 // Copyright (C) 2025 Laurent P.
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 
 "use strict";
 
@@ -45,6 +44,20 @@ export function setLocalDBName(aName) {
 export function getLocalDBName() {
   return localDBName;
 }
+/*
+  class members of standard product to proposed in Gui filter
+*/
+export let nativeNodesCategories = [
+  "association",
+  "multiAssociation",
+  "hasTriggers",
+  "orphan",
+];
+
+/*
+  custom added classes to be proposed in gui filter
+*/
+export let customNodesCategories = new Set();
 
 /*
    used to question 'save y/n ' before changing of graph
@@ -61,6 +74,7 @@ export function setGraphHasChanged(value) {
 
 export let positionStackUndo = [];
 const maxUndo = 20;
+
 export function resetSnapshot() {
   positionStackUndo = [];
 }
@@ -78,7 +92,7 @@ export function pushSnapshot() {
     hiddenIds,
   };
 
-  // Ajouter en haut de la pile
+  // add on top
   positionStackUndo.push(snapshot);
 
   // limit to a max
@@ -100,6 +114,8 @@ export function popSnapshot() {
     console.log("No snapshot — reset?");
     return;
   }
+
+  //replace current graph
 
   cy.elements().remove();
   cy.json(snapshot.json);
@@ -131,7 +147,7 @@ export function modeSelect() {
 
 const VISIBLE_PLAN = "visible_plan";
 // default not used const ALL_PLANS = "allNodes";
-// enforce visible and remove acts on in gui 
+// enforce visible and remove acts on in gui
 export function restrictToVisible() {
   //return document.getElementById("planSelect").value === VISIBLE_PLAN;
   return true;
@@ -273,16 +289,15 @@ export function metrologie() {
 
   // ------------ edges info
 
-  display= "Edges &nbsp;";
+  display = "Edges &nbsp;";
   const labelEdges = document.querySelector("#EdgesId");
- if(selectedEdges != 0){
-  display += `&nbsp;${big} ${selectedEdges}/</span>${small}${allEdges}</span>`
- } else {
-    display += `&nbsp;${small} ${selectedEdges}/</span>${big}${allEdges}</span>`
- }
+  if (selectedEdges != 0) {
+    display += `&nbsp;${big} ${selectedEdges}/</span>${small}${allEdges}</span>`;
+  } else {
+    display += `&nbsp;${small} ${selectedEdges}/</span>${big}${allEdges}</span>`;
+  }
 
-
-   labelEdges.innerHTML = display;
+  labelEdges.innerHTML = display;
 
   /* const labelDelete = document.querySelector(
     '[data-menu-id="menu-nodes"] [data-category="delete"] .menu-delete'
@@ -400,12 +415,10 @@ export function initializeGraph(data, fromDisk = false) {
   cy.elements().remove();
   cy.add(data);
 
-
-
   let current_db = getLocalDBName();
 
   // customize nodes // PLA a relayer coté front : getXurrentDBName
-
+  createnativeNodesCategories();
   createCustomCategories(current_db); // PLQ
 
   let moreStyles = getCustomStyles(current_db);
@@ -446,32 +459,56 @@ export function perimeterForAction() {
  acess mode regarding options in menus 
 */
 
-export function perimeterForSelect() {
+export function perimeterForNodesSelection() {
   // if restrict take visible otherwise take whole graph
 
-  let nodes = restrictToVisible() ? cy.nodes(":visible") : cy.nodes();
-  // sinon on ne retient que les selectionnés parmi le premier lot
-  if (modeSelect() == AND_SELECTED)
-    nodes = nodes.intersect(cy.nodes(":selected"));
-
-  if (nodes.length == 0) {
-    let msg = "Nothing to filter";
-    msg += "\ncheck options : \n- play on visible:" + restrictToVisible();
-    msg += "\n-select mode :" + modeSelect();
-    alert(msg);
-    return null;
+  let nodes = cy.nodes(":visible");
+  // If AND to come restrict to current selected
+  if (modeSelect() == AND_SELECTED) {
+    nodes = cy.nodes(":visible:selected");
+    if (nodes.length == 0) {
+      let msg = "Nothing to filter with an AND operation";
+      msg += "\nNeeds to have already selected nodes";
+      msg += "\n ( or change for OR operation )";
+      alert(msg);
+      return null;
+    }
   }
-  // retour de la sélection
+
+  // return partial nodes but all unselected if AND
+  if (modeSelect() == AND_SELECTED) nodes.unselect();
   return nodes;
 }
+
+export function perimeterForEdgesSelection() {
+  // if restrict take visible otherwise take whole graph
+
+  let edges = cy.edges(":visible");
+  // If AND to come restrict to current selected
+  if (modeSelect() == AND_SELECTED) {
+    edges = cy.edges(":visible:selected");
+    if (edges.length == 0) {
+      let msg = "Nothing to filter with an AND operation";
+      msg += "\nNeeds to have already selected edges";
+      msg += "\n ( or change for OR operation )";
+      alert(msg);
+      return null;
+    }
+  }
+
+  // return partial nodes but all unselected if AND
+  if (modeSelect() == AND_SELECTED) edges.unselect();
+  return edges;
+}
+
+
 
 /*
  fill in a visual page for triggers details
 */
 
 export function openTriggerPage(node) {
-  const categories = node.data("nativeCategories");
-  if (Array.isArray(categories) && categories.includes("hasTriggers")) {
+  if (node.hasClass("hasTriggers")) {
     const table = node.id();
     const url = `/triggers.html?table=${encodeURIComponent(table)}`;
     window.open(url, "triggers");
@@ -502,12 +539,31 @@ export function mapValue(value, inMin, inMax, outMin, outMax) {
 }
 
 /*
- add a set of entries [ a,b,c] into nativeProperties 
- at this day, add native to index.html to see the option
+ standard categories created before custom using classes 
 */
 
-export function addNativeCategories(element, props) {
-  const current = element.data("nativeCategories") || [];
-  const merged = Array.from(new Set([...current, ...props]));
-  element.data("nativeCategories", merged);
+function createnativeNodesCategories() {
+  cy.nodes().forEach((node) => {
+    if (node.data("triggers")) node.addClass("hasTriggers");
+
+    let nbOut = node.outgoers("edge").length;
+    let nbIn = node.incomers("edge").length;
+    if (nbOut >= 2 && nbIn == 0) {
+      if (nbOut == 2) {
+        const allCols = node.data.columns || [];
+        const fkCols = node.data.foreignKeys || [];
+        // association porteuse de sens ou pas
+        const hasOnlyColsForFK = allCols.length === fkCols.length;
+        if (hasOnlyColsForFK) {
+          node.addClass("association");
+        }
+      } else {
+        node.addClass("multiAssociation");
+      }
+    }
+
+    if (nbOut == 0 && nbIn == 0) {
+      node.addClass("orphan");
+    }
+  });
 }

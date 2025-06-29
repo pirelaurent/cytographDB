@@ -1,42 +1,40 @@
-
-import { cy } from "../main.js";
-import { addCustomCategories, registerCustomModule } from "../customCategories.js";
+import { cy, customNodesCategories } from "../main.js";
+import {
+  registerCustomModule,
+} from "../customCategories.js";
 
 console.log("[DEBUG] democytodb.js chargé");
 
 /*----------------------------------------------
   module name
 */
- const democytodbModule = {
+const democytodbModule = {
   /*
     define specfic properties to this DB nodes
   */
   createCustomCategories() {
+
+    // categories for nodes 
     cy.nodes().forEach((node) => {
       /* 
         add class for visual effect and set the style in getCustomStyles
       */
 
+      /*
+        same as orphan in native category. 
+        set here for an example how to 
+      */
       let nbOut = node.outgoers("edge").length;
       let nbIn = node.incomers("edge").length;
-
-      //  search associations = only fk, not referenced
-      if (nbOut > 0 && nbIn == 0) {
-        // add class for gui purpose . declare it in getCustomStyles
-        node.addClass("association");
-      }
-
-      /*
-        add optional property to facilitate filter in GUI through
-        nodes > filter by > custom categories > 
-      */
-      // search for root tables : no output
       if (nbOut == 0 && nbIn > 0) {
-        addCustomCategories(node, ["root table"]);
-        // add also a class for visual 
         node.addClass("root");
       }
     });
+    /*
+     more than simple visual effect through class 
+     adding the class in customNodesCategories will propose it to filter in gui 
+    */
+    customNodesCategories.add("root");
   },
 
   /*----------------------------------------------
@@ -53,20 +51,17 @@ console.log("[DEBUG] democytodb.js chargé");
           shape: "ellipse",
           color: "#222",
           "background-color": "#FFB3A7",
-          "border-width": 3,
           "border-style": "dotted",
-         
         },
       },
 
-
-  {
-    selector: "node.association.start-node",
-    style: {
-      "border-width": "10px",
-         "border-style": "solid",
-    },
-  },
+      {
+        selector: "node.association.start-node",
+        style: {
+          "border-width": "10px",
+          "border-style": "solid",
+        },
+      },
 
       {
         selector: "node.root",
@@ -74,7 +69,6 @@ console.log("[DEBUG] democytodb.js chargé");
           shape: "triangle",
           color: "#222",
           "background-color": "lime",
-
         },
       },
     ];

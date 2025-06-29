@@ -158,8 +158,9 @@ app.post("/load-from-db", async (req, res) => {
       };
 
       if (trigs.length > 0) {
-        data.nativeCategories = ['hasTriggers'];
+  
         data.triggers = trigs;
+        // done in receipt data.classes = 'hasTriggers';
       }
 
       return { data };
@@ -365,30 +366,6 @@ app.get("/load-graph/:filename", (req, res) => {
     }
     res.json(JSON.parse(data));
   });
-});
-
-/*
-  generate an html page with list of selected nodes
-*/
-
-app.post("/list-nodes", (req, res) => {
-  const { nodes, selectedOnly } = req.body;
-
-  const html = `
-    <html>
-    <head><title>Node List</title></head>
-    <body>
-      <h2>${selectedOnly ? "Selected Nodes" : "All Nodes"} (${
-    nodes.length
-  })</h2>
-      <ul>
-        ${nodes.map((name) => `<li>${name}</li>`).join("")}
-      </ul>
-    </body>
-    </html>
-  `;
-
-  res.send(html);
 });
 
 /*

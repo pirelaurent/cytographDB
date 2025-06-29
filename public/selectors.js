@@ -16,12 +16,11 @@
 
 "use strict";
 
-import { customCategories } from "./customCategories.js";
+import { customNodesCategories, perimeterForEdgesSelection, perimeterForNodesSelection } from "./main.js";
 import {
   cy,
   perimeterForAction,
   restrictToVisible,
-  addNativeCategories,
   modeSelect,
   AND_SELECTED,
 } from "./main.js";
@@ -253,6 +252,7 @@ export function collapseAssociations() {
     alert("no nodes to check");
     return;
   }
+  
   let done = 0;
   nodes.forEach(function (node) {
     let outEdges = node.outgoers("edge");
@@ -299,9 +299,8 @@ export function collapseAssociations() {
           originalClasses: node.classes().join(" "),
           originalWidth: width,
           originalHeight: height,
-          originalHasTriggers: node.data("hasTriggers"),
+          //originalHasTriggers: node.data("hasTriggers"),
           originalTriggers: node.data("triggers"),
-          originalNativeCategories: node.data("nativeCategories"),
           collapsed_association: true,
         },
         classes: "simplified",
@@ -364,7 +363,6 @@ export function restoreAssociations() {
         association: "true",
         hasTriggers: edge.data("originalHasTriggers"),
         triggers: edge.data("originalTriggers"),
-        nativeCategories: edge.data("originalNativeCategories"),
       },
       position: position,
     });
@@ -465,6 +463,8 @@ export async function generateTriggers() {
       return;
     }
 
+
+
     data.triggers.forEach((t) => {
       const triggerName = t.name;
       const source = t.sourceTable || table; // à adapter si "table" est ailleurs
@@ -490,7 +490,7 @@ export async function generateTriggers() {
             });
 
             edge.addClass("trigger_impact");
-            addNativeCategories(edge, ["trigger_impact"]);
+           
             edge.show();
             sourceNode.show();
             targetNode.show();
@@ -527,8 +527,8 @@ export function fillInGuiNodesCustomCategories() {
   // Supprime les anciens éléments
   submenu.querySelectorAll("li.dynamic-data-key").forEach((el) => el.remove());
 
-  // Ajoute les nouveaux
-  for (let key in customCategories) {
+  // Add new custom 
+  for (let key of customNodesCategories) {
     const li = document.createElement("li");
     li.classList.add("dynamic-data-key");
     li.setAttribute("data-key", key);
@@ -547,15 +547,9 @@ export function fillInGuiNodesCustomCategories() {
 */
 
 function selectNodesByCustomcategories(aCategory) {
-  const nodes = perimeterForAction();
-  // with  AND perimeter in node are the current selected
-  if (modeSelect() == AND_SELECTED) {
-    nodes.unselect();
-  }
-
+  const nodes = perimeterForNodesSelection();
   nodes.forEach((node) => {
-    const categories = node.data("customCategories");
-    if (Array.isArray(categories) && categories.includes(aCategory)) {
+    if (node.hasClass(aCategory)) {
       node.select();
     }
   });
@@ -565,29 +559,23 @@ function selectNodesByCustomcategories(aCategory) {
   discrete native categories are set in index.html with dedicated actions 
 */
 
-export function selectNodesByNativeCategories(aCategory) {
-  const nodes = perimeterForAction();
 
-  nodes.forEach((node) => {
-    const categories = node.data("nativeCategories");
-    if (Array.isArray(categories) && categories.includes(aCategory)) {
-      node.select();
-    }
-  });
-}
 
 export function selectEdgesByNativeCategories(aCategory) {
-  const edges = cy.edges();
+
+  const edges = perimeterForEdgesSelection();
+  if (edges.length === 0) return;
 
   edges.forEach((edge) => {
-    const categories = edge.data("nativeCategories");
-    if (Array.isArray(categories) && categories.includes(aCategory)) {
+    if (edge.hasClass(aCategory)) {
       edge.select();
     }
   });
 }
 
-
+/*
+ create a png image by button or ctrl g like graphic
+*/
 export function captureGraphAsPng() {
   const png = cy.png({ full: false, scale: 2, bg: 'white' });
   cy.edges().addClass("forPNG");

@@ -22,17 +22,17 @@ import {
   resetPositionStackUndo,
   setGraphHasChanged,
   metrologie,
-  restrictToVisible,
   setPostgresConnected,
   setLocalDBName,
   getLocalDBName,
   initializeGraph,
   setAndRunLayoutOptions,
   restoreProportionalSize,
+  customNodesCategories,
 } from "./main.js";
 
 import { proportionalSizeNodeSizeByLinks } from "./menus.js";
-import { clearCustomCategories } from "./customCategories.js";
+
 /*
  connect to db with graph or only db 
 */
@@ -64,7 +64,8 @@ export function connectToDb(menuItemElement) {
       ).innerHTML = `<small>&nbsp;connected to: </small> ${dbName}`;
       // clean current graph
       cy.elements().remove();
-      clearCustomCategories();
+
+      customNodesCategories.clear();
       return res.text(); // ou `return dbName` si tu veux
     });
   });
@@ -80,7 +81,8 @@ export function loadInitialGraph() {
     return;
   }
   cy.elements().remove();
-  clearCustomCategories();
+  customNodesCategories.clear(); 
+
   waitLoading("⏳ Analyzing DB --> create graph...");
 
   //document.getElementById("current-graph").textContent = "new graph from db ";
@@ -273,31 +275,39 @@ function sendGraphState(filename) {
 /*
  generate list of nodes label on a new html page 
 */
-export function sendNodeListToServer() {
+export function sendNodeListToHtml() {
   let nodes;
-  if (restrictToVisible()) {
-    nodes = selectedOnly ? cy.nodes(":selected:visible") : cy.nodes(":visible");
-  }
-
+  // permimeter
+    nodes = cy.nodes(":selected:visible");
+    if (nodes.length === 0) nodes= cy.nodes(":visible");
   if (nodes.length == 0) {
     alert("no nodes to list in current perimeter. Check selection ");
     return;
   }
 
-  const names = nodes.map((n) => n.data("id")).sort();
-
-  fetch("/list-nodes", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nodes: names, selectedOnly: selectedOnly }),
-  })
-    .then((response) => response.text())
-    .then((html) => {
-      const win = window.open("", "nodeListWindow");
+  const sortedNodes = nodes.sort((a, b) => {
+    const labelA = a.data("label") || "";
+    const labelB = b.data("label") || "";
+    return labelA.localeCompare(labelB);
+  });
+const html = `
+    <html>
+    <head><title>Node List</title></head>
+    <body>
+      <h2>${
+    sortedNodes.length
+  } nodes in current perimeter</h2>
+      <ul>
+        ${sortedNodes.map((node) => `<li>${node.data('label')}</li>`).join("")}
+      </ul>
+    </body>
+    </html>
+  `;
+const win = window.open("", "nodeListWindow");
       // win.document.write(html);
       win.document.body.innerHTML = html;
       win.document.close();
-    });
+
 }
 
 /*
@@ -319,7 +329,7 @@ export function sendEdgeListToHtml() {
   });
   //const names = edges.map((n) => n.data("id")).sort();
 
-  const win = window.open("", "nodeListWindow");
+  const win = window.open("", "edgeListWindow");
   let outputLines = "<ul>";
 
   sortedEdges.forEach((edge) => {
@@ -348,7 +358,7 @@ export function sendEdgeListToHtml() {
     <html>
     <head><title>Edge List</title></head>
     <body>
-      <h2>Edges :  (${edges.length})</h2>
+      <h2>${edges.length} edges in current perimeter</h2>
        ${outputLines}
     </body>
     </html>

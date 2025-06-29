@@ -46,7 +46,7 @@ export const cyStyles = [
     style: {
       width: 2,
       "line-color": "#aaa",
-      "target-arrow-color": "black",
+      "target-arrow-color": "#888",
       "target-arrow-shape": "vee",
       "arrow-scale": 1.2,
       "curve-style": "straight",
@@ -89,7 +89,7 @@ export const cyStyles = [
       //'target-arrow-shape': 'vee',
       "arrow-scale": 1.2,
       "source-arrow-shape": "circle",
-      "source-arrow-color": "black",
+      "source-arrow-color": "#888",
       //'line-style': 'dashed',
       //'width': 4
     },

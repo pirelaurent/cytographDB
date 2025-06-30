@@ -3,7 +3,7 @@
 
 */
 
-class Scenario {
+export class Scenario {
 
   // create a scenario with an array of one or several scripts to chain  :
   //[{ name: "nameOfScript",generator },{ name: "nameOfScript",generator }...]

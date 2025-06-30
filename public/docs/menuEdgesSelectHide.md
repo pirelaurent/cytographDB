@@ -7,29 +7,33 @@
 ## 📊 Status
 
 Displays selected and visible edges:  
-Example: `(0 / 11)` → **0 selected / 11 total**
+Example: `(4 / 11)` → **4 selected / 11 total**
+
+When some are selected, perimeter of actions applies to selection.  
+When none are selected, perimeter of actions applies to all visibles.
 
 ---
+
+## hover 
+
+when checked, a mouse over shows some details
+<img src = "./img/edgeHover.png" width = "500px">  
 
 ## 🔍 Select
 
 Edges can be selected directly via:
 - Click
 - Shift + Click
+- 
+
+Selected edges have distinct dashed lines to be recognized 
+<img src = "./img/edgeSelected.png" width = "400px">   
 
 Menu options:
 
 - **All** → Select all visible edges
 - **None** → Deselect all edges
-- **Swap Selected** → Invert current selection
-- **Edges from Selected Nodes**:
-  - **All Edges** → All edges connected to selected nodes
-  - **Outgoing Edges** → Only edges going out of selected nodes
-  - **Incoming Edges** → Only incoming edges to selected nodes
-  - **Edges Between Selected Nodes** → Select edges connecting currently selected nodes
-
-💡 **Comparison:**  
-Similar to **Nodes > Follow & Show**, except this selects only the edges—**not** the terminal nodes.
+- **Swap Selected** → Invert current edge selection
 
 ---
 
@@ -40,18 +44,37 @@ Similar to **Nodes > Follow & Show**, except this selects only the edges—**not
 - **Selected** → Hide selected edges
 - **Swap** → Invert visible and hidden edges
 
+--- 
+
+## 🔗(Edges) of selected nodes 
+
+Take in account currently selected nodes to pursuit with edge selection :
+
+  - **All Edges** → Select all edges connected to selected nodes
+  - **Outgoing Edges** → Select only edges going out of selected nodes
+  - **Incoming Edges** → Select only incoming edges to selected nodes
+
+💡Similar to ***Nodes > Follow & Show***, except this selects only the edges—**not** the terminal nodes.
+
+
+  #### **Edges Between Selected Nodes** 
+  
+  Select edges connecting currently selected nodes :
+
+<img src = "./img/edgeConnectingNodes.png" width = 500px>   
+
+
 ---
 
 ## 🏷️ Label Display
 
-Toggle edge labels and visual emphasis:
+Toggle edge labels of current perimeter (all visibles or selected only)
 
-- Highlights edge lines
-- Displays the foreign key name (if applicable) or the trigger name (if applicable)
+- Displays the foreign key name (common edges) or the trigger name (trigger impact edges) 
 
 - font + / -  : act on selected edges if any, otherwise on visibles
 
-<img src="./img/edgeLabels.png" width="500px" />
+<img src="./img/edgeLabels.png" width="600px" />
 
 ---
 
@@ -59,31 +82,31 @@ Toggle edge labels and visual emphasis:
 
 Generates an HTML file listing edge details based on current scope:
 
-Format example:  
-```authorization_employee_id_fkey (authorization --> employee)```
+<img src="./img/edgesList.png" width="500px" style="border: 1px solid grey;"/>
 
 ---
 
-## 🧩 Data Model Actions
+# 🧩 Data Model 
 
-Special functions for advanced structural modifications:
+Special functions for advanced structural modifications.
 
-### 🔁 Generate Trigger Impacts
+
+## 🔁 Generate Trigger Impacts
 
 ⚠️ Requires connection to the **original database** used to build the graph.
 
-- Analyzes all trigger and function code
-- Identifies CRUD operations that imply impact on other tables
+- Analyzes all triggers and function code
+- Identifies C(R)UD operations that imply impacts on other tables
 - Adds **oriented edges** from the trigger's source table to the impacted table
 - Edges are styled distinctly
 
-📖 See the [Quick Tour](./quickTour.md) for visuals.
+<img src="./img/triggerHover.png" width="400px" style="border: 1px solid grey;"/>
 
 ---
 
 ### 🔄 Collapse Associations
 
-For **strict association tables** (2 foreign keys, no extra columns):
+For **strict association tables** (2 foreign keys, no other link, no extra columns):
 
 - Removes the association node
 - Creates a **direct edge** between the linked tables (A → C)
@@ -92,9 +115,9 @@ For **strict association tables** (2 foreign keys, no extra columns):
 
 ⚠️ **Caution** when using actions based on edge direction—these may not behave as expected with collapsed associations.
 
-- The label retains the original association table name
+<img src="./img/collapseAssociations.png" width="500px" />
 
-<img src="./img/collapsedLabel.png" width="500px" />
+in upper image, *intervention* node is not collapsed due to the trigger impact added recently. It is no more a *strict association*. 
 
 ---
 
@@ -107,21 +130,31 @@ Note: The exact screen position may be lost during restoration.
 
 ## 🧼 Filter
 
-Select specific generated edge types:
+Select specific generated edge:
 
 - **Generated Triggers**
 - **Collapsed Associations**
-- **Native Categories** (predefined types)
+- **On delete cascade**
 
-⚠️ Edges do **not** currently support custom categories.
+#### Filter on delete cascade sample
 
-💡 **Tip:** Use **"By Category >"** to load available options before selecting.
+Only the FK between *Factory* and *Company* is not selected 
+<img src="./img/onDeleteCascadeEdge.png" width="500px" />
 
 ---
 
 ## 🗑️ Delete Selected
 
 Permanently removes selected edges from the graph.  
-Undo is **not mentioned** here—use cautiously.
+
+- Direct deletion when a unique edge is selected. 
+❗ **Undo** is available for this action as well
+
 
 ---
+
+- ⚪️ [Main](./main.md)
+- 🟩 [Quick Tour](./quickTour.md)  
+- 🟨 [Main Menu Bar](./menuBar.md)  
+- 🟦 [Node Menu](./menuNodesSelectHide.md)  
+- 🟥 [Edge Menu](./menuEdgesSelectHide.md)  

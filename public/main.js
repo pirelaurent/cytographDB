@@ -145,11 +145,8 @@ export function modeSelect() {
   return document.getElementById("modeSelect").value;
 }
 
-const VISIBLE_PLAN = "visible_plan";
-// default not used const ALL_PLANS = "allNodes";
 // enforce visible and remove acts on in gui
 export function restrictToVisible() {
-  //return document.getElementById("planSelect").value === VISIBLE_PLAN;
   return true;
 }
 

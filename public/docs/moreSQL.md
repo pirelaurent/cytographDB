@@ -1,7 +1,5 @@
 # SQL 
 
-## 
-
 ## `ON DELETE` / `ON UPDATE` Options in PostgreSQL foreign keys
 
 When a **foreign key** (`FOREIGN KEY`) is defined in a table, you can specify how it should behave in case of **deletion** (`DELETE`) or **update** (`UPDATE`) of the referenced primary key.
@@ -80,3 +78,7 @@ CREATE TABLE orders (
 -- Deleting a customer will automatically delete their orders
 DELETE FROM customers WHERE id = 42;
 ``` 
+---  
+
+
+- ⚪️ [Main](./main.md)

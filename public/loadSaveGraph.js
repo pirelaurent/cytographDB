@@ -345,10 +345,10 @@ export function sendEdgeListToHtml() {
     outputLines += ` 
          <li>
          ${label} 
-      <small>(
+      &nbsp;<small>:&nbsp;
       ${edge.source().id()} --> 
       ${edge.target().id()}
-      )</small> 
+      </small> 
       </li>
       `;
   });

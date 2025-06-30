@@ -16,13 +16,16 @@
 
 "use strict";
 
-import { customNodesCategories, perimeterForEdgesSelection, perimeterForNodesSelection } from "./main.js";
+import {
+  customNodesCategories,
+  perimeterForEdgesSelection,
+  perimeterForNodesSelection,
+} from "./main.js";
 import {
   cy,
   perimeterForAction,
   restrictToVisible,
-  modeSelect,
-  AND_SELECTED,
+  restoreProportionalSize,
 } from "./main.js";
 
 //------------------------
@@ -162,13 +165,13 @@ export function followCross() {
 */
 export function findLongOutgoingPaths(cy, minLength = 3, maxDepth = 5) {
   const paths = [];
-  const successfulStarts = new Set();  // to remember which nodes are true starters
+  const successfulStarts = new Set(); // to remember which nodes are true starters
 
   function dfs(path, visited, depth, startId) {
     if (depth > maxDepth) return;
 
     const last = path[path.length - 1];
-    const nextNodes = last.outgoers('edge').targets();
+    const nextNodes = last.outgoers("edge").targets();
 
     nextNodes.forEach((next) => {
       const nextId = next.id();
@@ -190,9 +193,9 @@ export function findLongOutgoingPaths(cy, minLength = 3, maxDepth = 5) {
     });
   }
 
-  let startNodes = cy.nodes(':visible:selected');
+  let startNodes = cy.nodes(":visible:selected");
   if (startNodes.length === 0) {
-    startNodes = cy.nodes(':visible');
+    startNodes = cy.nodes(":visible");
   }
 
   startNodes.forEach((start) => {
@@ -211,37 +214,30 @@ export function findLongOutgoingPaths(cy, minLength = 3, maxDepth = 5) {
   });
 
   if (elementsToShow.length === 0) {
-    alert('No long path from the starting nodes');
+    alert("No long path from the starting nodes");
     return;
   }
 
   // Clear all previous selections and fade everything
-  cy.elements().unselect().addClass('faded');
+  cy.elements().unselect().addClass("faded");
 
   // Highlight the actual path elements
-  elementsToShow.removeClass('faded').select();
+  elementsToShow.removeClass("faded").select();
 
   // Make sure only *starting* nodes are specially marked
-  cy.nodes().removeClass('start-node'); // optional visual marker
-  cy.nodes().filter(n => successfulStarts.has(n.id())).addClass('start-node').select();
-let result =`Found ${paths.length} long path(s):`;
-paths.forEach((path, idx) => {
-  const ids = path.map(n => n.id()).join(" → ");
-  result+=`\nPath ${idx + 1}: ${ids}`;
-});
+  cy.nodes().removeClass("start-node"); // optional visual marker
+  cy.nodes()
+    .filter((n) => successfulStarts.has(n.id()))
+    .addClass("start-node")
+    .select();
+  let result = `Found ${paths.length} long path(s):`;
+  paths.forEach((path, idx) => {
+    const ids = path.map((n) => n.id()).join(" → ");
+    result += `\nPath ${idx + 1}: ${ids}`;
+  });
 
-console.log(result);
-
-
-
-
-
-
+  console.log(result);
 }
-
-
-
-
 
 /*
  remove association (2) nodes and create new direct links 
@@ -252,7 +248,7 @@ export function collapseAssociations() {
     alert("no nodes to check");
     return;
   }
-  
+
   let done = 0;
   nodes.forEach(function (node) {
     let outEdges = node.outgoers("edge");
@@ -260,7 +256,8 @@ export function collapseAssociations() {
 
     if (outEdges.length != 2 || inEdges.length != 0) return;
 
-    let shouldSelect = outEdges.some((e) => e.selected());
+    const elementsToSave = node.closedNeighborhood(); // le nœud + ses edges
+    let nodeBackup = elementsToSave.jsons(); // copie profonde des data + style + classes
 
     let targets = outEdges.map((e) => e.target());
 
@@ -272,15 +269,7 @@ export function collapseAssociations() {
       a.show();
       b.show();
 
-      if (shouldSelect) {
-        a.select();
-        b.select();
-      }
-
       let newId = `generated-${a.id()} <-( ${node.id()} )->${b.id()}`;
-
-      const width = node.style("width");
-      const height = node.style("height");
 
       // Add the generated edge
 
@@ -292,19 +281,10 @@ export function collapseAssociations() {
           source: a.id(),
           target: b.id(),
           generated: true,
-          originalNode: node.id(),
-          originalLabel: node.data("label") || node.id(),
-          originalStyle: JSON.stringify(node.style()),
-          originalPosition: JSON.stringify(node.position()),
-          originalClasses: node.classes().join(" "),
-          originalWidth: width,
-          originalHeight: height,
-          //originalHasTriggers: node.data("hasTriggers"),
-          originalTriggers: node.data("triggers"),
+          backup: nodeBackup,
           collapsed_association: true,
         },
         classes: "simplified",
-        selected: shouldSelect,
       });
 
       // remove old node and links
@@ -325,102 +305,18 @@ export function restoreAssociations() {
   const simplifiedEdges = visibleEdges.filter((edge) =>
     edge.hasClass("simplified")
   );
+  if (simplifiedEdges.length === 0) return;
 
   simplifiedEdges.forEach((edge) => {
-    // debugconsole.log(edge.id(), edge.classes());
-
-    let a = edge.source();
-    let b = edge.target();
-
-    let originalId = edge.data("originalNode");
-    let originalLabel = edge.data("originalLabel");
-    //let originalStyle = JSON.parse(edge.data("originalStyle") || "{}");
-    //let originalPosition = JSON.parse(edge.data("originalPosition") || "{}");
-    let originalClasses = (edge.data("originalClasses") || "").split(" ");
-
-    // Restaurer le noeud
-    //@todo si source = dest, il ne faut pas repositionner au milieu
-
-    let sameNode = a.id() === b.id();
-
-    let offset = 60; // Distance de décalage si les deux sont identiques
-
-    let position = sameNode
-      ? {
-          x: a.position("x") + offset,
-          y: a.position("y") - offset,
-        }
-      : {
-          x: (a.position("x") + b.position("x")) / 2,
-          y: (a.position("y") + b.position("y")) / 2,
-        };
-
-    let newNode = cy.add({
-      group: "nodes",
-      data: {
-        id: originalId,
-        label: originalLabel,
-        association: "true",
-        hasTriggers: edge.data("originalHasTriggers"),
-        triggers: edge.data("originalTriggers"),
-      },
-      position: position,
-    });
-
-    newNode.removeStyle();
-    const width = edge.data("originalWidth");
-    const height = edge.data("originalHeight");
-
-    newNode.style({
-      width: width,
-      height: height,
-    });
-
-    // Restore stored classes
-    newNode.addClass(originalClasses);
-
-    // restore edges even when a loop edge
-    let edgeData = [];
-
-    // first link
-    edgeData.push({
-      group: "edges",
-      data: {
-        id: `${a.id()}-${originalId}-1`,
-        source: originalId,
-        target: a.id(),
-      },
-    });
-
-    // second link
-    if (a.id() !== b.id()) {
-      // Cas normal : deux tables différentes
-      edgeData.push({
-        group: "edges",
-        data: {
-          id: `${b.id()}-${originalId}-2`,
-          source: originalId,
-          target: b.id(),
-        },
-      });
-    } else {
-      // Special when loop edge
-      edgeData.push({
-        group: "edges",
-        data: {
-          id: `${b.id()}-${originalId}-loop`,
-          source: originalId,
-          target: b.id(),
-        },
-        classes: "self-link", // to some visu effect
-      });
+    const backup = edge.data("backup");
+    if (backup) {
+      cy.add(backup);
     }
-
-    cy.add(edgeData);
-
     // remove obsolete generated edge
     edge.remove();
   });
+
+  restoreProportionalSize();
 }
 
 /*
@@ -463,8 +359,6 @@ export async function generateTriggers() {
       return;
     }
 
-
-
     data.triggers.forEach((t) => {
       const triggerName = t.name;
       const source = t.sourceTable || table; // à adapter si "table" est ailleurs
@@ -490,7 +384,7 @@ export async function generateTriggers() {
             });
 
             edge.addClass("trigger_impact");
-           
+
             edge.show();
             sourceNode.show();
             targetNode.show();
@@ -527,7 +421,7 @@ export function fillInGuiNodesCustomCategories() {
   // Supprime les anciens éléments
   submenu.querySelectorAll("li.dynamic-data-key").forEach((el) => el.remove());
 
-  // Add new custom 
+  // Add new custom
   for (let key of customNodesCategories) {
     const li = document.createElement("li");
     li.classList.add("dynamic-data-key");
@@ -559,10 +453,7 @@ function selectNodesByCustomcategories(aCategory) {
   discrete native categories are set in index.html with dedicated actions 
 */
 
-
-
 export function selectEdgesByNativeCategories(aCategory) {
-
   const edges = perimeterForEdgesSelection();
   if (edges.length === 0) return;
 
@@ -577,7 +468,7 @@ export function selectEdgesByNativeCategories(aCategory) {
  create a png image by button or ctrl g like graphic
 */
 export function captureGraphAsPng() {
-  const png = cy.png({ full: false, scale: 2, bg: 'white' });
+  const png = cy.png({ full: false, scale: 2, bg: "white" });
   cy.edges().addClass("forPNG");
   const link = document.createElement("a");
   link.href = png;

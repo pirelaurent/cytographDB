@@ -21,7 +21,7 @@ With powerful selection, filtering, and path traversal features—spanning both 
 ---
 
 ## Documentation
-
+- ⚪️ [Main](./main.md)
 - 🟩 [Quick Tour](./quickTour.md)  
 - 🟨 [Main Menu Bar](./menuBar.md)  
 - 🟦 [Node Menu](./menuNodesSelectHide.md)  

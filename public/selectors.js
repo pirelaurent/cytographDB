@@ -161,27 +161,71 @@ export function followCross() {
 }
 
 /*
- find path > 2 following outgoing edges 3 
+ helper for long path 
 */
-export function findLongOutgoingPaths(cy, minLength = 3, maxDepth = 5) {
+function isSubPath(smaller, larger) {
+  for (let i = 0; i <= larger.length - smaller.length; i++) {
+    let match = true;
+    for (let j = 0; j < smaller.length; j++) {
+      if (smaller[j] !== larger[i + j]) {
+        match = false;
+        break;
+      }
+    }
+    if (match) return true;
+  }
+  return false;
+}
+
+/*
+ find path . adjust value when calling
+*/
+export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
   const paths = [];
   const successfulStarts = new Set(); // to remember which nodes are true starters
+  let iterationCount = 0;
+  const maxIterations = 10000;
 
   function dfs(path, visited, depth, startId) {
+    if (iterationCount >= maxIterations) {
+      return;
+    }
+    iterationCount++;
     if (depth > maxDepth) return;
 
     const last = path[path.length - 1];
-    const nextNodes = last.outgoers("edge").targets();
+    const nextEdges = last.outgoers("edge").filter(":visible");
+    const nextNodes = nextEdges.targets().filter(":visible");
 
     nextNodes.forEach((next) => {
       const nextId = next.id();
+
       if (!visited.has(nextId)) {
         path.push(next);
         visited.add(nextId);
 
         if (path.length > minLength) {
-          paths.push([...path]);
-          successfulStarts.add(startId); // register this start node
+          const newPathIds = path.map((n) => n.id());
+
+          // Check if this new path is a true subpath of any existing one
+          let isEmbedded = false;
+          for (let i = paths.length - 1; i >= 0; i--) {
+            const existingPathIds = paths[i].map((n) => n.id());
+
+            if (isSubPath(newPathIds, existingPathIds)) {
+              isEmbedded = true;
+              break; // current is contained — discard it
+            }
+
+            if (isSubPath(existingPathIds, newPathIds)) {
+              paths.splice(i, 1); // existing is contained — remove it
+            }
+          }
+
+          if (!isEmbedded) {
+            paths.push([...path]);
+            successfulStarts.add(startId);
+          }
         }
 
         dfs(path, visited, depth + 1, startId);
@@ -193,15 +237,20 @@ export function findLongOutgoingPaths(cy, minLength = 3, maxDepth = 5) {
     });
   }
 
+  // limit exploration to visible selected
+
   let startNodes = cy.nodes(":visible:selected");
   if (startNodes.length === 0) {
-    startNodes = cy.nodes(":visible");
+    alert("no selected nodes as starting points");
+    return;
   }
 
   startNodes.forEach((start) => {
     dfs([start], new Set([start.id()]), 1, start.id());
   });
-
+  if (iterationCount >= maxIterations) {
+    alert(`Limited iterations ${maxIterations} reached. Partial results`);
+  }
   const elementsToShow = cy.collection();
 
   paths.forEach((path) => {
@@ -230,13 +279,54 @@ export function findLongOutgoingPaths(cy, minLength = 3, maxDepth = 5) {
     .filter((n) => successfulStarts.has(n.id()))
     .addClass("start-node")
     .select();
-  let result = `Found ${paths.length} long path(s):`;
-  paths.forEach((path, idx) => {
-    const ids = path.map((n) => n.id()).join(" → ");
-    result += `\nPath ${idx + 1}: ${ids}`;
-  });
 
-  console.log(result);
+  let okMess = `${paths.length} results . see the list ?`;
+  let limit = paths.length;
+  if (limit > 1000) {
+    limit = 1000;
+    okMess += "  (limited to 1000 paths)";
+  }
+
+  if (confirm(okMess)) {
+    const htmlBase = `
+    <html>
+      <head>
+        <title>Long Paths</title>
+        <style>
+          body { font-family: sans-serif; padding: 1em; }
+          h1 { margin-bottom: 1em; }
+          .path { margin-bottom: 0.5em; }
+        </style>
+      </head>
+      <body>
+        <h1>Long path list</h1>
+        <div id="path-container"></div>
+      </body>
+    </html>
+  `;
+
+    const win = window.open("", "LongPathListWindow");
+    win.document.open();
+    win.document.write(htmlBase);
+    win.document.close();
+
+    // Utiliser un petit délai pour s'assurer que le DOM est prêt
+    setTimeout(() => {
+      const container = win.document.getElementById("path-container");
+      if (!container) {
+        console.error("Échec : conteneur introuvable");
+        return;
+      }
+
+      for (let idx = 0; idx < limit; idx++) {
+        const path = paths[idx];
+        const div = win.document.createElement("div");
+        div.className = "path";
+        div.textContent = `${idx + 1} : ${path.map((n) => n.id()).join(" → ")}`;
+        container.appendChild(div);
+      }
+    }, 100); // petit délai pour laisser le temps au DOM de se préparer
+  }
 }
 
 /*

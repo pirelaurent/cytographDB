@@ -496,9 +496,12 @@ export function menuNodes(option) {
       followCross();
       break;
 
+      /*
+       uses the default defined in the function 
+      */
     case "findLongOutgoingPaths":
       pushSnapshot();
-      findLongOutgoingPaths(cy, 2);
+      findLongOutgoingPaths(cy);
       break;
 
     case "selectNodesFromSelectedEdges":

@@ -7,7 +7,7 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 
-# OS windows
+# OS windows  ( and use git add -u in win not add. )
 *.Zone.Identifier
 
 # Editor folders

@@ -96,8 +96,8 @@ Below a sample started from the selected *authorisation*
 
 <img src = "./img/longPath.png" width = 300px>  
 
-  For more information, the corresponding list is echoed to the console of the navigator. 
-  <img src = "./img/longPathTrace.png" width = 600px>  
+The list is displayed in a new page ( after confirmation ) 
+  <img src = "./img/longPathTrace.png" width = "400px" style="border: 1px solid grey">  
 
 ---
 

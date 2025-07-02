@@ -39,7 +39,7 @@ When cursor is over a node-table :
   - A table with triggers shows one star per trigger. *Intervention '**'* have two.
 - edges are oriented from owner of a FK to the referenced table. 
   - the destination arrow is a triangle. 
-- if a FK is a strong link with ON CASCADE DELETE option, le source arrow is a round circle. 
+- if a FK is a strong link with ON CASCADE DELETE option, the source arrow is a round circle. 
   - generally the case on ***association*** table between two main tables.
     - see *authorization* and *intervention* in the sample. 
 

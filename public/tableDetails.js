@@ -90,7 +90,7 @@ let allUpDelInfo="";
 let updateInfo = "";
  switch (fk.on_update){
   // no info displayed if default
-  case 'a': updateInfo = "NO ACTION";break
+  //case 'a': updateInfo = "NO ACTION";break
   case 'r': updateInfo = "RESTRICT";break
   case 'c': updateInfo = "CASCADE";break
   case 'n': updateInfo = "SET NULL";break
@@ -104,7 +104,7 @@ let updateInfo = "";
  let deleteInfo ="";
  switch (fk.on_delete){
     // no info displayed if default
-  case 'a': deleteInfo = "NO ACTION";break
+  //case 'a': deleteInfo = "NO ACTION";break
   case 'r': deleteInfo = "RESTRICT";break
   case 'c': deleteInfo = "CASCADE";break
   case 'n': deleteInfo = "SET NULL";break

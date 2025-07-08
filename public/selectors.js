@@ -493,8 +493,6 @@ export async function generateTriggers() {
 
 /*
  find all data types in nodes that we leave to user choice 
-
- PLAPLA to be changed with customCategories in customCategory.js 
 */
 
 export function fillInGuiNodesCustomCategories() {

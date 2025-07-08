@@ -18,9 +18,6 @@ A fake DB to work with several cases
 - Show available PostgreSQL databases to work with.
 - Choose *democytoscapedb*
 
-
-
-
 ---
 
 ### Direct Informations
@@ -49,15 +46,24 @@ When cursor is over a node-table :
 
 Right-click on a node shows a contextual menu that link to separate pages:
 
-<img src = "./img/hoverMenu.png" width ="400px" style="border: 1px solid grey;">
+<img src = "./img/hoverMenu.png" width ="300px" style="border: 1px solid grey;">
 
 ---
 
-### Sample: Table Definition
+### Sample: Table Employee
 
-<img src ="./img/table-intervention.png" width = "800px" style="border: 1px solid grey;">
+<img src ="./img/table-employee.png" width = "800px" style="border: 1px solid grey;">
 
-for ON UPDATE ON DELETE see [FK constraints explained](./moreSQL.md) 
+<small>*[FK constraints explained ](./moreSQL.md)*</small> 
+
+### Comment in tips 
+
+When an icon appears next to an element, hovering over the element will display its associated comment.
+For the employee table, a comment is defined on the table itself
+
+<img src = "./img/tipOnEmployee.png" width ="500px" style="border: 1px solid grey;" >
+
+You can see comments on the primary key, some columns, some foreign keys and on index. 
 
 ---
 

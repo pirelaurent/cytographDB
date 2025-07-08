@@ -243,7 +243,7 @@ document.getElementById('NodesId').addEventListener('click', () => {
     {
       cy.edges().removeClass("incoming outgoing faded "); // internal ?
     }
-    cy.nodes().removeClass("faded"); //PLA
+    cy.nodes().removeClass("faded");
   });
 
   document.getElementById("open-table").addEventListener("click", () => {

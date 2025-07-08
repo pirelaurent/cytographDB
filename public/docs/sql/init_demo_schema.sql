@@ -65,6 +65,7 @@ CREATE TABLE line_product (
 -- EMPLOYEES
 CREATE TABLE employee (
     id SERIAL PRIMARY KEY,
+    -- PostgreSQL will automatically create a constraint named employee_pkey under the hood. 
     name TEXT NOT NULL,
     factory_id INT NOT NULL REFERENCES factory(id),
     activity_points INT DEFAULT 0 NOT NULL
@@ -143,3 +144,58 @@ CREATE TRIGGER trg_check_authorization
 BEFORE INSERT ON intervention
 FOR EACH ROW
 EXECUTE FUNCTION check_authorization_before_intervention();
+
+
+-- ADD COMMENTS ON TABLES
+
+COMMENT ON TABLE company IS 'Represents a company, the top-level entity in the industrial model.';
+COMMENT ON TABLE factory IS 'A factory owned by a company. Contains one or more production lines.';
+COMMENT ON TABLE production_line IS 'A production line within a factory, producing one or more products.';
+COMMENT ON TABLE product IS 'A product manufactured on one or more production lines.';
+COMMENT ON TABLE line_product IS 'Join table mapping which production lines manufacture which products.';
+COMMENT ON TABLE employee IS 'An employee assigned to a factory, allowed to perform interventions.';
+COMMENT ON TABLE "authorization" IS 'Authorization matrix defining which lines each employee is allowed to operate on.';
+COMMENT ON TABLE intervention IS 'Records of interventions performed by employees on production lines.';
+COMMENT ON TABLE parameters IS 'General configuration parameters for the application.';
+
+-- ADD COMMENTS ON COLUMNS IN TABLES 
+
+-- employee table
+COMMENT ON COLUMN employee.activity_points IS 'Points earned by the employee for completed interventions.';
+COMMENT ON COLUMN employee.works_with_id IS 'Optional link to another employee that this one collaborates with.';
+COMMENT ON COLUMN employee.chief_id IS 'Supervisor or team leader of this employee (nullable).';
+
+-- intervention table
+COMMENT ON COLUMN intervention.date IS 'Timestamp of the intervention. Defaults to the current time.';
+
+-- factory table
+COMMENT ON COLUMN factory.company_id IS 'References the owning company. Can be null if the factory is transferred.';
+
+-- authorization table
+COMMENT ON COLUMN "authorization".employee_id IS 'Employee authorized to work on the production line.';
+COMMENT ON COLUMN "authorization".production_line_id IS 'Production line that the employee is authorized to access.';
+
+-- line_product table
+COMMENT ON COLUMN line_product.production_line_id IS 'Production line responsible for manufacturing the product.';
+COMMENT ON COLUMN line_product.product_id IS 'Product manufactured by the production line.';
+
+-- ADD COMMENTS ON TRIGGERS 
+
+COMMENT ON FUNCTION increment_activity_points() IS 'Trigger function to increment an employee''s activity points after each intervention.';
+COMMENT ON FUNCTION check_authorization_before_intervention() IS 'Trigger function to validate whether the employee is authorized for the specified production line.';
+
+COMMENT ON TRIGGER trg_increment_points ON intervention IS 'Trigger that adds activity points to the employee after a new intervention is recorded.';
+COMMENT ON TRIGGER trg_check_authorization ON intervention IS 'Trigger that checks employee authorization before allowing an intervention.';
+
+-- COMMENTS ON FK
+
+COMMENT ON CONSTRAINT employee_works_with_id_fkey ON employee IS 'Indicates another employee this person works with (optional link).';
+COMMENT ON CONSTRAINT employee_chief_id_fkey ON employee IS 'References the chief of this employee. If the chief is deleted, this link becomes NULL.';
+
+-- COMMENTS ON PK 
+
+COMMENT ON CONSTRAINT employee_pkey ON employee IS 'Primary key ensuring each employee has a unique identifier.';
+
+-- COMMENT ON INDEX
+
+COMMENT ON INDEX employee_pkey IS 'Index to speed up id-based searches';

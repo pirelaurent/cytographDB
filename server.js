@@ -36,17 +36,19 @@ import {
   extractImpactedTables,
   extractCalledFunctions,
   stripSqlComments,
+
 } from "./sqlParser.js";
 
 import {
-  //tablesQuery,
   reqListOfTables,
   tableColumnsQuery,
   reqFkWithColsOnTable,
   edgesQuery,
-  fkQuery,
+  pkQuery,
   triggerQuery,
   indexQuery,
+  reqTableComments,
+  tableCommentQuery,
 } from "./sql/req.js";
 
 
@@ -95,7 +97,7 @@ app.post("/load-from-db", async (req, res) => {
     const tablesResult = await client.query(tablesQuery);
     const tableNames = tablesResult.rows.map((r) => r.table_name);
   */
-    const fkResult = await client.query(edgesQuery);
+
 
     // Get column info per table (simplified version)
     const columnMap = {}; // tableName -> array of columns
@@ -104,6 +106,15 @@ app.post("/load-from-db", async (req, res) => {
     // separate names in a collection
     const tableNames = [...new Set(columnResult.rows.map((r) => r.table_name))];
 
+    // get comments about tables 
+    const commentResult = await client.query(reqTableComments);
+
+    // Crée une map table => commentaire
+    const tableComments = new Map(
+      commentResult.rows.map(({ table_name, comment }) => [table_name, comment])
+    );
+
+
     // dispatch columns in a new dict array
     columnResult.rows.forEach(({ table_name, column_name }) => {
       if (!columnMap[table_name]) columnMap[table_name] = [];
@@ -111,6 +122,8 @@ app.post("/load-from-db", async (req, res) => {
     });
 
     // Get FK columns per table in another array
+
+    const fkResult = await client.query(edgesQuery);
     const fkColumnMap = {}; // tableName -> Set of FK column names
 
     fkResult.rows.forEach(({ source, source_column }) => {
@@ -149,16 +162,18 @@ app.post("/load-from-db", async (req, res) => {
 
       const trigs = triggersByTable.get(name) || [];
       const hasTrig = trigs.length === 0 ? "" : "*".repeat(trigs.length);
+      const comment = tableComments.get(name) || null;
 
       const data = {
         id: name,
         label: name + "\n" + hasTrig,
         columns: allCols,
         foreignKeys: fkCols,
+        comment: comment,
       };
 
       if (trigs.length > 0) {
-  
+
         data.triggers = trigs;
         // done in receipt data.classes = 'hasTriggers';
       }
@@ -233,35 +248,46 @@ app.get("/table/:name", async (req, res) => {
       const type = col.character_maximum_length
         ? `${col.data_type}(${col.character_maximum_length})`
         : col.data_type;
+
       return {
         column: col.column_name,
         type,
         nullable: col.is_nullable === "YES" ? "Yes" : "No",
+        comment: col.comment || null, // Nouveau champ
       };
     });
 
-    // foreign keys
+
+    /*
+     foreign keys
+    */
     const result = await client.query(reqFkWithColsOnTable, [table]);
     const foreignKeys = result.rows[0].foreign_keys;
 
     // 🔍 Clé primaire
-    const pkResult = await client.query(fkQuery, [table]);
+    const pkResult = await client.query(pkQuery, [table]);
 
     const primaryKey = {
       name: pkResult.rows[0]?.constraint_name || null,
       columns: pkResult.rows.map((row) => row.column_name),
+      comment: pkResult.rows[0]?.comment || null,  // ✅ ici
     };
 
-// index
-const indexResult = await client.query(indexQuery,[table]);
 
-const indexes = indexResult.rows.map(row => ({
-  name: row.indexname,
-  definition: row.indexdef
-}));
+    // index
+    const indexResult = await client.query(indexQuery, [table]);
 
-    
-    res.json({ columns, primaryKey, foreignKeys, indexes });
+    const indexes = indexResult.rows.map(row => ({
+      name: row.indexname,
+      definition: row.indexdef,
+      comment: row.comment
+    }));
+
+    // commentaires
+    const resComment = await client.query(tableCommentQuery, [table]);
+    const comment = resComment.rows[0]?.comment || null;
+
+    res.json({ columns, primaryKey, foreignKeys, indexes, comment });
   } catch (error) {
     console.error("Erreur dans /table/:name :", error);
     res.status(500).json({ error: "Error accessing database." });
@@ -269,6 +295,33 @@ const indexes = indexResult.rows.map(row => ({
     if (client) client.release();
   }
 });
+
+/*
+ comment of one table 
+*/
+app.get("/table_comment/:name", async (req, res) => {
+  const pool = getCurrentPool();
+  if (!pool) return res.status(400).send("No DB in place.");
+
+  let client;
+  try {
+    client = await pool.connect();
+    const table = req.params.name;
+    const result = await client.query(tableCommentQuery, [table]);
+
+    const comment = result.rows[0]?.comment || null;
+
+    res.json({ comment });  // Renvoie toujours { comment: string | null }
+
+  } catch (error) {
+    console.error("Erreur dans /table_comment/:name :", error);
+    res.status(500).json({ error: "Error accessing database." });
+  } finally {
+    if (client) client.release();
+  }
+});
+
+
 
 /*
  Database list from postgres
@@ -465,7 +518,7 @@ app.get("/triggers", async (req, res) => {
     return res.status(400).json({ error: "Missing table parameter" });
   }
 
- // search keywords in source code 
+  // search keywords in source code 
 
   try {
     const { rows } = await client.query(triggerQuery);
@@ -496,7 +549,7 @@ app.get("/triggers", async (req, res) => {
             ),
           ];
 
-      
+
           const calledFunctions = [
             ...new Set(extractCalledFunctions(fullText)),
           ];

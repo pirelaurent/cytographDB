@@ -414,7 +414,7 @@ export function initializeGraph(data, fromDisk = false) {
 
   let current_db = getLocalDBName();
 
-  // customize nodes // PLA a relayer coté front : getXurrentDBName
+  // customize nodes 
   createnativeNodesCategories();
   createCustomCategories(current_db); // PLQ
 

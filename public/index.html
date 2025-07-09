@@ -9,32 +9,28 @@
   <link rel="stylesheet" href="css/menus.css" />
   <script type="module" src="cyStyles.js"></script>
 
+<!-- before -->
+<!--
+<script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+<script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
+<script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-cose-bilkent@4.0.0/cytoscape-cose-bilkent.min.js"></script>
+-->
 
-  <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
-  <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
-  <script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
-
-  <script src="https://cdn.jsdelivr.net/npm/cytoscape-cose-bilkent@4.0.0/cytoscape-cose-bilkent.min.js"></script>
-
+<!-- local -->
+<script src="/js/cytoscape.min.js"></script>
+<script src="/js/dagre.min.js"></script>
+<script src="/js/cytoscape-dagre.js"></script>
+<script src="/js/cytoscape-cose-bilkent.min.js"></script>
 
   <script>
     cytoscape.use(cytoscapeCoseBilkent)
   </script>
 
-
-
-
-
-  <!-- ELKjs (dépendance interne de cytoscape-elk) 
-<script src="https://unpkg.com/elkjs/lib/elk.bundled.js"></script>
-<script src="https://unpkg.com/cytoscape-elk/cytoscape-elk.js"></script>
-
--->
   <script type="module" src="main.js"></script>
 
 
 </head>
-
 <body>
   <div id='topbar'>
 
@@ -176,7 +172,7 @@
           <ul class="menu">
             <li data-category="selectNodes">select &gt;
               <ul class="submenu">
-                <li action="all" title="Select every currently visible node">all</li>
+                <li action="all" title="Select every currently visible node (or ctrl a)">all</li>
                 <li action="none" title="Clear the current selection">none</li>
                 <li action="invert" title="Invert the current selection">swap selected</li>
                 <li action="selectNodesFromSelectedEdges" title="Select nodes connected by the selected edges">from
@@ -449,7 +445,11 @@
         <!--checked-->
       </label>
 
-      <a href="/docs/main.md" class="doc-link" target="docTab">Documentation</a>
+<div id="doc-links" style="margin-left: auto; display: flex; gap: 12px;">
+    <a href="/docs/main.md" class="doc-link" target="docTab">Documentation</a>
+    <!-- ce lien sera ajouté dynamiquement -->
+  </div>
+      <!-- here we will add  "custom/docs/index.md" -->
 
       <div id="info-panel" class="info-panel">
         <div id="nodeDetails"></div>

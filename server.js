@@ -74,7 +74,7 @@ if (!fs.existsSync(GRAPH_DIR)) {
 
 const pkgPath = path.join(__dirname, 'package.json');
 
-console.log(pkgPath)
+//console.log(pkgPath)
 const pkgRaw = await readFile(pkgPath, 'utf-8');
 const appPkg = JSON.parse(pkgRaw);
 
@@ -652,9 +652,40 @@ app.get("/api/version", (req, res) => {
   res.json({ version: appPkg.version });
 });
 
+/*
+ directory custom is out of git 
+ the following code search for complementary documentation in custom/docs/index.md
+
+*/
+
+
+app.get('/api/custom-docs-check', (req, res) => {
+  const docsDir = path.join(__dirname, 'public', 'custom','docs');
+
+  fs.readdir(docsDir, (err, files) => {
+    if (err) {
+      return res.json({ available: false });
+    }
+
+    const matchingFiles = files.filter(name => /^index.*\.md$/i.test(name));
+
+    if (matchingFiles.length > 0) {
+      res.json({ available: true, files: matchingFiles });
+    } else {
+      res.json({ available: false });
+    }
+  });
+});
+
+
+
+
+
 
 // Start the server
 
 app.listen(PORT, () => {
   console.log(`Server started.App now available on http://localhost:${PORT}`);
 });
+
+

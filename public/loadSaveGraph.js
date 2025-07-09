@@ -59,12 +59,17 @@ export function connectToDb(menuItemElement) {
       }
 
       setLocalDBName(dbName);
+
       document.getElementById(
         "current-db"
       ).innerHTML = `<small>&nbsp;connected to: </small> ${dbName}`;
-      // clean current graph
-      cy.elements().remove();
 
+      // clean current graph
+if (typeof cy !== 'undefined' && cy) {
+  cy.elements().remove();
+} else {
+  alert("Graph not initialized");
+}
       customNodesCategories.clear();
       return res.text(); // ou `return dbName` si tu veux
     });
@@ -80,7 +85,11 @@ export function loadInitialGraph() {
     alert("you must first connect a database");
     return;
   }
+
+if (typeof cy !== 'undefined' && cy) {
   cy.elements().remove();
+}
+
   customNodesCategories.clear(); 
 
   waitLoading("⏳ Analyzing DB --> create graph...");
@@ -127,7 +136,9 @@ export function loadGraphState() {
 //------------------
 function loadGraphNamed(filename) {
   if (!okToLoadGraph()) return;
+if (typeof cy !== 'undefined' && cy) {
   cy.elements().remove();
+}
   waitLoading("⏳ Loading saved graph");
 
   //document.getElementById("current-graph").textContent = "";

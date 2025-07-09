@@ -26,10 +26,14 @@ import "./selectors.js";
 
 import { fillInGuiNodesCustomCategories } from "./selectors.js";
 import { setInterceptors } from "./interceptors.js";
+
 // global vars
 export let cy;
 // about DB through postgres
 let postgresConnected = false;
+
+
+
 export function setPostgresConnected() {
   postgresConnected = true;
 }
@@ -117,7 +121,9 @@ export function popSnapshot() {
 
   //replace current graph
 
+if (typeof cy !== 'undefined' && cy) {
   cy.elements().remove();
+}
   cy.json(snapshot.json);
 
   cy.elements().unselect();
@@ -166,13 +172,18 @@ export function main() {
   });
 
   setInterceptors();
-
   cytogaphdb_version();
 } // main
 /*
  run main once dom is loaded 
 */
-document.addEventListener("DOMContentLoaded", main);
+document.addEventListener("DOMContentLoaded", () => {
+  main();
+  // check custom docs to add in menu 
+  addCustomDocLink();
+
+});
+
 
 /*
  as in a new page (and no session) dbname cannot be shared with main
@@ -193,30 +204,7 @@ export function openTable(tableId) {
     "TableDetails"
   );
 }
-/*
- verify a DB is connected 
- and diplay name on the top of screen
 
-
-function getCurrent_db() {
-  // the name is on server. Bring back to nav code
-  fetch("/current-db")
-    .then((res) => {
-      if (!res.ok) throw new Error("no database connected");
-      return res.json();
-    })
-    .then((data) => {
-      let current_db = data.dbName;
-      //alert("currently connected to : " + data.dbName);
-      document.getElementById(
-        "current-db"
-      ).innerHTML = ` DB:<em>${current_db}</em>`;
-    })
-    .catch((err) => {
-      alert("Erreur : " + err.message);
-    });
-}
-*/
 function cytogaphdb_version() {
   fetch("/api/version")
     .then((response) => response.json())
@@ -232,7 +220,7 @@ function cytogaphdb_version() {
       console.error("Erreur de récupération de la version :", error);
       const versionElement = document.getElementById("versionInfo");
       if (versionElement) {
-        versionElement.textContent = "Erreur";
+        versionElement.textContent = "Error on version";
       }
     });
 }
@@ -296,15 +284,6 @@ export function metrologie() {
 
   labelEdges.innerHTML = display;
 
-  /* const labelDelete = document.querySelector(
-    '[data-menu-id="menu-nodes"] [data-category="delete"] .menu-delete'
-  );
-  if (labelDelete) {
-    let nbDel = cy.nodes(":selected:visible").length;
-    display = "delete ";
-    if (nbDel != 0) display += `${nbDel} nodes`;
-    labelDelete.textContent = display;
-  } */
 }
 
 //----------- some layouts parameters
@@ -409,12 +388,14 @@ export function setAndRunLayoutOptions(option) {
 //-------------------
 export function initializeGraph(data, fromDisk = false) {
   // cy a été créé avec des data vides , mais si on s'en est servi, faut nettoyer
+if (typeof cy !== 'undefined' && cy) {
   cy.elements().remove();
+}
   cy.add(data);
 
   let current_db = getLocalDBName();
 
-  // customize nodes 
+  // customize nodes
   createnativeNodesCategories();
   createCustomCategories(current_db); // PLQ
 
@@ -498,8 +479,6 @@ export function perimeterForEdgesSelection() {
   return edges;
 }
 
-
-
 /*
  fill in a visual page for triggers details
 */
@@ -564,3 +543,40 @@ function createnativeNodesCategories() {
     }
   });
 }
+
+export async function checkForCustomDocs() {
+  try {
+    const response = await fetch("/api/custom-docs-check");
+    const result = await response.json();
+    return result; // { available: true/false, files: [...] }
+  } catch (err) {
+    console.error("Failed to check custom docs:", err);
+    return { available: false, files: [] };
+  }
+}
+
+async function addCustomDocLink() {
+  const result = await checkForCustomDocs();
+  if (result.available && result.files.length > 0) {
+    const firstFile = result.files[0];
+
+    // Trouver le lien Documentation existant
+    const docLink = document.querySelector(".doc-link");
+    if (docLink) {
+      const customLink = document.createElement("a");
+      customLink.href = `/custom/docs/${firstFile}`;
+      customLink.textContent = "Custom";
+      customLink.className = "doc-link";
+      customLink.style.cursor = "pointer";
+
+      // force l'ouverture dans un onglet nommé (ou le réutilise)
+      customLink.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.open(customLink.href, "docTab");
+      });
+
+      docLink.parentNode.insertBefore(customLink, docLink.nextSibling);
+    }
+  }
+}
+

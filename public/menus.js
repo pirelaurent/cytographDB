@@ -256,17 +256,17 @@ export function menuDb(option, menuItemElement) {
   switch (option) {
     case "connectToDb":
       connectToDb(menuItemElement).catch((err) =>
-        alert("Error : " + err.message)
+        alert("Error connect : " + err.message)
       );
       break;
 
-    case "loadFromDb":
+    case "loadFromDb":  
       connectToDb(menuItemElement)
         .then(() => {
-          let dbName = getLocalDBName();
+          let dbName = getLocalDBName(); 
           if (dbName != null) loadInitialGraph();
         })
-        .catch((err) => alert("Erreur : " + err.message));
+        .catch((err) => alert("Erro loadFromDB: " + err.message));
       break;
   }
 }
@@ -278,7 +278,10 @@ export function menuGraph(option) {
     case "localUpload":
       {
         if (!okToLoadGraph()) return;
-        cy.elements().remove();
+        if (typeof cy !== 'undefined' && cy) {
+  cy.elements().remove();
+}
+
         resetSnapshot();
         document.getElementById("graphName").value = "";
 

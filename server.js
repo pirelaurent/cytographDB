@@ -443,12 +443,12 @@ app.post("/connect-db", async (req, res) => {
 });
 
 /*
- get code of a unique trigger and generate a result page
+ get code of a unique trigger and generate totally a result page
  used also to show a function code 
  html result page is dynamically constructed here
 */
 
-app.get("/function", async (req, res) => {
+app.get("/functionOLD", async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   const pool = getCurrentPool();
   if (!pool) return res.status(400).send("No DB in place.");
@@ -496,6 +496,47 @@ app.get("/function", async (req, res) => {
     if (client) client.release();
   }
 });
+
+
+app.get("/api/function", async (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+  const pool = getCurrentPool();
+  if (!pool) return res.status(400).send("No DB in place.");
+
+  const { name } = req.query;
+
+  if (!name) return res.status(400).send("Function name is required.");
+
+  let client;
+  try {
+    client = await pool.connect();
+
+    const result = await client.query(
+      `
+      SELECT pg_get_functiondef(p.oid) as code
+      FROM pg_proc p
+      JOIN pg_namespace n ON n.oid = p.pronamespace
+      WHERE p.proname = $1
+      LIMIT 1
+    `,
+      [name]
+    );
+
+    if (result.rows.length > 0) {
+      return res.json({ code: result.rows[0].code });
+    } else {
+      return res.status(404).json({ error: "Function not found" });
+    }
+  } catch (err) {
+    return res.status(500).json({ error: "Internal error" });
+  } finally {
+    if (client) client.release();
+  }
+});
+
+
+
+
 
 /*
  fetch trigger for triggers.html page that called it directly

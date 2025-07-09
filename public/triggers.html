@@ -12,10 +12,6 @@
             padding: 1em;
         }
 
-        h1 {
-            font-size: 1.5em;
-        }
-
         table {
             border-collapse: collapse;
             width: 100%;
@@ -58,8 +54,24 @@
     </style>
 </head>
 
+<script>
+function tryClose() {
+  if (window.opener) {
+      window.opener.focus();
+    window.close();
+  } else {
+    alert("Please close this tab manually.");
+  }
+}
+</script>
+
 <body>
-    <h1 id="title">⚡ get triggers</h1>
+<div id="headerBar" style="display: flex; align-items: center; gap: 10px;">
+
+
+  <h1 id="title">⚡ get triggers</h1>
+</div>
+
     <div id="content">Loading...</div>
 
     <script>
@@ -72,7 +84,14 @@
                 return;
             }
 
-            document.getElementById("title").innerHTML = `⚡ Triggers in ${table}`;
+            document.getElementById("title").innerHTML = `<img
+  src="img/table.png"
+  alt="Return"
+  title="Back"
+    style="cursor: pointer; vertical-align: middle; width: 25px; height: 25px;"
+  onclick="window.tryClose()"
+/>
+ ${table} ⚡  `;
 
 
 
@@ -93,13 +112,13 @@
 
                 const fnLink = (t.functionNames && t.functionNames.length > 0)
                     ? t.functionNames.map(fn =>
-                        `<a href="/function?table=${encodeURIComponent(table)}&triggerName=${encodeURIComponent(t.name)}&name=${encodeURIComponent(fn)}" target="functionPage">${fn}</a>`
+                        `<a href="/function.html?table=${encodeURIComponent(table)}&triggerName=${encodeURIComponent(t.name)}&name=${encodeURIComponent(fn)}" target="functionPage">${fn}</a>`
                     ).join(", ")
                     : `<code>${t.definition}</code>`;
 
                 const impacted = (t.impactedTables || []).map(tab => `<code>${tab}</code>`).join(", ") || "-";
                 const calls = (t.calledFunctions || []).map(fn =>
-                    `<a href="/function?table=${table}&triggerName=${t.name}&name=${encodeURIComponent(fn)}" target="functionPage">${fn}</a>`).join(", ") || "-";
+                    `<a href="/function.html?table=${table}&triggerName=${t.name}&name=${encodeURIComponent(fn)}" target="functionPage">${fn}</a>`).join(", ") || "-";
 
                 return `
           <tr>

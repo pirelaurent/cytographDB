@@ -31,10 +31,10 @@ if (!currentDBName) currentDBName = "no DB connected";
 
 
 let whereTitle = document.getElementById(
-  "title"
+  "whereTitle"
 );
 
-whereTitle.innerHTML = `Table: ${tableName}`;
+whereTitle.innerHTML = `${tableName}`;
 
 getTableData(tableName).then((result) => {
 

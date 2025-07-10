@@ -7,9 +7,10 @@
   <link rel="icon" type="image/png" href="./pep-inno.png" />
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/menus.css" />
-  <script type="module" src="cyStyles.js"></script>
 
-<!-- before -->
+  <script type="module" src="/js/cyStyles.js"></script>
+
+<!-- originals -->
 <!--
 <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
 <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
@@ -17,17 +18,17 @@
 <script src="https://cdn.jsdelivr.net/npm/cytoscape-cose-bilkent@4.0.0/cytoscape-cose-bilkent.min.js"></script>
 -->
 
-<!-- local -->
-<script src="/js/cytoscape.min.js"></script>
-<script src="/js/dagre.min.js"></script>
-<script src="/js/cytoscape-dagre.js"></script>
-<script src="/js/cytoscape-cose-bilkent.min.js"></script>
+<!-- local installation-->
+<script src="/js/external/cytoscape.min.js"></script>
+<script src="/js/external/dagre.min.js"></script>
+<script src="/js/external/cytoscape-dagre.js"></script>
+<script src="/js/external/cytoscape-cose-bilkent.min.js"></script>
 
   <script>
     cytoscape.use(cytoscapeCoseBilkent)
   </script>
 
-  <script type="module" src="main.js"></script>
+  <script type="module" src="/js/main.js"></script>
 
 
 </head>

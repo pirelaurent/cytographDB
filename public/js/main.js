@@ -555,6 +555,10 @@ export async function checkForCustomDocs() {
   }
 }
 
+/*
+ add a new link on menu bar to acces at custom docs if any 
+*/
+
 async function addCustomDocLink() {
   const result = await checkForCustomDocs();
   if (result.available && result.files.length > 0) {

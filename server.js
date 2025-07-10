@@ -24,6 +24,7 @@ import fs from "fs";
 import { readFile } from 'fs/promises';
 import path from "path";
 import { fileURLToPath } from "url";
+import { getTableDetails } from "./dbUtils.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -49,7 +50,7 @@ import {
   indexQuery,
   reqTableComments,
   tableCommentQuery,
-} from "./sql/req.js";
+} from "./dbreq.js";
 
 
 
@@ -155,7 +156,7 @@ app.post("/load-from-db", async (req, res) => {
 
     /*
      Build nodes 
-    */
+    
     const nodes = tableNames.map((name) => {
       const allCols = columnMap[name] || [];
       const fkCols = fkColumnMap[name] ? [...fkColumnMap[name]] : [];
@@ -173,13 +174,36 @@ app.post("/load-from-db", async (req, res) => {
       };
 
       if (trigs.length > 0) {
-
         data.triggers = trigs;
         // done in receipt data.classes = 'hasTriggers';
       }
 
       return { data };
     });
+*/
+
+const nodes = [];
+
+for (const name of tableNames) {
+  const details = await getTableDetails(client, name);
+  const trigs = triggersByTable.get(name) || [];
+
+  const data = {
+    id: name,
+    label: name + (trigs.length > 0 ? "\n" + "*".repeat(trigs.length) : ""),
+    columns: details.columns.map(c => c.column),
+    foreignKeys: details.foreignKeys.map(fk => fk.column),
+    comment: details.comment,
+    primaryKey: details.primaryKey,
+    indexes: details.indexes,
+    triggers: trigs
+  };
+
+  nodes.push({ data });
+}
+
+
+
 
     /* 
      build edges
@@ -217,77 +241,30 @@ Table details
 
 */
 
+
+
 app.get("/table/:name", async (req, res) => {
   const pool = getCurrentPool();
   if (!pool) return res.status(400).send("No DB in place.");
 
+  const table = req.params.name;
+
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+    return res.status(400).json({ error: "Invalid table name format." });
+  }
+
   let client;
   try {
     client = await pool.connect();
-    const table = req.params.name;
-
-    // verifyn correct name to avoid injection
-    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
-      return res.status(400).json({ error: "Invalid table name format." });
-    }
-
-    // check if table exist to avoid error
 
     try {
       await client.query(`SELECT 1 FROM "${table}" LIMIT 1`);
     } catch {
-      return res
-        .status(404)
-        .json({ error: `Table '${table}' does not exist.` });
+      return res.status(404).json({ error: `Table '${table}' does not exist.` });
     }
 
-    // 🔍 get columns with properties
-    const columnResult = await client.query(tableColumnsQuery, [table]);
-
-    const columns = columnResult.rows.map((col) => {
-      const type = col.character_maximum_length
-        ? `${col.data_type}(${col.character_maximum_length})`
-        : col.data_type;
-
-      return {
-        column: col.column_name,
-        type,
-        nullable: col.is_nullable === "YES" ? "Yes" : "No",
-        comment: col.comment || null, // Nouveau champ
-      };
-    });
-
-
-    /*
-     foreign keys
-    */
-    const result = await client.query(reqFkWithColsOnTable, [table]);
-    const foreignKeys = result.rows[0].foreign_keys;
-
-    // 🔍 Clé primaire
-    const pkResult = await client.query(pkQuery, [table]);
-
-    const primaryKey = {
-      name: pkResult.rows[0]?.constraint_name || null,
-      columns: pkResult.rows.map((row) => row.column_name),
-      comment: pkResult.rows[0]?.comment || null,  // ✅ ici
-    };
-
-
-    // index
-    const indexResult = await client.query(indexQuery, [table]);
-
-    const indexes = indexResult.rows.map(row => ({
-      name: row.indexname,
-      definition: row.indexdef,
-      comment: row.comment
-    }));
-
-    // commentaires
-    const resComment = await client.query(tableCommentQuery, [table]);
-    const comment = resComment.rows[0]?.comment || null;
-
-    res.json({ columns, primaryKey, foreignKeys, indexes, comment });
+    const details = await getTableDetails(client, table);
+    res.json(details);
   } catch (error) {
     console.error("Erreur dans /table/:name :", error);
     res.status(500).json({ error: "Error accessing database." });
@@ -295,6 +272,7 @@ app.get("/table/:name", async (req, res) => {
     if (client) client.release();
   }
 });
+
 
 /*
  comment of one table 
@@ -654,7 +632,9 @@ app.get("/api/version", (req, res) => {
 
 /*
  directory custom is out of git 
- the following code search for complementary documentation in custom/docs/index.md
+ the following code search for complementary documentation if any 
+ 
+ in custom/docs/index.md.  (or any .md starting by 'index')
 
 */
 

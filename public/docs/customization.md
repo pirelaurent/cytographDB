@@ -20,7 +20,7 @@ You can override these methods by defining your own versions in a custom module.
 ### Example Custom Module
 
 ```js
-import { cy } from "../main.js";
+import { cy } from "../js/main.js";
 import { addCustomCategories, registerCustomModule } from "../customCategories.js";
 
 const myModule = {
@@ -83,6 +83,21 @@ import './custom/myModule.js';
 ✅ From now on, whenever you open a DB named `myDBtest` or `myDBstaging`,  
 the `myModule` customization will be applied automatically.
 
+
+3. **optionaly add your custom documentation**
+
+Default *.gitignore* ignore all files (except democytodb.js ).  
+
+You can set your owwn documentation under ***custom/docs***.
+
+If any ***index.md*** is found by cytographdb at startup in this directory,  it will add a secondary link on the right of *documentation* :  
+
+![](./img/customLink.png)
+
+This can help to give custom details and custom examples. 
+
 ---
+
+
 
 - ⚪️ [Main](./main.md)

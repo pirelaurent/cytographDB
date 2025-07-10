@@ -1,7 +1,7 @@
-import { cy, customNodesCategories } from "../main.js";
+import { cy, customNodesCategories } from "../js/main.js";
 import {
   registerCustomModule,
-} from "../customCategories.js";
+} from "../js/customCategories.js";
 
 console.log("[DEBUG] democytodb.js chargé");
 

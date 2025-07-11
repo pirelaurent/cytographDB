@@ -45,6 +45,7 @@ import {
   mergedStyles,
   getLocalDBName,
   mapValue,
+  showMultiChoiceDialog,
 } from "./main.js";
 
 import {
@@ -54,8 +55,11 @@ import {
   collapseAssociations,
   restoreAssociations,
   generateTriggers,
-  //fillInEdgesCategories,
   selectEdgesByNativeCategories,
+  findFunctionalDescendantsCytoscape,
+  selectEdgesBetweenNodes,
+  openJsonInNewTab,
+  downloadJson,
 } from "./selectors.js";
 
 import { createCustomCategories } from "./customCategories.js";
@@ -260,10 +264,10 @@ export function menuDb(option, menuItemElement) {
       );
       break;
 
-    case "loadFromDb":  
+    case "loadFromDb":
       connectToDb(menuItemElement)
         .then(() => {
-          let dbName = getLocalDBName(); 
+          let dbName = getLocalDBName();
           if (dbName != null) loadInitialGraph();
         })
         .catch((err) => alert("Erro loadFromDB: " + err.message));
@@ -279,8 +283,8 @@ export function menuGraph(option) {
       {
         if (!okToLoadGraph()) return;
         if (typeof cy !== 'undefined' && cy) {
-  cy.elements().remove();
-}
+          cy.elements().remove();
+        }
 
         resetSnapshot();
         document.getElementById("graphName").value = "";
@@ -409,7 +413,7 @@ export function menuNodes(option) {
     case "nodeHasTriggers":
       {
         let nodes = perimeterForNodesSelection();
-        if( nodes.length===0) return;
+        if (nodes.length === 0) return;
         nodes.filter(".hasTriggers").select();
       }
       break;
@@ -417,7 +421,7 @@ export function menuNodes(option) {
     case "nodeIsAssociation":
       {
         let nodes = perimeterForNodesSelection();
-          if( nodes.length===0) return;
+        if (nodes.length === 0) return;
         nodes.filter(".association").select();
       }
       break;
@@ -425,7 +429,7 @@ export function menuNodes(option) {
     case "nodeIsOrphan":
       {
         let nodes = perimeterForNodesSelection();
-          if( nodes.length===0) return;
+        if (nodes.length === 0) return;
         nodes.filter(".orphan").select();
       }
       break;
@@ -433,7 +437,7 @@ export function menuNodes(option) {
     case "nodeIsMultiAssociation":
       {
         let nodes = perimeterForNodesSelection();
-          if( nodes.length===0) return;
+        if (nodes.length === 0) return;
         nodes.filter(".multiAssociation").select();
         nodes.filter(".association").select();
       }
@@ -499,13 +503,69 @@ export function menuNodes(option) {
       followCross();
       break;
 
-      /*
-       uses the default defined in the function 
-      */
+    /*
+     uses the default defined in the function 
+    */
     case "findLongOutgoingPaths":
       pushSnapshot();
       findLongOutgoingPaths(cy);
       break;
+
+    case "findPkFollowers":
+      {
+
+        const roots = cy.nodes(":visible:selected").filter(n => n.data('foreignKeys').length === 0);
+
+        if (roots.length === 0 || roots.length != 1) {
+          alert(" must start by selecting a unique node without foreignKey");
+          return;
+        }
+
+        roots.forEach(root => {
+          const { visited: group, trace } = findFunctionalDescendantsCytoscape(root);
+
+          //console.log(`Groupe fonctionnel depuis ${root.id()}:`, [...group]);
+
+
+
+          const groupNodes = cy.nodes().filter(n => group.has(n.id()));
+          cy.nodes().unselect();
+
+          cy.batch(() => {
+            groupNodes.show();
+            groupNodes.connectedEdges().show();
+            groupNodes.select();
+          });
+          selectEdgesBetweenNodes();
+          pushSnapshot();
+          setAndRunLayoutOptions("dagre");
+
+
+
+          setTimeout(() => {
+
+            showMultiChoiceDialog("Details of PK propagation", "What do you prefer ?", [
+              {
+                label: "📥 Download JSON",
+                onClick: () => downloadJson(trace, `trace_follow_${root.id()}.json`)
+              },
+              {
+                label: "👁️ see JSON text in new tab",
+                onClick: () => openJsonInNewTab(trace, `${root.id()}`)
+              },
+              {
+                label: "❌ Cancel",
+                onClick: () => { } // rien
+              }
+            ]);
+
+          }, 100); // 100 ms enough
+
+        });
+
+
+      }
+
 
     case "selectNodesFromSelectedEdges":
       pushSnapshot();
@@ -634,24 +694,9 @@ export function menuEdges(option) {
     select edges that rely selected nodes 
 */
     case "betweenNodes":
-      const selectedNodes = cy.nodes(":selected");
-      if (selectedNodes.length == 0) {
-        alert("no selected nodes to work with");
-        return;
-      }
       pushSnapshot();
-      // Créer un set des IDs sélectionnés pour recherche rapide
-      const selectedIds = new Set(selectedNodes.map((n) => n.id()));
+      selectEdgesBetweenNodes();
 
-      // Trouver les arêtes entre deux nœuds sélectionnés
-      const internalEdges = cy.edges().filter((edge) => {
-        const source = edge.source().id();
-        const target = edge.target().id();
-        return selectedIds.has(source) && selectedIds.has(target);
-      });
-
-      // sélectionner les arêtes trouvées
-      internalEdges.select();
       break;
 
     /*
@@ -659,6 +704,7 @@ export function menuEdges(option) {
     */
 
     case "outgoingEdges":
+
       let nodesOut = cy.nodes(":selected:visible");
       if (nodesOut.length == 0) {
         alert(" no selected nodes");
@@ -854,7 +900,7 @@ export function menuSelectSizeOutgoing() {
   const val = parseInt(document.getElementById("filter-value").value);
   const test = opMap[op];
   let nodes = perimeterForNodesSelection();
-  if (nodes.length ===0) return;
+  if (nodes.length === 0) return;
 
   pushSnapshot();
   nodes.forEach((n) => {
@@ -883,7 +929,7 @@ export function menuSelectSizeIncoming() {
   const test = opMap[op];
 
   let nodes = perimeterForNodesSelection();
-  if( nodes.length === 0) return;
+  if (nodes.length === 0) return;
 
   pushSnapshot();
   nodes.forEach((n) => {
@@ -1171,7 +1217,7 @@ function selectOutputBetween(min, max) {
     let outgoingEdges = node.outgoers("edge:visible");
 
     // if AND_SELECTED Nodes is the collection of previously selected
-      outgoingEdges = outgoingEdges.filter((edge) => edge.target().visible());
+    outgoingEdges = outgoingEdges.filter((edge) => edge.target().visible());
     const nOutput = outgoingEdges.length;
 
     // avoid loop in NO output
@@ -1198,7 +1244,7 @@ function selectInputBetween(min, max) {
 
   nodes.forEach((node) => {
     let incomingEdges = node.incomers("edge:visible");
-      incomingEdges = incomingEdges.filter((edge) => edge.source().visible());
+    incomingEdges = incomingEdges.filter((edge) => edge.source().visible());
 
 
     const nInput = incomingEdges.length;
@@ -1228,7 +1274,7 @@ export function selectByName() {
   try {
     regex = new RegExp(pattern);
   } catch (e) {
-    alert("Wrong regular expression :"+ e.message);
+    alert("Wrong regular expression :" + e.message);
     return;
   }
   // unselect les cachés
@@ -1246,7 +1292,7 @@ export function selectByName() {
     }
   });
 
-  document.getElementById("nameFilterResult").textContent = `${nodes.filter(':selected').length}`;
+  document.getElementById("nameFilterResult").textContent = `${nodes.filter(':selected').length} found`;
 }
 
 // to can see function globally => To be changed by an event listener

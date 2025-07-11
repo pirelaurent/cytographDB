@@ -584,3 +584,57 @@ async function addCustomDocLink() {
   }
 }
 
+
+export function showMultiChoiceDialog(title, message, choices) {
+  const overlay = document.createElement('div');
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100vw';
+  overlay.style.height = '100vh';
+  overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+  overlay.style.display = 'flex';
+  overlay.style.justifyContent = 'center';
+  overlay.style.alignItems = 'center';
+  overlay.style.zIndex = '10000';
+
+  const dialog = document.createElement('div');
+  dialog.style.background = 'white';
+  dialog.style.padding = '20px';
+  dialog.style.borderRadius = '8px';
+  dialog.style.minWidth = '300px';
+  dialog.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+
+  const titleElem = document.createElement('h3');
+  titleElem.textContent = title;
+  dialog.appendChild(titleElem);
+
+  const msgElem = document.createElement('p');
+  msgElem.textContent = message;
+  dialog.appendChild(msgElem);
+
+  const btnContainer = document.createElement('div');
+  btnContainer.style.marginTop = '15px';
+  btnContainer.style.display = 'flex';
+  btnContainer.style.gap = '10px';
+  btnContainer.style.justifyContent = 'flex-end';
+
+  choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.textContent = choice.label;
+    btn.onclick = () => {
+      document.body.removeChild(overlay);
+      choice.onClick();
+    };
+    btn.style.padding = '6px 12px';
+    btn.style.borderRadius = '4px';
+    btn.style.border = '1px solid #ccc';
+    btn.style.background = '#eee';
+    btn.style.cursor = 'pointer';
+    btnContainer.appendChild(btn);
+  });
+
+  dialog.appendChild(btnContainer);
+  overlay.appendChild(dialog);
+  document.body.appendChild(overlay);
+}

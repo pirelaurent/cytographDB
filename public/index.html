@@ -10,19 +10,19 @@
 
   <script type="module" src="/js/cyStyles.js"></script>
 
-<!-- originals -->
-<!--
+  <!-- originals -->
+  <!--
 <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
 <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
 <script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/cytoscape-cose-bilkent@4.0.0/cytoscape-cose-bilkent.min.js"></script>
 -->
 
-<!-- local installation-->
-<script src="/js/external/cytoscape.min.js"></script>
-<script src="/js/external/dagre.min.js"></script>
-<script src="/js/external/cytoscape-dagre.js"></script>
-<script src="/js/external/cytoscape-cose-bilkent.min.js"></script>
+  <!-- local installation-->
+  <script src="/js/external/cytoscape.min.js"></script>
+  <script src="/js/external/dagre.min.js"></script>
+  <script src="/js/external/cytoscape-dagre.js"></script>
+  <script src="/js/external/cytoscape-cose-bilkent.min.js"></script>
 
   <script>
     cytoscape.use(cytoscapeCoseBilkent)
@@ -32,6 +32,7 @@
 
 
 </head>
+
 <body>
   <div id='topbar'>
 
@@ -207,7 +208,12 @@
                 <li class="separator"></li>
                 <li action="findLongOutgoingPaths"
                   title="Find nodes reachable by long forward paths (more than 2 hops)">
-                  long paths </li>
+                  long paths 
+                </li>
+                  <li action="findPkFollowers"
+                  title="Find nodes that belongs to a same root PK identifier">
+                  PK followers 
+                </li>
               </ul>
             </li>
 
@@ -260,20 +266,20 @@
                   <ul class="submenu">
                     <li>
                       <div style="
-    display: flex;
-    flex-direction: column;
-    align-items: center; 
-    width: 250px;
-    height: 300px;            
-    gap: 6px;
-  ">
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center; 
+                            width: 250px;
+                            height: 300px;            
+                            gap: 6px;
+                          ">
+                        <span id="nameFilterResult" style="margin-top: 10px;font-size: 1.2em; color: #444; display: inline-block; min-height: 1em;"> </span>
+
                         <input type="text" id="nameFilter" class="nameFilter" placeholder="searched name (regex)"
                           style="margin-top: 10px; width: 200px; text-align: center;"
                           onkeydown="if(event.key==='Enter'){selectByName();}" />
 
-                        <span id="nameFilterResult" style="font-size: 0.9em; color: #444;">
-                          <!-- result -->
-                        </span>
+
                       </div>
                     </li>
 
@@ -446,10 +452,10 @@
         <!--checked-->
       </label>
 
-<div id="doc-links" style="margin-left: auto; display: flex; gap: 12px;">
-    <a href="/docs/main.md" class="doc-link" target="docTab">Documentation</a>
-    <!-- ce lien sera ajouté dynamiquement -->
-  </div>
+      <div id="doc-links" style="margin-left: auto; display: flex; gap: 12px;">
+        <a href="/docs/main.md" class="doc-link" target="docTab">Documentation</a>
+        <!-- ce lien sera ajouté dynamiquement -->
+      </div>
       <!-- here we will add  "custom/docs/index.md" -->
 
       <div id="info-panel" class="info-panel">

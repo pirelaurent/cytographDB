@@ -564,3 +564,125 @@ export function captureGraphAsPng() {
   link.click();
   cy.edges().removeClass("forPNG");
 }
+
+/**
+ * Trouve tous les descendants fonctionnels d'un nœud racine dans le graphe Cytoscape.js
+ * @param {Cytoscape.NodeSingular} rootNode - nœud racine (sans FK entrante)
+ * @returns {Set<string>} - Ensemble des IDs des nœuds descendants fonctionnels (y compris root)
+ */
+
+
+export function findFunctionalDescendantsCytoscape(rootNode) {
+  const visited = new Set();
+    const trace = []; // 👈 ici
+  const rootPK = new Set(rootNode.data('primaryKey')?.columns || []);
+
+  function dfs(node, pkToMatch) {
+    const nodeId = node.id();
+    if (visited.has(nodeId)) return;
+    visited.add(nodeId);
+
+    const incoming = node.incomers('edge');
+    for (const edge of incoming) {
+      const source = edge.source();
+      const sourceId = source.id();
+      if (visited.has(sourceId)) continue;
+
+      const sourceCols = new Set(source.data('columns') || []);
+      const foreignKeys = source.data('foreignKeys') || [];
+
+      let match = false;
+
+      for (const fk of foreignKeys) {
+        const mappings = fk.column_mappings || [];
+
+        const targetMatch = fk.target_table === nodeId;
+        const targetCols = mappings.map(m => m.target_column);
+        const sourceColsMapped = mappings.map(m => m.source_column);
+
+        const pkMatches = [...pkToMatch].every(col => targetCols.includes(col));
+        const sourceContainsAllMapped = sourceColsMapped.every(col => sourceCols.has(col));
+
+        if (targetMatch && pkMatches && sourceContainsAllMapped) {
+          trace.push({
+            from: sourceId,
+            to: nodeId,
+            fkName: fk.constraint_name || null,
+            columns: mappings.map(({ source_column, target_column }) => ({
+              source_column,
+              target_column
+            }))
+          });
+          match = true;
+          break;
+        }
+      }
+      if (match) {
+        dfs(source, pkToMatch);
+      }
+    }
+  }
+
+  dfs(rootNode, rootPK);
+
+
+  return ({visited,trace});
+}
+
+/*
+ select and show edges that rely two selected nodes 
+*/
+
+
+  export function selectEdgesBetweenNodes() {
+  const selectedNodes = cy.nodes(":selected");
+  if (selectedNodes.length === 0) {
+    alert("no selected nodes to work with");
+    return;
+  }
+
+  const selectedIds = new Set(selectedNodes.map(n => n.id()));
+
+  const internalEdges = cy.edges().filter(edge => {
+    const source = edge.source().id();
+    const target = edge.target().id();
+    return selectedIds.has(source) && selectedIds.has(target);
+  });
+
+  internalEdges.forEach(edge => {
+    edge.show();     // d'abord visible
+    edge.select();   // ensuite sélectionné
+  });
+}
+
+
+export function openJsonInNewTab(jsonObject,aTitle) {
+  const jsonText = JSON.stringify(jsonObject, null, 2); // belle indentation
+  const html = `
+    <html>
+      <head><title>${aTitle}</title></head>
+      <body>
+        <pre style="white-space: pre-wrap; word-break: break-word;">${jsonText}</pre>
+      </body>
+    </html>
+  `;
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+}
+
+
+export function downloadJson(jsonObject, filename = "trace.json") {
+  const jsonStr = JSON.stringify(jsonObject, null, 2); // indentation
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename; // nom du fichier proposé
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click(); // déclenche le téléchargement
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url); // nettoyage
+}

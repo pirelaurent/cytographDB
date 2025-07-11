@@ -185,14 +185,17 @@ app.post("/load-from-db", async (req, res) => {
 const nodes = [];
 
 for (const name of tableNames) {
+
+
   const details = await getTableDetails(client, name);
   const trigs = triggersByTable.get(name) || [];
+
 
   const data = {
     id: name,
     label: name + (trigs.length > 0 ? "\n" + "*".repeat(trigs.length) : ""),
     columns: details.columns.map(c => c.column),
-    foreignKeys: details.foreignKeys.map(fk => fk.column),
+    foreignKeys: details.foreignKeys || [],// ex .map(fk => fk.column),
     comment: details.comment,
     primaryKey: details.primaryKey,
     indexes: details.indexes,

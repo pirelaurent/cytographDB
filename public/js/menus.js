@@ -46,6 +46,8 @@ import {
   getLocalDBName,
   mapValue,
   showMultiChoiceDialog,
+  showAlert,
+  showError,
 } from "./main.js";
 
 import {
@@ -260,7 +262,7 @@ export function menuDb(option, menuItemElement) {
   switch (option) {
     case "connectToDb":
       connectToDb(menuItemElement).catch((err) =>
-        alert("Error connect : " + err.message)
+        showError("connection failed: " + err.message)
       );
       break;
 
@@ -270,7 +272,7 @@ export function menuDb(option, menuItemElement) {
           let dbName = getLocalDBName();
           if (dbName != null) loadInitialGraph();
         })
-        .catch((err) => alert("Erro loadFromDB: " + err.message));
+        .catch((err) => showError("loadFromDB: " + err.message));
       break;
   }
 }
@@ -517,7 +519,7 @@ export function menuNodes(option) {
         const roots = cy.nodes(":visible:selected").filter(n => n.data('foreignKeys').length === 0);
 
         if (roots.length === 0 || roots.length != 1) {
-          alert(" must start by selecting a unique node without foreignKey");
+          showAlert(" must start from a unique node without foreignKey");
           return;
         }
 
@@ -538,29 +540,28 @@ export function menuNodes(option) {
           });
           selectEdgesBetweenNodes();
           pushSnapshot();
-          setAndRunLayoutOptions("dagre");
 
+          if (cy.nodes(":selected:visible").length > 3) {
+            setAndRunLayoutOptions("dagre");
 
+            setTimeout(() => {
+              showMultiChoiceDialog("Details of PK propagation", "you can : ?", [
+                {
+                  label: "📥 Download JSON",
+                  onClick: () => downloadJson(trace, `trace_follow_${root.id()}.json`)
+                },
+                {
+                  label: "👁️ see JSON text in new tab",
+                  onClick: () => openJsonInNewTab(trace, `${root.id()}`)
+                },
+                {
+                  label: "❌ Nothing",
+                  onClick: () => { } // rien
+                }
+              ]);
 
-          setTimeout(() => {
-
-            showMultiChoiceDialog("Details of PK propagation", "What do you prefer ?", [
-              {
-                label: "📥 Download JSON",
-                onClick: () => downloadJson(trace, `trace_follow_${root.id()}.json`)
-              },
-              {
-                label: "👁️ see JSON text in new tab",
-                onClick: () => openJsonInNewTab(trace, `${root.id()}`)
-              },
-              {
-                label: "❌ Cancel",
-                onClick: () => { } // rien
-              }
-            ]);
-
-          }, 100); // 100 ms enough
-
+            }, 100); // 100 ms enough
+          }
         });
 
 
@@ -641,21 +642,39 @@ export function menuNodes(option) {
       break;
 
     case "deleteNodesSelected":
-      pushSnapshot();
+
       let nodesToKill = cy.nodes(":selected:visible");
       if (nodesToKill.length == 0) {
-        alert("no selected nodes to delete");
-        return;
       }
-      const confirmDelete = confirm(
-        `delete permanently (${nodesToKill.length} nodes) ?`
-      );
-      if (!confirmDelete) return;
-      nodesToKill.remove();
+
+      if (nodesToKill.length > 1) {
+        // confirm title, messagge
+        showMultiChoiceDialog(`delete ${nodesToKill.length} nodes`, `Confirm ?`, [
+          {
+            label: "🗑️ Yes",
+            onClick: () => {
+              showAlert("no selected nodes to delete");
+              return;
+              pushSnapshot();
+              nodesToKill.remove();
+              metrologie();
+            }
+          },
+
+          {
+            label: "❌ No",
+            onClick: () => { } // rien
+          }
+        ]);
+      } else {
+        pushSnapshot();
+        nodesToKill.remove();
+        metrologie();
+      }
+
       break;
   }
-  // refresh status bar
-  metrologie();
+
 }
 
 /*
@@ -707,7 +726,7 @@ export function menuEdges(option) {
 
       let nodesOut = cy.nodes(":selected:visible");
       if (nodesOut.length == 0) {
-        alert(" no selected nodes");
+        showAlert(" no selected nodes");
         return;
       }
       pushSnapshot();
@@ -718,7 +737,7 @@ export function menuEdges(option) {
     case "incomingEdges":
       let nodesIn = cy.nodes(":selected:visible");
       if (nodesIn.length == 0) {
-        alert(" no selected nodes");
+        showAlert(" no selected nodes");
         return;
       }
       pushSnapshot();
@@ -729,7 +748,7 @@ export function menuEdges(option) {
     case "bothEdges":
       let nodes = cy.nodes(":selected:visible");
       if (nodes.length == 0) {
-        alert(" no selected nodes");
+        showAlert(" no selected nodes");
         return;
       }
       //nodes.connectedEdges().select();
@@ -830,7 +849,7 @@ export function menuEdges(option) {
 
     case "selectAssociations":
       var simpleEdges = cy.edges(".simplified");
-      if (simpleEdges.length == 0) alert("no *-*  associations to select");
+      if (simpleEdges.length == 0) showAlert("no *-*  associations to select");
       else {
         pushSnapshot();
         simpleEdges.select();
@@ -843,22 +862,38 @@ export function menuEdges(option) {
       break;
 
     case "deleteEdgesSelected":
-      pushSnapshot();
+
 
       const edgesToKill = cy.edges(":selected:visible");
       if (edgesToKill.length == 0) {
-        alert("no selected edges to delete");
+        showAlert("no selected edges");
         return;
       }
 
       if (edgesToKill.length > 1) {
-        const confirmDelete = confirm(
-          `delete permanently (${edgesToKill.length} edges) ?`
-        );
-        if (!confirmDelete) return;
+        // confirm title, messagge
+        showMultiChoiceDialog(`⚠️ delete ${edgesToKill.length} edges`, `Confirm ?`, [
+          {
+            label: "🗑️ Yes",
+            onClick: () => {
+              pushSnapshot();
+              edgesToKill.remove();
+              metrologie();
+            }
+          },
+
+          {
+            label: "❌ No",
+            onClick: () => { } // rien
+          }
+        ]);
+
+        break;
+      } else {
+        pushSnapshot();
+        edgesToKill.remove();
+        metrologie;
       }
-      edgesToKill.remove();
-      break;
 
     case "test": {
       break;
@@ -1274,7 +1309,7 @@ export function selectByName() {
   try {
     regex = new RegExp(pattern);
   } catch (e) {
-    alert("Wrong regular expression :" + e.message);
+    showAlert("Wrong regular expression :" + e.message);
     return;
   }
   // unselect les cachés

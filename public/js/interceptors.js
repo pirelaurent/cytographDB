@@ -22,7 +22,9 @@ import {
   metrologie,
   openTable,
   openTriggerPage,
-  restrictToVisible
+  restrictToVisible,
+  showAlert,
+  showError,
 } from "./main.js";
 
 import {
@@ -251,7 +253,10 @@ document.getElementById('NodesId').addEventListener('click', () => {
   });
 
   document.getElementById("open-trigger").addEventListener("click", () => {
-    openTriggerPage(nodeForInfo);
+
+    if (nodeForInfo.data().triggers.length>=1){
+    openTriggerPage(nodeForInfo);}
+    else showAlert("no triggers on this table")
 
   });
 

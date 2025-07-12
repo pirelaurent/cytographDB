@@ -261,6 +261,6 @@ document.getElementById("tableInfo").appendChild(indexContainer);
 
   } else {
     console.error("Error on load :", result.error);
-    alert("Error on loading. Details unavailable.Check your DB connection");
+    showError("Error on loading. Details unavailable.Check your DB connection");
   }
 });

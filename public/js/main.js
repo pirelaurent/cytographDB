@@ -121,9 +121,9 @@ export function popSnapshot() {
 
   //replace current graph
 
-if (typeof cy !== 'undefined' && cy) {
-  cy.elements().remove();
-}
+  if (typeof cy !== 'undefined' && cy) {
+    cy.elements().remove();
+  }
   cy.json(snapshot.json);
 
   cy.elements().unselect();
@@ -191,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
 */
 export function openTable(tableId) {
   if (!postgresConnected) {
-    alert("no connection to database. Connect first to the original DB");
+    showError("no connection to database. Connect first to the original DB");
     return;
   }
   //@ todo checker qu'on a bien la bonne base ouverte avec getCurrent_db
@@ -294,8 +294,8 @@ export function setAndRunLayoutOptions(option) {
 
   let selectedNodes = perimeterForAction();
   if (selectedNodes.length < 3) {
-    alert(
-      "Warning: not enough nodes for layout (3 min). Verify your selection"
+    showAlert(
+      "not enough nodes to calculate layout (>3).\n Verify your selection"
     );
     return;
   }
@@ -388,15 +388,15 @@ export function setAndRunLayoutOptions(option) {
 //-------------------
 export function initializeGraph(data, fromDisk = false) {
   // cy a été créé avec des data vides , mais si on s'en est servi, faut nettoyer
-if (typeof cy !== 'undefined' && cy) {
-  cy.elements().remove();
-}
+  if (typeof cy !== 'undefined' && cy) {
+    cy.elements().remove();
+  }
   cy.add(data);
 
   let current_db = getLocalDBName();
 
   // customize nodes
-  createnativeNodesCategories();
+  createNativeNodesCategories();
   createCustomCategories(current_db); // PLQ
 
   let moreStyles = getCustomStyles(current_db);
@@ -406,7 +406,7 @@ if (typeof cy !== 'undefined' && cy) {
 
   fillInGuiNodesCustomCategories();
 
-  cy.once("layoutstop", () => {});
+  cy.once("layoutstop", () => { });
 
   //avoid layout when come from disk
   if (!fromDisk) {
@@ -448,7 +448,7 @@ export function perimeterForNodesSelection() {
       let msg = "Nothing to filter with an AND operation";
       msg += "\nNeeds to have already selected nodes";
       msg += "\n ( or change for OR operation )";
-      alert(msg);
+      showAlert(msg);
       return null;
     }
   }
@@ -469,7 +469,7 @@ export function perimeterForEdgesSelection() {
       let msg = "Nothing to filter with an AND operation";
       msg += "\nNeeds to have already selected edges";
       msg += "\n ( or change for OR operation )";
-      alert(msg);
+      showAlert(msg);
       return null;
     }
   }
@@ -489,7 +489,7 @@ export function openTriggerPage(node) {
     const url = `/triggers.html?table=${encodeURIComponent(table)}`;
     window.open(url, "triggers");
   } else {
-    alert("no triggers on this node");
+    showAlert("no triggers on this node");
   }
 }
 
@@ -518,9 +518,9 @@ export function mapValue(value, inMin, inMax, outMin, outMax) {
  standard categories created before custom using classes 
 */
 
-function createnativeNodesCategories() {
+function createNativeNodesCategories() {
   cy.nodes().forEach((node) => {
-    if (node.data("triggers")) node.addClass("hasTriggers");
+    if (node.data("triggers").length>0) node.addClass("hasTriggers"); 
 
     let nbOut = node.outgoers("edge").length;
     let nbIn = node.incomers("edge").length;
@@ -638,3 +638,32 @@ export function showMultiChoiceDialog(title, message, choices) {
   overlay.appendChild(dialog);
   document.body.appendChild(overlay);
 }
+
+/*
+ more friendly alert 
+*/
+
+export function showAlert(textAlert) {
+  showMultiChoiceDialog("⚠️  Warning", textAlert,
+    [
+      {
+        label: "OK",
+        onClick: () => {
+        }
+      },
+
+    ])
+}
+
+export function showError(textAlert) {
+  showMultiChoiceDialog("🚫 Error", textAlert,
+    [
+      {
+        label: "OK",
+        onClick: () => {
+        }
+      },
+
+    ])
+}
+

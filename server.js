@@ -154,34 +154,6 @@ app.post("/load-from-db", async (req, res) => {
       triggersByTable.get(row.table_name).push(trigger);
     }
 
-    /*
-     Build nodes 
-    
-    const nodes = tableNames.map((name) => {
-      const allCols = columnMap[name] || [];
-      const fkCols = fkColumnMap[name] ? [...fkColumnMap[name]] : [];
-
-      const trigs = triggersByTable.get(name) || [];
-      const hasTrig = trigs.length === 0 ? "" : "*".repeat(trigs.length);
-      const comment = tableComments.get(name) || null;
-
-      const data = {
-        id: name,
-        label: name + "\n" + hasTrig,
-        columns: allCols,
-        foreignKeys: fkCols,
-        comment: comment,
-      };
-
-      if (trigs.length > 0) {
-        data.triggers = trigs;
-        // done in receipt data.classes = 'hasTriggers';
-      }
-
-      return { data };
-    });
-*/
-
 const nodes = [];
 
 for (const name of tableNames) {

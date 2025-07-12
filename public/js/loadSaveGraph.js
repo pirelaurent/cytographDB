@@ -29,6 +29,8 @@ import {
   setAndRunLayoutOptions,
   restoreProportionalSize,
   customNodesCategories,
+  showAlert,
+  showError
 } from "./main.js";
 
 import { proportionalSizeNodeSizeByLinks } from "./menus.js";
@@ -54,7 +56,7 @@ export function connectToDb(menuItemElement) {
       body: JSON.stringify({ dbName }),
     }).then((res) => {
       if (!res.ok) {
-        alert("Échec de connexion à la base : " + dbName);
+        showError("Connection failed to DB : " + dbName);
         throw new Error("Failed to connect to " + dbName);
       }
 
@@ -68,7 +70,7 @@ export function connectToDb(menuItemElement) {
 if (typeof cy !== 'undefined' && cy) {
   cy.elements().remove();
 } else {
-  alert("Graph not initialized");
+  showError("Graph not initialized");
 }
       customNodesCategories.clear();
       return res.text(); // ou `return dbName` si tu veux
@@ -82,7 +84,7 @@ export function loadInitialGraph() {
 
   let dbName = getLocalDBName();
   if (!dbName) {
-    alert("you must first connect a database");
+    showAlert("you must first connect a database");
     return;
   }
 
@@ -118,7 +120,7 @@ if (typeof cy !== 'undefined' && cy) {
       // traiter les données pour le graph, par ex : cy.add(data)
     })
     .catch((err) => {
-      alert(err);
+      showAlert(err);
       hideWaitLoading();
     });
 }
@@ -127,7 +129,7 @@ if (typeof cy !== 'undefined' && cy) {
 export function loadGraphState() {
   const filename = document.getElementById("graphName").value.trim();
   if (!filename) {
-    alert("Please enter a filename in the 'Graph name' box");
+    showAlert("Please enter a filename in the 'Graph name' box");
     return;
   }
   loadGraphNamed(filename);
@@ -181,7 +183,7 @@ if (typeof cy !== 'undefined' && cy) {
       metrologie();
     })
     .catch((error) => {
-      alert(error);
+      showError(error);
       console.error("Error loading graph state:", error);
     });
 }
@@ -209,7 +211,7 @@ export function showOverlayWithFiles() {
       document.getElementById("overlay").style.display = "block";
     })
     .catch((err) => {
-      alert("Error while loading saved file");
+      showError("Error while loading saved file");
       console.error(err);
     });
 }
@@ -217,11 +219,11 @@ export function showOverlayWithFiles() {
 export function saveGraphState() {
   const filename = document.getElementById("graphName").value.trim();
   if (!filename) {
-    alert("Please enter a filename.");
+    showAlert("Please enter a filename.");
     return;
   }
   if (!cy) {
-    alert("No graph to save.");
+    showAlert("No graph to save.");
     return;
   }
 
@@ -272,11 +274,11 @@ function sendGraphState(filename) {
   })
     .then((response) => {
       if (response.ok) {
-        alert(`graph "${filename}" saved successfully`);
+        showAlert(`graph "${filename}" saved successfully`);
         //document.getElementById("current-graph").textContent = filename;
         document.getElementById("graphName").value = filename;
       } else {
-        alert("Failed to save graph state.");
+        showError("Failed to save graph state.");
       }
     })
     .catch((error) => {
@@ -292,7 +294,7 @@ export function sendNodeListToHtml() {
     nodes = cy.nodes(":selected:visible");
     if (nodes.length === 0) nodes= cy.nodes(":visible");
   if (nodes.length == 0) {
-    alert("no nodes to list in current perimeter. Check selection ");
+    showAlert("no nodes to list in current perimeter. Check selection ");
     return;
   }
 
@@ -329,7 +331,7 @@ export function sendEdgeListToHtml() {
   if (edges.length === 0) edges = cy.edges(":visible");
 
   if (edges.length == 0) {
-    alert("no selected edges to list ");
+    showAlert("no selected edges to list ");
     return;
   }
 
@@ -400,7 +402,7 @@ export function saveGraphToFile() {
   let filename = filenameInput.value.trim();
 
   if (!filename) {
-    alert("please, enter a file name.");
+    showAlert("please, enter a file name.");
     return;
   }
 
@@ -523,7 +525,7 @@ function promptDatabaseSelectionNear(targetElement) {
         }
       });
     } catch {
-      alert("Error loading databases");
+  showError("Error loading databases");
       box.remove();
       resolve(null);
       return;

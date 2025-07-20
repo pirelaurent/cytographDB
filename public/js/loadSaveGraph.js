@@ -18,9 +18,7 @@
 
 import {
   cy,
-  graphHasChanged,
   resetPositionStackUndo,
-  setGraphHasChanged,
   metrologie,
   setPostgresConnected,
   setLocalDBName,
@@ -80,7 +78,6 @@ if (typeof cy !== 'undefined' && cy) {
 
 //---------------------
 export function loadInitialGraph() {
-  if (!okToLoadGraph()) return;
 
   let dbName = getLocalDBName();
   if (!dbName) {
@@ -137,7 +134,6 @@ export function loadGraphState() {
 
 //------------------
 function loadGraphNamed(filename) {
-  if (!okToLoadGraph()) return;
 if (typeof cy !== 'undefined' && cy) {
   cy.elements().remove();
 }
@@ -175,7 +171,6 @@ if (typeof cy !== 'undefined' && cy) {
       }
       //document.getElementById("current-graph").textContent = filename;
       document.getElementById("graphName").value = filename;
-      setGraphHasChanged(false);
       restoreProportionalSize();
       resetPositionStackUndo();
 
@@ -241,7 +236,6 @@ export function saveGraphState() {
       } else {
         sendGraphState(filename);
       }
-      setGraphHasChanged(false);
       document.getElementById("graphName").value = "";
     })
     .catch((err) => {
@@ -382,17 +376,6 @@ export function sendEdgeListToHtml() {
   win.document.close();
 }
 
-// uses sweetAlert to complicated here in synchrone code.
-export function okToLoadGraph() {
-  if (!graphHasChanged) return true;
-
-  const confirmOverwrite = confirm(
-    `⚠️ The current work had not been saved. Continue ?`
-  );
-  if (confirmOverwrite) setGraphHasChanged(false);
-  return confirmOverwrite;
-}
-
 /*
 
 */
@@ -441,7 +424,7 @@ export function saveGraphToFile() {
 */
 
 export function loadGraphFromFile(event) {
-  if (!okToLoadGraph()) return;
+
 
   const file = event.target.files[0];
   if (!file) return;
@@ -458,7 +441,6 @@ export function loadGraphFromFile(event) {
     //cy.layout({ name: 'cose'}).run();
   };
   reader.readAsText(file);
-  setGraphHasChanged(false);
 }
 /*
 link to gui

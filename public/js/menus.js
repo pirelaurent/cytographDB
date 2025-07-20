@@ -26,14 +26,13 @@ import {
   sendNodeListToHtml,
   sendEdgeListToHtml,
   saveGraphToFile,
-  okToLoadGraph,
+
 } from "./loadSaveGraph.js";
 
 import {
   cy,
   restrictToVisible,
   metrologie,
-  setGraphHasChanged,
   pushSnapshot,
   //popSnapshot,  done by ctrl Z
   resetSnapshot,
@@ -132,7 +131,6 @@ function setupMenuClickAction() {
 */
 export function menuDisplay(option) {
   if (!cy) return;
-  setGraphHasChanged(true);
 
   switch (option) {
     case "showall":
@@ -286,7 +284,6 @@ export function menuGraph(option) {
   switch (option) {
     case "localUpload":
       {
-        if (!okToLoadGraph()) return;
         if (typeof cy !== 'undefined' && cy) {
           cy.elements().remove();
         }
@@ -328,7 +325,6 @@ export function menuGraph(option) {
 export function menuNodes(option) {
   // set global before calling action
 
-  setGraphHasChanged(true);
   switch (option) {
     //-------- Select nodes
     case "all":
@@ -548,13 +544,13 @@ export function menuNodes(option) {
             setAndRunLayoutOptions("dagre");
 
             setTimeout(() => {
-              showMultiChoiceDialog("Details of PK propagation", "you can : ?", [
+              showMultiChoiceDialog("Details of PK propagation", "(experimental)", [
                 {
                   label: "📥 Download JSON",
                   onClick: () => downloadJson(trace, `trace_follow_${root.id()}.json`)
                 },
                 {
-                  label: "👁️ see JSON text in new tab",
+                  label: "👁️ see PK chain in new tab",
                   onClick: () => openJsonInNewTab(trace, `${root.id()}`)
                 },
                 {
@@ -656,8 +652,6 @@ export function menuNodes(option) {
           {
             label: "✅ Yes",
             onClick: () => {
-              showAlert("no selected nodes to delete");
-              return;
               pushSnapshot();
               nodesToKill.remove();
               metrologie();
@@ -686,7 +680,6 @@ export function menuNodes(option) {
 */
 export function menuEdges(option) {
   // if we enter an option, we flag the graph as 'changed'
-  setGraphHasChanged(true);
 
   // select edges
   switch (option) {

@@ -674,14 +674,24 @@ export function selectEdgesBetweenNodes() {
   });
 }
 
+function toSimplifiedText(jsonArray) {
+  return jsonArray.map(obj => {
+    let lines = [];
+    lines.push(`${obj.to} <-- ${obj.from}`);
+    for (const col of obj.columns) {
+      lines.push(`  ${col.target_column} <-- ${col.source_column}`);
+    }
+    return lines.join('\n');
+  }).join('\n\n');
+}
 
-export function openJsonInNewTab(jsonObject, aTitle) {
-  const jsonText = JSON.stringify(jsonObject, null, 2); // belle indentation
+export function openJsonInNewTab(jsonArray, aTitle) {
+  const simplifiedText = toSimplifiedText(jsonArray);
   const html = `
     <html>
       <head><title>${aTitle}</title></head>
       <body>
-        <pre style="white-space: pre-wrap; word-break: break-word;">${jsonText}</pre>
+        <pre style="white-space: pre-wrap; word-break: break-word;">${simplifiedText}</pre>
       </body>
     </html>
   `;

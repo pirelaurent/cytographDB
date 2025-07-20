@@ -63,14 +63,6 @@ export let nativeNodesCategories = [
 */
 export let customNodesCategories = new Set();
 
-/*
-   used to question 'save y/n ' before changing of graph
-   if nothing had changed, allow a new load without question.
-*/
-export let graphHasChanged = false;
-export function setGraphHasChanged(value) {
-  graphHasChanged = value;
-}
 
 /*
  snapshot(s) connected to undo and ctrl Z

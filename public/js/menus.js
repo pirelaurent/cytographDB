@@ -62,6 +62,9 @@ import {
   selectEdgesBetweenNodes,
   openJsonInNewTab,
   downloadJson,
+  openNameFilterModal,
+  modalSelectByName,
+  closeNameFilterModal,
 } from "./selectors.js";
 
 import { createCustomCategories } from "./customCategories.js";
@@ -651,7 +654,7 @@ export function menuNodes(option) {
         // confirm title, messagge
         showMultiChoiceDialog(`delete ${nodesToKill.length} nodes`, `Confirm ?`, [
           {
-            label: "🗑️ Yes",
+            label: "✅ Yes",
             onClick: () => {
               showAlert("no selected nodes to delete");
               return;
@@ -874,7 +877,7 @@ export function menuEdges(option) {
         // confirm title, messagge
         showMultiChoiceDialog(`⚠️ delete ${edgesToKill.length} edges`, `Confirm ?`, [
           {
-            label: "🗑️ Yes",
+            label: "✅ Yes",
             onClick: () => {
               pushSnapshot();
               edgesToKill.remove();
@@ -984,7 +987,28 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btn) {
     btn.addEventListener("click", menuSelectSizeIncoming);
   }
+document.querySelectorAll('li[data-category="nodesName"]').forEach(li => {
+    li.addEventListener('click', openNameFilterModal);
+  });
 });
+
+
+// Boutons modaux
+  document.getElementById('modalNameFilterOk').addEventListener('click', modalSelectByName);
+  document.getElementById('modalNameFilterCancel').addEventListener('click', closeNameFilterModal);
+
+  // Entrée dans l'input
+  document.getElementById('modalNameFilterInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') modalSelectByName();
+    if (e.key === 'Escape') closeNameFilterModal();
+  });
+
+  // Fermer en cliquant hors de la boîte modale
+  document.getElementById('nameFilterModal').addEventListener('click', function(e) {
+    if (e.target === this) closeNameFilterModal();
+  });
+
+
 
 /*
  used to resize node layout in any way horizontal or vertical or both 
@@ -1303,35 +1327,13 @@ function selectInputBetween(min, max) {
 /*
 this function is triggered by GUI event
 */
-export function selectByName() {
-  let pattern = document.getElementById("nameFilter").value;
-  let regex;
-  try {
-    regex = new RegExp(pattern);
-  } catch (e) {
-    showAlert("Wrong regular expression :" + e.message);
-    return;
-  }
-  // unselect les cachés
-  cy.nodes(":selected:hidden").unselect();
 
-  // périmètre
-  let nodes = perimeterForNodesSelection();
-  if (nodes == null) return;
 
-  nodes.forEach((node) => {
-    if (regex.test(node.id())) {
-      node.select(); //add
-    } else {
-      if (modeSelect() == AND_SELECTED) node.unselect();
-    }
-  });
 
-  document.getElementById("nameFilterResult").textContent = `${nodes.filter(':selected').length} found`;
-}
 
-// to can see function globally => To be changed by an event listener
-window.selectByName = selectByName;
+
+
+
 
 /*
   full graph visible

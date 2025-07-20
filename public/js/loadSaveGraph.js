@@ -307,7 +307,7 @@ const html = `
     <html>
     <head><title>Node List</title></head>
     <body>
-      <h2>${
+      <h2><button class="close-btn" title="Close" onclick="window.close()">✖</button> &nbsp; ${
     sortedNodes.length
   } nodes in current perimeter</h2>
       <ul>

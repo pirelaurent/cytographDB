@@ -262,30 +262,7 @@
 
             <li data-category="filterNodes">filter by &gt;
               <ul class="submenu">
-                <li data-category="nodes" data-skip-action>name &gt;
-                  <ul class="submenu">
-                    <li>
-                      <div style="
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center; 
-                            width: 250px;
-                            height: 300px;            
-                            gap: 6px;
-                          ">
-                        <span id="nameFilterResult" style="margin-top: 10px;font-size: 1.2em; color: #444; display: inline-block; min-height: 1em;"> </span>
-
-                        <input type="text" id="nameFilter" class="nameFilter" placeholder="searched name (regex)"
-                          style="margin-top: 10px; width: 200px; text-align: center;"
-                          onkeydown="if(event.key==='Enter'){selectByName();}" />
-
-
-                      </div>
-                    </li>
-
-
-                  </ul>
-                </li>
+                <li data-category="nodesName" data-skip-action>name &gt;</li>
 
                 <li data-skip-action>native category &gt;
 
@@ -297,7 +274,7 @@
                   </ul>
                 <li action="noCare" id="customList">custom category &gt;</li>
               </ul>
-            </li>
+              </li>
             </li>
 
 
@@ -489,6 +466,23 @@
     </div>
   </div>
   <!--------------------------------------->
+
+<!-- Modal for name filter -->
+<div id="nameFilterModal" class="modal-bg">
+  <div class="modal-content">
+    <h3>Filter nodes by name (regex)</h3>
+    <input type="text" id="modalNameFilterInput" placeholder="searched name (regex)" class="modal-input" />
+    <div id="modalNameFilterResult" class="modal-result"></div>
+    <button id="modalNameFilterOk" class="modal-btn">OK</button>
+    <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
+  </div>
+</div>
+
+
+
+
+
+
 </body>
 
 </html>

@@ -356,3 +356,67 @@ button:hover {
   background-color: rgb(66, 128, 5);
   font-size: 1em;
 }
+
+.overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;   /* change ici pour alignement vertical */
+  z-index: 10000;
+}
+.dialog {
+  margin-top: 30vh;  /* ne se met pas en place. a revoir*/
+}
+
+/* Modal background */
+#nameFilterModal.modal-bg {
+  display: none;
+  position: fixed;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.3);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal visible (optionnel si tu veux utiliser une classe "open" pour afficher) */
+#nameFilterModal.open {
+  display: flex;
+}
+
+/* Modal content box */
+#nameFilterModal .modal-content {
+  background: bisque;
+  padding: 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px #0002;
+  min-width: 320px;
+}
+
+#nameFilterModal .modal-content h3 {
+  margin-top: 0;
+}
+
+/* Input styling */
+#nameFilterModal .modal-input {
+  width: 90%;
+  margin: 16px 0;
+  padding: 8px;
+  font-size: 1.1em;
+}
+
+/* Result/message area */
+#nameFilterModal .modal-result {
+  height: 1.2em;
+  margin-bottom: 10px;
+  color: #555;
+}
+
+/* Button styling */
+#nameFilterModal .modal-btn {
+  margin-right: 12px;
+}

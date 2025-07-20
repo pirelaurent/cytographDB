@@ -586,17 +586,10 @@ async function addCustomDocLink() {
 
 
 export function showMultiChoiceDialog(title, message, choices) {
-  const overlay = document.createElement('div');
-  overlay.style.position = 'fixed';
-  overlay.style.top = '0';
-  overlay.style.left = '0';
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
-  overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-  overlay.style.display = 'flex';
-  overlay.style.justifyContent = 'center';
-  overlay.style.alignItems = 'center';
-  overlay.style.zIndex = '10000';
+ const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+
+
 
   const dialog = document.createElement('div');
   dialog.style.background = 'white';
@@ -618,7 +611,7 @@ export function showMultiChoiceDialog(title, message, choices) {
   btnContainer.style.display = 'flex';
   btnContainer.style.gap = '10px';
   btnContainer.style.justifyContent = 'flex-end';
-
+  const buttons = [];
   choices.forEach(choice => {
     const btn = document.createElement('button');
     btn.textContent = choice.label;
@@ -632,12 +625,33 @@ export function showMultiChoiceDialog(title, message, choices) {
     btn.style.background = '#eee';
     btn.style.cursor = 'pointer';
     btnContainer.appendChild(btn);
+        buttons.push({ btn, choice });
   });
 
   dialog.appendChild(btnContainer);
   overlay.appendChild(dialog);
   document.body.appendChild(overlay);
+
+  // --- Ici, on cherche le bouton 'par défaut'
+  const defaultBtn = buttons.find(b => b.choice.isDefault)?.btn || buttons[0].btn;
+  defaultBtn.focus();
+  function cleanup() {
+    document.body.removeChild(overlay);
+    document.removeEventListener('keydown', onDialogKeydown);
+  }
+
+  function onDialogKeydown(e) {
+    if (e.key === 'Enter') {
+      defaultBtn.click();
+      e.preventDefault();
+    } else if (e.key === 'Escape') {
+      cleanup();
+    }
+  }
+  document.addEventListener('keydown', onDialogKeydown);
 }
+
+
 
 /*
  more friendly alert 
@@ -649,7 +663,8 @@ export function showAlert(textAlert) {
       {
         label: "OK",
         onClick: () => {
-        }
+        },
+        isDefault: true
       },
 
     ])
@@ -661,9 +676,10 @@ export function showError(textAlert) {
       {
         label: "OK",
         onClick: () => {
-        }
+        },
+          isDefault: true
       },
-
     ])
 }
+
 

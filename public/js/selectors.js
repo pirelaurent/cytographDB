@@ -20,13 +20,16 @@ import {
   customNodesCategories,
   perimeterForEdgesSelection,
   perimeterForNodesSelection,
+  showMultiChoiceDialog,
 } from "./main.js";
 import {
   cy,
   perimeterForAction,
   restrictToVisible,
   restoreProportionalSize,
-  showAlert, showError
+  showAlert, showError,
+  modeSelect,
+   AND_SELECTED,
 } from "./main.js";
 
 //------------------------
@@ -264,7 +267,7 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
   });
 
   if (elementsToShow.length === 0) {
-    showAlert("No long path from the starting nodes");
+    showAlert(`No long path (>${minLength} )from the starting nodes`);
     return;
   }
 
@@ -281,18 +284,41 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
     .addClass("start-node")
     .select();
 
-  let okMess = `${paths.length} results . see the list ?`;
+  let okMess = `${paths.length} long path(s) `;
   let limit = paths.length;
   if (limit > 1000) {
     limit = 1000;
-    okMess += "  (limited to 1000 paths)";
+    okMess += "  (limited to 1000)";
   }
 
-  if (confirm(okMess)) {
-    const htmlBase = `
+  showMultiChoiceDialog(okMess, '👁️ show the list ?', [
+    {
+      label: '✅ Yes',
+      onClick: () => showLongPathList(limit,paths)
+    },
+    {
+      label: "❌ No",
+      onClick: () => { } // rien
+    }
+  ])
+};
+
+function showLongPathList(limit, paths) {
+  // Génère le HTML des chemins
+  const pathHtml = [];
+  for (let idx = 0; idx < limit; idx++) {
+    const path = paths[idx];
+    pathHtml.push(
+      `<div class="path">${idx + 1} : ${path.map((n) => n.id()).join(" → ")}</div>`
+    );
+  }
+
+  // Template HTML complet
+  const html = `
     <html>
       <head>
         <title>Long Paths</title>
+        
         <style>
           body { font-family: sans-serif; padding: 1em; }
           h1 { margin-bottom: 1em; }
@@ -300,35 +326,27 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
         </style>
       </head>
       <body>
-        <h1>Long path list</h1>
-        <div id="path-container"></div>
+        <h1><button class="close-btn" title="Close" onclick="window.close()">✖</button> &nbsp;Long path list</h1>
+        <div id="path-container">
+          ${pathHtml.join("\n")}
+        </div>
       </body>
     </html>
   `;
 
-    const win = window.open("", "LongPathListWindow");
-    win.document.open();
-    win.document.write(htmlBase);
-    win.document.close();
+  // Ouvre la fenêtre
+  const win = window.open("", "LongPathListWindow");
 
-    // Utiliser un petit délai pour s'assurer que le DOM est prêt
-    setTimeout(() => {
-      const container = win.document.getElementById("path-container");
-      if (!container) {
-        console.error("Échec : conteneur introuvable");
-        return;
-      }
-
-      for (let idx = 0; idx < limit; idx++) {
-        const path = paths[idx];
-        const div = win.document.createElement("div");
-        div.className = "path";
-        div.textContent = `${idx + 1} : ${path.map((n) => n.id()).join(" → ")}`;
-        container.appendChild(div);
-      }
-    }, 100); // petit délai pour laisser le temps au DOM de se préparer
-  }
+  // Attend que la fenêtre soit prête
+  const interval = setInterval(() => {
+    // Parfois documentElement n'est pas prêt tout de suite selon les navigateurs
+    if (win.document && win.document.readyState === "complete") {
+      win.document.documentElement.innerHTML = html;
+      clearInterval(interval);
+    }
+  }, 10);
 }
+
 
 /*
  remove association (2) nodes and create new direct links 
@@ -575,7 +593,7 @@ export function captureGraphAsPng() {
 
 export function findFunctionalDescendantsCytoscape(rootNode) {
   const visited = new Set();
-    const trace = []; // 👈 ici
+  const trace = []; // 👈 ici
   const rootPK = new Set(rootNode.data('primaryKey')?.columns || []);
 
   function dfs(node, pkToMatch) {
@@ -627,7 +645,7 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
   dfs(rootNode, rootPK);
 
 
-  return ({visited,trace});
+  return ({ visited, trace });
 }
 
 /*
@@ -635,7 +653,7 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
 */
 
 
-  export function selectEdgesBetweenNodes() {
+export function selectEdgesBetweenNodes() {
   const selectedNodes = cy.nodes(":selected");
   if (selectedNodes.length === 0) {
     showAlert("no selected nodes to work with");
@@ -657,7 +675,7 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
 }
 
 
-export function openJsonInNewTab(jsonObject,aTitle) {
+export function openJsonInNewTab(jsonObject, aTitle) {
   const jsonText = JSON.stringify(jsonObject, null, 2); // belle indentation
   const html = `
     <html>
@@ -687,3 +705,47 @@ export function downloadJson(jsonObject, filename = "trace.json") {
   document.body.removeChild(a);
   URL.revokeObjectURL(url); // nettoyage
 }
+/*
+ modal to enter the regex search by name
+*/
+ export function openNameFilterModal() {
+  document.getElementById('nameFilterModal').style.display = 'flex';
+  //document.getElementById('modalNameFilterInput').value = document.getElementById('nameFilter').value;
+  document.getElementById('modalNameFilterInput').focus();
+}
+
+export function closeNameFilterModal() {
+  document.getElementById('nameFilterModal').style.display = 'none';
+  document.getElementById('modalNameFilterResult').textContent = '';
+}
+
+export function modalSelectByName() {
+  const val = document.getElementById('modalNameFilterInput').value;
+  selectByName(val);
+  closeNameFilterModal();
+}
+
+export function selectByName(pattern) {
+  let regex;
+  try {
+    regex = new RegExp(pattern);
+  } catch (e) {
+    showAlert("Wrong regular expression :" + e.message);
+    return;
+  }
+  // unselect les cachés
+  cy.nodes(":selected:hidden").unselect();
+
+  // périmètre
+  let nodes = perimeterForNodesSelection();
+  if (nodes == null) return;
+
+  nodes.forEach((node) => {
+    if (regex.test(node.id())) {
+      node.select(); //add
+    } else {
+      if (modeSelect() == AND_SELECTED) node.unselect();
+    }
+  });
+}
+

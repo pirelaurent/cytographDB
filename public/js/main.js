@@ -287,7 +287,7 @@ export function setAndRunLayoutOptions(option) {
   let selectedNodes = perimeterForAction();
   if (selectedNodes.length < 3) {
     showAlert(
-      "not enough nodes to calculate layout (>3).\n Verify your selection"
+      "not enough nodes to calculate layout (>3).<br/> Verify your selection"
     );
     return;
   }
@@ -437,9 +437,9 @@ export function perimeterForNodesSelection() {
   if (modeSelect() == AND_SELECTED) {
     nodes = cy.nodes(":visible:selected");
     if (nodes.length == 0) {
-      let msg = "Nothing to filter with an AND operation";
-      msg += "\nNeeds to have already selected nodes";
-      msg += "\n ( or change for OR operation )";
+      let msg = "Nothing to filter with an AND operation.";
+      msg += "<br/>Needs to have already selected nodes.";
+      msg += "<br/> ( or change for OR operation )";
       showAlert(msg);
       return null;
     }
@@ -458,9 +458,9 @@ export function perimeterForEdgesSelection() {
   if (modeSelect() == AND_SELECTED) {
     edges = cy.edges(":visible:selected");
     if (edges.length == 0) {
-      let msg = "Nothing to filter with an AND operation";
-      msg += "\nNeeds to have already selected edges";
-      msg += "\n ( or change for OR operation )";
+      let msg = "Nothing to filter with an AND operation.";
+      msg += "<br/>Needs to have already selected edges.";
+      msg += "<br/> ( or change for OR operation )";
       showAlert(msg);
       return null;
     }
@@ -481,7 +481,7 @@ export function openTriggerPage(node) {
     const url = `/triggers.html?table=${encodeURIComponent(table)}`;
     window.open(url, "triggers");
   } else {
-    showAlert("no triggers on this node");
+    showAlert("no triggers on this table.");
   }
 }
 
@@ -575,6 +575,9 @@ async function addCustomDocLink() {
     }
   }
 }
+/*
+ replace alert, warning, confirm with modal window
+*/
 
 
 export function showMultiChoiceDialog(title, message, choices) {
@@ -595,7 +598,10 @@ export function showMultiChoiceDialog(title, message, choices) {
   dialog.appendChild(titleElem);
 
   const msgElem = document.createElement('p');
-  msgElem.textContent = message;
+
+  // PLA msgElem.textContent = message;
+  msgElem.innerHTML = message;
+  
   dialog.appendChild(msgElem);
 
   const btnContainer = document.createElement('div');

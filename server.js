@@ -42,13 +42,8 @@ import {
 
 import {
   reqListOfTables,
-  tableColumnsQuery,
-  reqFkWithColsOnTable,
   edgesQuery,
-  pkQuery,
   triggerQuery,
-  indexQuery,
-  reqTableComments,
   tableCommentQuery,
 } from "./dbreq.js";
 
@@ -94,10 +89,6 @@ app.post("/load-from-db", async (req, res) => {
     const pool = getPoolFor(dbName);
     client = await pool.connect();
 
-    /*
-    const tablesResult = await client.query(tablesQuery);
-    const tableNames = tablesResult.rows.map((r) => r.table_name);
-  */
 
 
     // Get column info per table (simplified version)
@@ -107,14 +98,13 @@ app.post("/load-from-db", async (req, res) => {
     // separate names in a collection
     const tableNames = [...new Set(columnResult.rows.map((r) => r.table_name))];
 
-    // get comments about tables 
-    const commentResult = await client.query(reqTableComments);
+     /*  map table => commentaire. now in details 
 
-    // Crée une map table => commentaire
+    const commentResult = await client.query(reqTableComments);
     const tableComments = new Map(
       commentResult.rows.map(({ table_name, comment }) => [table_name, comment])
     );
-
+    */
 
     // dispatch columns in a new dict array
     columnResult.rows.forEach(({ table_name, column_name }) => {
@@ -154,31 +144,28 @@ app.post("/load-from-db", async (req, res) => {
       triggersByTable.get(row.table_name).push(trigger);
     }
 
-const nodes = [];
+    const nodes = [];
 
-for (const name of tableNames) {
-
-
-  const details = await getTableDetails(client, name);
-  const trigs = triggersByTable.get(name) || [];
+    for (const name of tableNames) {
 
 
-  const data = {
-    id: name,
-    label: name + (trigs.length > 0 ? "\n" + "*".repeat(trigs.length) : ""),
-    columns: details.columns.map(c => c.column),
-    foreignKeys: details.foreignKeys || [],// ex .map(fk => fk.column),
-    comment: details.comment,
-    primaryKey: details.primaryKey,
-    indexes: details.indexes,
-    triggers: trigs
-  };
-
-  nodes.push({ data });
-}
+      const details = await getTableDetails(client, name);
+      const trigs = triggersByTable.get(name) || [];
 
 
+      const data = {
+        id: name,
+        label: name + (trigs.length > 0 ? "\n" + "*".repeat(trigs.length) : ""),
+        columns: details.columns.map(c => c.column),
+        foreignKeys: details.foreignKeys || [],// ex .map(fk => fk.column),
+        comment: details.comment,
+        primaryKey: details.primaryKey,
+        indexes: details.indexes,
+        triggers: trigs
+      };
 
+      nodes.push({ data });
+    }
 
     /* 
      build edges
@@ -481,7 +468,7 @@ app.get("/api/function", async (req, res) => {
       return res.status(404).json({ error: "Function not found" });
     }
   } catch (err) {
-    return res.status(500).json({ error: "Internal error" });
+    return res.status(500).json({ error: "Internal error" + err});
   } finally {
     if (client) client.release();
   }
@@ -615,7 +602,7 @@ app.get("/api/version", (req, res) => {
 
 
 app.get('/api/custom-docs-check', (req, res) => {
-  const docsDir = path.join(__dirname, 'public', 'custom','docs');
+  const docsDir = path.join(__dirname, 'public', 'custom', 'docs');
 
   fs.readdir(docsDir, (err, files) => {
     if (err) {

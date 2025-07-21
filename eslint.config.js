@@ -1,5 +1,5 @@
 // installer le preseet : npm install @eslint/js --save-dev
-// lancer : npx eslint . --ext .js
+// lancer : npx eslint . --ext .js 
 
 
 
@@ -10,6 +10,9 @@ import js from '@eslint/js';
 export default [
   {
     ...js.configs.recommended,
+    ignores: [
+      'public/js/external/**'
+    ],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module'

@@ -42,7 +42,7 @@ export function follow(direction = "outgoing") {
   // not perimeterForAction to avoid full nodes.
   let selectedNodes = cy.nodes(":visible:selected");
   if (selectedNodes.length === 0) {
-    showAlert("no selected nodes to follow");
+    showAlert("no selected nodes to follow.");
     return;
   }
 
@@ -138,7 +138,7 @@ export function followCross() {
     ? cy.nodes(":visible:selected")
     : cy.nodes(":selected");
   if (nodes.length === 0) {
-    showAlert("no selected nodes to search associations");
+    showAlert("no selected nodes to search associations.");
     return;
   }
 
@@ -245,7 +245,7 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
 
   let startNodes = cy.nodes(":visible:selected");
   if (startNodes.length === 0) {
-    showAlert("no selected nodes as starting points");
+    showAlert("no selected nodes as starting points.");
     return;
   }
 
@@ -253,7 +253,7 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
     dfs([start], new Set([start.id()]), 1, start.id());
   });
   if (iterationCount >= maxIterations) {
-    showAlert(`Limited iterations ${maxIterations} reached. Partial results`);
+    showAlert(`Limited iterations ${maxIterations} reached. <br/>(Partial results)`);
   }
   const elementsToShow = cy.collection();
 
@@ -267,7 +267,7 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
   });
 
   if (elementsToShow.length === 0) {
-    showAlert(`No long path (>${minLength} )from the starting nodes`);
+    showAlert(`No long path (>${minLength} )from the starting nodes.`);
     return;
   }
 
@@ -354,7 +354,7 @@ function showLongPathList(limit, paths) {
 export function collapseAssociations() {
   let nodes = perimeterForAction();
   if (nodes.length == 0) {
-    showAlert("no nodes to check");
+    showAlert("no nodes to check.");
     return;
   }
 
@@ -401,7 +401,7 @@ export function collapseAssociations() {
       node.remove();
     }
   });
-  if (done == 0) showAlert("nothing found. Check selected");
+  if (done == 0) showAlert("nothing found. Check selected.");
 }
 
 /*
@@ -443,7 +443,7 @@ export async function generateTriggers() {
     return Array.isArray(trigs) && trigs.length > 0;
   });
   if (nodesWithTriggers.length == 0) {
-    showAlert("no table with triggers in selection");
+    showAlert("no table with triggers in selection.");
     return;
   }
   //------------- get
@@ -464,7 +464,7 @@ export async function generateTriggers() {
       break; // on peut arrêter la boucle ici si ça ne sert à rien de continuer
     }
     if (!data || data.triggers.length === 0) {
-      showAlert(`no trigger for table ${node.id()}`);
+      showAlert(`no trigger for table ${node.id()}.`);
       return;
     }
 
@@ -656,7 +656,7 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
 export function selectEdgesBetweenNodes() {
   const selectedNodes = cy.nodes(":selected");
   if (selectedNodes.length === 0) {
-    showAlert("no selected nodes to work with");
+    showAlert("no selected nodes to work with.");
     return;
   }
 
@@ -731,8 +731,8 @@ export function closeNameFilterModal() {
 
 export function modalSelectByName() {
   const val = document.getElementById('modalNameFilterInput').value;
-  selectByName(val);
-  closeNameFilterModal();
+  const ok = selectByName(val);
+  if (ok) closeNameFilterModal();
 }
 
 export function selectByName(pattern) {
@@ -740,8 +740,8 @@ export function selectByName(pattern) {
   try {
     regex = new RegExp(pattern);
   } catch (e) {
-    showAlert("Wrong regular expression :" + e.message);
-    return;
+    showAlert(e.message);
+    return false;
   }
   // unselect les cachés
   cy.nodes(":selected:hidden").unselect();
@@ -757,5 +757,6 @@ export function selectByName(pattern) {
       if (modeSelect() == AND_SELECTED) node.unselect();
     }
   });
+  return true;
 }
 

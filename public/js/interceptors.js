@@ -24,7 +24,6 @@ import {
   openTriggerPage,
   restrictToVisible,
   showAlert,
-  showError,
 } from "./main.js";
 
 import {

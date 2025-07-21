@@ -81,7 +81,7 @@ export function loadInitialGraph() {
 
   let dbName = getLocalDBName();
   if (!dbName) {
-    showAlert("you must first connect a database");
+    showAlert("you must first connect a database.");
     return;
   }
 
@@ -126,7 +126,7 @@ if (typeof cy !== 'undefined' && cy) {
 export function loadGraphState() {
   const filename = document.getElementById("graphName").value.trim();
   if (!filename) {
-    showAlert("Please enter a filename in the 'Graph name' box");
+    showAlert("Please enter a filename in the 'Graph name' box.");
     return;
   }
   loadGraphNamed(filename);
@@ -268,7 +268,7 @@ function sendGraphState(filename) {
   })
     .then((response) => {
       if (response.ok) {
-        showAlert(`graph "${filename}" saved successfully`);
+        showAlert(`graph "${filename}" saved successfully.`);
         //document.getElementById("current-graph").textContent = filename;
         document.getElementById("graphName").value = filename;
       } else {
@@ -288,7 +288,7 @@ export function sendNodeListToHtml() {
     nodes = cy.nodes(":selected:visible");
     if (nodes.length === 0) nodes= cy.nodes(":visible");
   if (nodes.length == 0) {
-    showAlert("no nodes to list in current perimeter. Check selection ");
+    showAlert("no nodes to list in current perimeter. <br/> Check your selection. ");
     return;
   }
 
@@ -325,7 +325,7 @@ export function sendEdgeListToHtml() {
   if (edges.length === 0) edges = cy.edges(":visible");
 
   if (edges.length == 0) {
-    showAlert("no selected edges to list ");
+    showAlert("no selected edges to list.");
     return;
   }
 

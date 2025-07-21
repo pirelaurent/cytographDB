@@ -518,7 +518,7 @@ export function menuNodes(option) {
         const roots = cy.nodes(":visible:selected").filter(n => n.data('foreignKeys').length === 0);
 
         if (roots.length === 0 || roots.length != 1) {
-          showAlert(" must start from a unique node without foreignKey");
+          showAlert(" must start from a unique node without foreignKey.");
           return;
         }
 
@@ -722,7 +722,7 @@ export function menuEdges(option) {
 
       let nodesOut = cy.nodes(":selected:visible");
       if (nodesOut.length == 0) {
-        showAlert(" no selected nodes");
+        showAlert("no selected nodes.");
         return;
       }
       pushSnapshot();
@@ -733,7 +733,7 @@ export function menuEdges(option) {
     case "incomingEdges":
       let nodesIn = cy.nodes(":selected:visible");
       if (nodesIn.length == 0) {
-        showAlert(" no selected nodes");
+        showAlert("no selected nodes.");
         return;
       }
       pushSnapshot();
@@ -744,7 +744,7 @@ export function menuEdges(option) {
     case "bothEdges":
       let nodes = cy.nodes(":selected:visible");
       if (nodes.length == 0) {
-        showAlert(" no selected nodes");
+        showAlert("no selected nodes.");
         return;
       }
       //nodes.connectedEdges().select();
@@ -845,7 +845,7 @@ export function menuEdges(option) {
 
     case "selectAssociations":
       var simpleEdges = cy.edges(".simplified");
-      if (simpleEdges.length == 0) showAlert("no *-*  associations to select");
+      if (simpleEdges.length == 0) showAlert("no *-*  associations to select.");
       else {
         pushSnapshot();
         simpleEdges.select();
@@ -862,7 +862,7 @@ export function menuEdges(option) {
 
       const edgesToKill = cy.edges(":selected:visible");
       if (edgesToKill.length == 0) {
-        showAlert("no selected edges");
+        showAlert("no selected edges.");
         return;
       }
 
@@ -980,26 +980,29 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btn) {
     btn.addEventListener("click", menuSelectSizeIncoming);
   }
-document.querySelectorAll('li[data-category="nodesName"]').forEach(li => {
+  document.querySelectorAll('li[data-category="nodesName"]').forEach(li => {
     li.addEventListener('click', openNameFilterModal);
   });
 });
 
 
 // Boutons modaux
-  document.getElementById('modalNameFilterOk').addEventListener('click', modalSelectByName);
-  document.getElementById('modalNameFilterCancel').addEventListener('click', closeNameFilterModal);
+document.getElementById('modalNameFilterOk').addEventListener('click', modalSelectByName);
+document.getElementById('modalNameFilterCancel').addEventListener('click', closeNameFilterModal);
 
-  // Entrée dans l'input
-  document.getElementById('modalNameFilterInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') modalSelectByName();
-    if (e.key === 'Escape') closeNameFilterModal();
-  });
-
-  // Fermer en cliquant hors de la boîte modale
-  document.getElementById('nameFilterModal').addEventListener('click', function(e) {
-    if (e.target === this) closeNameFilterModal();
-  });
+/*
+document.getElementById('modalNameFilterInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault(); 
+    modalSelectByName();
+  }
+  if (e.key === 'Escape') closeNameFilterModal();
+});
+*/
+// close when a click outside
+document.getElementById('nameFilterModal').addEventListener('click', function (e) {
+  if (e.target === this) closeNameFilterModal();
+});
 
 
 

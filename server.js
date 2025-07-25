@@ -31,14 +31,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import pkg from "pg";
 const { Pool } = pkg;
 
-import { getPoolFor, getCurrentPool, getCurrentDBName } from "./db.js";
+import { getPoolFor, getCurrentPool, getCurrentDBName,resetPool } from "./db.js";
 import {
   collectFunctionBodies,
   extractImpactedTables,
   extractCalledFunctions,
   stripSqlComments,
 
-} from "./sqlParser.js";
+} from "./dbSqlParser.js";
 
 import {
   reqListOfTables,
@@ -202,9 +202,6 @@ app.post("/load-from-db", async (req, res) => {
 Table details  
 
 */
-
-
-
 app.get("/table/:name", async (req, res) => {
   const pool = getCurrentPool();
   if (!pool) return res.status(400).send("No DB in place.");
@@ -387,57 +384,6 @@ app.post("/connect-db", async (req, res) => {
  used also to show a function code 
  html result page is dynamically constructed here
 */
-
-app.get("/functionOLD", async (req, res) => {
-  res.setHeader("Cache-Control", "no-store");
-  const pool = getCurrentPool();
-  if (!pool) return res.status(400).send("No DB in place.");
-
-  let client;
-  try {
-    client = await pool.connect();
-    const name = req.query.name;
-    const tableName = req.query.table;
-    const triggerName = req.query.triggerName;
-    const result = await client.query(
-      `
-      SELECT pg_get_functiondef(p.oid) as code
-      FROM pg_proc p
-      JOIN pg_namespace n ON n.oid = p.pronamespace
-      WHERE p.proname = $1
-      LIMIT 1
-  `,
-      [name]
-    );
-
-    if (result.rows.length > 0) {
-      res.send(`
-    <html>
-    <head>
-      <link href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.css" rel="stylesheet" />
-    </head>
-      <body>
-        <h1><small>table: </small>${tableName}</h1>
-        <h2><small>trigger: </small>${triggerName}</h2>
-        <h3><small>function: </small>${name}</h3>
-        <pre> <code class="language-sql">${result.rows[0].code}</code></pre>
-       <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-core.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-sql.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/prismjs@1/plugins/autoloader/prism-autoloader.min.js"></script>
-      </body>
-      </html>
-      `);
-    } else {
-      res.send(`<p>No function found with name: ${name}</p>`);
-    }
-  } catch {
-    return res.status(404).json({ error: `function does not exist` });
-  } finally {
-    if (client) client.release();
-  }
-});
-
-
 app.get("/api/function", async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   const pool = getCurrentPool();
@@ -473,9 +419,6 @@ app.get("/api/function", async (req, res) => {
     if (client) client.release();
   }
 });
-
-
-
 
 
 /*
@@ -583,6 +526,20 @@ app.get("/current-db", (req, res) => {
     res.status(404).send("No connection to DB");
   }
 });
+
+/*
+ reset pool to change db 
+*/
+app.post("/api/reset-pool", async (req, res) => {
+  try {
+    await resetPool();
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 
 /*
  app version 

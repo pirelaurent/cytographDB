@@ -99,7 +99,7 @@ function tryClose() {
             const data = await response.json();
 
             if (!response.ok) {
-                document.getElementById("content").innerHTML = `<p style="color:red;">Erreur: ${data.error}</p>`;
+                document.getElementById("content").innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
                 return;
             }
 

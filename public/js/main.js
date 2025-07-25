@@ -41,7 +41,11 @@ export function setPostgresConnected() {
  to keep track of current DB
 */
 let localDBName = null;
+/*
+ the connected DB is known by server not navigator code
+ One found through /current-db a local copy is kept here   
 
+*/
 export function setLocalDBName(aName) {
   localDBName = aName;
 }
@@ -594,7 +598,7 @@ export function showMultiChoiceDialog(title, message, choices) {
   dialog.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
 
   const titleElem = document.createElement('h3');
-  titleElem.textContent = title;
+  titleElem.innerHTML = title;
   dialog.appendChild(titleElem);
 
   const msgElem = document.createElement('p');
@@ -612,7 +616,7 @@ export function showMultiChoiceDialog(title, message, choices) {
   const buttons = [];
   choices.forEach(choice => {
     const btn = document.createElement('button');
-    btn.textContent = choice.label;
+    btn.innerHTML = choice.label;
     btn.onclick = () => {
       document.body.removeChild(overlay);
       choice.onClick();

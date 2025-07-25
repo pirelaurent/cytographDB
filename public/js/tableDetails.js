@@ -8,7 +8,7 @@ async function getTableData(tableName) {
   try {
     const response = await fetch(`/table/${tableName}`);
     if (!response.ok) {
-      throw new Error(`Erreur HTTP ${response.status}`);
+      throw new Error(` HTTP error ${response.status}`);
     }
     const data = await response.json();
 

@@ -28,7 +28,8 @@ import {
   restoreProportionalSize,
   customNodesCategories,
   showAlert,
-  showError
+  showError,
+  showMultiChoiceDialog
 } from "./main.js";
 
 import { proportionalSizeNodeSizeByLinks } from "./menus.js";
@@ -65,11 +66,11 @@ export function connectToDb(menuItemElement) {
       ).innerHTML = `<small>&nbsp;connected to: </small> ${dbName}`;
 
       // clean current graph
-if (typeof cy !== 'undefined' && cy) {
-  cy.elements().remove();
-} else {
-  showError("Graph not initialized");
-}
+      if (typeof cy !== 'undefined' && cy) {
+        cy.elements().remove();
+      } else {
+        showError("Graph not initialized");
+      }
       customNodesCategories.clear();
       return res.text(); // ou `return dbName` si tu veux
     });
@@ -85,11 +86,11 @@ export function loadInitialGraph() {
     return;
   }
 
-if (typeof cy !== 'undefined' && cy) {
-  cy.elements().remove();
-}
+  if (typeof cy !== 'undefined' && cy) {
+    cy.elements().remove();
+  }
 
-  customNodesCategories.clear(); 
+  customNodesCategories.clear();
 
   waitLoading("⏳ Analyzing DB --> create graph...");
 
@@ -134,9 +135,9 @@ export function loadGraphState() {
 
 //------------------
 function loadGraphNamed(filename) {
-if (typeof cy !== 'undefined' && cy) {
-  cy.elements().remove();
-}
+  if (typeof cy !== 'undefined' && cy) {
+    cy.elements().remove();
+  }
   waitLoading("⏳ Loading saved graph");
 
   //document.getElementById("current-graph").textContent = "";
@@ -285,8 +286,8 @@ function sendGraphState(filename) {
 export function sendNodeListToHtml() {
   let nodes;
   // permimeter
-    nodes = cy.nodes(":selected:visible");
-    if (nodes.length === 0) nodes= cy.nodes(":visible");
+  nodes = cy.nodes(":selected:visible");
+  if (nodes.length === 0) nodes = cy.nodes(":visible");
   if (nodes.length == 0) {
     showAlert("no nodes to list in current perimeter. <br/> Check your selection. ");
     return;
@@ -297,23 +298,22 @@ export function sendNodeListToHtml() {
     const labelB = b.data("label") || "";
     return labelA.localeCompare(labelB);
   });
-const html = `
+  const html = `
     <html>
     <head><title>Node List</title></head>
     <body>
-      <h2><button class="close-btn" title="Close" onclick="window.close()">✖</button> &nbsp; ${
-    sortedNodes.length
-  } nodes in current perimeter</h2>
+      <h2><button class="close-btn" title="Close" onclick="window.close()">✖</button> &nbsp; ${sortedNodes.length
+    } nodes in current perimeter</h2>
       <ul>
         ${sortedNodes.map((node) => `<li>${node.data('label')}</li>`).join("")}
       </ul>
     </body>
     </html>
   `;
-const win = window.open("", "nodeListWindow");
-      // win.document.write(html);
-      win.document.body.innerHTML = html;
-      win.document.close();
+  const win = window.open("", "nodeListWindow");
+  // win.document.write(html);
+  win.document.body.innerHTML = html;
+  win.document.close();
 
 }
 
@@ -402,7 +402,12 @@ export function saveGraphToFile() {
     }
   });
 
-  const json = cy.json();
+
+  console.log('PLA: ' + getLocalDBName());
+  const json = {
+    ...cy.json(),
+    originalDBName: getLocalDBName()
+  }
   const blob = new Blob([JSON.stringify(json, null, 2)], {
     type: "application/json",
   });
@@ -435,7 +440,40 @@ export function loadGraphFromFile(event) {
   const reader = new FileReader();
   reader.onload = function (e) {
     const json = JSON.parse(e.target.result);
-    cy.json(json);
+    const originalDBName = json.originalDBName || null;
+
+
+    console.log('PLA2:' + originalDBName);
+
+    const currentDBName = getLocalDBName();
+    // if no db connected accept upload without question 
+    if ((currentDBName != null) && (currentDBName != originalDBName)) {
+
+      {
+        let original = originalDBName == null ? ' not defined' : originalDBName;
+        let current = currentDBName;
+
+        showMultiChoiceDialog(` <i>${file.name}</i> was done with DB:<br/>${original}`, `is <b>${current}</b> compatible ?`, [
+          {
+            label: "✅ Yes",
+            onClick: () => { }
+          },
+          {
+            label: "❌ No",
+            onClick: () => { 
+              resetPoolFromFront() 
+               showAlert('Some details from database could not be retrieved<br/> <br/>Try selecting <i>DB: connect to DB only</i> then reload')
+            }
+          },
+        ]);
+      }
+    }
+
+   
+    // affiche, utilise, etc.
+    const cyData = { ...json };
+    delete cyData.originalDBName;
+    cy.json(cyData);
     restoreProportionalSize();
     resetPositionStackUndo();
     //cy.layout({ name: 'cose'}).run();
@@ -507,7 +545,7 @@ function promptDatabaseSelectionNear(targetElement) {
         }
       });
     } catch {
-  showError("Error loading databases");
+      showError("Error loading databases");
       box.remove();
       resolve(null);
       return;
@@ -554,4 +592,18 @@ function waitLoading(message) {
 
 function hideWaitLoading() {
   document.getElementById("waitLoading").style.display = "none";
+}
+
+/*
+ as originalDB was saved in downlod, must reset connection if wrong db in place 
+*/
+
+export async function resetPoolFromFront() {
+  const response = await fetch('/api/reset-pool', {
+    method: 'POST'
+  });
+  if (!response.ok) {
+    throw new Error("Échec du reset pool");
+  }
+  return response.json();
 }

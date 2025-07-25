@@ -18,6 +18,7 @@
 
 import {
   customNodesCategories,
+  getLocalDBName,
   perimeterForEdgesSelection,
   perimeterForNodesSelection,
   showMultiChoiceDialog,
@@ -700,7 +701,9 @@ export function openJsonInNewTab(jsonArray, aTitle) {
   window.open(url, '_blank');
 }
 
-
+/*
+ partial save for list of chains
+*/
 export function downloadJson(jsonObject, filename = "trace.json") {
   const jsonStr = JSON.stringify(jsonObject, null, 2); // indentation
   const blob = new Blob([jsonStr], { type: 'application/json' });

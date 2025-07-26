@@ -1,3 +1,5 @@
+import {perimeterForNodesSelection, perimeterForEdgesSelection} from "../graph/cytoscapeCore.js"
+
 import { getCustomNodesCategories }
   from "../custom/customCategories.js"
 /*

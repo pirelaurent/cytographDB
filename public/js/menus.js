@@ -48,7 +48,7 @@ import {
 } from "./selectors.js";
 
 import {
- getCy,
+  getCy,
   restrictToVisible,
   setAndRunLayoutOptions,
   perimeterForAction,
@@ -66,7 +66,7 @@ import {
 import {
   modeSelect,
   AND_SELECTED,
-    showMultiChoiceDialog,
+  showMultiChoiceDialog,
   showAlert,
   showError,
   openNameFilterModal,
@@ -81,7 +81,7 @@ import {
 
 import { createCustomCategories } from "./custom/customCategories.js";
 
-import {   selectEdgesByNativeCategories,} from "./ui/custom.js"
+import { selectEdgesByNativeCategories, } from "./ui/custom.js"
 /*
  connect an html menu object to a treatment function with action selected
 */
@@ -299,6 +299,7 @@ export function menuGraph(option) {
   switch (option) {
     case "localUpload":
       {
+
         if (typeof getCy() !== 'undefined' && getCy()) {
           getCy().elements().remove();
         }
@@ -307,7 +308,14 @@ export function menuGraph(option) {
         document.getElementById("graphName").value = "";
 
         // simulate clic on a standard upload zone but hidden
-        document.getElementById("graphUpload").click();
+        //document.getElementById("graphUpload").click();
+        const input = document.getElementById("graphUpload");
+        if (input) {
+          input.click();
+        } else {
+          console.warn("graphUpload input not found when trying to trigger click");
+        }
+
         document.getElementById("graphUpload").value = "";
       }
 

@@ -1,19 +1,19 @@
 "use strict";
 
 import { getCyStyles } from "./cyStyles.js";
+import { showAlert } from "../ui/dialog.js";
 
-
-
+/*
+ cy defined in a module cannot be accessed directly
+*/
 let cy;
-
 export function setCy(instance) {
   cy = instance;
 }
-
 export function getCy() {
   return cy;
 }
-
+import { modeSelect,AND_SELECTED} from "../ui/dialog.js";
 
 import {
   getLocalDBName
@@ -40,7 +40,7 @@ export function initializeGraph(data, fromDisk = false) {
   // customize nodes
   createNativeNodesCategories();
 
-  createCustomCategories(current_db); // PLA
+  createCustomCategories(current_db); 
   let moreStyles = getCustomStyles(current_db);
   //console.log(JSON.stringify(moreStyles));
   let mergedStyles = getCyStyles().concat(moreStyles);
@@ -73,7 +73,7 @@ export function setAndRunLayoutOptions(option) {
   let selectedNodes = perimeterForAction();
   if (selectedNodes.length < 3) {
     showAlert(
-      "not enough nodes to calculate layout (>3).<br/> Verify your selection"
+      "not enough nodes to calculate layout (>3).<br/> Check your selection"
     );
     return;
   }

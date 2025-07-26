@@ -395,7 +395,6 @@ export function saveGraphToFile() {
 
 export function loadGraphFromFile(event) {
 
-
   const file = event.target.files[0];
   if (!file) return;
 
@@ -445,14 +444,15 @@ export function loadGraphFromFile(event) {
 /*
 link to gui
 */
-export function linkToUi(){
-document.addEventListener("DOMContentLoaded", () => {
+export function linkToUi() {
   const input = document.getElementById("graphUpload");
   if (input) {
     input.addEventListener("change", loadGraphFromFile);
+  } else {
+    console.warn("graphUpload input not found");
   }
-});
 }
+
 
 
 function waitLoading(message) {

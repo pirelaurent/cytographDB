@@ -9,6 +9,13 @@ import {
 }
 from "../dbFront/tables.js"
 
+import { 
+  getCy,
+  perimeterForNodesSelection
+
+} from "../graph/cytoscapeCore.js"
+
+
 
 export function showMultiChoiceDialog(title, message, choices) {
  const overlay = document.createElement('div');
@@ -164,7 +171,7 @@ export function selectByName(pattern) {
     return false;
   }
   // unselect les cachés
-  cy.nodes(":selected:hidden").unselect();
+  getCy().nodes(":selected:hidden").unselect();
 
   // périmètre
   let nodes = perimeterForNodesSelection();

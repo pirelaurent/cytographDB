@@ -41,9 +41,6 @@ const democytodbModule = {
     */
 
     getCustomNodesCategories().add("root");
-
-   console.log(getCustomNodesCategories());// is correct
-
   },
 
   /*----------------------------------------------

@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Laurent P.
+// Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 // to have init of events
 
 import {
-  connectToDb,
   loadInitialGraph,
   loadGraphState,
   showOverlayWithFiles,
@@ -30,24 +29,9 @@ import {
 } from "./loadSaveGraph.js";
 
 import {
-  cy,
-  restrictToVisible,
-  metrologie,
-  pushSnapshot,
-  //popSnapshot,  done by ctrl Z
-  resetSnapshot,
-  setAndRunLayoutOptions,
-  perimeterForAction,
-  perimeterForNodesSelection,
-  modeSelect,
-  AND_SELECTED,
-  mergedStyles,
-  getLocalDBName,
-  mapValue,
-  showMultiChoiceDialog,
-  showAlert,
-  showError,
-} from "./main.js";
+  connectToDb,
+} from "./dbFront/tables.js"
+
 
 import {
   follow,
@@ -56,17 +40,48 @@ import {
   collapseAssociations,
   restoreAssociations,
   generateTriggers,
-  selectEdgesByNativeCategories,
   findFunctionalDescendantsCytoscape,
   selectEdgesBetweenNodes,
   openJsonInNewTab,
   downloadJson,
+
+} from "./selectors.js";
+
+import {
+ getCy,
+  restrictToVisible,
+  setAndRunLayoutOptions,
+  perimeterForAction,
+  perimeterForNodesSelection,
+  metrologie,
+  mapValue,
+} from "./graph/cytoscapeCore.js";
+
+import {
+  pushSnapshot,
+  //popSnapshot,  //done by ctrl Z
+  resetSnapshot,
+} from "./graph/snapshots.js";
+
+import {
+  modeSelect,
+  AND_SELECTED,
+    showMultiChoiceDialog,
+  showAlert,
+  showError,
   openNameFilterModal,
   modalSelectByName,
   closeNameFilterModal,
-} from "./selectors.js";
+} from "./ui/dialog.js"
 
-import { createCustomCategories } from "./customCategories.js";
+
+import {
+  getLocalDBName,
+} from "./dbFront/tables.js";
+
+import { createCustomCategories } from "./custom/customCategories.js";
+
+import {   selectEdgesByNativeCategories,} from "./ui/custom.js"
 /*
  connect an html menu object to a treatment function with action selected
 */
@@ -136,8 +151,8 @@ export function menuDisplay(option) {
     case "showall":
       pushSnapshot();
       {
-        cy.nodes().forEach((node) => node.show());
-        cy.edges().forEach((edge) => edge.show());
+        getCy().nodes().forEach((node) => node.show());
+        getCy().edges().forEach((edge) => edge.show());
       }
       break;
 
@@ -159,12 +174,12 @@ export function menuDisplay(option) {
       break;
 
     case "fitScreen":
-      cy.fit();
+      getCy().fit();
       break;
 
     case "fitSelected":
-      cy.fit(
-        cy.nodes(":selected").union(cy.nodes(":selected").connectedEdges()),
+      getCy().fit(
+        getCy().nodes(":selected").union(getCy().nodes(":selected").connectedEdges()),
         50
       );
       break;
@@ -228,7 +243,7 @@ export function menuDisplay(option) {
 
     case "applyStyle":
       // ele.removeClass('*'); // enlève toutes les classes (comme .highlighted, .faded, etc.)
-      cy.elements().forEach((ele) => {
+      getCy().elements().forEach((ele) => {
         const classesToKeep = ["hidden"];
         const currentClasses = ele.classes();
 
@@ -240,7 +255,7 @@ export function menuDisplay(option) {
         ele.removeClass(toRemove.join(" ")); // retire uniquement les classes non protégées
       });
 
-      cy.style(mergedStyles);
+      getCy().style(mergedStyles);
       break;
 
     // not linked to menu.
@@ -284,8 +299,8 @@ export function menuGraph(option) {
   switch (option) {
     case "localUpload":
       {
-        if (typeof cy !== 'undefined' && cy) {
-          cy.elements().remove();
+        if (typeof getCy() !== 'undefined' && getCy()) {
+          getCy().elements().remove();
         }
 
         resetSnapshot();
@@ -330,7 +345,7 @@ export function menuNodes(option) {
     case "all":
       {
         pushSnapshot();
-        let nodes = restrictToVisible() ? cy.nodes(":visible") : cy.nodes();
+        let nodes = restrictToVisible() ? getCy().nodes(":visible") : getCy().nodes();
         nodes.forEach((node) => {
           node.select();
         });
@@ -341,7 +356,7 @@ export function menuNodes(option) {
     case "none":
       {
         pushSnapshot();
-        let nodes = restrictToVisible() ? cy.nodes(":visible") : cy.nodes();
+        let nodes = restrictToVisible() ? getCy().nodes(":visible") : getCy().nodes();
         nodes.forEach((node) => {
           node.unselect();
         });
@@ -351,7 +366,7 @@ export function menuNodes(option) {
     case "invert":
       {
         pushSnapshot();
-        let nodes = restrictToVisible() ? cy.nodes(":visible") : cy.nodes();
+        let nodes = restrictToVisible() ? getCy().nodes(":visible") : getCy().nodes();
         nodes.forEach((node) => {
           node.selected() ? node.unselect() : node.select();
         });
@@ -452,7 +467,7 @@ export function menuNodes(option) {
     */
     case "hideSelected":
       pushSnapshot();
-      let nodesToHide = cy.nodes(":selected");
+      let nodesToHide = getCy().nodes(":selected");
       nodesToHide.hide();
       nodesToHide.unselect();
       break;
@@ -460,7 +475,7 @@ export function menuNodes(option) {
     case "hideNotSelected":
       {
         pushSnapshot();
-        cy.nodes(":visible")
+        getCy().nodes(":visible")
           .filter(function (node) {
             return !node.selected();
           })
@@ -476,8 +491,8 @@ export function menuNodes(option) {
     case "swapHidden":
       {
         pushSnapshot();
-        const nodesVisibles = cy.nodes(":visible");
-        const nodesHidden = cy.nodes(":hidden");
+        const nodesVisibles = getCy().nodes(":visible");
+        const nodesHidden = getCy().nodes(":hidden");
         nodesVisibles.hide();
         nodesHidden.show();
       }
@@ -509,13 +524,13 @@ export function menuNodes(option) {
     */
     case "findLongOutgoingPaths":
       pushSnapshot();
-      findLongOutgoingPaths(cy);
+      findLongOutgoingPaths(getCy());
       break;
 
     case "findPkFollowers":
       {
 
-        const roots = cy.nodes(":visible:selected").filter(n => n.data('foreignKeys').length === 0);
+        const roots = getCy().nodes(":visible:selected").filter(n => n.data('foreignKeys').length === 0);
 
         if (roots.length === 0 || roots.length != 1) {
           showAlert(" must start from a unique node without foreignKey.");
@@ -529,10 +544,10 @@ export function menuNodes(option) {
 
 
 
-          const groupNodes = cy.nodes().filter(n => group.has(n.id()));
-          cy.nodes().unselect();
+          const groupNodes = getCy().nodes().filter(n => group.has(n.id()));
+          getCy().nodes().unselect();
 
-          cy.batch(() => {
+          getCy().batch(() => {
             groupNodes.show();
             groupNodes.connectedEdges().show();
             groupNodes.select();
@@ -540,7 +555,7 @@ export function menuNodes(option) {
           selectEdgesBetweenNodes();
           pushSnapshot();
 
-          if (cy.nodes(":selected:visible").length > 3) {
+          if (getCy().nodes(":selected:visible").length > 3) {
             setAndRunLayoutOptions("dagre");
 
             setTimeout(() => {
@@ -569,7 +584,7 @@ export function menuNodes(option) {
 
     case "selectNodesFromSelectedEdges":
       pushSnapshot();
-      const connectedNodes = cy
+      const connectedNodes = getCy()
         .edges(":selected:visible")
         .connectedNodes(":visible");
       connectedNodes.select();
@@ -636,13 +651,13 @@ export function menuNodes(option) {
     case "fromEdgesSelected":
       {
         pushSnapshot();
-        cy.edges(":selected").connectedNodes().select();
+        getCy().edges(":selected").connectedNodes().select();
       }
       break;
 
     case "deleteNodesSelected":
 
-      let nodesToKill = cy.nodes(":selected:visible");
+      let nodesToKill = getCy().nodes(":selected:visible");
       if (nodesToKill.length == 0) {
       }
 
@@ -685,16 +700,16 @@ export function menuEdges(option) {
   switch (option) {
     case "allEdges":
       pushSnapshot();
-      cy.edges().select();
+      getCy().edges().select();
       break;
 
     case "noEdges":
       pushSnapshot();
-      cy.edges().unselect();
+      getCy().edges().unselect();
       break;
 
     case "swapEdges":
-      const visibleEdges = cy.edges(":visible");
+      const visibleEdges = getCy().edges(":visible");
       pushSnapshot();
       visibleEdges.forEach((edge) => {
         if (edge.selected()) {
@@ -720,7 +735,7 @@ export function menuEdges(option) {
 
     case "outgoingEdges":
 
-      let nodesOut = cy.nodes(":selected:visible");
+      let nodesOut = getCy().nodes(":selected:visible");
       if (nodesOut.length == 0) {
         showAlert("no selected nodes.");
         return;
@@ -731,7 +746,7 @@ export function menuEdges(option) {
       break;
 
     case "incomingEdges":
-      let nodesIn = cy.nodes(":selected:visible");
+      let nodesIn = getCy().nodes(":selected:visible");
       if (nodesIn.length == 0) {
         showAlert("no selected nodes.");
         return;
@@ -742,7 +757,7 @@ export function menuEdges(option) {
       break;
 
     case "bothEdges":
-      let nodes = cy.nodes(":selected:visible");
+      let nodes = getCy().nodes(":selected:visible");
       if (nodes.length == 0) {
         showAlert("no selected nodes.");
         return;
@@ -775,14 +790,14 @@ export function menuEdges(option) {
       break;
 
     case "edgeIsOnDeleteCascade":
-      cy.edges();
-      const cascadeEdges = cy.edges(".delete_cascade");
+      getCy().edges();
+      const cascadeEdges = getCy().edges(".delete_cascade");
       cascadeEdges.select();
       break;
 
     case "labelShow":
       // Show visible edges, or selected ones if any are selected
-      let subEdges = cy.edges(":visible");
+      let subEdges = getCy().edges(":visible");
 
       if (subEdges.filter(":selected").length !== 0) {
         subEdges = subEdges.filter(":selected");
@@ -791,7 +806,7 @@ export function menuEdges(option) {
       break;
 
     case "labelHide":
-      cy.edges().removeClass("showLabel");
+      getCy().edges().removeClass("showLabel");
       break;
 
     case "increase-font-edge":
@@ -803,12 +818,12 @@ export function menuEdges(option) {
 
     case "hideEdgeSelected":
       pushSnapshot();
-      cy.edges(":selected").hide();
+      getCy().edges(":selected").hide();
       break;
 
     case "hideEdgeNotSelected":
       pushSnapshot();
-      cy.edges(":visible")
+      getCy().edges(":visible")
         .filter(function (node) {
           return !node.selected();
         })
@@ -817,15 +832,15 @@ export function menuEdges(option) {
 
     case "swapEdgeHidden":
       pushSnapshot();
-      const edgesVisible = cy.edges(":visible");
-      const edgesHidden = cy.edges(":hidden");
+      const edgesVisible = getCy().edges(":visible");
+      const edgesHidden = getCy().edges(":hidden");
       edgesVisible.hide();
       edgesHidden.show();
       break;
 
     case "NoneEdgeSelected":
       pushSnapshot();
-      cy.edges().show();
+      getCy().edges().show();
       break;
 
     case "listEdges":
@@ -844,7 +859,7 @@ export function menuEdges(option) {
       break;
 
     case "selectAssociations":
-      var simpleEdges = cy.edges(".simplified");
+      var simpleEdges = getCy().edges(".simplified");
       if (simpleEdges.length == 0) showAlert("no *-*  associations to select.");
       else {
         pushSnapshot();
@@ -860,7 +875,7 @@ export function menuEdges(option) {
     case "deleteEdgesSelected":
 
 
-      const edgesToKill = cy.edges(":selected:visible");
+      const edgesToKill = getCy().edges(":selected:visible");
       if (edgesToKill.length == 0) {
         showAlert("no selected edges.");
         return;
@@ -902,7 +917,7 @@ export function menuEdges(option) {
  this is not yet in any menus
 */
 export function visibility(option) {
-  if (!cy) return;
+  if (!getCy()) return;
   switch (option) {
     case "front":
       bringSelectedToFront();
@@ -1013,8 +1028,8 @@ document.getElementById('nameFilterModal').addEventListener('click', function (e
 function changePosRelative(xFactor, yFactor) {
   // si au moins deux sélectionnés, on les écartent
 
-  let nodesToMove = cy.nodes(":selected:visible");
-  if (nodesToMove.length < 2) nodesToMove = cy.nodes(":visible");
+  let nodesToMove = getCy().nodes(":selected:visible");
+  if (nodesToMove.length < 2) nodesToMove = getCy().nodes(":visible");
   if (nodesToMove.length === 0) return;
   // 1. Calculer le centre des nœuds
   let sumX = 0,
@@ -1054,8 +1069,8 @@ function vertiLess() {
 function rotateGraphByDegrees(deg) {
   const angle = (deg * Math.PI) / 180;
 
-  let nodes = cy.nodes(":selected:visible");
-  if (nodes.length < 2) nodes = cy.nodes(":visible");
+  let nodes = getCy().nodes(":selected:visible");
+  if (nodes.length < 2) nodes = getCy().nodes(":visible");
   if (nodes.length === 0) return;
 
   // Get center of graph (optional: you can also use a fixed point)
@@ -1096,7 +1111,7 @@ export function getCenter(nodes) {
 function increaseFontSize(delta) {
   let selectedNodes = perimeterForAction();
 
-  // cy.style().selector("node").style("font-size", newSize).update();
+  // getCy().style().selector("node").style("font-size", newSize).update();
   selectedNodes.forEach((node) => {
     const currentFontSize = parseFloat(node.style("font-size"));
 
@@ -1106,11 +1121,11 @@ function increaseFontSize(delta) {
 }
 
 function increaseFontSizeEdge(delta) {
-  let selectedEdges = cy.edges(":visible:selected");
+  let selectedEdges = getCy().edges(":visible:selected");
 
   // S'il n'y a pas d'arêtes sélectionnées visibles, on prend toutes les visibles
   if (selectedEdges.length === 0) {
-    selectedEdges = cy.edges(":visible");
+    selectedEdges = getCy().edges(":visible");
   }
 
   selectedEdges.forEach((edge) => {
@@ -1149,7 +1164,7 @@ export function proportionalSizeNodeSizeByLinks() {
 }
 
 function noProportionalSize() {
-  cy.nodes().forEach((node) => {
+  getCy().nodes().forEach((node) => {
     node.removeData("degree");
     node.removeStyle("width");
     node.removeStyle("height");
@@ -1157,8 +1172,8 @@ function noProportionalSize() {
 }
 
 function distributeNodesHorizontally() {
-  let nodes = cy.nodes(":selected:visible");
-  if (nodes.length < 2) nodes = cy.nodes(":visible");
+  let nodes = getCy().nodes(":selected:visible");
+  if (nodes.length < 2) nodes = getCy().nodes(":visible");
   if (nodes.length < 2) return;
 
   const sorted = nodes.sort((a, b) => a.position().x - b.position().x);
@@ -1174,12 +1189,12 @@ function distributeNodesHorizontally() {
     });
   });
 
-  cy.nodes(":visible").length === 0 ? cy.fit() : null;
+  getCy().nodes(":visible").length === 0 ? getCy().fit() : null;
 }
 
 function distributeNodesVertically() {
-  let nodes = cy.nodes(":selected:visible");
-  if (nodes.length < 2) nodes = cy.nodes(":visible");
+  let nodes = getCy().nodes(":selected:visible");
+  if (nodes.length < 2) nodes = getCy().nodes(":visible");
   if (nodes.length < 2) return;
 
   const sorted = nodes.sort((a, b) => a.position().y - b.position().y);
@@ -1195,12 +1210,12 @@ function distributeNodesVertically() {
     });
   });
 
-  cy.nodes(":visible").length === 0 ? cy.fit() : null;
+  getCy().nodes(":visible").length === 0 ? getCy().fit() : null;
 }
 
 function alignNodesVertically() {
-  let nodes = cy.nodes(":selected:visible");
-  if (nodes.length < 2) nodes = cy.nodes(":visible");
+  let nodes = getCy().nodes(":selected:visible");
+  if (nodes.length < 2) nodes = getCy().nodes(":visible");
   if (nodes.length < 2) return;
 
   // middleX comme moyenne des x
@@ -1223,12 +1238,12 @@ function alignNodesVertically() {
     });
   });
 
-  cy.nodes(":visible").length === 0 ? cy.fit() : null;
+  getCy().nodes(":visible").length === 0 ? getCy().fit() : null;
 }
 
 export function alignNodesHorizontally() {
-  let nodes = cy.nodes(":selected:visible");
-  if (nodes.length < 2) nodes = cy.nodes(":visible");
+  let nodes = getCy().nodes(":selected:visible");
+  if (nodes.length < 2) nodes = getCy().nodes(":visible");
   if (nodes.length < 2) return;
 
   let middleY = 0;
@@ -1244,18 +1259,18 @@ export function alignNodesHorizontally() {
     });
   });
 
-  cy.nodes(":visible").length === 0 ? cy.fit() : null;
+  getCy().nodes(":visible").length === 0 ? getCy().fit() : null;
 }
 
 //-------------------
 function bringSelectedToFront() {
-  cy.nodes(":selected").css("z-index", 100);
-  cy.nodes(":unselected").css("z-index", 10);
+  getCy().nodes(":selected").css("z-index", 100);
+  getCy().nodes(":unselected").css("z-index", 10);
 }
 
 function bringSelectedToBack() {
-  cy.nodes(":selected").css("z-index", 0);
-  cy.nodes(":unselected").css("z-index", 10);
+  getCy().nodes(":selected").css("z-index", 0);
+  getCy().nodes(":unselected").css("z-index", 10);
 }
 
 /*
@@ -1321,21 +1336,10 @@ function selectInputBetween(min, max) {
 }
 
 /*
-this function is triggered by GUI event
-*/
-
-
-
-
-
-
-
-
-/*
   full graph visible
 */
 function showAll() {
-  cy.nodes().show();
-  cy.edges().show();
+  getCy().nodes().show();
+  getCy().edges().show();
   document.getElementById("cy").style.backgroundColor = "white";
 }

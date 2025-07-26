@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Laurent P.
+// Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,23 +15,22 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 "use strict";
+import {
+  showAlert, 
+  showError,
+    showMultiChoiceDialog,
+} from "./ui/dialog.js";
+
 
 import {
-  customNodesCategories,
-  getLocalDBName,
-  perimeterForEdgesSelection,
-  perimeterForNodesSelection,
-  showMultiChoiceDialog,
-} from "./main.js";
-import {
-  cy,
-  perimeterForAction,
+  getCy,
   restrictToVisible,
   restoreProportionalSize,
-  showAlert, showError,
-  modeSelect,
-   AND_SELECTED,
-} from "./main.js";
+    perimeterForAction,
+} from './graph/cytoscapeCore.js';
+
+
+
 
 //------------------------
 
@@ -41,7 +40,7 @@ import {
 
 export function follow(direction = "outgoing") {
   // not perimeterForAction to avoid full nodes.
-  let selectedNodes = cy.nodes(":visible:selected");
+  let selectedNodes = getCy().nodes(":visible:selected");
   if (selectedNodes.length === 0) {
     showAlert("no selected nodes to follow.");
     return;
@@ -50,9 +49,8 @@ export function follow(direction = "outgoing") {
   let nodesMarked = new Set();
   let edgesToShow = new Set();
 
-  //const restrict = restrictToVisible();
   // allow everywhere
-  const allowedNodes = new Set(cy.nodes().map((n) => n.id()));
+  const allowedNodes = new Set(getCy().nodes().map((n) => n.id()));
 
   selectedNodes.forEach((node) => {
     const nodeId = node.id();
@@ -99,7 +97,7 @@ export function follow(direction = "outgoing") {
 
   // Cacher uniquement les arêtes non souhaitées NE MARCHE PAS en cas de nouvel essai
   nodesMarked.forEach((id) => {
-    const node = cy.getElementById(id);
+    const node = getCy().getElementById(id);
     node.connectedEdges().forEach((edge) => {
       if (edgesToShow.has(edge.id())) {
         edge.select();
@@ -109,22 +107,22 @@ export function follow(direction = "outgoing") {
 
   // Afficher les nœuds suivis et les sélectionner
   nodesMarked.forEach((id) => {
-    const node = cy.getElementById(id);
+    const node = getCy().getElementById(id);
     node.show();
     node.select();
   });
 
   // Réaffichage des arêtes souhaitées
-  cy.edges().unselect();
+  getCy().edges().unselect();
   edgesToShow.forEach((id) => {
-    const edge = cy.getElementById(id);
+    const edge = getCy().getElementById(id);
     edge.show();
     edge.select();
   });
 
   // Z-index pour bien mettre en avant la sélection
-  cy.nodes(":selected").css("z-index", 100);
-  cy.nodes(":unselected").css("z-index", 10);
+  getCy().nodes(":selected").css("z-index", 100);
+  getCy().nodes(":unselected").css("z-index", 10);
 }
 
 /*
@@ -136,8 +134,8 @@ export function follow(direction = "outgoing") {
 
 export function followCross() {
   let nodes = restrictToVisible()
-    ? cy.nodes(":visible:selected")
-    : cy.nodes(":selected");
+    ? getCy().nodes(":visible:selected")
+    : getCy().nodes(":selected");
   if (nodes.length === 0) {
     showAlert("no selected nodes to search associations.");
     return;
@@ -244,7 +242,7 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
 
   // limit exploration to visible selected
 
-  let startNodes = cy.nodes(":visible:selected");
+  let startNodes = getCy().nodes(":visible:selected");
   if (startNodes.length === 0) {
     showAlert("no selected nodes as starting points.");
     return;
@@ -256,7 +254,7 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
   if (iterationCount >= maxIterations) {
     showAlert(`Limited iterations ${maxIterations} reached. <br/>(Partial results)`);
   }
-  const elementsToShow = cy.collection();
+  const elementsToShow = getCy().collection();
 
   paths.forEach((path) => {
     for (let i = 0; i < path.length - 1; i++) {
@@ -273,14 +271,14 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
   }
 
   // Clear all previous selections and fade everything
-  cy.elements().unselect().addClass("faded");
+  getCy().elements().unselect().addClass("faded");
 
   // Highlight the actual path elements
   elementsToShow.removeClass("faded").select();
 
   // Make sure only *starting* nodes are specially marked
-  cy.nodes().removeClass("start-node"); // optional visual marker
-  cy.nodes()
+  getCy().nodes().removeClass("start-node"); // optional visual marker
+  getCy().nodes()
     .filter((n) => successfulStarts.has(n.id()))
     .addClass("start-node")
     .select();
@@ -295,7 +293,7 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
   showMultiChoiceDialog(okMess, '👁️ show the list ?', [
     {
       label: '✅ Yes',
-      onClick: () => showLongPathList(limit,paths)
+      onClick: () => showLongPathList(limit, paths)
     },
     {
       label: "❌ No",
@@ -383,7 +381,7 @@ export function collapseAssociations() {
 
       // Add the generated edge
 
-      cy.add({
+      getCy().add({
         group: "edges",
         data: {
           id: newId,
@@ -411,7 +409,7 @@ export function collapseAssociations() {
 */
 
 export function restoreAssociations() {
-  const visibleEdges = cy.edges(":visible");
+  const visibleEdges = getCy().edges(":visible");
   const simplifiedEdges = visibleEdges.filter((edge) =>
     edge.hasClass("simplified")
   );
@@ -420,7 +418,7 @@ export function restoreAssociations() {
   simplifiedEdges.forEach((edge) => {
     const backup = edge.data("backup");
     if (backup) {
-      cy.add(backup);
+      getCy().add(backup);
     }
     // remove obsolete generated edge
     edge.remove();
@@ -477,13 +475,13 @@ export async function generateTriggers() {
       impactedTables.forEach((target) => {
         const edgeId = triggerName;
 
-        const targetNode = cy.getElementById(target);
-        const sourceNode = cy.getElementById(source);
+        const targetNode = getCy().getElementById(target);
+        const sourceNode = getCy().getElementById(source);
 
         if (targetNode.nonempty() && sourceNode.nonempty()) {
           // Vérifie si l’arête existe déjà (via son ID)
-          if (!cy.getElementById(edgeId).nonempty()) {
-            const edge = cy.add({
+          if (!getCy().getElementById(edgeId).nonempty()) {
+            const edge = getCy().add({
               group: "edges",
               data: {
                 id: edgeId,
@@ -507,82 +505,22 @@ export async function generateTriggers() {
       });
     });
 
-    cy.style().update(); // forcer le style
+    getCy().style().update(); // forcer le style
   }
 }
 
-/*
- find all data types in nodes that we leave to user choice 
-*/
-
-export function fillInGuiNodesCustomCategories() {
-  // find position in menus
-  const container = document.getElementById("customList");
-  // create or get submenu
-  let submenu = container.querySelector(".submenu");
-  if (!submenu) {
-    submenu = document.createElement("ul");
-    submenu.classList.add("submenu");
-    container.appendChild(submenu);
-  }
-
-  // Supprime les anciens éléments
-  submenu.querySelectorAll("li.dynamic-data-key").forEach((el) => el.remove());
-
-  // Add new custom
-  for (let key of customNodesCategories) {
-    const li = document.createElement("li");
-    li.classList.add("dynamic-data-key");
-    li.setAttribute("data-key", key);
-    li.textContent = key;
-    li.addEventListener("click", () => {
-      selectNodesByCustomcategories(key);
-    });
-    submenu.appendChild(li);
-  }
-}
-
-/*
-  following eventlistener set in dynamic list 
-  filter nodes 
-  take care of OR/AND 
-*/
-
-function selectNodesByCustomcategories(aCategory) {
-  const nodes = perimeterForNodesSelection();
-  nodes.forEach((node) => {
-    if (node.hasClass(aCategory)) {
-      node.select();
-    }
-  });
-}
-
-/*
-  discrete native categories are set in index.html with dedicated actions 
-*/
-
-export function selectEdgesByNativeCategories(aCategory) {
-  const edges = perimeterForEdgesSelection();
-  if (edges.length === 0) return;
-
-  edges.forEach((edge) => {
-    if (edge.hasClass(aCategory)) {
-      edge.select();
-    }
-  });
-}
 
 /*
  create a png image by button or ctrl g like graphic
 */
 export function captureGraphAsPng() {
-  const png = cy.png({ full: false, scale: 2, bg: "white" });
-  cy.edges().addClass("forPNG");
+  const png = getCy().png({ full: false, scale: 2, bg: "white" });
+  getCy().edges().addClass("forPNG");
   const link = document.createElement("a");
   link.href = png;
   link.download = "graph-capture.png";
   link.click();
-  cy.edges().removeClass("forPNG");
+  getCy().edges().removeClass("forPNG");
 }
 
 /**
@@ -655,7 +593,7 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
 
 
 export function selectEdgesBetweenNodes() {
-  const selectedNodes = cy.nodes(":selected");
+  const selectedNodes = getCy().nodes(":selected");
   if (selectedNodes.length === 0) {
     showAlert("no selected nodes to work with.");
     return;
@@ -663,7 +601,7 @@ export function selectEdgesBetweenNodes() {
 
   const selectedIds = new Set(selectedNodes.map(n => n.id()));
 
-  const internalEdges = cy.edges().filter(edge => {
+  const internalEdges = getCy().edges().filter(edge => {
     const source = edge.source().id();
     const target = edge.target().id();
     return selectedIds.has(source) && selectedIds.has(target);
@@ -718,48 +656,3 @@ export function downloadJson(jsonObject, filename = "trace.json") {
   document.body.removeChild(a);
   URL.revokeObjectURL(url); // nettoyage
 }
-/*
- modal to enter the regex search by name
-*/
- export function openNameFilterModal() {
-  document.getElementById('nameFilterModal').style.display = 'flex';
-  //document.getElementById('modalNameFilterInput').value = document.getElementById('nameFilter').value;
-  document.getElementById('modalNameFilterInput').focus();
-}
-
-export function closeNameFilterModal() {
-  document.getElementById('nameFilterModal').style.display = 'none';
-  document.getElementById('modalNameFilterResult').textContent = '';
-}
-
-export function modalSelectByName() {
-  const val = document.getElementById('modalNameFilterInput').value;
-  const ok = selectByName(val);
-  if (ok) closeNameFilterModal();
-}
-
-export function selectByName(pattern) {
-  let regex;
-  try {
-    regex = new RegExp(pattern);
-  } catch (e) {
-    showAlert(e.message);
-    return false;
-  }
-  // unselect les cachés
-  cy.nodes(":selected:hidden").unselect();
-
-  // périmètre
-  let nodes = perimeterForNodesSelection();
-  if (nodes == null) return;
-
-  nodes.forEach((node) => {
-    if (regex.test(node.id())) {
-      node.select(); //add
-    } else {
-      if (modeSelect() == AND_SELECTED) node.unselect();
-    }
-  });
-  return true;
-}
-

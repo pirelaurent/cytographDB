@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Laurent P.
+// Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -14,15 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
+import { getCy} from "../graph/cytoscapeCore.js";
 
 /*
  adaptation to specific database 
  new categories must be pushed into customCategories 
 */
+ const customModules = {};
+/*
+  custom added classes to be proposed in gui filter
+*/
+let customNodesCategories = new Set();
 
-export const customModules = {};
+export function getCustomNodesCategories(){
+  return customNodesCategories;
+}
 
+export function setCustomNodesCategories(someSet){
+  customNodesCategories = someSet;
+}
 
 export function registerCustomModule(dbName, moduleObject) {
   //console.log("register module "+dbName)
@@ -58,3 +68,32 @@ export function getCustomStyles(myCurrentDB) {
 }
 
 
+/*
+ standard categories created before custom using classes 
+*/
+
+export function createNativeNodesCategories() {
+  getCy().nodes().forEach((node) => {
+    if (node.data("triggers").length>0) node.addClass("hasTriggers"); 
+
+    let nbOut = node.outgoers("edge").length;
+    let nbIn = node.incomers("edge").length;
+    if (nbOut >= 2 && nbIn == 0) {
+      if (nbOut == 2) {
+        const allCols = node.data.columns || [];
+        const fkCols = node.data.foreignKeys || [];
+        // association porteuse de sens ou pas
+        const hasOnlyColsForFK = allCols.length === fkCols.length;
+        if (hasOnlyColsForFK) {
+          node.addClass("association");
+        }
+      } else {
+        node.addClass("multiAssociation");
+      }
+    }
+
+    if (nbOut == 0 && nbIn == 0) {
+      node.addClass("orphan");
+    }
+  });
+}

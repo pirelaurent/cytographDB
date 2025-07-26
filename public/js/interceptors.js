@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Laurent P.
+// Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
 // 
 // This program is free software: you can redistribute it and/or modify
@@ -15,20 +15,33 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import {
-  cy,
-  pushSnapshot,
-  popSnapshot,
-  metrologie,
-  openTable,
-  openTriggerPage,
-  restrictToVisible,
-  showAlert,
-} from "./main.js";
+
 
 import {
   captureGraphAsPng
 } from "./selectors.js";
+
+import {
+  getCy,
+      metrologie,
+} from "./graph/cytoscapeCore.js";
+
+import {
+  pushSnapshot,
+  popSnapshot,
+
+} from "./graph/snapshots.js"
+
+import {
+  showAlert,
+
+} from "./ui/dialog.js"
+
+import { 
+  openTable,
+  openTriggerPage,
+}
+from "./dbFront/tables.js"
 
 /*
  all the events in gui defined here 
@@ -37,14 +50,14 @@ import {
 export function setInterceptors() {
   //--------- set events'trap for cy
 
-  cy.on("mouseover", "node", (evt) => evt.target.addClass("hovered"));
-  cy.on("mouseout", "node", (evt) => evt.target.removeClass("hovered"));
+  getCy().on("mouseover", "node", (evt) => evt.target.addClass("hovered"));
+  getCy().on("mouseout", "node", (evt) => evt.target.removeClass("hovered"));
 
   /*
    information on mouse over on nodes and edges 
   */
 
-  cy.on("mouseover", "node, edge", function (evt) {
+  getCy().on("mouseover", "node, edge", function (evt) {
     const hoverEnabled = document.getElementById("hoverInfoToggle").checked;
     if (!hoverEnabled) return;
 
@@ -129,25 +142,25 @@ export function setInterceptors() {
     //${node.data('category')} <br>
   });
 
-  cy.on("mouseout", "node, edge", function () {
+  getCy().on("mouseout", "node, edge", function () {
     document.getElementById("info-panel").style.display = "none";
   });
 
   // retrait du menu si on clic ailleurs
-  cy.on("mouseover", "node", function () {
+  getCy().on("mouseover", "node", function () {
     clicNodeMenu.style.display = "none";
   });
 
   // surlignage en couleurs des liens entrants et sortants
-  cy.on("mouseover", "node", function (evt) {
+  getCy().on("mouseover", "node", function (evt) {
     const node = evt.target;
     // Réinitialise les styles
-    cy.edges().removeClass("incoming outgoing faded");
+    getCy().edges().removeClass("incoming outgoing faded");
 
-    cy.nodes().addClass("faded");
+    getCy().nodes().addClass("faded");
     node.removeClass("faded");
 
-    cy.edges().forEach((edge) => {
+    getCy().edges().forEach((edge) => {
       if (edge.source().id() === node.id()) {
         edge.addClass("outgoing");
         edge.target().removeClass("faded");
@@ -161,7 +174,7 @@ export function setInterceptors() {
   });
 
   // set to front selected nodes
-  cy.on("select", "node", function (evt) {
+  getCy().on("select", "node", function (evt) {
     const ele = evt.target;
     ele.style("z-index", Date.now());
   });
@@ -199,7 +212,7 @@ export function setInterceptors() {
       e.preventDefault();
       if (cy) {
             pushSnapshot();
-        let nodes = restrictToVisible() ? cy.nodes(":visible") : cy.nodes();
+        let nodes = restrictToVisible() ? getCy().nodes(":visible") : getCy().nodes();
         nodes.select();
       }
     }
@@ -240,11 +253,11 @@ document.getElementById('NodesId').addEventListener('click', () => {
     }
   });
 
-  cy.on("mouseout", "node", function () {
+  getCy().on("mouseout", "node", function () {
     {
-      cy.edges().removeClass("incoming outgoing faded "); // internal ?
+      getCy().edges().removeClass("incoming outgoing faded "); // internal ?
     }
-    cy.nodes().removeClass("faded");
+    getCy().nodes().removeClass("faded");
   });
 
   document.getElementById("open-table").addEventListener("click", () => {
@@ -280,11 +293,11 @@ document.getElementById('NodesId').addEventListener('click', () => {
 
   // Affichage du menu contextuel sur clic droit
   let nodeForInfo = null;
-  cy.on("cxttap", "node", function (evt) {
+  getCy().on("cxttap", "node", function (evt) {
     nodeForInfo = evt.target;
     const renderedPos = evt.renderedPosition;
     // Obtenir la position du container Cytoscape dans la page
-    const containerRect = cy.container().getBoundingClientRect();
+    const containerRect = getCy().container().getBoundingClientRect();
     // Calculer la position réelle dans la fenêtre
     const x = containerRect.left + renderedPos.x;
     const y = containerRect.top + renderedPos.y;
@@ -297,25 +310,25 @@ document.getElementById('NodesId').addEventListener('click', () => {
   //--------------------  marquage d'un noeud sélectionné
 
   /*         NE PAS REFAIRE A LA MANO LAISSER CYTO
-                    NO: cy.on("tap", "node", function (evt) {
+                    NO: getCy().on("tap", "node", function (evt) {
                     car cet évènement arrive après le select natif
 */
 
   // trace selection
-  cy.on("select unselect", "node", function () {
+  getCy().on("select unselect", "node", function () {
     metrologie();
   });
 
-  cy.on("select unselect", "edge", function () {
+  getCy().on("select unselect", "edge", function () {
     metrologie();
   });
 
   // clic hors éléments
-  cy.on("tap", function (event) {
+  getCy().on("tap", function (event) {
     if (event.target === cy) {
-      cy.elements().unselect();
-      cy.elements().removeClass("faded start-node")
-      cy.edges(":selected").removeClass("internal outgoing incoming");
+      getCy().elements().unselect();
+      getCy().elements().removeClass("faded start-node")
+      getCy().edges(":selected").removeClass("internal outgoing incoming");
     } else if (event.target.isNode && event.target.isNode()) {
       pushSnapshot();
     } else if (event.target.isEdge && event.target.isEdge()) {
@@ -328,10 +341,10 @@ document.getElementById('NodesId').addEventListener('click', () => {
 
   let previousSelection = null;
 
-  cy.on("boxstart", () => {
+  getCy().on("boxstart", () => {
     pushSnapshot();
     if (ctrlPressed) {
-      previousSelection = cy.elements(":selected"); // snapshot AVANT
+      previousSelection = getCy().elements(":selected"); // snapshot AVANT
       //console.log('boxstart '+previousSelection.length)
       previousSelection.unselect();
       previousSelection.forEach((elt) => elt.addClass("doubleSelect"));
@@ -342,16 +355,16 @@ document.getElementById('NodesId').addEventListener('click', () => {
   /*
  several attempt to catch edge inside the select box. no good answers. 
 */
-  cy.on("boxend", () => {
+  getCy().on("boxend", () => {
     if (ctrlPressed) {
       setTimeout(() => {
-        const currentSelection = cy.elements(":selected");
+        const currentSelection = getCy().elements(":selected");
         // add selection of
         const newlySelected = previousSelection.difference(currentSelection);
 
         currentSelection.unselect();
         newlySelected.select();
-        cy.elements(".doubleSelect").removeClass("doubleSelect");
+        getCy().elements(".doubleSelect").removeClass("doubleSelect");
         //previousSelection.forEach((elt) => elt.removeClass("doubleSelect"));
         previousSelection = null;
       }, 0); // ⚡ 0 millisecondes suffit pour passer au cycle suivant

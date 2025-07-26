@@ -3,7 +3,13 @@
   extended specifically later
   https://manual.cytoscape.org/en/3.9.1/Styles.html
 */
-export const cyStyles = [
+
+export function getCyStyles(){
+  return cyStyles;
+}
+
+
+const cyStyles = [
   {
     selector: "node",
     style: {

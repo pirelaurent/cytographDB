@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Laurent P.
+// Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
 // 
 // This program is free software: you can redistribute it and/or modify

@@ -1,7 +1,12 @@
-import { cy, customNodesCategories } from "../js/main.js";
+
+
+
 import {
-  registerCustomModule,
-} from "../js/customCategories.js";
+  getCy,
+} from "../js/graph/cytoscapeCore.js"
+
+
+import {   registerCustomModule, getCustomNodesCategories } from "../js/custom/customCategories.js";
 
 console.log("[DEBUG] democytodb.js chargé");
 
@@ -15,7 +20,7 @@ const democytodbModule = {
   createCustomCategories() {
 
     // categories for nodes 
-    cy.nodes().forEach((node) => {
+    getCy().nodes().forEach((node) => {
       /* 
         add class for visual effect and set the style in getCustomStyles
       */
@@ -34,7 +39,11 @@ const democytodbModule = {
      more than simple visual effect through class 
      adding the class in customNodesCategories will propose it to filter in gui 
     */
-    customNodesCategories.add("root");
+
+    getCustomNodesCategories().add("root");
+
+   console.log(getCustomNodesCategories());// is correct
+
   },
 
   /*----------------------------------------------

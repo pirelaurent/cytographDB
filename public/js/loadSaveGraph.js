@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Laurent P.
+// Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
 //
 // This program is free software: you can redistribute it and/or modify
@@ -17,66 +17,33 @@
 "use strict";
 
 import {
-  cy,
-  resetPositionStackUndo,
-  metrologie,
-  setPostgresConnected,
-  setLocalDBName,
-  getLocalDBName,
+  getCy,
   initializeGraph,
   setAndRunLayoutOptions,
+  metrologie,
   restoreProportionalSize,
-  customNodesCategories,
+} from "./graph/cytoscapeCore.js"
+
+import {
   showAlert,
   showError,
   showMultiChoiceDialog
-} from "./main.js";
+} from "./ui/dialog.js"
+
+import {
+
+  getLocalDBName,
+}
+  from "./dbFront/tables.js";
+
+import {
+  resetPositionStackUndo
+
+} from "./graph/snapshots.js";
 
 import { proportionalSizeNodeSizeByLinks } from "./menus.js";
 
-/*
- connect to db with graph or only db 
-*/
-export function connectToDb(menuItemElement) {
-  return promptDatabaseSelectionNear(menuItemElement).then((dbName) => {
-    if (!dbName) {
-      // no selection of db , not an error
-      //return Promise.reject(new Error("No database selected"));
-      return;
-    }
-
-    document.getElementById("current-db").innerHTML = "";
-
-    return fetch("/connect-db", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ dbName }),
-    }).then((res) => {
-      if (!res.ok) {
-        showError("Connection failed to DB : " + dbName);
-        throw new Error("Failed to connect to " + dbName);
-      }
-
-      setLocalDBName(dbName);
-
-      document.getElementById(
-        "current-db"
-      ).innerHTML = `<small>&nbsp;connected to: </small> ${dbName}`;
-
-      // clean current graph
-      if (typeof cy !== 'undefined' && cy) {
-        cy.elements().remove();
-      } else {
-        showError("Graph not initialized");
-      }
-      customNodesCategories.clear();
-      return res.text(); // ou `return dbName` si tu veux
-    });
-  });
-}
-
+import { getCustomNodesCategories } from "./custom/customCategories.js";
 //---------------------
 export function loadInitialGraph() {
 
@@ -87,11 +54,10 @@ export function loadInitialGraph() {
   }
 
   if (typeof cy !== 'undefined' && cy) {
-    cy.elements().remove();
+    getCy().elements().remove();
   }
 
-  customNodesCategories.clear();
-
+  getCustomNodesCategories().clear();
   waitLoading("⏳ Analyzing DB --> create graph...");
 
   //document.getElementById("current-graph").textContent = "new graph from db ";
@@ -107,18 +73,17 @@ export function loadInitialGraph() {
     .then((res) => res.json())
     .then((data) => {
       resetPositionStackUndo();
-
       initializeGraph(data);
 
       hideWaitLoading();
       proportionalSizeNodeSizeByLinks();
       setAndRunLayoutOptions();
 
-      cy.fit();
-      // traiter les données pour le graph, par ex : cy.add(data)
+      getCy().fit();
+      // traiter les données pour le graph, par ex : getCy().add(data)
     })
     .catch((err) => {
-      showAlert(err);
+      showAlert("load-from-db:" + err);
       hideWaitLoading();
     });
 }
@@ -136,7 +101,7 @@ export function loadGraphState() {
 //------------------
 function loadGraphNamed(filename) {
   if (typeof cy !== 'undefined' && cy) {
-    cy.elements().remove();
+    getCy().elements().remove();
   }
   waitLoading("⏳ Loading saved graph");
 
@@ -155,8 +120,8 @@ function loadGraphNamed(filename) {
     })
     .then((graphState) => {
       if (cy) {
-        cy.json(graphState); // Restore the graph state
-        cy.elements().forEach((ele) => {
+        getCy().json(graphState); // Restore the graph state
+        getCy().elements().forEach((ele) => {
           if (ele.data("hidden")) {
             ele.style("display", "none");
           } else {
@@ -250,7 +215,7 @@ export function saveGraphState() {
 
 function sendGraphState(filename) {
   // preserve hidden status
-  cy.elements().forEach((ele) => {
+  getCy().elements().forEach((ele) => {
     if (ele.style("display") === "none") {
       ele.data("hidden", true);
     } else {
@@ -258,7 +223,7 @@ function sendGraphState(filename) {
     }
   });
 
-  const graphState = cy.json(); // Capture the current graph state
+  const graphState = getCy().json(); // Capture the current graph state
 
   fetch("/save-graph", {
     method: "POST",
@@ -286,8 +251,8 @@ function sendGraphState(filename) {
 export function sendNodeListToHtml() {
   let nodes;
   // permimeter
-  nodes = cy.nodes(":selected:visible");
-  if (nodes.length === 0) nodes = cy.nodes(":visible");
+  nodes = getCy().nodes(":selected:visible");
+  if (nodes.length === 0) nodes = getCy().nodes(":visible");
   if (nodes.length == 0) {
     showAlert("no nodes to list in current perimeter. <br/> Check your selection. ");
     return;
@@ -321,8 +286,8 @@ export function sendNodeListToHtml() {
  generate list of nodes label on a new html page 
 */
 export function sendEdgeListToHtml() {
-  let edges = cy.edges(":selected:visible");
-  if (edges.length === 0) edges = cy.edges(":visible");
+  let edges = getCy().edges(":selected:visible");
+  if (edges.length === 0) edges = getCy().edges(":visible");
 
   if (edges.length == 0) {
     showAlert("no selected edges to list.");
@@ -394,7 +359,7 @@ export function saveGraphToFile() {
     filename += ".json";
   }
 
-  cy.elements().forEach((ele) => {
+  getCy().elements().forEach((ele) => {
     if (ele.style("display") === "none") {
       ele.data("hidden", true);
     } else {
@@ -403,9 +368,9 @@ export function saveGraphToFile() {
   });
 
 
-  console.log('PLA: ' + getLocalDBName());
+
   const json = {
-    ...cy.json(),
+    ...getCy().json(),
     originalDBName: getLocalDBName()
   }
   const blob = new Blob([JSON.stringify(json, null, 2)], {
@@ -442,9 +407,6 @@ export function loadGraphFromFile(event) {
     const json = JSON.parse(e.target.result);
     const originalDBName = json.originalDBName || null;
 
-
-    console.log('PLA2:' + originalDBName);
-
     const currentDBName = getLocalDBName();
     // if no db connected accept upload without question 
     if ((currentDBName != null) && (currentDBName != originalDBName)) {
@@ -460,130 +422,38 @@ export function loadGraphFromFile(event) {
           },
           {
             label: "❌ No",
-            onClick: () => { 
-              resetPoolFromFront() 
-               showAlert('Some details from database could not be retrieved<br/> <br/>Try selecting <i>DB: connect to DB only</i> then reload')
+            onClick: () => {
+              resetPoolFromFront()
+              showAlert('Some details from database could not be retrieved<br/> <br/>Try selecting <i>DB: connect to DB only</i> then reload')
             }
           },
         ]);
       }
     }
 
-   
+
     // affiche, utilise, etc.
     const cyData = { ...json };
     delete cyData.originalDBName;
-    cy.json(cyData);
+    getCy().json(cyData);
     restoreProportionalSize();
     resetPositionStackUndo();
-    //cy.layout({ name: 'cose'}).run();
+    //getCy().layout({ name: 'cose'}).run();
   };
   reader.readAsText(file);
 }
 /*
 link to gui
 */
+export function linkToUi(){
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("graphUpload");
   if (input) {
     input.addEventListener("change", loadGraphFromFile);
   }
 });
-
-/*
- create a window to choose a database
-*/
-
-function promptDatabaseSelectionNear(targetElement) {
-  //console.log("[prompt] started");
-  return new Promise(async (resolve) => {
-    // console.log("[prompt] inside Promise");
-    document.querySelectorAll(".db-prompt-box").forEach((e) => e.remove());
-
-    const box = document.createElement("div");
-    box.className = "db-prompt-box";
-
-    const select = document.createElement("select");
-    select.className = "db-prompt-select";
-    const button = document.createElement("button");
-    button.class = "db-prompt-box";
-    button.textContent = "OK";
-    const cancelBtn = document.createElement("button");
-    cancelBtn.textContent = "Cancel";
-    cancelBtn.class = "db-prompt-box";
-
-    box.appendChild(select);
-    box.appendChild(button);
-    box.appendChild(cancelBtn);
-
-    const container = document.querySelector(".db-box-container");
-    container.innerHTML = ""; // nettoie les anciennes boîtes
-    container.style.position = "relative";
-
-    container.appendChild(box);
-
-    // document.body.appendChild(box);
-
-    // Position
-    const rect = targetElement.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-
-    box.style.left = `${rect.left - containerRect.left}px`;
-    box.style.top = `${rect.bottom - containerRect.top}px`;
-
-    try {
-      const res = await fetch("/api/databases");
-      const dbs = await res.json();
-
-      dbs.forEach((name) => {
-        // avoid interna default DB of postgres
-        if (!(name == "postgres")) {
-          const opt = document.createElement("option");
-          opt.value = name;
-          opt.textContent = name;
-          select.appendChild(opt);
-        }
-      });
-    } catch {
-      showError("Error loading databases");
-      box.remove();
-      resolve(null);
-      return;
-    }
-    setPostgresConnected();
-    select.focus();
-
-    const cleanup = () => {
-      box.remove();
-      document.removeEventListener("click", outsideClickHandler);
-    };
-
-    const submit = () => {
-      const value = select.value;
-      cleanup();
-      resolve(value);
-    };
-
-    button.addEventListener("click", submit);
-    select.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") submit();
-    });
-
-    cancelBtn.addEventListener("click", () => {
-      cleanup();
-      resolve(null);
-    });
-
-    function outsideClickHandler(e) {
-      if (!box.contains(e.target) && !targetElement.contains(e.target)) {
-        cleanup();
-        resolve(null);
-      }
-    }
-
-    document.addEventListener("click", outsideClickHandler);
-  });
 }
+
 
 function waitLoading(message) {
   document.getElementById("waitLoading").style.display = "block";

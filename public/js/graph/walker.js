@@ -1,36 +1,25 @@
 // Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 "use strict";
-import {
-  showAlert, 
-  showError,
-    showMultiChoiceDialog,
-} from "./ui/dialog.js";
+/*
+ this module is responsible for differents walks into the graph 
+*/
 
+
+import {
+  showAlert,
+  showError,
+  showMultiChoiceDialog,
+
+} from "../ui/dialog.js";
 
 import {
   getCy,
   restrictToVisible,
   restoreProportionalSize,
-    perimeterForAction,
-} from './graph/cytoscapeCore.js';
-
-
-
+  perimeterForAction,
+} from '../graph/cytoscapeCore.js';
 
 //------------------------
 
@@ -132,7 +121,7 @@ export function follow(direction = "outgoing") {
  If collapsed, will select through simplified edges 
  */
 
-export function followCross() {
+export function followCrossAssociations() {
   let nodes = restrictToVisible()
     ? getCy().nodes(":visible:selected")
     : getCy().nodes(":selected");
@@ -427,101 +416,7 @@ export function restoreAssociations() {
   restoreProportionalSize();
 }
 
-/*
-create special links from triggers .
-Use recorded triggs into a node
-call script analysis to get impacted tables 
-*/
 
-export async function generateTriggers() {
-  const nodes = perimeterForAction();
-
-  const nodesWithTriggers = nodes.filter((node) => {
-    const trigs = node.data("triggers");
-
-    return Array.isArray(trigs) && trigs.length > 0;
-  });
-  if (nodesWithTriggers.length == 0) {
-    showAlert("no table with triggers in selection.");
-    return;
-  }
-  //------------- get
-
-  for (const aNode of nodesWithTriggers) {
-    let table = aNode.id();
-    let data;
-    try {
-      const response = await fetch(`/triggers?table=${table}`);
-      data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(`Server responded with status ${response.status}`);
-      }
-    } catch (error) {
-      console.error(`Error fetching triggers for table ${table}:`, error);
-      showError("Database is not accessible. Please check your connection.");
-      break; // on peut arrêter la boucle ici si ça ne sert à rien de continuer
-    }
-    if (!data || data.triggers.length === 0) {
-      showAlert(`no trigger for table ${node.id()}.`);
-      return;
-    }
-
-    data.triggers.forEach((t) => {
-      const triggerName = t.name;
-      const source = t.sourceTable || table; // à adapter si "table" est ailleurs
-      const impactedTables = t.impactedTables || [];
-
-      impactedTables.forEach((target) => {
-        const edgeId = triggerName;
-
-        const targetNode = getCy().getElementById(target);
-        const sourceNode = getCy().getElementById(source);
-
-        if (targetNode.nonempty() && sourceNode.nonempty()) {
-          // Vérifie si l’arête existe déjà (via son ID)
-          if (!getCy().getElementById(edgeId).nonempty()) {
-            const edge = getCy().add({
-              group: "edges",
-              data: {
-                id: edgeId,
-                label: edgeId,
-                source: source,
-                target: target,
-              },
-            });
-
-            edge.addClass("trigger_impact");
-
-            edge.show();
-            sourceNode.show();
-            targetNode.show();
-          }
-        } else {
-          console.warn(
-            `Missing node(s) for trigger '${triggerName}' — skipping edge from '${source}' to '${target}'`
-          );
-        }
-      });
-    });
-
-    getCy().style().update(); // forcer le style
-  }
-}
-
-
-/*
- create a png image by button or ctrl g like graphic
-*/
-export function captureGraphAsPng() {
-  const png = getCy().png({ full: false, scale: 2, bg: "white" });
-  getCy().edges().addClass("forPNG");
-  const link = document.createElement("a");
-  link.href = png;
-  link.download = "graph-capture.png";
-  link.click();
-  getCy().edges().removeClass("forPNG");
-}
 
 /**
  * Trouve tous les descendants fonctionnels d'un nœud racine dans le graphe Cytoscape.js
@@ -587,57 +482,7 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
   return ({ visited, trace });
 }
 
-/*
- select and show edges that rely two selected nodes 
-*/
 
-
-export function selectEdgesBetweenNodes() {
-  const selectedNodes = getCy().nodes(":selected");
-  if (selectedNodes.length === 0) {
-    showAlert("no selected nodes to work with.");
-    return;
-  }
-
-  const selectedIds = new Set(selectedNodes.map(n => n.id()));
-
-  const internalEdges = getCy().edges().filter(edge => {
-    const source = edge.source().id();
-    const target = edge.target().id();
-    return selectedIds.has(source) && selectedIds.has(target);
-  });
-
-  internalEdges.forEach(edge => {
-    edge.show();     // d'abord visible
-    edge.select();   // ensuite sélectionné
-  });
-}
-
-function toSimplifiedText(jsonArray) {
-  return jsonArray.map(obj => {
-    let lines = [];
-    lines.push(`${obj.to} <-- ${obj.from}`);
-    for (const col of obj.columns) {
-      lines.push(`  ${col.target_column} <-- ${col.source_column}`);
-    }
-    return lines.join('\n');
-  }).join('\n\n');
-}
-
-export function openJsonInNewTab(jsonArray, aTitle) {
-  const simplifiedText = toSimplifiedText(jsonArray);
-  const html = `
-    <html>
-      <head><title>${aTitle}</title></head>
-      <body>
-        <pre style="white-space: pre-wrap; word-break: break-word;">${simplifiedText}</pre>
-      </body>
-    </html>
-  `;
-  const blob = new Blob([html], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  window.open(url, '_blank');
-}
 
 /*
  partial save for list of chains
@@ -655,4 +500,35 @@ export function downloadJson(jsonObject, filename = "trace.json") {
   a.click(); // déclenche le téléchargement
   document.body.removeChild(a);
   URL.revokeObjectURL(url); // nettoyage
+}
+
+/*
+ used by long path 
+*/
+export function openJsonInNewTab(jsonArray, aTitle) {
+  // internal helper function
+  function toSimplifiedText(jsonArray) {
+    return jsonArray.map(obj => {
+      let lines = [];
+      lines.push(`${obj.to} <-- ${obj.from}`);
+      for (const col of obj.columns) {
+        lines.push(`  ${col.target_column} <-- ${col.source_column}`);
+      }
+      return lines.join('\n');
+    }).join('\n\n');
+  }
+  // main function
+
+  const simplifiedText = toSimplifiedText(jsonArray);
+  const html = `
+    <html>
+      <head><title>${aTitle}</title></head>
+      <body>
+        <pre style="white-space: pre-wrap; word-break: break-word;">${simplifiedText}</pre>
+      </body>
+    </html>
+  `;
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
 }

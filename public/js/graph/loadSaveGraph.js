@@ -22,28 +22,25 @@ import {
   setAndRunLayoutOptions,
   metrologie,
   restoreProportionalSize,
-} from "./graph/cytoscapeCore.js"
+  proportionalSizeNodeSizeByLinks,
+} from "./cytoscapeCore.js"
 
 import {
   showAlert,
   showError,
   showMultiChoiceDialog
-} from "./ui/dialog.js"
+} from "../ui/dialog.js"
 
 import {
-
   getLocalDBName,
 }
-  from "./dbFront/tables.js";
+  from "../dbFront/tables.js";
 
 import {
   resetPositionStackUndo
+} from "./snapshots.js";
 
-} from "./graph/snapshots.js";
-
-import { proportionalSizeNodeSizeByLinks } from "./menus.js";
-
-import { getCustomNodesCategories } from "./custom/customCategories.js";
+import { getCustomNodesCategories } from "../custom/customCategories.js";
 //---------------------
 export function loadInitialGraph() {
 

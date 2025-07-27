@@ -18,33 +18,32 @@
 
 
 import {
-  captureGraphAsPng
-} from "./selectors.js";
-
-import {
   getCy,
-      metrologie,
-} from "./graph/cytoscapeCore.js";
+  metrologie,
+  captureGraphAsPng,
+
+} from "../graph/cytoscapeCore.js";
 
 import {
   pushSnapshot,
   popSnapshot,
-
-} from "./graph/snapshots.js"
+} from "../graph/snapshots.js"
 
 import {
   showAlert,
+  menuSelectSizeOutgoing,
+  menuSelectSizeIncoming,
+  openNameFilterModal,
+} from "./dialog.js"
 
-} from "./ui/dialog.js"
-
-import { 
+import {
   openTable,
   openTriggerPage,
 }
-from "./dbFront/tables.js"
+  from "../dbFront/tables.js"
 
 /*
- all the events in gui defined here 
+ all the events set in gui are defined here 
 */
 
 export function setInterceptors() {
@@ -112,7 +111,7 @@ export function setInterceptors() {
       if (classInfo) output += ` ${classInfo}<br/> `;
       // ${dataInfo}  can be added to hover for debug
 
-    
+
       if (node.hasClass("hasTriggers")) {
         let nbTrigs = node.data("triggers").length;
         if (nbTrigs > 0) {
@@ -145,6 +144,9 @@ export function setInterceptors() {
   getCy().on("mouseout", "node, edge", function () {
     document.getElementById("info-panel").style.display = "none";
   });
+
+  // menu to continue action when a node is clicked
+  const clicNodeMenu = document.getElementById("clicNodeMenu");
 
   // retrait du menu si on clic ailleurs
   getCy().on("mouseover", "node", function () {
@@ -211,12 +213,12 @@ export function setInterceptors() {
     if ((e.ctrlKey || e.metaKey) && key === "a") {
       e.preventDefault();
       if (cy) {
-            pushSnapshot();
+        pushSnapshot();
         let nodes = restrictToVisible() ? getCy().nodes(":visible") : getCy().nodes();
         nodes.select();
       }
     }
-// ✅ Ctrl/⌘ + Z → Undo
+    // ✅ Ctrl/⌘ + Z → Undo
     if ((e.ctrlKey || e.metaKey) && key === "g") {
       e.preventDefault();
       captureGraphAsPng();
@@ -228,19 +230,15 @@ export function setInterceptors() {
   */
 
 
-document.getElementById('NodesId').addEventListener('click', () => {
-  // clean input text 
-  const input = document.getElementById('nameFilter');
-  if (input) input.value = "";
+  document.getElementById('NodesId').addEventListener('click', () => {
+    // clean input text 
+    const input = document.getElementById('nameFilter');
+    if (input) input.value = "";
 
-  // clean result 
-  const result = document.getElementById('nameFilterResult');
-  if (result) result.textContent = "";
-});
-
-
-
-
+    // clean result 
+    const result = document.getElementById('nameFilterResult');
+    if (result) result.textContent = "";
+  });
 
   // button undo
   document.getElementById("undo-btn").addEventListener("click", () => {
@@ -266,8 +264,9 @@ document.getElementById('NodesId').addEventListener('click', () => {
 
   document.getElementById("open-trigger").addEventListener("click", () => {
 
-    if (nodeForInfo.data().triggers.length>=1){
-    openTriggerPage(nodeForInfo);}
+    if (nodeForInfo.data().triggers.length >= 1) {
+      openTriggerPage(nodeForInfo);
+    }
     else showAlert("no triggers on this table")
 
   });
@@ -288,8 +287,7 @@ document.getElementById('NodesId').addEventListener('click', () => {
     select.classList.add("AND-select");
   }
 
-  // menu to continue action when a node is clicked
-  const clicNodeMenu = document.getElementById("clicNodeMenu");
+
 
   // Affichage du menu contextuel sur clic droit
   let nodeForInfo = null;
@@ -372,17 +370,29 @@ document.getElementById('NodesId').addEventListener('click', () => {
   });
 
   /*
-  set back color 
+  set back color at startup
   */
 
   document.getElementById("cy").style.backgroundColor = "white";
-/*
- add capture png
-*/
-document.getElementById("btn-export").addEventListener("click", () => {
-  captureGraphAsPng();
-});
+  /*
+   add capture png
+  */
+  document.getElementById("btn-export").addEventListener("click", () => {
+    captureGraphAsPng();
+  });
 
+  const btn = document.getElementById("btnSizeOutgoing");
+  if (btn) {
+    btn.addEventListener("click", menuSelectSizeOutgoing);
+  }
+  const btnIn = document.getElementById("btnSizeIncoming");
+  if (btnIn) {
+    btnIn.addEventListener("click", menuSelectSizeIncoming);
+  }
+
+  document.querySelectorAll('li[data-category="nodesName"]').forEach(li => {
+    li.addEventListener('click', openNameFilterModal);
+  });
 
 
 } // setInterceptor

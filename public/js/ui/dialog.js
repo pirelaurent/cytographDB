@@ -281,3 +281,55 @@ export function promptDatabaseSelectionNear(targetElement) {
     document.addEventListener("click", outsideClickHandler);
   });
 }
+
+/*
+ map used to apply a comparison against the symbol in gui 
+*/
+const opMap = {
+  ">": (a, b) => a > b,
+  ">=": (a, b) => a >= b,
+  "<": (a, b) => a < b,
+  "<=": (a, b) => a <= b,
+  "=": (a, b) => a === b,
+};
+/*
+ after a choice of values in menu, apply operations 
+*/
+
+export function menuSelectSizeOutgoing() {
+  const op = document.getElementById("filter-op").value;
+  const val = parseInt(document.getElementById("filter-value").value);
+  const test = opMap[op];
+  let nodes = perimeterForNodesSelection();
+  if (nodes.length === 0) return;
+
+  pushSnapshot();
+  nodes.forEach((n) => {
+    const visibleEdges = n.outgoers("edge:visible");
+    const count = visibleEdges.length;
+    const keep = test(count, val);
+    if (modeSelect() == AND_SELECTED) n.unselect();
+    if (keep) n.select();
+  });
+}
+
+export function menuSelectSizeIncoming() {
+  const op = document.getElementById("filter-op-in").value;
+  const val = parseInt(document.getElementById("filter-value-in").value);
+  const test = opMap[op];
+
+  let nodes = perimeterForNodesSelection();
+  if (nodes.length === 0) return;
+
+  pushSnapshot();
+  nodes.forEach((n) => {
+    const visibleEdges = n.incomers("edge:visible");
+    const count = visibleEdges.length;
+    const keep = test(count, val);
+    if (modeSelect() == AND_SELECTED) n.unselect();
+    if (keep) n.select();
+  });
+}
+
+
+

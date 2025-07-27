@@ -111,3 +111,85 @@ export function setLocalDBName(aName) {
 export function getLocalDBName() {
   return localDBName;
 }
+
+/*
+create special links from triggers .
+Use recorded triggs into a node
+call script analysis to get impacted tables 
+*/
+
+export async function generateTriggers() {
+  const nodes = perimeterForAction();
+
+  const nodesWithTriggers = nodes.filter((node) => {
+    const trigs = node.data("triggers");
+
+    return Array.isArray(trigs) && trigs.length > 0;
+  });
+  if (nodesWithTriggers.length == 0) {
+    showAlert("no table with triggers in selection.");
+    return;
+  }
+  //------------- get
+
+  for (const aNode of nodesWithTriggers) {
+    let table = aNode.id();
+    let data;
+    try {
+      const response = await fetch(`/triggers?table=${table}`);
+      data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(`Server responded with status ${response.status}`);
+      }
+    } catch (error) {
+      console.error(`Error fetching triggers for table ${table}:`, error);
+      showError("Database is not accessible. Please check your connection.");
+      break; // on peut arrêter la boucle ici si ça ne sert à rien de continuer
+    }
+    if (!data || data.triggers.length === 0) {
+      showAlert(`no trigger for table ${node.id()}.`);
+      return;
+    }
+
+    data.triggers.forEach((t) => {
+      const triggerName = t.name;
+      const source = t.sourceTable || table; // à adapter si "table" est ailleurs
+      const impactedTables = t.impactedTables || [];
+
+      impactedTables.forEach((target) => {
+        const edgeId = triggerName;
+
+        const targetNode = getCy().getElementById(target);
+        const sourceNode = getCy().getElementById(source);
+
+        if (targetNode.nonempty() && sourceNode.nonempty()) {
+          // Vérifie si l’arête existe déjà (via son ID)
+          if (!getCy().getElementById(edgeId).nonempty()) {
+            const edge = getCy().add({
+              group: "edges",
+              data: {
+                id: edgeId,
+                label: edgeId,
+                source: source,
+                target: target,
+              },
+            });
+
+            edge.addClass("trigger_impact");
+
+            edge.show();
+            sourceNode.show();
+            targetNode.show();
+          }
+        } else {
+          console.warn(
+            `Missing node(s) for trigger '${triggerName}' — skipping edge from '${source}' to '${target}'`
+          );
+        }
+      });
+    });
+
+    getCy().style().update(); // forcer le style
+  }
+}

@@ -18,9 +18,10 @@
 
 import "./customModulesIndex.js";
 
-import {linkToUi} from "./loadSaveGraph.js";
+import {linkToUi} from "./graph/loadSaveGraph.js";
 import { addCustomDocLink} from "./ui/custom.js"
-import { setInterceptors } from "./interceptors.js";
+import { setInterceptors } from "./ui/interceptors.js";
+import {initMenus} from "./ui/menus.js"
 import { 
   cytogaphdb_version,
 } from "./ui/dialog.js"
@@ -52,6 +53,7 @@ export function main() {
 );
 
   setInterceptors();
+  initMenus();
   cytogaphdb_version();
   linkToUi();
 } // main

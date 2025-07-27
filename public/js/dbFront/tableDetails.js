@@ -210,47 +210,47 @@ getTableData(tableName).then((result) => {
     // 🔍 Indexes
 
     const indexContainer = document.createElement("div");
-indexContainer.className = "third"; // nouvelle colonne
+    indexContainer.className = "third"; // nouvelle colonne
 
-const header = document.createElement("h2");
-header.textContent = "Indexes";
-indexContainer.appendChild(header);
+    const header = document.createElement("h2");
+    header.textContent = "Indexes";
+    indexContainer.appendChild(header);
 
-if (data.indexes && data.indexes.length > 0) {
-  data.indexes.forEach(idx => {
-    const div = document.createElement("div");
-    div.className = "index-block";
+    if (data.indexes && data.indexes.length > 0) {
+      data.indexes.forEach(idx => {
+        const div = document.createElement("div");
+        div.className = "index-block";
 
-    // Crée dynamiquement le titre de l'index avec ou sans commentaire
-    const titleDiv = document.createElement("div");
-    titleDiv.className = "index-title";
+        // Crée dynamiquement le titre de l'index avec ou sans commentaire
+        const titleDiv = document.createElement("div");
+        titleDiv.className = "index-title";
 
-    if (idx.comment) {
-      titleDiv.title = idx.comment;
-      titleDiv.innerHTML = `
+        if (idx.comment) {
+          titleDiv.title = idx.comment;
+          titleDiv.innerHTML = `
         ${idx.name}
         <span style="cursor: help;">💬</span>
       `;
+        } else {
+          titleDiv.textContent = idx.name;
+        }
+
+        // Récupération du contenu HTML des colonnes (déjà généré)
+        const columnsHTML = extractIndexColumns(idx.definition);
+
+        // Construction du bloc final
+        div.appendChild(titleDiv);
+        div.insertAdjacentHTML("beforeend", columnsHTML);
+
+        indexContainer.appendChild(div);
+      });
     } else {
-      titleDiv.textContent = idx.name;
+      const noIndex = document.createElement("p");
+      noIndex.textContent = "No indexes found.";
+      indexContainer.appendChild(noIndex);
     }
 
-    // Récupération du contenu HTML des colonnes (déjà généré)
-    const columnsHTML = extractIndexColumns(idx.definition);
-
-    // Construction du bloc final
-    div.appendChild(titleDiv);
-    div.insertAdjacentHTML("beforeend", columnsHTML);
-
-    indexContainer.appendChild(div);
-  });
-} else {
-  const noIndex = document.createElement("p");
-  noIndex.textContent = "No indexes found.";
-  indexContainer.appendChild(noIndex);
-}
-
-document.getElementById("tableInfo").appendChild(indexContainer);
+    document.getElementById("tableInfo").appendChild(indexContainer);
 
     // 🔧 Helper pour extraire les colonnes de l'index
     function extractIndexColumns(def) {

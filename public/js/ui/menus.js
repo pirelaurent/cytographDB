@@ -26,42 +26,59 @@ import {
   sendEdgeListToHtml,
   saveGraphToFile,
 
-} from "./loadSaveGraph.js";
+} from "../graph/loadSaveGraph.js";
 
 import {
   connectToDb,
-} from "./dbFront/tables.js"
+    generateTriggers,
+} from "../dbFront/tables.js"
 
 
 import {
   follow,
-  followCross,
+  followCrossAssociations,
   findLongOutgoingPaths,
   collapseAssociations,
   restoreAssociations,
-  generateTriggers,
   findFunctionalDescendantsCytoscape,
-  selectEdgesBetweenNodes,
-  openJsonInNewTab,
   downloadJson,
+  openJsonInNewTab,
 
-} from "./selectors.js";
+} from "../graph/walker.js";
 
 import {
   getCy,
+  showAll,
   restrictToVisible,
+  hideSelected,
+  hideNotSelected,
+  swapHidden,
   setAndRunLayoutOptions,
+  selectNodesFromSelectedEdges,
   perimeterForAction,
   perimeterForNodesSelection,
   metrologie,
-  mapValue,
-} from "./graph/cytoscapeCore.js";
+  changePosRelative,
+  distributeNodesHorizontally,
+  distributeNodesVertically,
+  alignNodesVertically,
+  alignNodesHorizontally,
+  bringSelectedToFront,
+  bringSelectedToBack,
+  rotateGraphByDegrees,
+  selectInputBetween,
+  noProportionalSize,
+  increaseFontSizeEdge,
+  increaseFontSize,
+  selectEdgesBetweenNodes,
+
+} from "../graph/cytoscapeCore.js";
 
 import {
   pushSnapshot,
   //popSnapshot,  //done by ctrl Z
   resetSnapshot,
-} from "./graph/snapshots.js";
+} from "../graph/snapshots.js";
 
 import {
   modeSelect,
@@ -69,23 +86,22 @@ import {
   showMultiChoiceDialog,
   showAlert,
   showError,
-  openNameFilterModal,
   modalSelectByName,
   closeNameFilterModal,
-} from "./ui/dialog.js"
+} from "./dialog.js"
 
 
 import {
   getLocalDBName,
-} from "./dbFront/tables.js";
+} from "../dbFront/tables.js";
 
-import { createCustomCategories } from "./custom/customCategories.js";
+import { createCustomCategories } from "../custom/customCategories.js";
 
-import { selectEdgesByNativeCategories, } from "./ui/custom.js"
+import { selectEdgesByNativeCategories, } from "./custom.js"
 /*
  connect an html menu object to a treatment function with action selected
 */
-
+export function initMenus(){
 setupMenuActions("menu-display", "aspectAction", menuDisplay);
 setupMenuActions("menu-nodes", "action", menuNodes);
 setupMenuActions("menu-edges", "action", menuEdges);
@@ -93,12 +109,12 @@ setupMenuActions("menu-graph", "action", menuGraph);
 setupMenuActions("menu-db", "action", menuDb);
 
 setupMenuClickAction();
-
+}
 /*
  prepare click events on menus 
 */
 
-function setupMenuActions(menuId, actionAttribute, callbackFn) {
+function setupMenuActions(menuId, actionAttribute, callbackFn) { 
   const menu = document.querySelector(`[data-menu-id="${menuId}"] .menu`);
   if (!menu) return;
 
@@ -282,7 +298,7 @@ export function menuDb(option, menuItemElement) {
       );
       break;
 
-    case "loadFromDb":
+    case "loadFromDb": 
       connectToDb(menuItemElement)
         .then(() => {
           let dbName = getLocalDBName();
@@ -474,21 +490,11 @@ export function menuNodes(option) {
      hidden nodes are automatically unselected 
     */
     case "hideSelected":
-      pushSnapshot();
-      let nodesToHide = getCy().nodes(":selected");
-      nodesToHide.hide();
-      nodesToHide.unselect();
+      hideSelected();
       break;
 
     case "hideNotSelected":
-      {
-        pushSnapshot();
-        getCy().nodes(":visible")
-          .filter(function (node) {
-            return !node.selected();
-          })
-          .hide();
-      }
+      hideNotSelected();
       break;
 
     case "hideNone":
@@ -497,15 +503,12 @@ export function menuNodes(option) {
       break;
 
     case "swapHidden":
-      {
-        pushSnapshot();
-        const nodesVisibles = getCy().nodes(":visible");
-        const nodesHidden = getCy().nodes(":hidden");
-        nodesVisibles.hide();
-        nodesHidden.show();
-      }
+      swapHidden();
       break;
 
+    case "selectNodesFromSelectedEdges":
+      selectNodesFromSelectedEdges();
+      break;
     //----------- FOLLOW nodes -
 
     case "followOutgoing":
@@ -522,9 +525,9 @@ export function menuNodes(option) {
       follow("both");
       break;
 
-    case "followCross":
+    case "followCrossAssociations":
       pushSnapshot();
-      followCross();
+      followCrossAssociations();
       break;
 
     /*
@@ -588,15 +591,6 @@ export function menuNodes(option) {
 
 
       }
-
-
-    case "selectNodesFromSelectedEdges":
-      pushSnapshot();
-      const connectedNodes = getCy()
-        .edges(":selected:visible")
-        .connectedNodes(":visible");
-      connectedNodes.select();
-      break;
 
     //--------------
     case "proportionalSize":
@@ -935,78 +929,6 @@ export function visibility(option) {
       break;
   }
 }
-/*
- map used to apply a comparison against the symbol in gui 
-*/
-const opMap = {
-  ">": (a, b) => a > b,
-  ">=": (a, b) => a >= b,
-  "<": (a, b) => a < b,
-  "<=": (a, b) => a <= b,
-  "=": (a, b) => a === b,
-};
-/*
- after a choice of values in menu, apply operations 
-*/
-
-export function menuSelectSizeOutgoing() {
-  const op = document.getElementById("filter-op").value;
-  const val = parseInt(document.getElementById("filter-value").value);
-  const test = opMap[op];
-  let nodes = perimeterForNodesSelection();
-  if (nodes.length === 0) return;
-
-  pushSnapshot();
-  nodes.forEach((n) => {
-    const visibleEdges = n.outgoers("edge:visible");
-    const count = visibleEdges.length;
-    const keep = test(count, val);
-    if (modeSelect() == AND_SELECTED) n.unselect();
-    if (keep) n.select();
-  });
-}
-// button go to apply selection
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("btnSizeOutgoing");
-  if (btn) {
-    btn.addEventListener("click", menuSelectSizeOutgoing);
-  }
-});
-
-/*
- select by edges incoming 
-*/
-
-export function menuSelectSizeIncoming() {
-  const op = document.getElementById("filter-op-in").value;
-  const val = parseInt(document.getElementById("filter-value-in").value);
-  const test = opMap[op];
-
-  let nodes = perimeterForNodesSelection();
-  if (nodes.length === 0) return;
-
-  pushSnapshot();
-  nodes.forEach((n) => {
-    const visibleEdges = n.incomers("edge:visible");
-    const count = visibleEdges.length;
-    const keep = test(count, val);
-    if (modeSelect() == AND_SELECTED) n.unselect();
-    if (keep) n.select();
-  });
-}
-
-/*
-connect method to gui 
-*/
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("btnSizeIncoming");
-  if (btn) {
-    btn.addEventListener("click", menuSelectSizeIncoming);
-  }
-  document.querySelectorAll('li[data-category="nodesName"]').forEach(li => {
-    li.addEventListener('click', openNameFilterModal);
-  });
-});
 
 
 // Boutons modaux
@@ -1027,38 +949,9 @@ document.getElementById('nameFilterModal').addEventListener('click', function (e
   if (e.target === this) closeNameFilterModal();
 });
 
-
-
 /*
  used to resize node layout in any way horizontal or vertical or both 
 */
-
-function changePosRelative(xFactor, yFactor) {
-  // si au moins deux sélectionnés, on les écartent
-
-  let nodesToMove = getCy().nodes(":selected:visible");
-  if (nodesToMove.length < 2) nodesToMove = getCy().nodes(":visible");
-  if (nodesToMove.length === 0) return;
-  // 1. Calculer le centre des nœuds
-  let sumX = 0,
-    sumY = 0;
-  nodesToMove.forEach((node) => {
-    const pos = node.position();
-    sumX += pos.x;
-    sumY += pos.y;
-  });
-
-  const centerX = sumX / nodesToMove.length;
-  const centerY = sumY / nodesToMove.length;
-
-  nodesToMove.positions((node) => {
-    const pos = node.position(); // position actuelle
-    return {
-      x: centerX + (pos.x - centerX) * xFactor,
-      y: centerY + (pos.y - centerY) * yFactor,
-    };
-  });
-}
 
 function horizMore() {
   changePosRelative(1.3, 1);
@@ -1073,281 +966,3 @@ function vertiLess() {
   changePosRelative(1, 1 / 1.3);
 }
 
-//-----------------------
-function rotateGraphByDegrees(deg) {
-  const angle = (deg * Math.PI) / 180;
-
-  let nodes = getCy().nodes(":selected:visible");
-  if (nodes.length < 2) nodes = getCy().nodes(":visible");
-  if (nodes.length === 0) return;
-
-  // Get center of graph (optional: you can also use a fixed point)
-  const bb = nodes.boundingBox();
-  const cx = (bb.x1 + bb.x2) / 2;
-  const cy_ = (bb.y1 + bb.y2) / 2;
-
-  nodes.forEach((node) => {
-    const pos = node.position();
-    const x = pos.x - cx;
-    const y = pos.y - cy_;
-
-    const xNew = Math.cos(angle) * x - Math.sin(angle) * y + cx;
-    const yNew = Math.sin(angle) * x + Math.cos(angle) * y + cy_;
-
-    node.position({ x: xNew, y: yNew });
-  });
-}
-
-// Fonction utilitaire pour calculer le centre d’un groupe de nœuds
-export function getCenter(nodes) {
-  const sum = nodes.reduce(
-    (acc, n) => {
-      const p = n.position();
-      acc.x += p.x;
-      acc.y += p.y;
-      return acc;
-    },
-    { x: 0, y: 0 }
-  );
-
-  return {
-    x: sum.x / nodes.length,
-    y: sum.y / nodes.length,
-  };
-}
-
-function increaseFontSize(delta) {
-  let selectedNodes = perimeterForAction();
-
-  // getCy().style().selector("node").style("font-size", newSize).update();
-  selectedNodes.forEach((node) => {
-    const currentFontSize = parseFloat(node.style("font-size"));
-
-    const newSize = Math.max(6, currentFontSize + delta);
-    node.style("font-size", newSize);
-  });
-}
-
-function increaseFontSizeEdge(delta) {
-  let selectedEdges = getCy().edges(":visible:selected");
-
-  // S'il n'y a pas d'arêtes sélectionnées visibles, on prend toutes les visibles
-  if (selectedEdges.length === 0) {
-    selectedEdges = getCy().edges(":visible");
-  }
-
-  selectedEdges.forEach((edge) => {
-    const currentFontSize = parseFloat(edge.style("font-size")) || 10; // valeur par défaut
-    const newSize = Math.max(6, currentFontSize + delta);
-    edge.style("font-size", newSize);
-  });
-}
-
-/*
- increase size of nodes against number of edges 
-*/
-export function proportionalSizeNodeSizeByLinks() {
-  let selectedNodes = perimeterForAction();
-
-  // 1. Calculer le nombre de liens pour chaque nœud
-  selectedNodes.forEach((node) => {
-    const degree = node.connectedEdges().length;
-    node.data("degree", degree);
-  });
-
-  // 2.apply style
-  selectedNodes.forEach((node) => {
-    let degree = node.data("degree");
-    if (degree == 0) degree = 1;
-
-    // bornes : min 1 → max 10 liens → taille entre
-    const size = mapValue(degree, 1, 40, 20, 80);
-
-    node.style({
-      width: size,
-      height: size,
-    });
-    //document.getElementById("cy").style.backgroundColor = "lightgray";
-  });
-}
-
-function noProportionalSize() {
-  getCy().nodes().forEach((node) => {
-    node.removeData("degree");
-    node.removeStyle("width");
-    node.removeStyle("height");
-  });
-}
-
-function distributeNodesHorizontally() {
-  let nodes = getCy().nodes(":selected:visible");
-  if (nodes.length < 2) nodes = getCy().nodes(":visible");
-  if (nodes.length < 2) return;
-
-  const sorted = nodes.sort((a, b) => a.position().x - b.position().x);
-
-  const minX = sorted[0].position().x;
-  const maxX = sorted[sorted.length - 1].position().x;
-  const step = (maxX - minX) / (nodes.length - 1);
-
-  sorted.forEach((node, index) => {
-    node.position({
-      x: minX + step * index,
-      y: node.position().y,
-    });
-  });
-
-  getCy().nodes(":visible").length === 0 ? getCy().fit() : null;
-}
-
-function distributeNodesVertically() {
-  let nodes = getCy().nodes(":selected:visible");
-  if (nodes.length < 2) nodes = getCy().nodes(":visible");
-  if (nodes.length < 2) return;
-
-  const sorted = nodes.sort((a, b) => a.position().y - b.position().y);
-
-  const minY = sorted[0].position().y;
-  const maxY = sorted[sorted.length - 1].position().y;
-  const step = (maxY - minY) / (nodes.length - 1);
-
-  sorted.forEach((node, index) => {
-    node.position({
-      x: node.position().x,
-      y: minY + step * index,
-    });
-  });
-
-  getCy().nodes(":visible").length === 0 ? getCy().fit() : null;
-}
-
-function alignNodesVertically() {
-  let nodes = getCy().nodes(":selected:visible");
-  if (nodes.length < 2) nodes = getCy().nodes(":visible");
-  if (nodes.length < 2) return;
-
-  // middleX comme moyenne des x
-  let middleX = 0;
-  nodes.forEach((node) => {
-    middleX += node.position().x;
-  });
-  middleX = middleX / nodes.length;
-
-  const sorted = nodes.sort((a, b) => a.position().x - b.position().x);
-  /* middleX comme le milieu des plus éloignés 
-  const minX = sorted[0].position().x;
-  const maxX = sorted[sorted.length - 1].position().x;
-  const middleX = (maxX - minX) / 2;
-*/
-  sorted.forEach((node) => {
-    node.position({
-      x: middleX,
-      y: node.position().y,
-    });
-  });
-
-  getCy().nodes(":visible").length === 0 ? getCy().fit() : null;
-}
-
-export function alignNodesHorizontally() {
-  let nodes = getCy().nodes(":selected:visible");
-  if (nodes.length < 2) nodes = getCy().nodes(":visible");
-  if (nodes.length < 2) return;
-
-  let middleY = 0;
-  nodes.forEach((node) => {
-    middleY += node.position().y;
-  });
-  middleY = middleY / nodes.length;
-
-  nodes.forEach((node) => {
-    node.position({
-      x: node.position().x,
-      y: middleY,
-    });
-  });
-
-  getCy().nodes(":visible").length === 0 ? getCy().fit() : null;
-}
-
-//-------------------
-function bringSelectedToFront() {
-  getCy().nodes(":selected").css("z-index", 100);
-  getCy().nodes(":unselected").css("z-index", 10);
-}
-
-function bringSelectedToBack() {
-  getCy().nodes(":selected").css("z-index", 0);
-  getCy().nodes(":unselected").css("z-index", 10);
-}
-
-/*
- select nodes with outgoing edges between min max
-*/
-
-function selectOutputBetween(min, max) {
-
-  let nodes = perimeterForNodesSelection();
-  if (nodes == null) return;
-  pushSnapshot();
-  nodes.forEach((node) => {
-    // Tous les outgoers sortants
-    let outgoingEdges = node.outgoers("edge:visible");
-
-    // if AND_SELECTED Nodes is the collection of previously selected
-    outgoingEdges = outgoingEdges.filter((edge) => edge.target().visible());
-    const nOutput = outgoingEdges.length;
-
-    // avoid loop in NO output
-    if ((min == 0) & (max == 0)) {
-      var loopEdges = outgoingEdges.filter(function (edge) {
-        return edge.source().id() !== edge.target().id();
-      });
-      var noLoop = (loopEdges.length === 0);
-      if (nOutput == 0 || noLoop) node.select();
-    } else {
-      if (nOutput > min && nOutput < max) {
-        node.select();
-      }
-    }
-  });
-}
-/*
- select nodes with incoming edges between min max
-*/
-
-function selectInputBetween(min, max) {
-  let nodes = perimeterForNodesSelection();
-  if (nodes == null) return;
-
-  nodes.forEach((node) => {
-    let incomingEdges = node.incomers("edge:visible");
-    incomingEdges = incomingEdges.filter((edge) => edge.source().visible());
-
-
-    const nInput = incomingEdges.length;
-
-    if ((min == 0) & (max == 0)) {
-      // no incoming : avoid loops
-      var loopEdges = incomingEdges.filter(function (edge) {
-        return edge.source().id() !== edge.target().id();
-      });
-      var noLoop = loopEdges.length == 0;
-
-      if (nInput == 0 || noLoop) node.select();
-    } else {
-      if (nInput > min && nInput < max) {
-        node.select();
-      }
-    }
-  });
-}
-
-/*
-  full graph visible
-*/
-function showAll() {
-  getCy().nodes().show();
-  getCy().edges().show();
-  document.getElementById("cy").style.backgroundColor = "white";
-}

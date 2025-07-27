@@ -11,7 +11,7 @@ import {
   from "../ui/dialog.js"
 
 
-import { getCustomNodesCategories } from "../custom/customCategories.js";
+import { getCustomNodesCategories } from "../filters/categories.js";
 
 /*
  as in a new page (and no session) dbname cannot be shared with main

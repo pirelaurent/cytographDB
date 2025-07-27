@@ -9,16 +9,21 @@
 
 import {
   showAlert,
-  showError,
   showMultiChoiceDialog,
 
 } from "../ui/dialog.js";
+
+import {
+  pushSnapshot,
+} from "../graph/snapshots.js";
 
 import {
   getCy,
   restrictToVisible,
   restoreProportionalSize,
   perimeterForAction,
+  selectEdgesBetweenSelectedNodes,
+  setAndRunLayoutOptions
 } from '../graph/cytoscapeCore.js';
 
 //------------------------
@@ -418,69 +423,7 @@ export function restoreAssociations() {
 
 
 
-/**
- * Trouve tous les descendants fonctionnels d'un nœud racine dans le graphe Cytoscape.js
- * @param {Cytoscape.NodeSingular} rootNode - nœud racine (sans FK entrante)
- * @returns {Set<string>} - Ensemble des IDs des nœuds descendants fonctionnels (y compris root)
- */
 
-
-export function findFunctionalDescendantsCytoscape(rootNode) {
-  const visited = new Set();
-  const trace = []; // 👈 ici
-  const rootPK = new Set(rootNode.data('primaryKey')?.columns || []);
-
-  function dfs(node, pkToMatch) {
-    const nodeId = node.id();
-    if (visited.has(nodeId)) return;
-    visited.add(nodeId);
-
-    const incoming = node.incomers('edge');
-    for (const edge of incoming) {
-      const source = edge.source();
-      const sourceId = source.id();
-      if (visited.has(sourceId)) continue;
-
-      const sourceCols = new Set(source.data('columns') || []);
-      const foreignKeys = source.data('foreignKeys') || [];
-
-      let match = false;
-
-      for (const fk of foreignKeys) {
-        const mappings = fk.column_mappings || [];
-
-        const targetMatch = fk.target_table === nodeId;
-        const targetCols = mappings.map(m => m.target_column);
-        const sourceColsMapped = mappings.map(m => m.source_column);
-
-        const pkMatches = [...pkToMatch].every(col => targetCols.includes(col));
-        const sourceContainsAllMapped = sourceColsMapped.every(col => sourceCols.has(col));
-
-        if (targetMatch && pkMatches && sourceContainsAllMapped) {
-          trace.push({
-            from: sourceId,
-            to: nodeId,
-            fkName: fk.constraint_name || null,
-            columns: mappings.map(({ source_column, target_column }) => ({
-              source_column,
-              target_column
-            }))
-          });
-          match = true;
-          break;
-        }
-      }
-      if (match) {
-        dfs(source, pkToMatch);
-      }
-    }
-  }
-
-  dfs(rootNode, rootPK);
-
-
-  return ({ visited, trace });
-}
 
 
 
@@ -505,12 +448,12 @@ export function downloadJson(jsonObject, filename = "trace.json") {
 /*
  used by long path 
 */
-export function openJsonInNewTab(jsonArray, aTitle) {
+function openJsonInNewTab(jsonArray, aTitle) {
   // internal helper function
   function toSimplifiedText(jsonArray) {
     return jsonArray.map(obj => {
       let lines = [];
-      lines.push(`${obj.to} <-- ${obj.from}`);
+      lines.push(` <b>${obj.to}</b> <--  <b>${obj.from}</b>`);
       for (const col of obj.columns) {
         lines.push(`  ${col.target_column} <-- ${col.source_column}`);
       }
@@ -524,6 +467,8 @@ export function openJsonInNewTab(jsonArray, aTitle) {
     <html>
       <head><title>${aTitle}</title></head>
       <body>
+       <h1> from ${aTitle}</h1>
+       <h2> <button class="close-btn" title="close" onclick="window.close()">X</button> &nbsp;chains of PK matched exactly by FK </h2>
         <pre style="white-space: pre-wrap; word-break: break-word;">${simplifiedText}</pre>
       </body>
     </html>
@@ -531,4 +476,141 @@ export function openJsonInNewTab(jsonArray, aTitle) {
   const blob = new Blob([html], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   window.open(url, '_blank');
+}
+
+/*
+ experimental 
+ try to link pk parts in successive tables 
+*/
+export function findPkFkFollowers() {
+
+  // starts from a root node with no foreign key.
+  const roots = getCy().nodes(":visible:selected").filter(n => n.data('foreignKeys').length === 0);
+
+  if (roots.length === 0 || roots.length != 1) {
+    showAlert(" must start from a unique node without foreignKey.");
+    return;
+  }
+  // can have selected several, loop on these nodes one per one
+  roots.forEach(root => {
+    const { visited: group, trace } = findFunctionalDescendantsCytoscape(root);
+
+    //console.log(`Groupe fonctionnel depuis ${root.id()}:`, [...group]);
+
+    const groupNodes = getCy().nodes().filter(n => group.has(n.id()));
+    pushSnapshot();
+    getCy().nodes().unselect();
+
+    getCy().batch(() => {
+      groupNodes.show();
+      // show all links of the node to other visible nodes
+      groupNodes.connectedEdges().show();
+      // but only those in the chain are to select 
+      groupNodes.select();
+    });
+    // show those between the chain
+    selectEdgesBetweenSelectedNodes();
+    // and remove others 
+    getCy().edges(":unselected").hide();
+
+ // cannot reorg if few nodes
+    if (getCy().nodes(":selected:visible").length > 3) {
+      setAndRunLayoutOptions("dagre");
+    }
+// nothing to show if no follower
+    if ((getCy().nodes(":selected:visible").length > 1)){
+      setTimeout(() => {
+        showMultiChoiceDialog("Details of PK propagation", "(experimental)", [
+          {
+            label: "📥 Download JSON",
+            onClick: () => downloadJson(trace, `trace_follow_${root.id()}.json`)
+          },
+          {
+            label: "👁️ see PK chain in new tab",
+            onClick: () => openJsonInNewTab(trace, `${root.id()}`)
+          },
+          {
+            label: "❌ Nothing",
+            onClick: () => { } // rien
+          }
+        ]);
+
+      }, 100); // 100 ms enough
+    }
+  });
+
+
+}
+
+/**
+ * Trouve tous les descendants fonctionnels d'un nœud racine dans le graphe Cytoscape.js
+ * @param {Cytoscape.NodeSingular} rootNode - nœud racine (sans FK entrante)
+ * @returns {Set<string>} - Ensemble des IDs des nœuds descendants fonctionnels (y compris root)
+ */
+
+export function findFunctionalDescendantsCytoscape(rootNode) {
+  const visited = new Set();
+  const trace = [];
+  const rootPK = new Set(rootNode.data('primaryKey')?.columns || []);
+
+  function dfs(node, pkToMatch) {
+    const nodeId = node.id();
+    if (visited.has(nodeId)) return;
+    visited.add(nodeId);
+
+    const incoming = node.incomers('edge');
+    for (const edge of incoming) {
+      const source = edge.source();
+      const sourceId = source.id();
+      if (visited.has(sourceId)) continue;
+
+      const sourceCols = new Set(source.data('columns') || []);
+      const foreignKeys = source.data('foreignKeys') || [];
+
+      let match = false;
+
+      for (const fk of foreignKeys) {
+        // the linked table can have other FK than the one going to the current root
+        if (fk.target_table !== nodeId) continue;
+
+        const mappings = fk.column_mappings || [];
+        /*
+        source is the table that owns the FK
+        [
+        source_column:"product_id"
+        source_not_null: true
+        target_column:"id"
+        ,]
+      */
+        const targetCols = mappings.map(m => m.target_column);
+        const sourceColsMapped = mappings.map(m => m.source_column);
+        // does this FK include all elements of PK ?
+        const pkMatches = [...pkToMatch].every(col => targetCols.includes(col));
+        // security: following test is useful only if mapping doesn't come directly from a db retroanalysis
+        const sourceContainsAllMapped = sourceColsMapped.every(col => sourceCols.has(col));
+
+        if (pkMatches && sourceContainsAllMapped) {
+          trace.push({
+            from: sourceId,
+            to: nodeId,
+            fkName: fk.constraint_name || null,
+            columns: mappings.map(({ source_column, target_column }) => ({
+              source_column,
+              target_column
+            }))
+          });
+          match = true;
+          break;
+        }
+      }
+      if (match) {
+        dfs(source, pkToMatch);
+      }
+    }
+  }
+
+  dfs(rootNode, rootPK);
+
+
+  return ({ visited, trace });
 }

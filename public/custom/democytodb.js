@@ -6,7 +6,7 @@ import {
 } from "../js/graph/cytoscapeCore.js"
 
 
-import {   registerCustomModule, getCustomNodesCategories } from "../js/custom/customCategories.js";
+import {   registerCustomModule, getCustomNodesCategories } from "../js/filters/categories.js";
 
 console.log("[DEBUG] democytodb.js chargé");
 
@@ -69,14 +69,7 @@ const democytodbModule = {
         },
       },
 
-      {
-        selector: "node.root",
-        style: {
-          shape: "triangle",
-          color: "#222",
-          "background-color": "lime",
-        },
-      },
+      
     ];
   },
 };

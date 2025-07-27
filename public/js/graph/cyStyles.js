@@ -4,7 +4,7 @@
   https://manual.cytoscape.org/en/3.9.1/Styles.html
 */
 
-export function getCyStyles(){
+export function getCyStyles() {
   return cyStyles;
 }
 
@@ -138,7 +138,7 @@ const cyStyles = [
     },
   },
 
-  // add a class edge.addClass et edge.removeClass
+
   {
     selector: "edge.trigger_impact",
     style: {
@@ -239,6 +239,13 @@ const cyStyles = [
       "border-style": "solid",
     },
   },
-
-  // doublons de test
+  {
+    selector: "node.root",
+    style: {
+      shape: "triangle",
+      color: "#222",
+      "background-color": "lime",
+    },
+  },
+ 
 ];

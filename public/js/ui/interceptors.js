@@ -21,6 +21,7 @@ import {
   getCy,
   metrologie,
   captureGraphAsPng,
+  restrictToVisible
 
 } from "../graph/cytoscapeCore.js";
 
@@ -157,7 +158,7 @@ export function setInterceptors() {
   getCy().on("mouseover", "node", function (evt) {
     const node = evt.target;
     // Réinitialise les styles
-    getCy().edges().removeClass("incoming outgoing faded");
+    getCy().edges().removeClass("incoming outgoing faded ");
 
     getCy().nodes().addClass("faded");
     node.removeClass("faded");
@@ -253,9 +254,9 @@ export function setInterceptors() {
 
   getCy().on("mouseout", "node", function () {
     {
-      getCy().edges().removeClass("incoming outgoing faded "); // internal ?
+      getCy().edges().removeClass("incoming outgoing faded "); 
     }
-    getCy().nodes().removeClass("faded");
+    getCy().nodes().removeClass("faded start-node"); // due to long path
   });
 
   document.getElementById("open-table").addEventListener("click", () => {

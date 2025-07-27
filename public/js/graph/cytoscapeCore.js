@@ -11,7 +11,7 @@ import {
   createCustomCategories,
   getCustomStyles,
 
-} from "../custom/customCategories.js";
+} from "../filters/categories.js";
 import { fillInGuiNodesCustomCategories } from "../ui/custom.js";
 import {pushSnapshot} from "./snapshots.js"
 //-------------------
@@ -664,7 +664,7 @@ export function rotateGraphByDegrees(deg) {
  select and show edges that rely two selected nodes 
 */
 
-export function selectEdgesBetweenNodes() {
+export function selectEdgesBetweenSelectedNodes() {
   const selectedNodes = getCy().nodes(":selected");
   if (selectedNodes.length === 0) {
     showAlert("no selected nodes to work with.");

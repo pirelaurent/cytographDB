@@ -40,7 +40,7 @@ import {
   resetPositionStackUndo
 } from "./snapshots.js";
 
-import { getCustomNodesCategories } from "../custom/customCategories.js";
+import { getCustomNodesCategories } from "../filters/categories.js";
 //---------------------
 export function loadInitialGraph() {
 
@@ -264,7 +264,7 @@ export function sendNodeListToHtml() {
     <html>
     <head><title>Node List</title></head>
     <body>
-      <h2><button class="close-btn" title="Close" onclick="window.close()">✖</button> &nbsp; ${sortedNodes.length
+      <h2><button class="close-btn" title="Close" onclick="window.close()">x</button> &nbsp; ${sortedNodes.length
     } nodes in current perimeter</h2>
       <ul>
         ${sortedNodes.map((node) => `<li>${node.data('label')}</li>`).join("")}

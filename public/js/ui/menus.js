@@ -30,7 +30,7 @@ import {
 
 import {
   connectToDb,
-    generateTriggers,
+  generateTriggers,
 } from "../dbFront/tables.js"
 
 
@@ -40,9 +40,7 @@ import {
   findLongOutgoingPaths,
   collapseAssociations,
   restoreAssociations,
-  findFunctionalDescendantsCytoscape,
-  downloadJson,
-  openJsonInNewTab,
+  findPkFkFollowers,
 
 } from "../graph/walker.js";
 
@@ -70,7 +68,8 @@ import {
   noProportionalSize,
   increaseFontSizeEdge,
   increaseFontSize,
-  selectEdgesBetweenNodes,
+  selectEdgesBetweenSelectedNodes,
+  proportionalSizeNodeSizeByLinks,
 
 } from "../graph/cytoscapeCore.js";
 
@@ -95,26 +94,26 @@ import {
   getLocalDBName,
 } from "../dbFront/tables.js";
 
-import { createCustomCategories } from "../custom/customCategories.js";
+import { createCustomCategories } from "../filters/categories.js";
 
 import { selectEdgesByNativeCategories, } from "./custom.js"
 /*
  connect an html menu object to a treatment function with action selected
 */
-export function initMenus(){
-setupMenuActions("menu-display", "aspectAction", menuDisplay);
-setupMenuActions("menu-nodes", "action", menuNodes);
-setupMenuActions("menu-edges", "action", menuEdges);
-setupMenuActions("menu-graph", "action", menuGraph);
-setupMenuActions("menu-db", "action", menuDb);
+export function initMenus() {
+  setupMenuActions("menu-display", "aspectAction", menuDisplay);
+  setupMenuActions("menu-nodes", "action", menuNodes);
+  setupMenuActions("menu-edges", "action", menuEdges);
+  setupMenuActions("menu-graph", "action", menuGraph);
+  setupMenuActions("menu-db", "action", menuDb);
 
-setupMenuClickAction();
+  setupMenuClickAction();
 }
 /*
  prepare click events on menus 
 */
 
-function setupMenuActions(menuId, actionAttribute, callbackFn) { 
+function setupMenuActions(menuId, actionAttribute, callbackFn) {
   const menu = document.querySelector(`[data-menu-id="${menuId}"] .menu`);
   if (!menu) return;
 
@@ -186,7 +185,6 @@ export function menuDisplay(option) {
     case "elk":
       pushSnapshot();
       setAndRunLayoutOptions(option);
-
       break;
 
     case "fitScreen":
@@ -298,7 +296,7 @@ export function menuDb(option, menuItemElement) {
       );
       break;
 
-    case "loadFromDb": 
+    case "loadFromDb":
       connectToDb(menuItemElement)
         .then(() => {
           let dbName = getLocalDBName();
@@ -474,6 +472,14 @@ export function menuNodes(option) {
       }
       break;
 
+    case "nodeIsRoot":
+      {
+        let nodes = perimeterForNodesSelection();
+        if (nodes.length === 0) return;
+        nodes.filter(".root").select();
+      }
+      break;
+
     case "nodeIsMultiAssociation":
       {
         let nodes = perimeterForNodesSelection();
@@ -538,59 +544,9 @@ export function menuNodes(option) {
       findLongOutgoingPaths(getCy());
       break;
 
-    case "findPkFollowers":
-      {
-
-        const roots = getCy().nodes(":visible:selected").filter(n => n.data('foreignKeys').length === 0);
-
-        if (roots.length === 0 || roots.length != 1) {
-          showAlert(" must start from a unique node without foreignKey.");
-          return;
-        }
-
-        roots.forEach(root => {
-          const { visited: group, trace } = findFunctionalDescendantsCytoscape(root);
-
-          //console.log(`Groupe fonctionnel depuis ${root.id()}:`, [...group]);
-
-
-
-          const groupNodes = getCy().nodes().filter(n => group.has(n.id()));
-          getCy().nodes().unselect();
-
-          getCy().batch(() => {
-            groupNodes.show();
-            groupNodes.connectedEdges().show();
-            groupNodes.select();
-          });
-          selectEdgesBetweenNodes();
-          pushSnapshot();
-
-          if (getCy().nodes(":selected:visible").length > 3) {
-            setAndRunLayoutOptions("dagre");
-
-            setTimeout(() => {
-              showMultiChoiceDialog("Details of PK propagation", "(experimental)", [
-                {
-                  label: "📥 Download JSON",
-                  onClick: () => downloadJson(trace, `trace_follow_${root.id()}.json`)
-                },
-                {
-                  label: "👁️ see PK chain in new tab",
-                  onClick: () => openJsonInNewTab(trace, `${root.id()}`)
-                },
-                {
-                  label: "❌ Nothing",
-                  onClick: () => { } // rien
-                }
-              ]);
-
-            }, 100); // 100 ms enough
-          }
-        });
-
-
-      }
+    case "findPkFkFollowers":
+      findPkFkFollowers();
+      break;
 
     //--------------
     case "proportionalSize":
@@ -727,7 +683,7 @@ export function menuEdges(option) {
 */
     case "betweenNodes":
       pushSnapshot();
-      selectEdgesBetweenNodes();
+      selectEdgesBetweenSelectedNodes();
 
       break;
 

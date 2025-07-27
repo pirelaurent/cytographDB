@@ -15,7 +15,7 @@ import {
 
 } from "../graph/cytoscapeCore.js"
 
-
+import {pushSnapshot} from "../graph/snapshots.js"
 
 export function showMultiChoiceDialog(title, message, choices) {
  const overlay = document.createElement('div');

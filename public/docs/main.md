@@ -2,10 +2,12 @@
 
 ## Overview
 
-**CytographDB** transforms a PostgreSQL schema into an interactive, directed graph using schema introspection:
+CytographDB is designed to help you browse and analyze a PostgreSQL physical schema through an interactive, directed graph.
+
+After performing an automatic database introspection:
 
 - Each **table** is represented as a **node**
-- Each **foreign key** is rendered as a **directed edge** between nodes
+- Each **foreign key** is rendered as a **directed edge** connecting the corresponding nodes
 
 This graph-based representation supports large and complex schemas, with color-coded links that enhance the visibility of table relationships.
 

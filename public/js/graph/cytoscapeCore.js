@@ -80,6 +80,15 @@ export function hideNotSelected() {
     .hide();
 }
 
+export function selectAllVisibleNodes(){
+  if (cy) {
+        pushSnapshot();
+        let nodes = restrictToVisible() ? getCy().nodes(":visible") : getCy().nodes();
+        nodes.select();
+      }
+}
+
+
 export function swapHidden() {
   pushSnapshot();
   const nodesVisibles = getCy().nodes(":visible");

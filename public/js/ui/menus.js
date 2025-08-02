@@ -40,7 +40,7 @@ import {
   findLongOutgoingPaths,
   collapseAssociations,
   restoreAssociations,
-  findPkFkFollowers,
+  findPkFkChains,
 
 } from "../graph/walker.js";
 
@@ -87,6 +87,7 @@ import {
   showError,
   modalSelectByName,
   closeNameFilterModal,
+  deleteNodesSelected
 } from "./dialog.js"
 
 
@@ -544,8 +545,8 @@ export function menuNodes(option) {
       findLongOutgoingPaths(getCy());
       break;
 
-    case "findPkFkFollowers":
-      findPkFkFollowers();
+    case "findPkFkChains":
+      findPkFkChains();
       break;
 
     //--------------
@@ -615,32 +616,7 @@ export function menuNodes(option) {
 
     case "deleteNodesSelected":
 
-      let nodesToKill = getCy().nodes(":selected:visible");
-      if (nodesToKill.length == 0) {
-      }
-
-      if (nodesToKill.length > 1) {
-        // confirm title, messagge
-        showMultiChoiceDialog(`delete ${nodesToKill.length} nodes`, `Confirm ?`, [
-          {
-            label: "✅ Yes",
-            onClick: () => {
-              pushSnapshot();
-              nodesToKill.remove();
-              metrologie();
-            }
-          },
-
-          {
-            label: "❌ No",
-            onClick: () => { } // rien
-          }
-        ]);
-      } else {
-        pushSnapshot();
-        nodesToKill.remove();
-        metrologie();
-      }
+      deleteNodesSelected();
 
       break;
   }

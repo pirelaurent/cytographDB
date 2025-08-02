@@ -21,7 +21,8 @@ import {
   getCy,
   metrologie,
   captureGraphAsPng,
-  restrictToVisible
+  hideNotSelected,
+  selectAllVisibleNodes,
 
 } from "../graph/cytoscapeCore.js";
 
@@ -35,6 +36,7 @@ import {
   menuSelectSizeOutgoing,
   menuSelectSizeIncoming,
   openNameFilterModal,
+  deleteNodesSelected
 } from "./dialog.js"
 
 import {
@@ -150,7 +152,14 @@ export function setInterceptors() {
   const clicNodeMenu = document.getElementById("clicNodeMenu");
 
   // retrait du menu si on clic ailleurs
-  getCy().on("mouseover", "node", function () {
+  getCy().on("mouseover", "node", function (event) {
+    const node = event.target;
+    if (node.hasClass("hasTriggers")) {
+      document.getElementById("open-trigger").style.visibility = "visible";
+    }
+    else {
+      document.getElementById("open-trigger").style.visibility = "hidden";
+    }
     clicNodeMenu.style.display = "none";
   });
 
@@ -187,43 +196,41 @@ export function setInterceptors() {
     clicNodeMenu.style.display = "none";
   });
 
-  /* visible
-  document.getElementById("planSelect").addEventListener("change", function () {
-    metrologie(); // Appelle ta fonction quand le select change
-  });
-*/
-  // undo et select all
-
   let ctrlPressed = false;
 
-  document.addEventListener("keydown", (e) => {
-    if (!e.key || e.key === "Unidentified") return;
-    if (e.key === "Control") {
-      ctrlPressed = true;
-    }
+  const ctrlShortcuts = {
+    'a': selectAllVisibleNodes,
+    'g': captureGraphAsPng,
+    'h': hideNotSelected,
+    'z': popSnapshot, //undo
 
-    const key = e.key.toLowerCase(); // gestion uniforme des majuscules/minuscules
+    // Ajoute d'autres raccourcis ici
+  };
 
-    // ✅ Ctrl/⌘ + Z → Undo
-    if ((e.ctrlKey || e.metaKey) && key === "z") {
-      e.preventDefault();
-      popSnapshot();
-    }
 
-    // ✅ Ctrl/⌘ + A → Select all nodes
-    if ((e.ctrlKey || e.metaKey) && key === "a") {
-      e.preventDefault();
-      if (cy) {
-        pushSnapshot();
-        let nodes = restrictToVisible() ? getCy().nodes(":visible") : getCy().nodes();
-        nodes.select();
+  document.addEventListener('keydown', (event) => {
+    // Vérifie si une touche avec Ctrl correspond à un raccourci connu
+    if ((event.ctrlKey || event.metaKey)) {
+      const key = event.key.toLowerCase();
+      const action = ctrlShortcuts[key];
+
+      if (action) {
+        event.preventDefault();   // ✅ Bloque uniquement si raccourci défini
+        event.stopPropagation();
+        action();
+        return;
       }
     }
-    // ✅ Ctrl/⌘ + Z → Undo
-    if ((e.ctrlKey || e.metaKey) && key === "g") {
-      e.preventDefault();
-      captureGraphAsPng();
+    // Del : Avoid del in some places
+    if (['INPUT', 'TEXTAREA'].includes(event.target.tagName) || event.target.isContentEditable) {
+      return;
     }
+
+    if (event.key === 'Delete' || event.key === 'Backspace') {
+      event.preventDefault();   // Bloque suppression navigateur (retour page)
+      deleteNodesSelected();
+    }
+
   });
 
   /*
@@ -254,7 +261,7 @@ export function setInterceptors() {
 
   getCy().on("mouseout", "node", function () {
     {
-      getCy().edges().removeClass("incoming outgoing faded "); 
+      getCy().edges().removeClass("incoming outgoing faded ");
     }
     getCy().nodes().removeClass("faded start-node"); // due to long path
   });

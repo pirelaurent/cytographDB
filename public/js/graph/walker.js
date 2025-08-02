@@ -475,14 +475,14 @@ function openJsonInNewTab(jsonArray, aTitle) {
   `;
   const blob = new Blob([html], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
-  window.open(url, '_blank');
+  window.open(url, 'aTitle');
 }
 
 /*
  experimental 
  try to link pk parts in successive tables 
 */
-export function findPkFkFollowers() {
+export function findPkFkChains() {
 
   // starts from a root node with no foreign key.
   const roots = getCy().nodes(":visible:selected").filter(n => n.data('foreignKeys').length === 0);
@@ -491,34 +491,45 @@ export function findPkFkFollowers() {
     showAlert(" must start from a unique node without foreignKey.");
     return;
   }
+  pushSnapshot();
   // can have selected several, loop on these nodes one per one
   roots.forEach(root => {
     const { visited: group, trace } = findFunctionalDescendantsCytoscape(root);
-
-    //console.log(`Groupe fonctionnel depuis ${root.id()}:`, [...group]);
-
+//console.log(JSON.stringify(trace));
+    // fk implied in chain
+    const traceFkNames = new Set(trace.map(t => t.fkName).filter(Boolean));
+console.log(traceFkNames);//PLA
+    // nodes implied in chain 
     const groupNodes = getCy().nodes().filter(n => group.has(n.id()));
-    pushSnapshot();
-    getCy().nodes().unselect();
 
+    getCy().nodes().unselect();
+    //Groups multiple style or visibility changes into one batch operation to prevent multiple re-renderings, improving performance.
     getCy().batch(() => {
-      groupNodes.show();
-      // show all links of the node to other visible nodes
-      groupNodes.connectedEdges().show();
-      // but only those in the chain are to select 
+           groupNodes.show();
+      // 3. filter only edges from trace
+      const edgesInTrace = groupNodes.connectedEdges().filter(e =>
+        traceFkNames.has(e.data('label')) 
+      );
+
+      // hide all connected edges 
+      groupNodes.connectedEdges().hide();
+
+      // show interesting ones
+      edgesInTrace.show();
+
+      // select nodes (mainly to apply layout)
       groupNodes.select();
     });
-    // show those between the chain
-    selectEdgesBetweenSelectedNodes();
-    // and remove others 
-    getCy().edges(":unselected").hide();
 
- // cannot reorg if few nodes
-    if (getCy().nodes(":selected:visible").length > 3) {
-      setAndRunLayoutOptions("dagre");
-    }
-// nothing to show if no follower
-    if ((getCy().nodes(":selected:visible").length > 1)){
+    // show those between the chain
+
+
+    // and remove others 
+    //getCy().edges(":unselected").hide();
+
+
+    // nothing to show if no follower
+    if ((getCy().nodes(":selected:visible").length > 1)) {
       setTimeout(() => {
         showMultiChoiceDialog("Details of PK propagation", "(experimental)", [
           {
@@ -530,7 +541,7 @@ export function findPkFkFollowers() {
             onClick: () => openJsonInNewTab(trace, `${root.id()}`)
           },
           {
-            label: "❌ Nothing",
+            label: "❌ Return",
             onClick: () => { } // rien
           }
         ]);
@@ -538,6 +549,10 @@ export function findPkFkFollowers() {
       }, 100); // 100 ms enough
     }
   });
+  // cannot reorg if few nodes
+  if (getCy().nodes(":selected:visible").length > 3) {
+    setAndRunLayoutOptions("dagre");
+  }
 
 
 }

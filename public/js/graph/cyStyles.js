@@ -36,7 +36,7 @@ const cyStyles = [
   {
     selector: "node.faded",
     style: {
-      opacity: 0.15,
+      opacity: 0.35,
     },
   },
 
@@ -200,7 +200,7 @@ const cyStyles = [
   {
     selector: "edge.faded",
     style: {
-      opacity: 0.1,
+      opacity: 0.40,
       "line-color": "#ccc",
       "target-arrow-color": "#ccc",
       "source-arrow-color": "#ccc",

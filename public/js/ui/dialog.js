@@ -11,7 +11,8 @@ from "../dbFront/tables.js"
 
 import { 
   getCy,
-  perimeterForNodesSelection
+  perimeterForNodesSelection,
+  metrologie,
 
 } from "../graph/cytoscapeCore.js"
 
@@ -333,3 +334,31 @@ export function menuSelectSizeIncoming() {
 
 
 
+export function deleteNodesSelected(){
+  let nodesToKill = getCy().nodes(":selected:visible");
+      if (nodesToKill.length == 0) {
+      }
+
+      if (nodesToKill.length > 1) {
+        // confirm title, messagge
+        showMultiChoiceDialog(`delete ${nodesToKill.length} nodes`, `Confirm ?`, [
+          {
+            label: "✅ Yes",
+            onClick: () => {
+              pushSnapshot();
+              nodesToKill.remove();
+              metrologie();
+            }
+          },
+
+          {
+            label: "❌ No",
+            onClick: () => { } // rien
+          }
+        ]);
+      } else {
+        pushSnapshot();
+        nodesToKill.remove();
+        metrologie();
+      }
+}

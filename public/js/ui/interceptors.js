@@ -107,20 +107,13 @@ export function setInterceptors() {
       if (outgoers == 0) outgoers = " ";
       else outgoers = outgoers + " <- ";
 
-      output = `${outgoers} ${data.id || ""} ${incomers}<br\>`;
-      output = `${data.id || ""} <br\>`;
+
+      output = `${data.id} <br\>`;
       output += `<small>${outgoers} □ ${incomers} </small><br\>`;
 
       if (classInfo) output += ` ${classInfo}<br/> `;
       // ${dataInfo}  can be added to hover for debug
 
-
-      if (node.hasClass("hasTriggers")) {
-        let nbTrigs = node.data("triggers").length;
-        if (nbTrigs > 0) {
-          output += `<small>${nbTrigs} trigger(s)</small>`;
-        }
-      }
     } else {
       let edge = ele;
       const label = ele.data("label");
@@ -155,10 +148,9 @@ export function setInterceptors() {
   getCy().on("mouseover", "node", function (event) {
     const node = event.target;
     if (node.hasClass("hasTriggers")) {
-      document.getElementById("open-trigger").style.visibility = "visible";
-    }
-    else {
-      document.getElementById("open-trigger").style.visibility = "hidden";
+      document.getElementById("open-trigger").style.display = "list-item";
+    } else {
+      document.getElementById("open-trigger").style.display = "none";
     }
     clicNodeMenu.style.display = "none";
   });

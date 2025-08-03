@@ -64,7 +64,8 @@ Example: *Select nodes with 2 outgoing AND no incoming edges* (useful to detect 
   - successive select by name will append new nodes to selected ones if OR is the operator.
 - **Native Category** → Predefined categories 
 <img src = "./img/nativeCategories.png">.  
-  - orphan : isolated table
+  - orphan : isolated table, no outgoing, no incoming edge
+  - root : table without outgoing edge, one or more incoming edges
   - dry association : association table with two links and no private column
   - all associatiosn: association table with only output edges.
   - has triggers : tables with triggers

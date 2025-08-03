@@ -803,12 +803,10 @@ export function menuEdges(option) {
 
     case "generateTriggers":
       pushSnapshot();
-      generateTriggers();
+      generateTriggers(perimeterForAction());
       break;
 
     case "deleteEdgesSelected":
-
-
       const edgesToKill = getCy().edges(":selected:visible");
       if (edgesToKill.length == 0) {
         showAlert("no selected edges.");

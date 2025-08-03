@@ -22,8 +22,7 @@ import {
   restrictToVisible,
   restoreProportionalSize,
   perimeterForAction,
-  selectEdgesBetweenSelectedNodes,
-  setAndRunLayoutOptions
+  hideNotSelectedThenDagre,
 } from '../graph/cytoscapeCore.js';
 
 //------------------------
@@ -495,20 +494,18 @@ export function findPkFkChains() {
   // can have selected several, loop on these nodes one per one
   roots.forEach(root => {
     const { visited: group, trace } = findFunctionalDescendantsCytoscape(root);
-//console.log(JSON.stringify(trace));
     // fk implied in chain
     const traceFkNames = new Set(trace.map(t => t.fkName).filter(Boolean));
-console.log(traceFkNames);//PLA
     // nodes implied in chain 
     const groupNodes = getCy().nodes().filter(n => group.has(n.id()));
 
     getCy().nodes().unselect();
     //Groups multiple style or visibility changes into one batch operation to prevent multiple re-renderings, improving performance.
     getCy().batch(() => {
-           groupNodes.show();
+      groupNodes.show();
       // 3. filter only edges from trace
       const edgesInTrace = groupNodes.connectedEdges().filter(e =>
-        traceFkNames.has(e.data('label')) 
+        traceFkNames.has(e.data('label'))
       );
 
       // hide all connected edges 
@@ -523,38 +520,36 @@ console.log(traceFkNames);//PLA
 
     // show those between the chain
 
-
-    // and remove others 
-    //getCy().edges(":unselected").hide();
-
-
     // nothing to show if no follower
     if ((getCy().nodes(":selected:visible").length > 1)) {
       setTimeout(() => {
         showMultiChoiceDialog("Details of PK propagation", "(experimental)", [
           {
-            label: "📥 Download JSON",
-            onClick: () => downloadJson(trace, `trace_follow_${root.id()}.json`)
+            label: "✅ graph only",
+            onClick: () => { hideNotSelectedThenDagre() }
+          },
+
+          {
+            label: "📥 graph + download chains in JSON ",
+            onClick: () => { hideNotSelectedThenDagre(); downloadJson(trace, `trace_follow_${root.id()}.json`) }
           },
           {
-            label: "👁️ see PK chain in new tab",
-            onClick: () => openJsonInNewTab(trace, `${root.id()}`)
+            label: "👁️ graph + display PK chains",
+            onClick: () => { hideNotSelectedThenDagre(); openJsonInNewTab(trace, `${root.id()}`) }
           },
           {
-            label: "❌ Return",
-            onClick: () => { } // rien
-          }
+            label: "❌ cancel",
+            onClick: () => {
+              groupNodes.unselect();
+              root.select();
+            }
+          },
+
         ]);
 
       }, 100); // 100 ms enough
     }
   });
-  // cannot reorg if few nodes
-  if (getCy().nodes(":selected:visible").length > 3) {
-    setAndRunLayoutOptions("dagre");
-  }
-
-
 }
 
 /**
@@ -562,18 +557,19 @@ console.log(traceFkNames);//PLA
  * @param {Cytoscape.NodeSingular} rootNode - nœud racine (sans FK entrante)
  * @returns {Set<string>} - Ensemble des IDs des nœuds descendants fonctionnels (y compris root)
  */
-
-export function findFunctionalDescendantsCytoscape(rootNode) {
+//V0 uses only PK column of root
+export function V0_findFunctionalDescendantsCytoscape(rootNode) {
   const visited = new Set();
   const trace = [];
   const rootPK = new Set(rootNode.data('primaryKey')?.columns || []);
-
+// internal recursive 
   function dfs(node, pkToMatch) {
     const nodeId = node.id();
     if (visited.has(nodeId)) return;
     visited.add(nodeId);
 
     const incoming = node.incomers('edge');
+    // loop on incoming edges
     for (const edge of incoming) {
       const source = edge.source();
       const sourceId = source.id();
@@ -585,9 +581,8 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
       let match = false;
 
       for (const fk of foreignKeys) {
-        // the linked table can have other FK than the one going to the current root
+                  // the linked table can have other FK than the one going to the current root
         if (fk.target_table !== nodeId) continue;
-
         const mappings = fk.column_mappings || [];
         /*
         source is the table that owns the FK
@@ -615,7 +610,9 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
             }))
           });
           match = true;
-          break;
+          continue; //not break
+        } else {
+          console.log("Fk not on PK :"+fk.constraint_name);//PLA
         }
       }
       if (match) {
@@ -625,7 +622,70 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
   }
 
   dfs(rootNode, rootPK);
-
-
   return ({ visited, trace });
+}
+//this version follows links FK->PK with columns of each step 
+export function findFunctionalDescendantsCytoscape(rootNode) {
+  const visited = new Set();
+  const trace = [];
+
+  // --- Fonction récursive ---
+  function dfs(node, pkToMatch) {
+    const nodeId = node.id();
+    if (visited.has(nodeId)) return;
+    visited.add(nodeId);
+
+    const incoming = node.incomers('edge');
+
+    for (const edge of incoming) {
+      const source = edge.source();
+      const sourceId = source.id();
+      if (visited.has(sourceId)) continue;
+
+      const sourceCols = new Set(source.data('columns') || []);
+      const foreignKeys = source.data('foreignKeys') || [];
+
+      let match = false;
+
+      for (const fk of foreignKeys) {
+        if (fk.target_table !== nodeId) continue;
+
+        const mappings = fk.column_mappings || [];
+        const targetCols = mappings.map(m => m.target_column);
+        const sourceColsMapped = mappings.map(m => m.source_column);
+
+        // Vérifie si la FK couvre toute la PK du noeud cible
+        const pkMatches = [...pkToMatch].every(col => targetCols.includes(col));
+        const sourceContainsAllMapped = sourceColsMapped.every(col => sourceCols.has(col));
+
+        if (pkMatches && sourceContainsAllMapped) {
+          trace.push({
+            from: sourceId,
+            to: nodeId,
+            fkName: fk.constraint_name || null,
+            columns: mappings.map(({ source_column, target_column }) => ({
+              source_column,
+              target_column
+            }))
+          });
+
+          // --- 🔹 NOUVEAU : on propage la PK propre à la table source ---
+          const newPkToMatch = new Set(source.data('primaryKey')?.columns || []);
+
+          // Si pas de PK définie (cas rare), on retombe sur les colonnes de la FK
+          dfs(source, newPkToMatch.size > 0 ? newPkToMatch : new Set(sourceColsMapped));
+
+          match = true;
+        } else {
+          console.log("FK non basée sur PK :", fk.constraint_name); // Debug
+        }
+      }
+    }
+  }
+
+  // Lancement avec la PK du nœud racine
+  const rootPK = new Set(rootNode.data('primaryKey')?.columns || []);
+  dfs(rootNode, rootPK);
+
+  return { visited, trace };
 }

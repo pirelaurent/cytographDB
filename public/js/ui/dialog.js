@@ -52,7 +52,7 @@ export function showMultiChoiceDialog(title, message, choices) {
     const btn = document.createElement('button');
     btn.innerHTML = choice.label;
     btn.onclick = () => {
-      document.body.removeChild(overlay);
+      overlay.remove();
       choice.onClick();
     };
     btn.style.padding = '6px 12px';

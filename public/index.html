@@ -98,13 +98,13 @@
 
             <li data-category="layout">layout &gt;
               <ul class="submenu">
-                <li aspectAction="cose-bilkent">Cose-bilkent</li>
-                <li aspectAction="cose">Cose</li>
-                <li aspectAction="grid">Grid</li>
-                <li aspectAction="circle">Circle</li>
-                <li aspectAction="concentric">Concentric</li>
-                <li aspectAction="breadthfirst">Breadthfirst</li>
-                <li aspectAction="dagre">Dagre</li>
+                <li aspectAction="cose-bilkent">cose-bilkent</li>
+                <li aspectAction="cose">cose</li>
+                <li aspectAction="grid">grid</li>
+                <li aspectAction="circle">circle</li>
+                <li aspectAction="concentric">concentric</li>
+                <li aspectAction="breadthfirst">breadthfirst</li>
+                <li aspectAction="dagre" title = "direct acyclic graph representation">dagre</li>
               </ul>
             </li>
 
@@ -170,7 +170,7 @@
           <ul class="menu">
             <li data-category="selectNodes">select &gt;
               <ul class="submenu">
-                <li action="all" title="Select every currently visible node (or ctrl a)">all</li>
+                <li action="all" title="Select all visible (ctrl a)">all</li>
                 <li action="none" title="Clear the current selection">none</li>
                 <li action="invert" title="Invert the current selection">swap selected</li>
                 <li action="selectNodesFromSelectedEdges" title="Select nodes connected by the selected edges">from
@@ -181,7 +181,7 @@
             <li data-category="hideNode">hide &gt;
               <ul class="submenu">
                 <li action="hideNone" title="Show the entire graph">none</li>
-                <li action="hideNotSelected" title="Hide unselected elements">not selected</li>
+                <li action="hideNotSelected" title="(ctrl h)">not selected</li>
                 <li action="hideSelected" title="Hide the selected nodes">selected</li>
                 <li action="swapHidden" title="Toggle visibility for selected and hidden elements">swap</li>
               </ul>
@@ -207,8 +207,8 @@
                   long paths 
                 </li>
                   <li action="findPkFkChains"
-                  title="Find nodes that belongs to a same root PK identifier">
-                  PK Chains 
+                  title="Find chain of relations from a root">
+                  N->1 Chains 
                 </li>
               </ul>
             </li>
@@ -305,8 +305,7 @@
 
             <li class="separator"></li>
 
-            <li action="deleteNodesSelected" title="Delete selected nodes (confirmation required)">delete
-              selected</li>
+            <li action="deleteNodesSelected" title="Delete selected nodes (backspace)">delete</li>
           </ul>
         </div>
       </div>
@@ -406,23 +405,23 @@
       </div>
 
       <!-- Controls -->
-      <button id="undo-btn" title="Undo (Ctrl+Z)">
+      <button id="undo-btn" title="Undo (Ctrl z)">
         <img src="./img/rollback2.png" alt="Undo" style="width: 20px; height: 20px;">
       </button>
-      <button id="btn-export" title="PNG Snapshot  (ctrl+g)">
+      <button id="btn-export" title="PNG Snapshot  (ctrl g)">
         <img src="./img/redCapture.png" alt="PNG Snapshot" style="width: 22px; height: 22px;">
 
       </button>
 
       <!-- span class="labelPrevious">select</span-->
-      <select id="modeSelect" title="Choose how selections are combined (OR adds, AND intersects)">
+      <select id="modeSelect" title="Choose successive selection operations (OR,AND)">
         <option value="or_selected" selected>OR</option>
         <option value="AND" title="Select into already selected">AND</option>
       </select>
 
       <label>
-        <span class="labelPrevious" title="Show node name and connected edge types on hover">hover</span>
-        <input type="checkbox" id="hoverInfoToggle" title="Show node name and connected edge types on hover">
+        <span class="labelPrevious" title="Show node & edge infos on hover">hover</span>
+        <input type="checkbox" id="hoverInfoToggle" title="toggle visble infos on hover">
         <!--checked-->
       </label>
 

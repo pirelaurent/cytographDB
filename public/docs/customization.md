@@ -56,7 +56,7 @@ registerCustomModule("democytodbV2", democytodbModule);
 2. **Place the file in**:  
    `public/custom`
 
-> 📁 This folder is excluded from version control to protect user-specific code.
+> 📁 Remember : this folder is excluded from version control to protect user-specific code.
 
 ####  `.gitignore` Rule
 
@@ -68,7 +68,7 @@ registerCustomModule("democytodbV2", democytodbModule);
 
 ---
 
-## 🧵 Weave Your Module Into the App
+## 🧵 Weave Your Module with the App
 
 To activate your module:
 

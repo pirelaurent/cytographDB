@@ -118,8 +118,8 @@ Use recorded triggs into a node
 call script analysis to get impacted tables 
 */
 
-export async function generateTriggers() {
-  const nodes = perimeterForAction();
+export async function generateTriggers(nodes) {
+
 
   const nodesWithTriggers = nodes.filter((node) => {
     const trigs = node.data("triggers");

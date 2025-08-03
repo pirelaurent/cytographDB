@@ -13,7 +13,7 @@ import {
 
 } from "../filters/categories.js";
 import { fillInGuiNodesCustomCategories } from "../ui/custom.js";
-import {pushSnapshot} from "./snapshots.js"
+import { pushSnapshot } from "./snapshots.js"
 //-------------------
 /*
  cy defined in a module cannot be accessed directly
@@ -62,6 +62,7 @@ export function showAll() {
   getCy().nodes().show();
   getCy().edges().show();
   document.getElementById("cy").style.backgroundColor = "white";
+    metrologie();
 }
 
 export function hideSelected() {
@@ -69,6 +70,7 @@ export function hideSelected() {
   let nodesToHide = getCy().nodes(":selected");
   nodesToHide.hide();
   nodesToHide.unselect();
+    metrologie();
 }
 
 export function hideNotSelected() {
@@ -78,14 +80,28 @@ export function hideNotSelected() {
       return !node.selected();
     })
     .hide();
+    metrologie();
 }
 
-export function selectAllVisibleNodes(){
+export function hideNotSelectedThenDagre() {
+  {
+    hideNotSelected()
+    // cannot reorg if too few nodes
+    if (getCy().nodes(":selected:visible").length > 3) {
+      setAndRunLayoutOptions("dagre");
+    }
+  }
+    metrologie();
+}
+
+
+export function selectAllVisibleNodes() {
   if (cy) {
-        pushSnapshot();
-        let nodes = restrictToVisible() ? getCy().nodes(":visible") : getCy().nodes();
-        nodes.select();
-      }
+    pushSnapshot();
+    let nodes = restrictToVisible() ? getCy().nodes(":visible") : getCy().nodes();
+    nodes.select();
+  }
+    metrologie();
 }
 
 
@@ -95,6 +111,7 @@ export function swapHidden() {
   const nodesHidden = getCy().nodes(":hidden");
   nodesVisibles.hide();
   nodesHidden.show();
+    metrologie();
 }
 
 export function selectNodesFromSelectedEdges() {
@@ -103,6 +120,7 @@ export function selectNodesFromSelectedEdges() {
     .edges(":selected:visible")
     .connectedNodes(":visible");
   connectedNodes.select();
+    metrologie();
 }
 
 /*
@@ -521,7 +539,7 @@ export function restoreProportionalSize() {
   });
 }
 // Helper pour interpoler une valeur entre deux bornes
- function mapValue(value, inMin, inMax, outMin, outMax) {
+function mapValue(value, inMin, inMax, outMin, outMax) {
   const clamped = Math.max(inMin, Math.min(value, inMax));
   const ratio = (clamped - inMin) / (inMax - inMin);
   return outMin + ratio * (outMax - outMin);

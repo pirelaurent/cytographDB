@@ -31,6 +31,7 @@
   <script type="module" src="/js/main.js"></script>
 
 </head>
+
 <body>
   <div id='topbar'>
     <div class="loadGraphOptions">
@@ -104,7 +105,7 @@
                 <li aspectAction="circle">circle</li>
                 <li aspectAction="concentric">concentric</li>
                 <li aspectAction="breadthfirst">breadthfirst</li>
-                <li aspectAction="dagre" title = "direct acyclic graph representation">dagre</li>
+                <li aspectAction="dagre" title="direct acyclic graph representation">dagre</li>
               </ul>
             </li>
 
@@ -204,11 +205,10 @@
                 <li class="separator"></li>
                 <li action="findLongOutgoingPaths"
                   title="Find nodes reachable by long forward paths (more than 2 hops)">
-                  long paths 
+                  long paths
                 </li>
-                  <li action="findPkFkChains"
-                  title="Find chain of relations from a root">
-                  N->1 Chains 
+                <li action="findPkFkChains" title="Find chain of relations from a root">
+                  N->1 Chains
                 </li>
               </ul>
             </li>
@@ -271,7 +271,7 @@
                   </ul>
                 <li action="noCare" id="customList">custom category ...</li>
               </ul>
-              </li>
+            </li>
             </li>
 
 
@@ -316,6 +316,7 @@
         <div class="menu-wrapper">
           <span id="EdgesId" class="menu-trigger">Edges</span>
           <ul class="menu">
+
             <li data-category="selection">select ...
               <ul class="submenu">
                 <li action="allEdges">all</li>
@@ -347,14 +348,10 @@
                 </li>
               </ul>
             </li>
-          <li class="separator"></li>
-            <li data-category="label">representation...
-              <ul class="submenu">
-                <li action="oneEdgePerFK">1 egde per FK</li>
-                <li action="oneEdgePerFKColumns">1 egde per column</li>
-              </ul>
-            </li>
+            <li class="separator"></li>
+            <li id="toggle-fk-mode" action="toggleFkMode">toggle details 1 --> n</li>
 
+            <li class="separator"></li>
 
             <li data-category="label">label ...
               <ul class="submenu">
@@ -365,7 +362,7 @@
                 <li action="decrease-font-edge">font -</li>
               </ul>
             </li>
-          <li class="separator"></li>
+
             <li action="listEdges">list
               <!--ul class="submenu">
                 <li action="listAllEdges">all</li>
@@ -402,7 +399,7 @@
                 </li>
                 <li action="edgeIsACollapsedNode" title="Select edges from collapsed associations">collapsed
                   associations</li>
-          
+
               </ul>
             </li>
 
@@ -472,16 +469,16 @@
   </div>
   <!--------------------------------------->
 
-<!-- Modal for name filter -->
-<div id="nameFilterModal" class="modal-bg">
-  <div class="modal-content">
-    <h3>Filter nodes by name (regex)</h3>
-    <input type="text" id="modalNameFilterInput" placeholder="searched name (regex)" class="modal-input" />
-    <div id="modalNameFilterResult" class="modal-result"></div>
-    <button id="modalNameFilterOk" class="modal-btn">OK</button>
-    <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
+  <!-- Modal for name filter -->
+  <div id="nameFilterModal" class="modal-bg">
+    <div class="modal-content">
+      <h3>Filter nodes by name (regex)</h3>
+      <input type="text" id="modalNameFilterInput" placeholder="searched name (regex)" class="modal-input" />
+      <div id="modalNameFilterResult" class="modal-result"></div>
+      <button id="modalNameFilterOk" class="modal-btn">OK</button>
+      <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
+    </div>
   </div>
-</div>
 
 
 

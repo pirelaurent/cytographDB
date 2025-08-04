@@ -99,26 +99,8 @@ ORDER BY cols.ordinal_position;
  with this list edges will be created by caller
 */
 
-export let edgesQueryOLD = `
-  SELECT DISTINCT
-  con.conname AS constraint_name,
-  src_table.relname AS source,
-  tgt_table.relname AS target,
-  con.confdeltype AS on_delete,
-  con.confupdtype AS on_update,
-  des.description AS comment
-FROM pg_constraint con
-JOIN pg_class src_table ON src_table.oid = con.conrelid
-JOIN pg_class tgt_table ON tgt_table.oid = con.confrelid
-JOIN pg_namespace src_ns ON src_ns.oid = src_table.relnamespace
-JOIN pg_namespace tgt_ns ON tgt_ns.oid = tgt_table.relnamespace
-LEFT JOIN pg_description des ON des.objoid = con.oid AND des.classoid = 'pg_constraint'::regclass
-WHERE con.contype = 'f'
-  AND src_ns.nspname = 'public'
-  AND tgt_ns.nspname = 'public';
 
-`;
-export let edgesQuery = `
+export let edgesQueryOLD = `
 SELECT DISTINCT
   con.conname AS constraint_name,
   src_table.relname AS source,
@@ -141,7 +123,35 @@ WHERE con.contype = 'f'
   AND src_ns.nspname = 'public'
   AND tgt_ns.nspname = 'public';
 
+`;
+
+export let edgesQuery = `
+SELECT
+  con.conname AS constraint_name,
+  src_table.relname AS source,
+  tgt_table.relname AS target,
+  con.confdeltype AS on_delete,
+  con.confupdtype AS on_update,
+  des.description AS comment,
+  src_col.attname AS source_column,
+  tgt_col.attname AS target_column,
+  src_col.attnotnull AS source_not_null
+FROM pg_constraint con
+JOIN pg_class src_table ON src_table.oid = con.conrelid
+JOIN pg_class tgt_table ON tgt_table.oid = con.confrelid
+JOIN pg_namespace src_ns ON src_ns.oid = src_table.relnamespace
+JOIN pg_namespace tgt_ns ON tgt_ns.oid = tgt_table.relnamespace
+JOIN LATERAL unnest(con.conkey) WITH ORDINALITY AS src_cols(attnum, ord) ON true
+JOIN LATERAL unnest(con.confkey) WITH ORDINALITY AS tgt_cols(attnum, ord) ON tgt_cols.ord = src_cols.ord
+JOIN pg_attribute src_col ON src_col.attrelid = src_table.oid AND src_col.attnum = src_cols.attnum
+JOIN pg_attribute tgt_col ON tgt_col.attrelid = tgt_table.oid AND tgt_col.attnum = tgt_cols.attnum
+LEFT JOIN pg_description des ON des.objoid = con.oid AND des.classoid = 'pg_constraint'::regclass
+WHERE con.contype = 'f'
+  AND src_ns.nspname = 'public'
+  AND tgt_ns.nspname = 'public';
 `
+;
+
 
 /*
  get primary keys list 

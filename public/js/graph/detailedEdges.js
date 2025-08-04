@@ -1,10 +1,29 @@
 
 import {
-  getCy,
+    getCy,
 
 } from '../graph/cytoscapeCore.js';
 
 let savedDetailedEdges = []; // to be able to reverse, store details here 
+
+let currentFkMode = 'synthesis'; // set on in loadInitialGraph
+/*
+ change edge presentation 
+*/
+export function toggleFkMode() {
+    //console.log('toggle'+currentFkMode)//PLA
+    const cy = getCy();
+    if (cy.edges().length === 0) return;
+    if (currentFkMode === 'detailed') {
+        enterFkSynthesisMode(cy);
+        currentFkMode = 'synthesis';
+        document.getElementById('toggle-fk-mode').textContent = 'toggle details 1 --> n';
+    } else {
+        enterFkDetailedMode(cy);
+        currentFkMode = 'detailed';
+        document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
+    }
+}
 
 
 export function enterFkDetailedMode() {
@@ -20,7 +39,6 @@ export function enterFkDetailedMode() {
 
 
 export function enterFkSynthesisMode() {
-
     savedDetailedEdges = getCy().edges('.fk_detailed');
     const edges = savedDetailedEdges;
     const grouped = {};

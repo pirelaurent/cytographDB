@@ -75,13 +75,19 @@ export function setInterceptors() {
     if (ele.isNode()) {
 
       let node = ele;
-      let classInfo = "";
 
       const classArray = Array.from(node.classes()).filter(
         (c) => c !== "hovered"
       );
-      if (classArray.length > 0) {
-        classInfo = `<small>[${classArray.join(", ")}]</small>`;
+
+      const technicalClasses = ['fk_detailed', 'fk_synth', 'showLabel'];
+      const filteredClasses = classArray.filter(
+        cls => !technicalClasses.includes(cls)
+      );
+
+      let classInfo = '';
+      if (filteredClasses.length > 0) {
+        classInfo = `<small>[${filteredClasses.join(', ')}]</small>`;
       }
 
       const data = node.data();
@@ -114,16 +120,15 @@ export function setInterceptors() {
       if (classInfo) output += ` ${classInfo}<br/> `;
       // ${dataInfo}  can be added to hover for debug
 
-    } else 
+    } else
     // ele is edge
-      {
+    {
       let edge = ele;
       let labelToShow = ele.data('label');
 
-        if (edge.hasClass('fk_detailed')){
-          labelToShow = ele.data('detailedLabel').replace('\n',"<BR/>");
-
-        } 
+      if (edge.hasClass('fk_detailed')) {
+        labelToShow = ele.data('detailedLabel').replace('\n', "<BR/>");
+      }
 
 
       const label = labelToShow;
@@ -132,7 +137,21 @@ export function setInterceptors() {
       // Convertir en tableau de chaînes
       const classArray = Array.from(classList);
       let libelArray = "";
-      if (classArray.length > 0) libelArray = `<br/>[${classArray.join(", ")}]`;
+
+      const technicalClasses = ['fk_detailed', 'fk_synth', 'showLabel'];
+      const filteredClasses = classArray.filter(
+        cls => !technicalClasses.includes(cls)
+      );
+
+      let classInfo;
+
+      if (filteredClasses.length > 0) {
+        classInfo = `<small>[${filteredClasses.join(', ')}]</small>`;
+      }
+
+
+
+      if (classInfo) output += ` ${classInfo}<br/> `;
 
       output = ` 
           ${edge.source().id()} --> 
@@ -141,8 +160,10 @@ export function setInterceptors() {
           ${label} ${libelArray}
           </small>
         `;
+          
       // debug  output+= Array.from(edge.classes()).join(' ');
     }
+   
     document.getElementById("nodeDetails").innerHTML = output;
     //${node.data('category')} <br>
   });

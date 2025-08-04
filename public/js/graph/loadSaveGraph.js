@@ -76,6 +76,7 @@ export function loadInitialGraph() {
       initializeGraph(data);
 
       enterFkSynthesisMode(); //now generated with details PLA
+      
       hideWaitLoading();
       proportionalSizeNodeSizeByLinks();
       setAndRunLayoutOptions();

@@ -4,6 +4,7 @@
 -- Create the database
 
 DROP DATABASE IF EXISTS democytodb;
+-- run separately if using pgadmin query tool 
 CREATE DATABASE democytodb;
 
 

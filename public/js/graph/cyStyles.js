@@ -104,8 +104,8 @@ const cyStyles = [
 {
   selector: 'edge.nullable',
   style: {
-    'line-style': 'dotted',
-    //'line-color': 'brown',
+    //'line-style': 'dotted',
+    'line-color': "#77B5FE",// bleu ciel
     //'target-arrow-color': 'brown',
     'width': 2
   }
@@ -140,11 +140,11 @@ const cyStyles = [
   {
     selector: "edge:selected",
     style: {
-      "line-color": "DarkSlateGray",
+      "line-color": "chartreuse",
       "target-arrow-color": "black",
       "line-style": "dashed",
       "z-index": 1002, // higher than not selected
-      width: 2,
+      width: 4,
     },
   },
 
@@ -218,22 +218,13 @@ const cyStyles = [
     },
   },
 
-
-
-
-
-
-
-
-
-
-
   {
     selector: "node:selected",
     style: {
       "border-width": 10,
-      "border-color": "orangered",
+      "border-color": "chartreuse",
       "border-style": "dashed",
+      "border-width": 20
     },
   },
 

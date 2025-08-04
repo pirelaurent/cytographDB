@@ -24,6 +24,9 @@ import {
   restoreProportionalSize,
   proportionalSizeNodeSizeByLinks,
 } from "./cytoscapeCore.js"
+import {
+  enterFkSynthesisMode,
+} from "./detailedEdges.js";
 
 import {
   showAlert,
@@ -72,6 +75,7 @@ export function loadInitialGraph() {
       resetPositionStackUndo();
       initializeGraph(data);
 
+      enterFkSynthesisMode(); //now generated with details PLA
       hideWaitLoading();
       proportionalSizeNodeSizeByLinks();
       setAndRunLayoutOptions();

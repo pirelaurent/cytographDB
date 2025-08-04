@@ -31,7 +31,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import pkg from "pg";
 const { Pool } = pkg;
 
-import { getPoolFor, getCurrentPool, getCurrentDBName,resetPool } from "./db.js";
+import { getPoolFor, getCurrentPool, getCurrentDBName, resetPool } from "./db.js";
 import {
   collectFunctionBodies,
   extractImpactedTables,
@@ -89,8 +89,6 @@ app.post("/load-from-db", async (req, res) => {
     const pool = getPoolFor(dbName);
     client = await pool.connect();
 
-
-
     // Get column info per table (simplified version)
     const columnMap = {}; // tableName -> array of columns
     const columnResult = await client.query(reqListOfTables);
@@ -98,13 +96,13 @@ app.post("/load-from-db", async (req, res) => {
     // separate names in a collection
     const tableNames = [...new Set(columnResult.rows.map((r) => r.table_name))];
 
-     /*  map table => commentaire. now in details 
+    /*  map table => commentaire. now in details 
 
-    const commentResult = await client.query(reqTableComments);
-    const tableComments = new Map(
-      commentResult.rows.map(({ table_name, comment }) => [table_name, comment])
-    );
-    */
+   const commentResult = await client.query(reqTableComments);
+   const tableComments = new Map(
+     commentResult.rows.map(({ table_name, comment }) => [table_name, comment])
+   );
+   */
 
     // dispatch columns in a new dict array
     columnResult.rows.forEach(({ table_name, column_name }) => {
@@ -115,11 +113,30 @@ app.post("/load-from-db", async (req, res) => {
     // Get FK columns per table in another array
 
     const fkResult = await client.query(edgesQuery);
+    /*
+    console.log(fkResult);//PLA
+    {
+      constraint_name: 'line_product_production_line_id_fkey',
+      source: 'line_product',
+      target: 'production_line',
+      on_delete: 'c',
+      on_update: 'a',
+      comment: null,
+      source_column: 'production_line_id',
+      source_not_null: true
+    },
+    
+    
+    */
     const fkColumnMap = {}; // tableName -> Set of FK column names
 
-    fkResult.rows.forEach(({ source, source_column }) => {
-      if (!fkColumnMap[source]) fkColumnMap[source] = new Set();
-      fkColumnMap[source].add(source_column);
+    fkResult.rows.forEach(({ source, source_column, source_not_null }) => {
+      if (!fkColumnMap[source]) fkColumnMap[source] = [];
+
+      fkColumnMap[source].push({
+        column: source_column,
+        nullable: !source_not_null,
+      });
     });
 
     // get triggers for all tables
@@ -150,6 +167,22 @@ app.post("/load-from-db", async (req, res) => {
 
 
       const details = await getTableDetails(client, name);
+      /*
+      console.log(details);//PLA
+      foreignKeys: [
+    {
+      constraint_name: 'intervention_employee_id_fkey',
+      source_table: 'intervention',
+      target_table: 'employee',
+      comment: null,
+      column_mappings: [Array],
+      all_source_not_null: true,
+      is_target_unique: true,
+      on_delete: 'c',
+      on_update: 'a'
+    },
+      
+      */
       const trigs = triggersByTable.get(name) || [];
 
 
@@ -163,13 +196,16 @@ app.post("/load-from-db", async (req, res) => {
         indexes: details.indexes,
         triggers: trigs
       };
-
+      // nodes new fk with all_source_not_null
       nodes.push({ data });
     }
 
     /* 
      build edges
      */
+
+
+     //console.log(fkResult.rows);//PLA
     const filteredEdges = fkResult.rows
       .filter(
         (e) => tableNames.includes(e.source) && tableNames.includes(e.target)
@@ -179,13 +215,24 @@ app.post("/load-from-db", async (req, res) => {
           source: e.source,
           target: e.target,
           label: e.constraint_name,
+          detailedLabel: `${e.constraint_name}\n(${e.source_column})`,
           onDelete: e.on_delete, // raw code: 'a', 'c', etc.
-          onUpdate: e.on_update  // raw code
+          onUpdate: e.on_update,  // raw code
+          nullable: !e.source_not_null
+
         },
         // a no action c: cascade. 
-        classes: e.on_delete === 'c' ? 'delete_cascade' : ''
-      }));
+        classes: [
+          'fk_detailed', // one edge per column fk
+          e.on_delete === 'c' ? 'delete_cascade' : '',
+          !e.source_not_null ? 'nullable' : ''
+        ]
+          .filter(Boolean) // supprime les chaînes vides
+          .join(' ')
 
+      }));
+//console.log('PLA in server.js');
+//console.log(filteredEdges);
 
     res.json({ nodes, edges: filteredEdges });
   } catch (error) {
@@ -414,7 +461,7 @@ app.get("/api/function", async (req, res) => {
       return res.status(404).json({ error: "Function not found" });
     }
   } catch (err) {
-    return res.status(500).json({ error: "Internal error" + err});
+    return res.status(500).json({ error: "Internal error" + err });
   } finally {
     if (client) client.release();
   }

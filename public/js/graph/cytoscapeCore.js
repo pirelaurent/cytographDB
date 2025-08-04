@@ -34,6 +34,9 @@ export function initializeGraph(data, fromDisk = false) {
   }
   cy.add(data);
 
+//console.log('PLA dans initialize')
+//console.log(cy.edges()); // on a bien detailedLabel dans data
+
   let current_db = getLocalDBName();
 
   // customize nodes
@@ -41,7 +44,7 @@ export function initializeGraph(data, fromDisk = false) {
 
   createCustomCategories(current_db);
   let moreStyles = getCustomStyles(current_db);
-  //console.log(JSON.stringify(moreStyles));
+
   let mergedStyles = getCyStyles().concat(moreStyles);
   cy.style(mergedStyles).update();
 

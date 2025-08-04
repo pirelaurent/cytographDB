@@ -114,9 +114,19 @@ export function setInterceptors() {
       if (classInfo) output += ` ${classInfo}<br/> `;
       // ${dataInfo}  can be added to hover for debug
 
-    } else {
+    } else 
+    // ele is edge
+      {
       let edge = ele;
-      const label = ele.data("label");
+      let labelToShow = ele.data('label');
+
+        if (edge.hasClass('fk_detailed')){
+          labelToShow = ele.data('detailedLabel').replace('\n',"<BR/>");
+
+        } 
+
+
+      const label = labelToShow;
       const classList = edge.classes(); // c'est une cytoscape collection
 
       // Convertir en tableau de chaînes

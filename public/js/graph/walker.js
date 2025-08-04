@@ -455,6 +455,7 @@ function openJsonInNewTab(jsonArray, aTitle) {
       lines.push(` <b>${obj.to}</b> <--  <b>${obj.from}</b>`);
       for (const col of obj.columns) {
         lines.push(`  ${col.target_column} <-- ${col.source_column}`);
+
       }
       return lines.join('\n');
     }).join('\n\n');
@@ -612,7 +613,7 @@ export function V0_findFunctionalDescendantsCytoscape(rootNode) {
           match = true;
           continue; //not break
         } else {
-          console.log("Fk not on PK :"+fk.constraint_name);//PLA
+          //console.log("Fk not on PK :"+fk.constraint_name);//PLA
         }
       }
       if (match) {

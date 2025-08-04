@@ -101,6 +101,16 @@ const cyStyles = [
     },
   },
 
+{
+  selector: 'edge.nullable',
+  style: {
+    'line-style': 'dotted',
+    //'line-color': 'brown',
+    //'target-arrow-color': 'brown',
+    'width': 2
+  }
+},
+
   {
     selector: "edge.showLabel",
     style: {
@@ -207,6 +217,16 @@ const cyStyles = [
       "text-opacity": 0.1,
     },
   },
+
+
+
+
+
+
+
+
+
+
 
   {
     selector: "node:selected",

@@ -99,7 +99,7 @@ ORDER BY cols.ordinal_position;
  with this list edges will be created by caller
 */
 
-export let edgesQuery = `
+export let edgesQueryOLD = `
   SELECT DISTINCT
   con.conname AS constraint_name,
   src_table.relname AS source,
@@ -118,6 +118,30 @@ WHERE con.contype = 'f'
   AND tgt_ns.nspname = 'public';
 
 `;
+export let edgesQuery = `
+SELECT DISTINCT
+  con.conname AS constraint_name,
+  src_table.relname AS source,
+  tgt_table.relname AS target,
+  con.confdeltype AS on_delete,
+  con.confupdtype AS on_update,
+  des.description AS comment,
+  src_col.attname AS source_column,
+  src_col.attnotnull AS source_not_null
+FROM pg_constraint con
+JOIN pg_class src_table ON src_table.oid = con.conrelid
+JOIN pg_class tgt_table ON tgt_table.oid = con.confrelid
+JOIN pg_namespace src_ns ON src_ns.oid = src_table.relnamespace
+JOIN pg_namespace tgt_ns ON tgt_ns.oid = tgt_table.relnamespace
+JOIN unnest(con.conkey) AS colnum ON true
+JOIN pg_attribute src_col
+  ON src_col.attrelid = src_table.oid AND src_col.attnum = colnum
+LEFT JOIN pg_description des ON des.objoid = con.oid AND des.classoid = 'pg_constraint'::regclass
+WHERE con.contype = 'f'
+  AND src_ns.nspname = 'public'
+  AND tgt_ns.nspname = 'public';
+
+`
 
 /*
  get primary keys list 

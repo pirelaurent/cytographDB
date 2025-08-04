@@ -73,6 +73,14 @@ import {
 
 } from "../graph/cytoscapeCore.js";
 
+import{
+  enterFkDetailedMode,
+  enterFkSynthesisMode,
+} from "../graph/detailedEdges.js";
+
+
+
+
 import {
   pushSnapshot,
   //popSnapshot,  //done by ctrl Z
@@ -98,6 +106,7 @@ import {
 import { createCustomCategories } from "../filters/categories.js";
 
 import { selectEdgesByNativeCategories, } from "./custom.js"
+
 /*
  connect an html menu object to a treatment function with action selected
 */
@@ -660,7 +669,6 @@ export function menuEdges(option) {
     case "betweenNodes":
       pushSnapshot();
       selectEdgesBetweenSelectedNodes();
-
       break;
 
     /*
@@ -713,6 +721,20 @@ export function menuEdges(option) {
       nodes.connectedEdges().select();
       break;
 
+      case "oneEdgePerFK":
+       enterFkSynthesisMode();
+        break;
+
+      case "oneEdgePerFKColumns":
+   enterFkDetailedMode();
+        break;
+  
+
+
+
+
+
+
     //--- select by data Snapshot done into function
 
     case "selectEdgesByCategory":
@@ -722,7 +744,11 @@ export function menuEdges(option) {
     case "edgeIsTriggerGenerated":
       selectEdgesByNativeCategories("trigger_impact");
       break;
-
+case "edgeIsNullable":
+      getCy().edges();
+      const nullableEdges = getCy().edges(".nullable");
+      nullableEdges.select();
+      break;
     case "edgeIsOnDeleteCascade":
       getCy().edges();
       const cascadeEdges = getCy().edges(".delete_cascade");

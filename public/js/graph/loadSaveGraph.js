@@ -26,6 +26,7 @@ import {
 } from "./cytoscapeCore.js"
 import {
   enterFkSynthesisMode,
+  saveDetailedEdges,
 } from "./detailedEdges.js";
 
 import {
@@ -74,8 +75,10 @@ export function loadInitialGraph() {
     .then((data) => {
       resetPositionStackUndo();
       initializeGraph(data);
-
-      enterFkSynthesisMode(); //now generated with details PLA
+      // store details at load time /now generated with details 
+      saveDetailedEdges();
+      // preference show synthetic at startup
+      enterFkSynthesisMode(); 
       
       hideWaitLoading();
       proportionalSizeNodeSizeByLinks();

@@ -148,11 +148,6 @@ export function setInterceptors() {
       if (filteredClasses.length > 0) {
         classInfo = `<small>[${filteredClasses.join(', ')}]</small>`;
       }
-
-
-
-      if (classInfo) output += ` ${classInfo}<br/> `;
-
       output = ` 
           ${edge.source().id()} --> 
           ${edge.target().id()}
@@ -160,10 +155,10 @@ export function setInterceptors() {
           ${label} ${libelArray}
           </small>
         `;
-          
+      if (classInfo) output += `<br/> ${classInfo} `;
       // debug  output+= Array.from(edge.classes()).join(' ');
     }
-   
+
     document.getElementById("nodeDetails").innerHTML = output;
     //${node.data('category')} <br>
   });

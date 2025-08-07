@@ -6,7 +6,7 @@ import {
 } from "../js/graph/cytoscapeCore.js"
 
 
-import {   registerCustomModule, getCustomNodesCategories } from "../js/filters/categories.js";
+import { registerCustomModule, getCustomNodesCategories } from "../js/filters/categories.js";
 
 console.log("[DEBUG] democytodb.js chargé");
 
@@ -25,22 +25,15 @@ const democytodbModule = {
         add class for visual effect and set the style in getCustomStyles
       */
 
-      /*
-        same as orphan in native category. 
-        set here for an example how to 
-      */
-      let nbOut = node.outgoers("edge").length;
-      let nbIn = node.incomers("edge").length;
-      if (nbOut == 0 && nbIn > 0) {
-        node.addClass("root");
-      }
+      if (node.data("label").includes("product")) node.addClass("product");
+
     });
     /*
      more than simple visual effect through class 
      adding the class in customNodesCategories will propose it to filter in gui 
     */
 
-    getCustomNodesCategories().add("root");
+    getCustomNodesCategories().add("product");
   },
 
   /*----------------------------------------------
@@ -52,24 +45,16 @@ const democytodbModule = {
   getCustomStyles() {
     return [
       {
-        selector: "node.association",
+        selector: "node.product",
         style: {
-          shape: "ellipse",
-          color: "#222",
-          "background-color": "#FFB3A7",
-          "border-style": "dotted",
+          "color": "#6D071A",
+          "font-size": "25px",
+          "font-style": "italic"
+
         },
       },
 
-      {
-        selector: "node.association.start-node",
-        style: {
-          "border-width": "10px",
-          "border-style": "solid",
-        },
-      },
 
-      
     ];
   },
 };

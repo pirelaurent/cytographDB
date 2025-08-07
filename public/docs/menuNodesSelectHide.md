@@ -1,11 +1,6 @@
-# Node Menu
+# Nodes Menu
 
 ![Node Menu](./img/nodesMenu.png)
-
-### Node Label Summary
-
-Display format: **Selected / Visible (Selected / Hidden)**  
-Example: `0/9 (0/0)` → 0 selected, 9 visible, 0 selected in 0 hidden nodes.
 
 ---
 

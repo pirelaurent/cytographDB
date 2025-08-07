@@ -3,46 +3,80 @@ import {
     getCy,
 
 } from '../graph/cytoscapeCore.js';
+import { showAlert } from '../ui/dialog.js';
 
-let savedDetailedEdges = []; // to be able to reverse, store details here 
 
-let currentFkMode = 'synthesis'; // set on in loadInitialGraph
+let currentFkMode;
+let detailedEdgesArray = []; // to be able to reverse, store details here 
+
+// called at startup now as request load details
+export function saveDetailedEdges() {
+    detailedEdgesArray = getCy().edges();
+    currentFkMode = 'detailed';
+    document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
+}
+
 /*
- change edge presentation 
+ toggle edge presentation 
 */
 export function toggleFkMode() {
-    //console.log('toggle'+currentFkMode)//PLA
     const cy = getCy();
+    // if called with no graph
     if (cy.edges().length === 0) return;
-    if (currentFkMode === 'detailed') {
-        enterFkSynthesisMode(cy);
-        currentFkMode = 'synthesis';
-        document.getElementById('toggle-fk-mode').textContent = 'toggle details 1 --> n';
-    } else {
-        enterFkDetailedMode(cy);
-        currentFkMode = 'detailed';
-        document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
+
+    switch (currentFkMode) {
+        case 'detailed':
+            enterFkSynthesisMode()
+            break;
+        case 'synthesis': enterFkDetailedMode();
+            break;
     }
 }
 
+/*
+ swap the edges synthetic with detailed
+ Security for reloaded graph from json 
+ as they can have been saved synthetic or detailed
+*/
 
 export function enterFkDetailedMode() {
-    // Supprimer les synthétiques
+    // verify we are in synthetic  
     const synthEdges = getCy().edges('.fk_synth');
-    synthEdges.remove();
+    if (synthEdges.length == 0) return false;
 
-    // Restaurer les détaillées
-    if (savedDetailedEdges) getCy().add(savedDetailedEdges);
+    // then change for stored detailed 
+
+    if (detailedEdgesArray.length != 0) {
+        synthEdges.remove();
+        getCy().add(detailedEdgesArray)
+    } else {
+        showAlert("No detailed edges stored with this graph");
+        return false;
+    }
+    currentFkMode = 'detailed';
+    document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
+    return true;
 }
 
-
+/*
+ swap the edges detailed with synthetic
+ Security for reloaded graph from json.
+*/
 
 
 export function enterFkSynthesisMode() {
-    savedDetailedEdges = getCy().edges('.fk_detailed');
-    const edges = savedDetailedEdges;
-    const grouped = {};
+    let edges = getCy().edges('.fk_detailed');
+    // stored graph could be synthetic only 
+    if (edges.length == 0) {
+        showAlert("no detailed edges to synthetise for this graph" ); 
+            return false;
+        }
 
+    currentFkMode = 'synthesis';
+    document.getElementById('toggle-fk-mode').textContent = 'toggle details 1 --> n';
+
+    const grouped = {};
+    // information for synthesis is inside detailed 
     edges.forEach(edge => {
         const label = edge.data('label');
         const constraintName = label.split('\n')[0];
@@ -79,7 +113,7 @@ export function enterFkSynthesisMode() {
             classes: [
                 'fk_synth',
                 onDelete === 'c' ? 'delete_cascade' : '',
-                nullable ? 'nullable' : 'required'
+                nullable ? 'nullable' : ''
             ].filter(Boolean).join(' ')
         });
     });

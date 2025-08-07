@@ -491,6 +491,16 @@ export function menuNodes(option) {
       }
       break;
 
+    case "nodeIsLeaf":
+      {
+        let nodes = perimeterForNodesSelection();
+        if (nodes.length === 0) return;
+        nodes.filter(".leaf").select();
+      }
+      break;
+
+
+
     case "nodeIsMultiAssociation":
       {
         let nodes = perimeterForNodesSelection();

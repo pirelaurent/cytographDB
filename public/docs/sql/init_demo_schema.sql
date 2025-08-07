@@ -40,7 +40,7 @@ CREATE TABLE production_line (
     id INT NOT NULL,
     name TEXT NOT NULL,
     PRIMARY KEY (company_id, factory_id, id),
-    FOREIGN KEY (company_id, factory_id) REFERENCES factory(company_id, id) ON DELETE CASCADE
+    FOREIGN KEY (company_id, factory_id) REFERENCES factory(company_id, id)
 );
 
 CREATE TABLE product (
@@ -79,6 +79,19 @@ ALTER TABLE employee ADD COLUMN chief_id INT;
 ALTER TABLE employee ADD CONSTRAINT employee_chief_fk
     FOREIGN KEY (chief_company_id, chief_id)
     REFERENCES employee(company_id, id) ON DELETE SET NULL;
+
+CREATE TABLE skills (
+    company_id INT NOT NULL,
+    employee_id INT NOT NULL,
+    skill_name TEXT NOT NULL,
+    PRIMARY KEY (company_id, employee_id, skill_name),
+    FOREIGN KEY (company_id, employee_id)
+        REFERENCES employee(company_id, id)
+);
+
+
+
+
 
 CREATE TABLE "authorization" (
     company_id INT NOT NULL,

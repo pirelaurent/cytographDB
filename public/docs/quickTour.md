@@ -1,182 +1,222 @@
-# Quick Tour of the Demo Model
+# Quick Tour with *democytodb* model
 
-## Main Screen: Loaded `democytodb` Graph
+## democytodb 
 
-A fake DB to work with several cases
+This very simple DB model was designed for documentation purpose.   
+To create *democytodb* in your Postgres instance, see the [Installation Guide](./install.md)
 
-![democytoscapedb](./img/democytoscapedb.png)
+## Initial load of democytodb 
 
----
+(after some ui alignments).
 
-### How to obtain 
+<img src = "./img/democytoscapedb.png" width = "600px" style="border: 1px solid grey;">
 
-- The demo database is `democytoscapedb` (empty by default). 
-- To generate it by yourself, see the [Installation Guide](./install.md)
- 
-### Run : DB → Create graph from DB**
+### default table representation ( see upper graph )
 
-- Show available PostgreSQL databases to work with.
-- Choose *democytoscapedb*
+( all UI choices can be customized later by yourself per database )
 
----
+#### table 
+-  without special categories
+  - round rectangle (*production line, factory, employee*)
 
-### Direct Informations
+#### tables with native categorie(s) 
 
-<img src = "./img/basicInformations.png" width = "400px" style="border: 1px solid grey;">
+Native categories of nodes are visible on sample:
+- **orphan** : no links
+  -  pentagon ( *parameters* )
+- **root** : no outgoing link. 
+  - triangle (*product, company*).
+- **leaf** : no incoming, one outgoing 
+  - rounded triangle (*skills*)
+- **dry association** :  no incomings, 2 outgoings, strict list of columns from FK in table
+  - ellipse (*authorization*) 
+- **multi-association** : no incomings, >2 outgoings, or: 2 outgoings with extra column in table
+  - ellipse with double border (*intervention*)
+  
+#### standard alteration 
+
+- table  **'has triggers'**
+  -  label of node is followed by ***stars \****, 1 per trigger (*intervention*)
+
+### default FK edge representation
+
+- standard FK 
+  - straight line with destination arrow as triangle
+    - (*production_line -> factory) , (employee -> factory*)
+- FK '**on cascade delete**' 
+  - standard FK but a circle as source-arrow
+    - (*autorization-> employee, autorisation -> production_line*) and many others
+- FK '**nullable**'
+  - special line color ( default blue sky )
+    - (*employee->employee, chief and work_with*)
+
+## hover for more informations
+
+with hover "on" in main menu bar, details appear under cursor on node or edge
+
+<img src = "./img/basicInformationNode.png" width = "400px" style="border: 1px solid grey;">
+
+### node info
 
 When cursor is over a node-table : 
-- **Outgoing edges** (foreign keys) are green 
-- **Incoming edges** (referenced by other tables) are red 
-- if ***hover*** in upper menu bar is checked, a pop up show the number of edges **<-out & <-in**
+- **outgoings edges** (foreign keys) are green 
+- **incomings edges** (referenced by other tables) are red 
+- a pop up show the number of edges **<-out & <-in**
 - Unrelated elements are faded for clarity.
+  
+  *note: 'ctrl g' or can create a png snapshot of the screen at any time*
 
-#### Aspect
+### edge info
 
-- main tables (*Employee*, *Factory*) are rounded rectangles while association tables are circles.
-  - A table with triggers shows one star per trigger. *Intervention '**'* have two.
-- edges are oriented from owner of a FK to the referenced table. 
-  - the destination arrow is a triangle. 
-- if a FK is a strong link with ON CASCADE DELETE option, the source arrow is a round circle. 
-  - generally the case on ***association*** table between two main tables.
-    - see *authorization* and *intervention* in the sample. 
+<img src = "./img/basicInformationEdge.png" width = "400px" style="border: 1px solid grey;">
 
----
+When cursor is over a edge :
+  - source table -> destination table 
+  - name of the FK constraint 
+  - [optional categories]
 
-### Right-Click Node Menu
-
-Right-click on a node shows a contextual menu that link to separate pages:
-
-<img src = "./img/hoverMenu.png" width ="300px" style="border: 1px solid grey;">
 
 ---
 
-### Sample: Table Employee
+### browse table schema
 
-<img src ="./img/table-employee.png" width = "800px" style="border: 1px solid grey;">
+#### contextual menu on node 
 
-<small>*[FK constraints explained ](./moreSQL.md)*</small> 
+right-click on a node let appear a sub menu: 
 
-### Comment in tips 
+<img src = "./img/contextualNodeMenu.png" width ="240px" style="border: 1px solid grey;">
 
-When an icon appears next to an element, hovering over the element will display its associated comment.
-For the employee table, a comment is defined on the table itself
+  (second option only for tables with category '*hasTriggers*')
 
-<img src = "./img/tipOnEmployee.png" width ="500px" style="border: 1px solid grey;" >
+#### table definition 
 
-You can see comments on the primary key, some columns, some foreign keys and on index. 
+  - chain to a new window with detailed schema information (partial below) 
+    - if any comment in schema, a tip is available.
+  
+<img src ="./img/tableDetails.png" width = "800px" style="border: 1px solid grey;">
 
----
+#### table triggers  
 
-### Table triggers 
+  - chain to pages starting with triggers'list allowing to browse the PSQL code.  
 
-This open a new page with triggers definitions and access to their codes :
+<img src = "./img/triggerMainPage.png" width ="600px" style="border: 1px solid grey;">
 
-<img src ="./img/trigger-intervention.png" width = "800px" style="border: 1px solid grey;">
 
+<small>*[click here for more on FK constraints in SQL ](./moreSQL.md)*</small> 
 
 #### Impacted Tables
 
-A code analysis of triggers and functions search for `UPDATE`, `DELETE`, or `CREATE` operations.
-In the example below, the `employee` table was referenced via an `UPDATE` clause:
+A code analysis search for `UPDATE`, `DELETE`, or `CREATE` operations in triggers and functions.
+
+In the upper sample, the `employee` table is in 'Impacted Tables' because an Update has been found in code: 
 
 
 #### Trigger Code Details
 
-<img src ="./img/function-intervention-code.png" width = "800px" style="border: 1px solid grey;">
-
-
+<img src ="./img/function-intervention-code.png" width = "600px" style="border: 1px solid grey;">
 
 ---
+## more capacities of cytographDB edges
 
-## Adding trigger Impacts in the Network
 
-From the Edges menu:  
-**Edges → Data Model → Generate Trigger Impact**
+### add trigger impacts in the Network
 
-This adds new, specially styled edges to represent trigger-based relationships (violet below)
-In this capture was added ***Edges-Label-Show*** for two selected edges 
+From menu: **Edges → Data Model → Generate Trigger Impact**
+
+New edges represent trigger-based relationships (violet below)
 
 <img src ="./img/triggerNetwork.png" width = "400px" style="border: 1px solid grey;">
 
+Labels of new *trigger_impact* edge is the trigger's name.
 
+These edges can be easily selected later through **edges - filters... - generated triggers**
 
-In a large graph, select these particular edges:  
-**Edges → Filter → `generated triggers`**  
-*(click through each step for facility with menus.)*
+## show detailed columns of foreign keys 
 
----
+**Edges - toggle details 1 --> N** ( reverse: *toggle details N --> 1* )
 
-### Perimeter of actions 
+ Show **an edge per linked column** between source and destination tables 
+ On hover, **corresponding columns'name** are shown. 
 
-The common rule is : 
-- if nothing selected, action apply to all **visible** 
-- if some selection, action apply only on **selected** 
+<img src ="./img/edgePerColumn.png" width = "600px" style="border: 1px solid grey;">
 
-#### Visual help on perimeter
+ 
+This is a quick way to look at columns mapping without opening table details.  
+
+## Walk the model 
+
+using a directed graph allows to walk through table dependencies.  
+
+### current perimeter
+ actions start from *current perimeter* 
+
+Current perimeter refer to : 
+- **selected visibles** , at least one , or more
+- **all visibles** if none are selected  
+
+####  Help on perimeter
 
 In upper bar : 
 `      Nodes.  Selected/Visible ( selected/hidden)   Edges selected/visible.` 
-- Perimeter : 7 nodes 12 edges 
-![visible](./img/perimeterVisible.png) 
-- Perimeter : 3 nodes 12 edges 
-![selected](./img/perimeterSelected.png).
+- Perimeter : **All** (7 visible nodes, 12 visible edges) 
+- <img src ="./img/perimeterVisible.png" width = "400px" style="border: 1px solid grey;">
 
+- Perimeter : **3 nodes** (3 selected nodes over 7 visibles, no edge selected over 12 visible edges) 
+- <img src ="./img/perimeterSelected.png" width = "400px" style="border: 1px solid grey;">
 
-## Common operations on a DB graph 
+### follow and show *outgoing/incoming/both* 
 
-### Explore dependencies of a main table 
+Starting from  *current perimeter*, choosing  a direction will select next nodes on the path.  
+Below, graph starts with selection of one table, *production_line*, followed by two successive clic *follow outgoing*. 
+<img src ="./img/outgoingProduction_line.png" width = "500px" style="border: 1px solid grey;">
 
-**Select** a table by any way ( by click, by name, by category, etc. ).  
-to work in comfort, hide others : **nodes - hide - not selected** 
+The same start point *production-line* but with ***follow incoming***
 
-A single node is selected in sample below: ***production_line***
+<img src ="./img/incomingProduction-line.png" width = "500px" style="border: 1px solid grey;">
 
+One can see dependencies are stopped by dry associations ( *line_product, authorization* ), the following option help to cross the barrier:
 
-Walk the edges of this node : 
-- **Follow & show** 
-  - Outgoing to see the related tables this one is constraint by a FK 
-  - Incoming to see which tables use this one 
-  - Both to have eco-system around the table 
-  
-  ### **Follow *Both*** from production_line 
+### follow association
 
-  <img src = ./img/followBoth.png width = 500px>
+This continue the walk on the other side of a (dry) association ( now *product* and *employee* are selected): 
+<img src ="./img/associationProduction-line.png" width = "500px" style="border: 1px solid grey;">
 
-One can see that a depency through an association table give not enough information with a half part.
+### follow long path
 
-#### Follow & show ***Association*** 
+starting from selected node(S), this walk follows outgoing edges from table to table and keep track of all the possible paths, avoiding loops.   
+ 
 
-  (association. nodes are already selected after *follow both* , otherwise select them )
+Start with few nodes is better, mainly from *leaf node*.
 
+Below , a *follow long path* is started from the leaf node *skills* 
+<img src ="./img/longPathGraph.png" width = "450px" style="border: 1px solid grey;">
 
-  <img src = ./img/followAssociation.png width = 500px>
+<img src ="./img/longPathGrahList.png" width = "300px" style="border: 1px solid grey;">
 
-### Document this exploration with a photo
+If the long path search starts from all nodes, we got all practicable path : 
 
-At any time you can **make a *photo* of the graph** in a PNG format.
+<img src ="./img/longPathGrahList2.png" width = "400px" style="border: 1px solid grey;">
 
-### Keep your work in its current status : download/upload
+### follow N->1 chains 
 
-At any time you can save the graph with all elements you have kept through ***File - Download*** 
+This walk must start from a ***root***.   
+If search backward tables where a FK uses exactly all the columns of the PK' source and continue with new tables. 
 
-This is useful to work with ready to use subgraph, for example per domain. 
+In democytodb, starting from the root *company* we obtain : 
 
-## Custom layout and category
+<img src ="./img/longPathNto1.png" width = "500px" style="border: 1px solid grey;">.  
+And the associated list :   
+<img src ="./img/longPathNto1List.png" width = "400px" style="border: 1px solid grey;">
+---
 
-A default layout apply on graph.  
-A custom layout can be declared associated to one or more DB names.  
-For *democytodb* example, tables with no FK like *product* or *company* , identified as **root table** are ***green triangle***. 
+This ends the tour.
+See menu details for more. 
 
-This custom category is directly available in a search by : 
-***Nodes - Filter by***
-
-  <img src = "./img/filterByCustom.png" width = "500px">.  
-In the demoDB only "root" was added. See customization.  
 
 ---
 
 - ⚪️ [Main](./main.md)
-- 🟩 [Quick Tour](./quickTour.md)  
+- 🟩 [*Quick Tour*](./quickTour.md)  
 - 🟨 [Main Menu Bar](./menuBar.md)  
 - 🟦 [Node Menu](./menuNodesSelectHide.md)  
 - 🟥 [Edge Menu](./menuEdgesSelectHide.md)   

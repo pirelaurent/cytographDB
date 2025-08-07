@@ -277,13 +277,14 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
     .select();
 
   let okMess = `${paths.length} long path(s) `;
+  let okLimit="";
   let limit = paths.length;
   if (limit > 1000) {
     limit = 1000;
-    okMess += "  (limited to 1000)";
+    okLimit = "(limited to 1000)";
   }
 
-  showMultiChoiceDialog(okMess, '👁️ show the list ?', [
+  showMultiChoiceDialog(okMess, '👁️ show the list ? '+okLimit, [
     {
       label: '✅ Yes',
       onClick: () => showLongPathList(limit, paths)
@@ -295,6 +296,9 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
   ])
 };
 
+/*
+ display the list in a new window
+*/
 function showLongPathList(limit, paths) {
   // Génère le HTML des chemins
   const pathHtml = [];
@@ -326,10 +330,10 @@ function showLongPathList(limit, paths) {
     </html>
   `;
 
-  // Ouvre la fenêtre
+  // open the page 
   const win = window.open("", "LongPathListWindow");
 
-  // Attend que la fenêtre soit prête
+  // wait until page is ready 
   const interval = setInterval(() => {
     // Parfois documentElement n'est pas prêt tout de suite selon les navigateurs
     if (win.document && win.document.readyState === "complete") {
@@ -341,7 +345,7 @@ function showLongPathList(limit, paths) {
 
 
 /*
- remove association (2) nodes and create new direct links 
+ remove (dry) associations (2) nodes and create new direct links 
 */
 export function collapseAssociations() {
   let nodes = perimeterForAction();

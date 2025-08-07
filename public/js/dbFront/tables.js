@@ -7,6 +7,7 @@ import {
 
 import {
   promptDatabaseSelectionNear,
+  showError,
 }
   from "../ui/dialog.js"
 

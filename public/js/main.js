@@ -36,6 +36,7 @@ export let nativeNodesCategories = [
   "multiAssociation",
   "hasTriggers",
   "orphan",
+  "root"
 ];
 
 

@@ -49,62 +49,58 @@ Displays element details when the cursor hovers over them.
 
 The current scope is displayed in the status bar, with emphasized numbers:
 
-- **No selection** → action applies to all nodes (e.g., 9 in `democytodb`):  
-  ![Scope All](./img/scope9.png)
+ **No selection** → action applies to all nodes (e.g., 9 in `democytodb`):  
+  <img src= "./img/scope9.png" width = '200px'>
 
-- **Selection of 4 nodes** → action applies only to those:  
-  ![Scope 4](./img/scope4.png)
+  **Selection of 4 nodes** → action applies only to those:  
+  <img src= "./img/scope4.png" width = '200px'>
 
-- **ALL mode with 6 visible and 3 hidden nodes** → action applies to all 9:  
-  ![Scope 6-3](./img/scope6-3.png)
+  **ALL mode with 6 visible and 3 hidden nodes** → action applies to all 9:  
+    <img src= "./img/scope6-3.png" width = '200px'>
+
 
 ---
 
-## 🗃️ DB Menu
+## <img src= "./img/DBmenu.png">
 
-### Create Graph from DB
+### <img src= "./img/createGraphMenu.png">
 
 - Select a database from the dropdown.
 - Click **OK** to generate the graph.
 
-### Connect to DB Only
+####  <img src="./img/connectToDBMenu.png"> 
 
-Graphs loaded from a saved JSON file are disconnected from the database.  
-To access **table details**, reconnect to the **original database** used when the graph was created.
-
-⚠️ Ensure you're connecting to the same DB used when saved graph was done.
-
-If you are no more connected to the DB some details will not work : 
-
+Used when a json stored graph is reloaded from disk and come not from DB. 
+To access **table details**, must reconnect to the **original or compatible database** used when the graph was created.
+Without reconnection, you can have warning like : 
 - `no connection to database. Connect first to the original DB`
-- <img src = './img/DBErrorOnTriggers.png' width ="250px" style="border: 1px solid grey;">
+- <img src = './img/DBErrorOnTriggers.png' width ="200px" style="border: 1px solid grey;">
 
 ---
 
-## 📁 Files
+## <img src="./img/filesMenu.png"> 
 
 Used to save and load graph data in JSON format.
 
-### Upload / Download
+### Download / Upload
 
-- Use the browser's file dialog.
+- Use the browser's file dialog to save/load graph from local disk. 
 
 ### Graph Name Input
+<img src="./img/drafInput.png"> 
 
-- You can assign a name to your future downloaded graph.
-- Default is ***draft***. (or draft.json , the same )
-- 💡 Avoid renaming via your file navigator—use this field instead.
+You can assign a name to your graph before downloading ( can change also in navigator)
 
 ---
 
-## 🖥️ Display Options
+## <img src ="./img/displayMenu.png">
 
 ### Fit Screen
 
 - **All:** Zoom to fit the entire graph.
 - **Selected:** Zoom to fit only selected nodes.
 
-### Layout >
+### Layout ...
 
 Applies layout algorithms to reorganize the current scope.
 
@@ -114,21 +110,21 @@ Applies layout algorithms to reorganize the current scope.
 
  **Undo** is supported.
 
-### Move >
+### Move ...
 
 - Drag a single node manually.
 - Drag a selected node to move the entire current selection.
 
-### Resize >
+### Resize ...
 
 Expand or shrink the scoped graph in both directions.
 
-### Align & Distribute >
+### Align & Distribute ...
 
 - **Align:** Arrange nodes along a common axis.
 - **Distribute:** Evenly space nodes between boundary elements.
 
-### Rotate >
+### Rotate ...
 
 - Rotates selected nodes by **15°** increments.
 - Node labels remain **horizontally aligned**.
@@ -139,6 +135,6 @@ Expand or shrink the scoped graph in both directions.
 
 - ⚪️ [Main](./main.md)
 - 🟩 [Quick Tour](./quickTour.md)  
-- 🟨 [Main Menu Bar](./menuBar.md)  
+- 🟨 [*Main Menu Bar*](./menuBar.md)  
 - 🟦 [Node Menu](./menuNodesSelectHide.md)  
 - 🟥 [Edge Menu](./menuEdgesSelectHide.md)   

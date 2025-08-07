@@ -61,33 +61,70 @@ export function getCustomStyles(myCurrentDB) {
  standard categories created before custom using classes 
 */
 
+
+
+
+function countFKSourceColumns(node) {
+  const fkGroups = node.data("foreignKeys") || [];
+
+  const sourceCols = new Set();
+
+  fkGroups.forEach(fk => {
+    (fk.column_mappings || []).forEach(mapping => {
+      if (mapping.source_column) {
+        sourceCols.add(mapping.source_column);
+      }
+    });
+  });
+
+  return sourceCols.size;
+}
+
+
+
+
+
 export function createNativeNodesCategories() {
   getCy().nodes().forEach((node) => {
-    if (node.data("triggers").length > 0) node.addClass("hasTriggers");
+    if (node.data("triggers")?.length > 0) node.addClass("hasTriggers");
 
-    let nbOut = node.outgoers("edge").length;
-    let nbIn = node.incomers("edge").length;
-    if (nbOut >= 2 && nbIn == 0) {
-      if (nbOut == 2) {
-        const allCols = node.data.columns || [];
-        const fkCols = node.data.foreignKeys || [];
-        // association porteuse de sens ou pas
-        const hasOnlyColsForFK = allCols.length === fkCols.length;
+    // Dédupliqué : une destination table = 1
+    const outTargets = new Set(
+      node.outgoers("edge").map(edge => edge.target().id())
+    );
+    const nbOut = outTargets.size;
+
+    const inSources = new Set(
+      node.incomers("edge").map(edge => edge.source().id())
+    );
+    const nbIn = inSources.size;
+
+
+    if (nbOut >= 2 && nbIn === 0) {
+      if (nbOut === 2) {
+        const allCols = node.data("columns") || [];
+        const nbFKColumns = countFKSourceColumns(node);
+        const hasOnlyColsForFK = (allCols.length === nbFKColumns);
+
         if (hasOnlyColsForFK) {
           node.addClass("association");
         }
-      } else {
-        node.addClass("multiAssociation");
+        else {
+          node.addClass("multiAssociation");
+        }
       }
     }
 
-    if (nbOut == 0 && nbIn == 0) {
+    if (nbOut === 0 && nbIn === 0) {
       node.addClass("orphan");
     }
-    // root node for pk 
-    if (nbOut == 0 && nbIn > 0) {
-      node.addClass("root")
+
+    if (nbOut === 0 && nbIn > 0) {
+      node.addClass("root");
     }
 
+      if (nbOut === 1 && nbIn === 0) {
+      node.addClass("leaf");
+    }
   });
 }

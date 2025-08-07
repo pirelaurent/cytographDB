@@ -101,15 +101,15 @@ const cyStyles = [
     },
   },
 
-{
-  selector: 'edge.nullable',
-  style: {
-    //'line-style': 'dotted',
-    'line-color': "#77B5FE",// bleu ciel
-    //'target-arrow-color': 'brown',
-    'width': 2
-  }
-},
+  {
+    selector: 'edge.nullable',
+    style: {
+      //'line-style': 'dotted',
+      'line-color': "#77B5FE",// bleu ciel
+      //'target-arrow-color': 'brown',
+      'width': 2
+    }
+  },
 
   {
     selector: "edge.showLabel",
@@ -258,5 +258,41 @@ const cyStyles = [
       "background-color": "lime",
     },
   },
- 
+    {
+    selector: "node.leaf",
+    style: {
+      shape: "round-triangle",
+      color: "#000000",
+      "background-color": "aqua",
+    },
+  },
+  {
+    selector: "node.association",
+    style: {
+      shape: "ellipse",
+      color: "#222",
+      "background-color": "#FFB3A7",
+      "border-style": "dotted",
+    },
+  },
+  {
+    selector: "node.multiAssociation",
+    style: {
+      shape: "ellipse",
+      color: "#222",
+      "background-color": "#FFB3A7",
+      "border-width": 6,
+      "border-style": "double",
+    },
+  },
+  {
+    selector: "node.orphan",
+    style: {
+      shape: "pentagon",
+      color: "#222",
+    "background-color": "#bbca9a", // ou une couleur par défaut
+    "border-style": "solid", // pour éviter l'écrasement du style sélectionné
+    "border-width": 1  
+    },
+  },
 ];

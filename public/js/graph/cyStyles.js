@@ -57,7 +57,7 @@ const cyStyles = [
       "arrow-scale": 1.2,
       "curve-style": "straight",
       label: "",
-      "font-size": "12px",
+      "font-size": "14px",
       "text-rotation": "autorotate",
       "target-arrow-shape": "triangle",
     },
@@ -115,6 +115,23 @@ const cyStyles = [
     selector: "edge.showLabel",
     style: {
       label: "data(label)",
+      "line-style": "dotted",
+      "line-color": "#aaa",
+      "text-rotation": "none", // keep horizontal
+      "text-margin-y": -10, // move vertically
+      width: 2,
+
+      "target-arrow-shape": "triangle", // ✅ requis
+      "target-arrow-color": "#aaa",
+      "source-arrow-color": "#aaa",
+      //'target-arrow-width': 6, // doesn't work
+      //'target-arrow-height': 8,
+    },
+  },
+  {
+    selector: "edge.showColumns",
+    style: {
+      label: "data(columnsLabel)",
       "line-style": "dotted",
       "line-color": "#aaa",
       "text-rotation": "none", // keep horizontal

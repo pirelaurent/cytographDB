@@ -78,8 +78,8 @@ export function loadInitialGraph() {
       // store details at load time /now generated with details 
       saveDetailedEdges();
       // preference show synthetic at startup
-      enterFkSynthesisMode(); 
-      
+      enterFkSynthesisMode();
+
       hideWaitLoading();
       proportionalSizeNodeSizeByLinks();
       setAndRunLayoutOptions();
@@ -300,42 +300,59 @@ export function sendEdgeListToHtml() {
   }
 
   const sortedEdges = edges.sort((a, b) => {
-    const labelA = a.data("label") || "";
-    const labelB = b.data("label") || "";
+    let labelA = ` 
+      ${a.source().id()} --> 
+      ${a.target().id()}
+      \n ${a.data("label")}
+      `
+    if (a.hasClass('fk_detailed')) labelA += '\n'+a.data('columnsLabel');
+
+   let labelB = ` 
+      ${b.source().id()} --> 
+      ${b.target().id()}
+      \n ${b.data("label")}
+      `
+    if (b.hasClass('fk_detailed')) labelB += '\n'+b.data('columnsLabel');
     return labelA.localeCompare(labelB);
   });
-  //const names = edges.map((n) => n.data("id")).sort();
 
   const win = window.open("", "edgeListWindow");
   let outputLines = "<ul>";
+  let lastSourceTarget = '';
+  let lastFKLabel='';
 
   sortedEdges.forEach((edge) => {
-    const label = edge.data("label");
-
-    //const classList = edge.classes(); // c'est une cytoscape collection
-    // Convertir en tableau de chaînes
-    //const classArray = Array.from(classList);
-    //let libelArray='';
-    //if( classArray.length>0) libelArray =`<br/>[${classArray.join(", ")}]`;
-    //${libelArray}
-
-    outputLines += ` 
-         <li>
-         ${label} 
-      &nbsp;<small>:&nbsp;
+    let sourceTarget = ` 
       ${edge.source().id()} --> 
       ${edge.target().id()}
-      </small> 
-      </li>
-      `;
-  });
-  outputLines += "</ul>";
+      `
+    if (lastSourceTarget != sourceTarget) {
+      outputLines += `<strong>${sourceTarget}</strong><br/>`;
+      lastSourceTarget = sourceTarget;
+    }
 
+    if( lastFKLabel != edge.data("label")){
+      outputLines += `&nbsp; ${edge.data("label")}<br/>`;
+      lastFKLabel = edge.data("label");
+    }
+
+if (edge.hasClass('fk_detailed')){
+ outputLines += `&nbsp;&nbsp;&nbsp;- ${edge.data('columnsLabel')}<br/>`;
+}
+
+   
+      
+     
+      
+  });
+
+  outputLines += "</ul>";
+  //console.log(outputLines);//PLA
   const html = `
     <html>
     <head><title>Edge List</title></head>
     <body>
-      <h2>${edges.length} edges in current perimeter</h2>
+      <h2>${edges.length} edges <small>(in current perimeter)</small></h2>
        ${outputLines}
     </body>
     </html>

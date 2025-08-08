@@ -127,7 +127,7 @@ export function setInterceptors() {
       let labelToShow = ele.data('label');
 
       if (edge.hasClass('fk_detailed')) {
-        labelToShow = ele.data('detailedLabel').replace('\n', "<BR/>");
+        labelToShow += "<BR/>"+ele.data('columnsLabel');
       }
 
 

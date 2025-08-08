@@ -21,7 +21,7 @@ import {
   getCy,
   restrictToVisible,
   restoreProportionalSize,
-  perimeterForAction,
+  perimeterForNodesAction,
   hideNotSelectedThenDagre,
 } from '../graph/cytoscapeCore.js';
 
@@ -32,7 +32,7 @@ import {
 */
 
 export function follow(direction = "outgoing") {
-  // not perimeterForAction to avoid full nodes.
+  // not perimeterForNodesAction to avoid full nodes.
   let selectedNodes = getCy().nodes(":visible:selected");
   if (selectedNodes.length === 0) {
     showAlert("no selected nodes to follow.");
@@ -348,7 +348,7 @@ function showLongPathList(limit, paths) {
  remove (dry) associations (2) nodes and create new direct links 
 */
 export function collapseAssociations() {
-  let nodes = perimeterForAction();
+  let nodes = perimeterForNodesAction();
   if (nodes.length == 0) {
     showAlert("no nodes to check.");
     return;

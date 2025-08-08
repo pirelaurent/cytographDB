@@ -215,7 +215,7 @@ app.post("/load-from-db", async (req, res) => {
           source: e.source,
           target: e.target,
           label: e.constraint_name,
-          detailedLabel: `${e.constraint_name}\n(${e.source_column} --> ${e.target_column})`, //PLA
+          columnsLabel: `${e.source_column} --> ${e.target_column}`, //PLA
           onDelete: e.on_delete, // raw code: 'a', 'c', etc.
           onUpdate: e.on_update,  // raw code
           nullable: !e.source_not_null

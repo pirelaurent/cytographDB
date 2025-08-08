@@ -35,7 +35,7 @@ export function initializeGraph(data, fromDisk = false) {
   cy.add(data);
 
 //console.log('PLA dans initialize')
-//console.log(cy.edges()); // on a bien detailedLabel dans data
+//console.log(cy.edges()); // on a bien columnsLabel dans data
 
   let current_db = getLocalDBName();
 
@@ -139,7 +139,7 @@ export function setAndRunLayoutOptions(option) {
   let layoutName = option ?? "cose-bilkent";
   // choix du périmètre
 
-  let selectedNodes = perimeterForAction();
+  let selectedNodes = perimeterForNodesAction();
   if (selectedNodes.length < 3) {
     showAlert(
       "not enough nodes to calculate layout (>3).<br/> Check your selection"
@@ -237,7 +237,7 @@ export function setAndRunLayoutOptions(option) {
  if selection : acts on selection
  otherwise acts on all nodes eventually visible only 
 */
-export function perimeterForAction() {
+export function perimeterForNodesAction() {
   let nodes;
 
   if (restrictToVisible()) {
@@ -273,6 +273,21 @@ export function perimeterForNodesSelection() {
   // return partial nodes but all unselected if AND
   if (modeSelect() == AND_SELECTED) nodes.unselect();
   return nodes;
+}
+/*
+ action on elected if any, all otherwise
+*/
+export function perimeterForEdgesAction() {
+  let edges;
+
+  if (restrictToVisible()) {
+    edges = cy.edges(":selected:visible");
+    if (edges.length == 0) edges = cy.edges(":visible");
+  } else {
+    edges = cy.edges(":selected");
+    if (edges.length == 0) edges = cy.edges();
+  }
+  return edges;
 }
 
 export function perimeterForEdgesSelection() {
@@ -465,7 +480,7 @@ export function selectInputBetween(min, max) {
 
 
 export function increaseFontSize(delta) {
-  let selectedNodes = perimeterForAction();
+  let selectedNodes = perimeterForNodesAction();
 
   // getCy().style().selector("node").style("font-size", newSize).update();
   selectedNodes.forEach((node) => {
@@ -495,7 +510,7 @@ export function increaseFontSizeEdge(delta) {
  increase size of nodes against number of edges 
 */
 export function proportionalSizeNodeSizeByLinks() {
-  let selectedNodes = perimeterForAction();
+  let selectedNodes = perimeterForNodesAction();
 
   // 1. Calculer le nombre de liens pour chaque nœud
   selectedNodes.forEach((node) => {

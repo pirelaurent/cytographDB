@@ -143,30 +143,19 @@ These edges can be easily selected later through **edges - filters... - generate
  
 This is a quick way to look at columns mapping without opening table details.  
 
-## Walk the model 
+## walk the model 
 
 using a directed graph allows to walk through table dependencies.  
 
 ### current perimeter
  actions start from *current perimeter* 
+- **selected visibles** if any
+- **all visibles** if no selected
 
-Current perimeter refer to : 
-- **selected visibles** , at least one , or more
-- **all visibles** if none are selected  
-
-####  Help on perimeter
-
-In upper bar : 
-`      Nodes.  Selected/Visible ( selected/hidden)   Edges selected/visible.` 
-- Perimeter : **All** (7 visible nodes, 12 visible edges) 
-- <img src ="./img/perimeterVisible.png" width = "400px" style="border: 1px solid grey;">
-
-- Perimeter : **3 nodes** (3 selected nodes over 7 visibles, no edge selected over 12 visible edges) 
-- <img src ="./img/perimeterSelected.png" width = "400px" style="border: 1px solid grey;">
-
-### follow and show *outgoing/incoming/both* 
+### follow & show... *outgoing/incoming/both* 
 
 Starting from  *current perimeter*, choosing  a direction will select next nodes on the path.  
+
 Below, graph starts with selection of one table, *production_line*, followed by two successive clic *follow outgoing*. 
 <img src ="./img/outgoingProduction_line.png" width = "500px" style="border: 1px solid grey;">
 
@@ -176,17 +165,16 @@ The same start point *production-line* but with ***follow incoming***
 
 One can see dependencies are stopped by dry associations ( *line_product, authorization* ), the following option help to cross the barrier:
 
-### follow association
+### follow & show... association
 
 This continue the walk on the other side of a (dry) association ( now *product* and *employee* are selected): 
 <img src ="./img/associationProduction-line.png" width = "500px" style="border: 1px solid grey;">
 
-### follow long path
+### follow & show... long path
 
-starting from selected node(S), this walk follows outgoing edges from table to table and keep track of all the possible paths, avoiding loops.   
+Starting from selected node(S), this walk follows outgoing edges from table to table and keep track of all the possible paths, avoiding loops.   
  
-
-Start with few nodes is better, mainly from *leaf node*.
+Start with few nodes is better, mainly from ***leaf node***.
 
 Below , a *follow long path* is started from the leaf node *skills* 
 <img src ="./img/longPathGraph.png" width = "450px" style="border: 1px solid grey;">
@@ -197,7 +185,7 @@ If the long path search starts from all nodes, we got all practicable path :
 
 <img src ="./img/longPathGrahList2.png" width = "400px" style="border: 1px solid grey;">
 
-### follow N->1 chains 
+### follow & show... N->1 chains 
 
 This walk must start from a ***root***.   
 If search backward tables where a FK uses exactly all the columns of the PK' source and continue with new tables. 

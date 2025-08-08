@@ -93,7 +93,7 @@ CREATE DATABASE democytodb;
 
 Run `init_demo_schema.sql` from the same directory.
 
-[View source code](./sql/init_demo_schema.sql)
+[View sql source code](./sql/init_demo_schema.sql)
 
 > The demo DB is empty, but CytographDB operates only on its schema structure.
 

@@ -53,7 +53,8 @@ import {
   swapHidden,
   setAndRunLayoutOptions,
   selectNodesFromSelectedEdges,
-  perimeterForAction,
+  perimeterForNodesAction,
+  perimeterForEdgesAction,
   perimeterForNodesSelection,
   metrologie,
   changePosRelative,
@@ -585,7 +586,7 @@ export function menuNodes(option) {
 
     case "labelNodeFull":
       //------------------
-      perimeterForAction().forEach((node) => {
+      perimeterForNodesAction().forEach((node) => {
         const originalSize = node.data("originalSize");
 
         if (originalSize) {
@@ -606,7 +607,7 @@ export function menuNodes(option) {
      reduce the size of node 
     */
     case "labelNodeShort":
-      perimeterForAction().forEach((node) => {
+      perimeterForNodesAction().forEach((node) => {
         // detect if already done
         if (node.data("originalLabel") === undefined) {
           const currentSize = node.style("width");
@@ -743,141 +744,146 @@ export function menuEdges(option) {
     case "toggleFkMode":
       toggleFkMode();
       break;
-  
+
     //--- select by data Snapshot done into function
 
     case "selectEdgesByCategory":
-  //fillInEdgesCategories();
-  break;
+      //fillInEdgesCategories();
+      break;
 
     case "edgeIsTriggerGenerated":
-  selectEdgesByNativeCategories("trigger_impact");
-  break;
-case "edgeIsNullable":
-  getCy().edges();
-  const nullableEdges = getCy().edges(".nullable");
-  nullableEdges.select();
-  break;
+      selectEdgesByNativeCategories("trigger_impact");
+      break;
+    case "edgeIsNullable":
+      getCy().edges();
+      const nullableEdges = getCy().edges(".nullable");
+      nullableEdges.select();
+      break;
     case "edgeIsOnDeleteCascade":
-  getCy().edges();
-  const cascadeEdges = getCy().edges(".delete_cascade");
-  cascadeEdges.select();
-  break;
+      getCy().edges();
+      const cascadeEdges = getCy().edges(".delete_cascade");
+      cascadeEdges.select();
+      break;
 
     case "labelShow":
-  // Show visible edges, or selected ones if any are selected
-  let subEdges = getCy().edges(":visible");
+      // Show visible edges, or selected ones if any are selected
+       let edgesToShow = perimeterForEdgesAction();
 
-  if (subEdges.filter(":selected").length !== 0) {
-    subEdges = subEdges.filter(":selected");
-  }
-  subEdges.addClass("showLabel");
-  break;
+      //PLA
+      for (let edge of edgesToShow) {
+        if (edge.hasClass('fk_detailed')) {
+          edge.addClass("showColumns")
+          //labelToShow = ele.data('columnsLabel').replace('\n', "<BR/>");
+        } else edge.addClass("showLabel");
+      }
+      break;
 
     case "labelHide":
-  getCy().edges().removeClass("showLabel");
-  break;
+    let edgesToHide = perimeterForEdgesAction();
+      edgesToHide.removeClass("showLabel showColumns");
+
+      break;
 
     case "increase-font-edge":
-  increaseFontSizeEdge(3);
-  break;
+      increaseFontSizeEdge(3);
+      break;
     case "decrease-font-edge":
-  increaseFontSizeEdge(-1);
-  break;
+      increaseFontSizeEdge(-1);
+      break;
 
     case "hideEdgeSelected":
-  pushSnapshot();
-  getCy().edges(":selected").hide();
-  break;
+      pushSnapshot();
+      getCy().edges(":selected").hide();
+      break;
 
     case "hideEdgeNotSelected":
-  pushSnapshot();
-  getCy().edges(":visible")
-    .filter(function (node) {
-      return !node.selected();
-    })
-    .hide();
-  break;
+      pushSnapshot();
+      getCy().edges(":visible")
+        .filter(function (node) {
+          return !node.selected();
+        })
+        .hide();
+      break;
 
     case "swapEdgeHidden":
-  pushSnapshot();
-  const edgesVisible = getCy().edges(":visible");
-  const edgesHidden = getCy().edges(":hidden");
-  edgesVisible.hide();
-  edgesHidden.show();
-  break;
+      pushSnapshot();
+      const edgesVisible = getCy().edges(":visible");
+      const edgesHidden = getCy().edges(":hidden");
+      edgesVisible.hide();
+      edgesHidden.show();
+      break;
 
     case "NoneEdgeSelected":
-  pushSnapshot();
-  getCy().edges().show();
-  break;
+      pushSnapshot();
+      getCy().edges().show();
+      break;
 
     case "listEdges":
-  sendEdgeListToHtml();
-  break;
+      sendEdgeListToHtml();
+      break;
 
     case "collapseAssociations":
-  pushSnapshot();
-  collapseAssociations();
-  break;
+      pushSnapshot();
+      collapseAssociations();
+      break;
 
     case "restoreAssociations":
-  pushSnapshot();
-  restoreAssociations();
-  createCustomCategories(getLocalDBName());
-  break;
+      pushSnapshot();
+      restoreAssociations();
+      createCustomCategories(getLocalDBName());
+      break;
 
     case "selectAssociations":
-  var simpleEdges = getCy().edges(".simplified");
-  if (simpleEdges.length == 0) showAlert("no *-*  associations to select.");
-  else {
-    pushSnapshot();
-    simpleEdges.select();
-  }
-  break;
+      var simpleEdges = getCy().edges(".simplified");
+      if (simpleEdges.length == 0) showAlert("no *-*  associations to select.");
+      else {
+        pushSnapshot();
+        simpleEdges.select();
+      }
+      break;
 
     case "generateTriggers":
-  pushSnapshot();
-  generateTriggers(perimeterForAction());
-  break;
+      pushSnapshot();
+      generateTriggers(perimeterForNodesAction());
+      break;
 
     case "deleteEdgesSelected":
-  const edgesToKill = getCy().edges(":selected:visible");
-  if (edgesToKill.length == 0) {
-    showAlert("no selected edges.");
-    return;
-  }
-
-  if (edgesToKill.length > 1) {
-    // confirm title, messagge
-    showMultiChoiceDialog(`⚠️ delete ${edgesToKill.length} edges`, `Confirm ?`, [
-      {
-        label: "✅ Yes",
-        onClick: () => {
-          pushSnapshot();
-          edgesToKill.remove();
-          metrologie();
-        }
-      },
-
-      {
-        label: "❌ No",
-        onClick: () => { } // rien
+      const edgesToKill = getCy().edges(":selected:visible");
+      if (edgesToKill.length == 0) {
+        showAlert("no selected edges.");
+        return;
       }
-    ]);
 
-    break;
-  } else {
-    pushSnapshot();
-    edgesToKill.remove();
-    metrologie;
-  }
+      if (edgesToKill.length > 1) {
+        // confirm title, messagge
+        showMultiChoiceDialog(`⚠️ delete ${edgesToKill.length} edges`, `Confirm ?`, [
+          {
+            label: "✅ Yes",
+            onClick: () => {
+              pushSnapshot();
+              edgesToKill.remove();
+              metrologie();
+            }
+          },
+
+          {
+            label: "❌ No",
+            onClick: () => { } // rien
+          }
+        ]);
+
+        break;
+      } else {
+        pushSnapshot();
+        edgesToKill.remove();
+        metrologie;
+      }
 
     case "test": {
-    break;
+      break;
+    }
   }
-}
-metrologie();
+  metrologie();
 }
 
 /*

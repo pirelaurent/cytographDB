@@ -4,89 +4,104 @@
 
 ---
 
-## 📊 Status
+## 📊 status bar
 
-Displays selected and visible edges:  
-Example: `(4 / 11)` → **4 selected / 11 total**
+Displays selected and visible edges: 
+<img src = "./img/edgeStatusBar.png" width = "200px">
+  **4 selected / 12 total**
 
-When some are selected, perimeter of actions applies to selection.  
-When none are selected, perimeter of actions applies to all visibles.
-
----
-
-## hover 
-
-when checked, a mouse over shows some details
-<img src = "./img/edgeHover.png" width = "500px">  
-
-## 🔍 Select
-
-Edges can be selected directly via:
-- Click
-- Shift + Click
-- 
-
-Selected edges have distinct dashed lines to be recognized 
-<img src = "./img/edgeSelected.png" width = "400px">   
-
-Menu options:
-
-- **All** → Select all visible edges
-- **None** → Deselect all edges
-- **Swap Selected** → Invert current edge selection
+Perimeter of actions applies to selection if any, to all edges if no selection.  
 
 ---
 
-## 🙈 Hide
+### hover on edge
 
-- **None** → Show all edges
-- **Not Selected** → Hide all except selected edges
-- **Selected** → Hide selected edges
-- **Swap** → Invert visible and hidden edges
+when checked, mouse over an edge shows some details
+<img src = "./img/edgeHover.png" width = "200px">  
+
+## select ...
+
+Edges can be selected
+-  individually by:
+  - Click 
+  - Shift + Click 
+- with nodes by drawing a rectangle (shift clic) on the graph 
+  
+
+Selected edges have distinct dashed and colored lines to be recognized 
+<img src = "./img/edgeSelected.png" width = "300px">   
+
+- **select ... all** → Select all visible edges
+- **select ... none** → Deselect all edges
+- **select ... swap Selected** → Invert current edge selection
+
+---
+
+## hide ...
+
+- **hide ... none** → Show all edges
+- **hide ... not selected** → Hide all except selected edges
+- **hide ...selected** → Hide selected edges
+- **hide ...swap** → Invert visible and hidden edges
 
 --- 
 
-## 🔗(Edges) of selected nodes 
+## from selected nodes ... 
 
-Take in account currently selected nodes to pursuit with edge selection :
-
-  - **All Edges** → Select all edges connected to selected nodes
-  - **Outgoing Edges** → Select only edges going out of selected nodes
-  - **Incoming Edges** → Select only incoming edges to selected nodes
-
-💡Similar to ***Nodes > Follow & Show***, except this selects only the edges—**not** the terminal nodes.
+Take in account currently selected ***nodes*** to pursuit with edge selection :
 
 
-  #### **Edges Between Selected Nodes** 
+  - **outgoing Edges** → Select only edges going out of selected nodes
+  - **incoming Edges** → Select only incoming edges to selected nodes
+  - **boths** → Select all edges connected to selected nodes
+    - 💡Similar to ***Nodes > Follow & Show***, except this action selects only the edges—**not** the terminal nodes.
+
+
+- **connecting two nodes (of the current selection)** 
   
-  Select edges connecting currently selected nodes :
+  below three tables were selected, then the link that connect them (including loops)
 
-<img src = "./img/edgeConnectingNodes.png" width = 500px>   
+<img src = "./img/edgeConnectingNodes.png" width = 300px>   
 
+## toggle details N -> 1 
+
+draw an edge **per column of FK**
+<img src = "./img/edgePerColumns2.png" width = 500px>  
 
 ---
 
-## 🏷️ Label Display
+## Label
 
-Toggle edge labels of current perimeter (all visibles or selected only)
-
+**show/hide** 
+- Toggle edge labels of current perimeter (all visibles or selected edges only)
 - Displays the foreign key name (common edges) or the trigger name (trigger impact edges) 
-
-- font + / -  : act on selected edges if any, otherwise on visibles
+- font + / -  : act on edges in perimeter
 
 <img src="./img/edgeLabels.png" width="600px" />
 
+### label show *in 1->N edges per FK*
+
+In this representation, there is one edge per column involved in FK.   
+The *label show* action shows the corresponding columns on the line.  
+As the graph could be very dense, you can restrict by selecting some edges before calling *show label*, like below 
+
+<img src="./img/labelEdgesOneToN.png" width="600px" />
+
 ---
 
-## 📋 List Edges
+## List 
 
-Generates an HTML file listing edge details based on current scope:
+Generates an HTML file with edge details for edges in current perimeter
 
-<img src="./img/edgesList.png" width="500px" style="border: 1px solid grey;"/>
+<img src="./img/edgesList.png" width="400px" style="border: 1px solid grey;"/>
+
+### List *in 1 -> N detailed mode*
+( truncated below to beginning)
+<img src="./img/edgesListOneToNTruncated.png" width="400px" style="border: 1px solid grey;"/>
 
 ---
 
-# 🧩 Data Model 
+# Data Model 
 
 Special functions for advanced structural modifications.
 

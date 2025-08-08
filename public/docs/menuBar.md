@@ -28,7 +28,7 @@ You can also use the keyboard shortcut **Ctrl + g**. Useful to keep snapshot wit
 - **OR (default):** Adds new selection to the current selection.
 - **AND:** Applies the selection criteria **only to already selected elements** resulting in an AND operation.
 
-💡 **Advice:** Switch back to **OR** after using **AND** further selections may otherwise return no results.
+💡 **Advice:** Switch back to **OR** after using **AND**, further selections may otherwise return no result.
 
 --- 
 
@@ -38,14 +38,12 @@ Displays element details when the cursor hovers over them.
 
 ---
 
-## 🎯 Action Scope
+## 🎯 Perimeter of actions
 
-### Automatic Scoping
+### Automatic Scope
 
 - If some visible nodes are **selected**, actions apply only to them.
 - If none, actions apply to the entire visible graph.
-
-### 🔍 Scope Visualization
 
 The current scope is displayed in the status bar, with emphasized numbers:
 
@@ -54,10 +52,6 @@ The current scope is displayed in the status bar, with emphasized numbers:
 
   **Selection of 4 nodes** → action applies only to those:  
   <img src= "./img/scope4.png" width = '200px'>
-
-  **ALL mode with 6 visible and 3 hidden nodes** → action applies to all 9:  
-    <img src= "./img/scope6-3.png" width = '200px'>
-
 
 ---
 
@@ -86,7 +80,7 @@ Used to save and load graph data in JSON format.
 
 - Use the browser's file dialog to save/load graph from local disk. 
 
-### Graph Name Input
+#### Graph Name Input
 <img src="./img/drafInput.png"> 
 
 You can assign a name to your graph before downloading ( can change also in navigator)
@@ -95,40 +89,45 @@ You can assign a name to your graph before downloading ( can change also in navi
 
 ## <img src ="./img/displayMenu.png">
 
-### Fit Screen
 
-- **All:** Zoom to fit the entire graph.
-- **Selected:** Zoom to fit only selected nodes.
+### <img src="./img/fitScreenMenu.png"> 
 
-### Layout ...
+- **All :** zoom/unzoom to fit all the nodes.
+- **Selected :** fit only selected nodes.
+
+### <img src="./img/layoutMenu.png"> 
 
 Applies layout algorithms to reorganize the current scope.
 
 - A variety of algorithms are available.
-- Some layouts may spread nodes very far—use **fit screen**, **zoom**, or try a different layout.
-- Layout results can vary with each execution.
+- Some layouts may spread nodes out of screen.
+  - use **fit screen**, **zoom**, or try a different layout.
+- Layout results have a random part and can vary at each execution.
 
- **Undo** is supported.
+- layout applies to current perimeter ( all visible or only selected if any)
 
-### Move ...
+ **Undo (or ctrl z)** is supported to reverse to previous presentation.
 
-- Drag a single node manually.
-- Drag a selected node to move the entire current selection.
+### <img src="./img/moveMenu.png"> 
 
-### Resize ...
+Native cytoscape action are available to mode nodes : 
+- left clic and drag a single node manually.
+- Dragging one of the selected nodes moves the entire selection.
+
+#### resize ...
 
 Expand or shrink the scoped graph in both directions.
 
-### Align & Distribute ...
+#### align & distribute ...
 
-- **Align:** Arrange nodes along a common axis.
-- **Distribute:** Evenly space nodes between boundary elements.
+- **align:** Arrange nodes along a common axis.
+- **distribute:** Evenly space nodes between boundary elements.
 
-### Rotate ...
+#### rotate ...
 
 - Rotates selected nodes by **15°** increments.
 - Node labels remain **horizontally aligned**.
-- Helps reduce label overlap.
+- Help to reduce label overlaps.
 
 ---
 
@@ -136,5 +135,5 @@ Expand or shrink the scoped graph in both directions.
 - ⚪️ [Main](./main.md)
 - 🟩 [Quick Tour](./quickTour.md)  
 - 🟨 [*Main Menu Bar*](./menuBar.md)  
-- 🟦 [Node Menu](./menuNodesSelectHide.md)  
+- 🟦 [Node Menu](./menuNodes SelectHide.md)  
 - 🟥 [Edge Menu](./menuEdgesSelectHide.md)   

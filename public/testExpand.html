@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Cytoscape Expand/Collapse Example</title>
+  <title>Cytoscape Expand/simplify Example</title>
   <style>
     #cy {
       width: 800px;
@@ -16,13 +16,13 @@
   </style>
   <!-- Cytoscape.js -->
   <script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
-  <!-- Expand-Collapse Plugin -->
-  <script src="https://unpkg.com/cytoscape-expand-collapse@4.0.0/cytoscape-expand-collapse.js"></script>
+  <!-- Expand-simplify Plugin -->
+  <script src="https://unpkg.com/cytoscape-expand-simplify@4.0.0/cytoscape-expand-simplify.js"></script>
 </head>
 <body>
 
 <div id="buttons">
-  <button onclick="collapse()">Plier (collapse)</button>
+  <button onclick="simplify()">Plier (simplify)</button>
   <button onclick="expand()">Déplier (expand)</button>
 </div>
 
@@ -47,16 +47,16 @@
     layout: { name: 'breadthfirst' }
   });
 
-  const api = cy.expandCollapse({
+  const api = cy.expandsimplify({
     layoutBy: { name: "preset" }, // reuse previous positions
     fisheye: false,
     animate: true,
     undoable: false
   });
 
-  function collapse() {
+  function simplify() {
     const group = cy.getElementById('group1');
-    api.collapse(group);
+    api.simplify(group);
   }
 
   function expand() {

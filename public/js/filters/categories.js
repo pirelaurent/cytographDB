@@ -38,7 +38,7 @@ export function createCustomCategories(myCurrentDB) {
   //console.log("createCustomCategories in customCategorie for "+myCurrentDB)
 
   if (customModules[myCurrentDB]) {
-    customModules[myCurrentDB].createCustomCategories(); // ✅ Appelle la fonction enregistrée
+    customModules[myCurrentDB].createCustomCategories(); 
   } else {
     console.log(`No customCategories registered for ${myCurrentDB}`);
   }

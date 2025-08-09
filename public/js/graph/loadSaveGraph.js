@@ -27,6 +27,9 @@ import {
 import {
   enterFkSynthesisMode,
   saveDetailedEdges,
+  getCurrentFKMode,
+  setCurrentFKMode,
+  enterFkDetailedMode,
 } from "./detailedEdges.js";
 
 import {
@@ -44,7 +47,10 @@ import {
   resetPositionStackUndo
 } from "./snapshots.js";
 
-import { getCustomNodesCategories } from "../filters/categories.js";
+import { getCustomNodesCategories }
+  from "../filters/categories.js";
+
+
 //---------------------
 export function loadInitialGraph() {
 
@@ -77,7 +83,6 @@ export function loadInitialGraph() {
       initializeGraph(data);
       // store details at load time /now generated with details 
       saveDetailedEdges();
-      // preference show synthetic at startup
       enterFkSynthesisMode();
 
       hideWaitLoading();
@@ -305,21 +310,21 @@ export function sendEdgeListToHtml() {
       ${a.target().id()}
       \n ${a.data("label")}
       `
-    if (a.hasClass('fk_detailed')) labelA += '\n'+a.data('columnsLabel');
+    if (a.hasClass('fk_detailed')) labelA += '\n' + a.data('columnsLabel');
 
-   let labelB = ` 
+    let labelB = ` 
       ${b.source().id()} --> 
       ${b.target().id()}
       \n ${b.data("label")}
       `
-    if (b.hasClass('fk_detailed')) labelB += '\n'+b.data('columnsLabel');
+    if (b.hasClass('fk_detailed')) labelB += '\n' + b.data('columnsLabel');
     return labelA.localeCompare(labelB);
   });
 
   const win = window.open("", "edgeListWindow");
   let outputLines = "<ul>";
   let lastSourceTarget = '';
-  let lastFKLabel='';
+  let lastFKLabel = '';
 
   sortedEdges.forEach((edge) => {
     let sourceTarget = ` 
@@ -331,19 +336,19 @@ export function sendEdgeListToHtml() {
       lastSourceTarget = sourceTarget;
     }
 
-    if( lastFKLabel != edge.data("label")){
+    if (lastFKLabel != edge.data("label")) {
       outputLines += `&nbsp; ${edge.data("label")}<br/>`;
       lastFKLabel = edge.data("label");
     }
 
-if (edge.hasClass('fk_detailed')){
- outputLines += `&nbsp;&nbsp;&nbsp;- ${edge.data('columnsLabel')}<br/>`;
-}
+    if (edge.hasClass('fk_detailed')) {
+      outputLines += `&nbsp;&nbsp;&nbsp;- ${edge.data('columnsLabel')}<br/>`;
+    }
 
-   
-      
-     
-      
+
+
+
+
   });
 
   outputLines += "</ul>";
@@ -389,12 +394,24 @@ export function saveGraphToFile() {
     }
   });
 
-
-
+  /*
+   temporarily switch to detail mode to save graph
+  */
+  let wasFkMode = getCurrentFKMode();
+  if (wasFkMode === 'synthesis') {
+    enterFkDetailedMode();
+  }
+  // then save graph 
   const json = {
     ...getCy().json(),
-    originalDBName: getLocalDBName()
+    originalDBName: getLocalDBName(),
+    currentFkMode: getCurrentFKMode(),
   }
+  // if detailed for change but not on screen, restore 
+  if (wasFkMode === 'synthesis') {
+    enterFkSynthesisMode();
+  }
+
   const blob = new Blob([JSON.stringify(json, null, 2)], {
     type: "application/json",
   });
@@ -453,12 +470,17 @@ export function loadGraphFromFile(event) {
     }
 
 
+    setCurrentFKMode(json.currentFkMode)
+
     // affiche, utilise, etc.
     const cyData = { ...json };
     delete cyData.originalDBName;
     getCy().json(cyData);
     restoreProportionalSize();
     resetPositionStackUndo();
+    // show in syntetic after saving details 
+    saveDetailedEdges();
+    enterFkSynthesisMode();
     //getCy().layout({ name: 'cose'}).run();
   };
   reader.readAsText(file);

@@ -6,6 +6,6 @@ Do dynamic options for native catagories like for custom
 Review edge catagories node server.js
 
 Review trigger generated 
-review collapsed association about classes propagation and restoration 
+review simplified association about classes propagation and restoration 
 
 

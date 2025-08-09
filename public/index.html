@@ -380,8 +380,8 @@
                     trigger impacts</span>
                 </li>
 
-                <li action="collapseAssociations">
-                  <span class="label" title="Simplify associations into direct edges">collapse association</span>
+                <li action="simplifyAssociations">
+                  <span class="label" title="Simplify associations into direct edges">simplify association</span>
                 </li>
                 <li action="restoreAssociations" title="Undo simplification and restore association nodes">
                   <span class="label">restore association</span>
@@ -396,17 +396,18 @@
                 </li>
                 <li action="edgeIsOnDeleteCascade" title="Select FK ON DELETE CASCADE">on delete cascade
                 </li>
-                <li action="edgeIsTriggerGenerated" title="Select generated trigger impacts edges">generated triggers
+
+            <li class="separator"></li>
+                <li action="edgeIsTriggerGenerated" title="Select generated trigger impacts edges">trigger_impact
                 </li>
-                <li action="edgeIsACollapsedNode" title="Select edges from collapsed associations">collapsed
-                  associations</li>
+                <li action="edgeIsASimplifiedNode" title="Select edges from simplified associations">simplified associations</li>
 
               </ul>
             </li>
 
             <li class="separator"></li>
 
-            <li action="deleteEdgesSelected">delete selected</li>
+            <li action="deleteEdgesSelected">delete</li>
           </ul>
         </div>
       </div>

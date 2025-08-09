@@ -126,9 +126,8 @@ Same action is performed by *backspace*
 
 - if only one node selected, delete is immediate 
   - this is to allow quick visual cleaning of a graph using backspace
-- if several nodes selected a confirmation is necessary    
-  - Prompts for confirmation if multiple nodes are selected.   
-  - 
+- if several nodes selected a confirmation is necessary      
+   
  <img src = "./img/deleteNodes.png" width = 230px style="border: 2px solid grey;">   
 
 

@@ -7,7 +7,7 @@ import {
 
 import {
   promptDatabaseSelectionNear,
-  showError,
+  showError,showInfo,showAlert,
 }
   from "../ui/dialog.js"
 
@@ -44,7 +44,7 @@ export function openTriggerPage(node) {
     const url = `/triggers.html?table=${encodeURIComponent(table)}`;
     window.open(url, "triggers");
   } else {
-    showAlert("no triggers on this table.");
+    showInfo("no triggers on this table.");
   }
 }
 

@@ -6,9 +6,9 @@
  this module is responsible for differents walks into the graph 
 */
 
-
 import {
   showAlert,
+  showInfo,
   showMultiChoiceDialog,
 
 } from "../ui/dialog.js";
@@ -23,6 +23,7 @@ import {
   restoreProportionalSize,
   perimeterForNodesAction,
   hideNotSelectedThenDagre,
+  perimeterForEdgesAction,
 } from '../graph/cytoscapeCore.js';
 
 //------------------------
@@ -122,7 +123,7 @@ export function follow(direction = "outgoing") {
  when an association node is selected by a side, 
  continue with node linked to the other side 
  So selection 'cross' the association. 
- If collapsed, will select through simplified edges 
+ If simplified, will select through simplified edges 
  */
 
 export function followCrossAssociations() {
@@ -130,11 +131,11 @@ export function followCrossAssociations() {
     ? getCy().nodes(":visible:selected")
     : getCy().nodes(":selected");
   if (nodes.length === 0) {
-    showAlert("no selected nodes to search associations.");
+    showInfo("no selected nodes to search associations.");
     return;
   }
 
-  // create two distinct collections
+  // create two distinct collections in case of simplified associations
   const connectedNodesViaSimplified = nodes
     .connectedEdges(".simplified") // edges reliant les sélectionnés
     .connectedNodes() // tous les nœuds connectés (source + target)
@@ -148,9 +149,12 @@ export function followCrossAssociations() {
   nodes.forEach((sourceNode) => {
     const incomingNodes = sourceNode.incomers("node");
     if (incomingNodes.length != 0) return;
+
     const outgoingEdges = sourceNode.outgoers("edge");
+
     if (outgoingEdges.length < 2) return;
     outgoingEdges.forEach((anEdge) => {
+      anEdge.show();
       anEdge.targets().select().show();
     });
   });
@@ -277,14 +281,14 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
     .select();
 
   let okMess = `${paths.length} long path(s) `;
-  let okLimit="";
+  let okLimit = "";
   let limit = paths.length;
   if (limit > 1000) {
     limit = 1000;
     okLimit = "(limited to 1000)";
   }
 
-  showMultiChoiceDialog(okMess, '👁️ show the list ? '+okLimit, [
+  showMultiChoiceDialog(okMess, '👁️ show the list ? ' + okLimit, [
     {
       label: '✅ Yes',
       onClick: () => showLongPathList(limit, paths)
@@ -347,7 +351,7 @@ function showLongPathList(limit, paths) {
 /*
  remove (dry) associations (2) nodes and create new direct links 
 */
-export function collapseAssociations() {
+export function simplifyAssociations() {
   let nodes = perimeterForNodesAction();
   if (nodes.length == 0) {
     showAlert("no nodes to check.");
@@ -387,7 +391,7 @@ export function collapseAssociations() {
           target: b.id(),
           generated: true,
           backup: nodeBackup,
-          collapsed_association: true,
+          simplified_association: true,
         },
         classes: "simplified",
       });
@@ -406,7 +410,7 @@ export function collapseAssociations() {
 */
 
 export function restoreAssociations() {
-  const visibleEdges = getCy().edges(":visible");
+  const visibleEdges = perimeterForEdgesAction();
   const simplifiedEdges = visibleEdges.filter((edge) =>
     edge.hasClass("simplified")
   );
@@ -567,7 +571,7 @@ export function V0_findFunctionalDescendantsCytoscape(rootNode) {
   const visited = new Set();
   const trace = [];
   const rootPK = new Set(rootNode.data('primaryKey')?.columns || []);
-// internal recursive 
+  // internal recursive 
   function dfs(node, pkToMatch) {
     const nodeId = node.id();
     if (visited.has(nodeId)) return;
@@ -586,7 +590,7 @@ export function V0_findFunctionalDescendantsCytoscape(rootNode) {
       let match = false;
 
       for (const fk of foreignKeys) {
-                  // the linked table can have other FK than the one going to the current root
+        // the linked table can have other FK than the one going to the current root
         if (fk.target_table !== nodeId) continue;
         const mappings = fk.column_mappings || [];
         /*
@@ -650,7 +654,6 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
       const sourceCols = new Set(source.data('columns') || []);
       const foreignKeys = source.data('foreignKeys') || [];
 
-      let match = false;
 
       for (const fk of foreignKeys) {
         if (fk.target_table !== nodeId) continue;
@@ -680,7 +683,6 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
           // Si pas de PK définie (cas rare), on retombe sur les colonnes de la FK
           dfs(source, newPkToMatch.size > 0 ? newPkToMatch : new Set(sourceColsMapped));
 
-          match = true;
         } else {
           console.log("FK non basée sur PK :", fk.constraint_name); // Debug
         }

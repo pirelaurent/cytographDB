@@ -1,12 +1,64 @@
+"use stricts"
+
+/*
+ when a graph is created by 'create graph from DB' , 
+ it has the detailed edges 'FK per column'. 
+ in the array of FK of a node table ( "foreignKeys" ) a fk constraint has details in its array column_mappings: 
+ {
+              "constraint_name": "line_product_product_id_fkey",
+              "source_table": "line_product",
+              "target_table": "product",
+              "comment": null,
+              "column_mappings": [
+                {
+                  "source_column": "product_id",
+                  "source_not_null": true,
+                  "target_column": "id"
+                }
+              ],
+              "all_source_not_null": true,
+              "is_target_unique": true,
+              "on_delete": "c",
+              "on_update": "a"
+            }
+}
+At create time, every FK-colmun had created an edge 
+with label and columnsLabel
+
+        "data": {
+          "source": "line_product",
+          "target": "product",
+          "label": "line_product_product_id_fkey",
+          "columnsLabel": "product_id --> id",
+          ...
+More, the server has added the class .fk_detailed to every edge
+
+For presentation purpose, 
+At startup, the graph is reduced to simple FK by calling 
+      saveDetailedEdges();  that store current details 
+      enterFkSynthesisMode(); that reduce the graph to simple edges
+
+      it creates an dict of constraints and for each constraint an array of edges.
+      As every edges of a constraint are the same except for column, 
+       the first in the array is used to create a new edge.
+       but the nullable is recalculated using the group array
+
+previous edges are deleted 
+new created edges are added with the class 'fk_synth'
+*/
+
+
 
 import {
     getCy,
-
 } from '../graph/cytoscapeCore.js';
-import { showAlert } from '../ui/dialog.js';
+import { showAlert, showInfo } from '../ui/dialog.js';
 
+ let currentFkMode;
 
-let currentFkMode;
+export function getCurrentFKMode() { return currentFkMode};
+export function setCurrentFKMode(fkMode) {  currentFkMode = fkMode};
+
 let detailedEdgesArray = []; // to be able to reverse, store details here 
 
 // called at startup now as request load details
@@ -22,7 +74,10 @@ export function saveDetailedEdges() {
 export function toggleFkMode() {
     const cy = getCy();
     // if called with no graph
-    if (cy.edges().length === 0) return;
+    if (cy.edges().length === 0) {
+        showAlert('empty graph');
+        return;
+    }
 
     switch (currentFkMode) {
         case 'detailed':
@@ -50,7 +105,7 @@ export function enterFkDetailedMode() {
         synthEdges.remove();
         getCy().add(detailedEdgesArray)
     } else {
-        showAlert("No detailed edges stored with this graph");
+        showInfo("No detailed edges for this graph");
         return false;
     }
     currentFkMode = 'detailed';
@@ -68,7 +123,7 @@ export function enterFkSynthesisMode() {
     let edges = getCy().edges('.fk_detailed');
     // stored graph could be synthetic only 
     if (edges.length == 0) {
-        showAlert("no detailed edges to synthetise for this graph" ); 
+        showInfo("no detailed edges for this graph" ); 
             return false;
         }
 
@@ -78,9 +133,7 @@ export function enterFkSynthesisMode() {
     const grouped = {};
     // information for synthesis is inside detailed 
     edges.forEach(edge => {
-        const label = edge.data('label');
-        const constraintName = label.split('\n')[0];
-
+        const constraintName = edge.data('label')
         if (!grouped[constraintName]) {
             grouped[constraintName] = [];
         }

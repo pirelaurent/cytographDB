@@ -38,7 +38,7 @@ import {
   follow,
   followCrossAssociations,
   findLongOutgoingPaths,
-  collapseAssociations,
+  simplifyAssociations,
   restoreAssociations,
   findPkFkChains,
 
@@ -754,20 +754,27 @@ export function menuEdges(option) {
     case "edgeIsTriggerGenerated":
       selectEdgesByNativeCategories("trigger_impact");
       break;
+
     case "edgeIsNullable":
       getCy().edges();
       const nullableEdges = getCy().edges(".nullable");
       nullableEdges.select();
       break;
+
     case "edgeIsOnDeleteCascade":
       getCy().edges();
       const cascadeEdges = getCy().edges(".delete_cascade");
       cascadeEdges.select();
       break;
 
+    case "edgeIsASimplifiedNode":
+      const simplifiedEdges = getCy().edges(".simplified");
+      simplifiedEdges.select();
+      break;
+
     case "labelShow":
       // Show visible edges, or selected ones if any are selected
-       let edgesToShow = perimeterForEdgesAction();
+      let edgesToShow = perimeterForEdgesAction();
 
       //PLA
       for (let edge of edgesToShow) {
@@ -779,7 +786,7 @@ export function menuEdges(option) {
       break;
 
     case "labelHide":
-    let edgesToHide = perimeterForEdgesAction();
+      let edgesToHide = perimeterForEdgesAction();
       edgesToHide.removeClass("showLabel showColumns");
 
       break;
@@ -822,15 +829,15 @@ export function menuEdges(option) {
       sendEdgeListToHtml();
       break;
 
-    case "collapseAssociations":
+    case "simplifyAssociations":
       pushSnapshot();
-      collapseAssociations();
+      simplifyAssociations();
       break;
 
     case "restoreAssociations":
       pushSnapshot();
       restoreAssociations();
-      createCustomCategories(getLocalDBName());
+      createCustomCategories(getLocalDBName());// explication needed
       break;
 
     case "selectAssociations":

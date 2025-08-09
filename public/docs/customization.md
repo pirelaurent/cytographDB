@@ -1,4 +1,4 @@
-# 🎨 Customization
+# Customization
 
 You can enhance your graph for a specific database by 
 - adding in a module : 
@@ -8,7 +8,7 @@ You can enhance your graph for a specific database by
 
 ---
 
-## 🔌 Extension Points: `customModules`
+## Extension Points: `customModules`
 
 When a graph is loaded, the app calls two methods for custom enhancements:
 
@@ -48,19 +48,28 @@ registerCustomModule("democytodbV2", democytodbModule);
 
 ---
 
-## 🧱 Create Your Own Custom Module
+##  Create your own Custom Module
 
 1. **Create a `myModule.js` file**  
    Use `democytodb.js` as a reference template.
 
-2. **Place the file in**:  
+   Don't forget to link this module to your dbNames.
+   For example:
+
+
+    ```js
+    registerCustomModule("myDBtest", myModule);
+    registerCustomModule("myDBstaging", myModule);```
+
+
+2. **place the file in**:  
    `public/custom`
 
-> 📁 Remember : this folder is excluded from version control to protect user-specific code.
+> Remember : this folder is excluded from version control to protect user-specific code.
 
-####  `.gitignore` Rule
+see  `.gitignore` Rule:
 
-```bash
+``` bash
 # Optional: exclude custom modules except for democytodb.js
 /public/custom/*
 !/public/custom/democytodb.js
@@ -68,7 +77,7 @@ registerCustomModule("democytodbV2", democytodbModule);
 
 ---
 
-## 🧵 Weave Your Module with the App
+## Weave Your Module with the App
 
 To activate your module:
 
@@ -94,17 +103,17 @@ import '../custom/myModule.js';
 the `myModule` customization will be applied automatically.
 
 
-3. **optionaly add your custom documentation**
+2. **optionaly add your custom documentation**
 
 Default *.gitignore* ignore all files (except democytodb.js ).  
 
 You can set your owwn documentation under ***custom/docs***.
 
-If any ***index.md*** is found by cytographdb at startup in this directory,  it will add a secondary link on the right of *documentation* :  
+If any ***index\.md*** is found by cytographdb at startup in this directory,  it will add a secondary link on the right of *documentation* :  
 
 ![](./img/customLink.png)
 
-This can help to give custom details and custom examples. 
+This can give custom details and custom examples. 
 
 ---
 

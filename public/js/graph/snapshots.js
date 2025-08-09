@@ -1,3 +1,4 @@
+"use strict";
 /*
  snapshot(s) connected to undo and ctrl Z
 */

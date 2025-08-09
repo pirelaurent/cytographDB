@@ -4,7 +4,7 @@
 
 ---
 
-## 📊 status bar
+## status bar
 
 Displays selected and visible edges: 
 <img src = "./img/edgeStatusBar.png" width = "200px">
@@ -72,12 +72,16 @@ draw an edge **per column of FK**
 
 ## Label
 
+**font + / -**  : act on edges in perimeter (selected edges if any , all otherwise)
+
 **show/hide** 
-- Toggle edge labels of current perimeter (all visibles or selected edges only)
+- Toggle edge labels of current perimeter (selected edges if any , all otherwise)
 - Displays the foreign key name (common edges) or the trigger name (trigger impact edges) 
-- font + / -  : act on edges in perimeter
+
 
 <img src="./img/edgeLabels.png" width="600px" />
+
+💡  *hover* gives more details 
 
 ### label show *in 1->N edges per FK*
 
@@ -85,84 +89,96 @@ In this representation, there is one edge per column involved in FK.
 The *label show* action shows the corresponding columns on the line.  
 As the graph could be very dense, you can restrict by selecting some edges before calling *show label*, like below 
 
-<img src="./img/labelEdgesOneToN.png" width="600px" />
+<img src="./img/labelEdgesOneToN.png" width="600px" />.  
+
+💡  *hover* gives more details 
 
 ---
 
-## List 
+## list 
 
-Generates an HTML file with edge details for edges in current perimeter
+Generates an HTML file with details for edges in current perimeter
 
 <img src="./img/edgesList.png" width="400px" style="border: 1px solid grey;"/>
 
 ### List *in 1 -> N detailed mode*
-( truncated below to beginning)
+( img truncated below )
 <img src="./img/edgesListOneToNTruncated.png" width="400px" style="border: 1px solid grey;"/>
 
 ---
 
-# Data Model 
+# data model...
 
-Special functions for advanced structural modifications.
+Actions that add information to the original model .
 
 
-## 🔁 Generate Trigger Impacts
-
-⚠️ Requires connection to the **original database** used to build the graph.
+## data model ... generate trigger impacts
 
 - Analyzes all triggers and function code
 - Identifies C(R)UD operations that imply impacts on other tables
 - Adds **oriented edges** from the trigger's source table to the impacted table
-- Edges are styled distinctly
+- Triggers impact edges 
+  - are styled distinctly  
+  - have trigger's name as label
+  - have native category '***trigger_impact***'
 
-<img src="./img/triggerHover.png" width="400px" style="border: 1px solid grey;"/>
+<img src="./img/triggerHover.png" width="300px" style="border: 1px solid grey;"/>
 
 ---
 
-### 🔄 Collapse Associations
+### data model ... simplify associations
 
-For **strict association tables** (2 foreign keys, no other link, no extra columns):
+For **dry association tables** (2 foreign keys, no other link, no extra columns):
 
 - Removes the association node
 - Creates a **direct edge** between the linked tables (A → C)
-- Edge is visually **non-oriented** (uses circles, not arrows)
-- Internally, orientation still exists (for compatibility with Cytograph)
+- Edge label remembers tables' name:  source-(association)-destination
+- Edge is visually **non-oriented** (uses circles as end points, not arrows)
+  - ⚠️ Caution for *follow* walks, orientation still exists (for compatibility with Cytograph)
 
-⚠️ **Caution** when using actions based on edge direction—these may not behave as expected with collapsed associations.
 
 <img src="./img/collapseAssociations.png" width="500px" />
 
-in upper image, *intervention* node is not collapsed due to the trigger impact added recently. It is no more a *strict association*. 
+in upper image, *intervention* node is not simplified due to the trigger impact added recently. It is no more a *strict association*. 
 
 ---
 
-### ♻️ Restore Association
+### restore association
 
-Restores the original association node between tables.  
-Note: The exact screen position may be lost during restoration.
-
----
-
-## 🧼 Filter
-
-Select specific generated edge:
-
-- **Generated Triggers**
-- **Collapsed Associations**
-- **On delete cascade**
-
-#### Filter on delete cascade sample
-
-Only the FK between *Factory* and *Company* is not selected 
-<img src="./img/onDeleteCascadeEdge.png" width="500px" />
+Restores the original association nodes between tables for the edges in current perimeter.  
+Note: The exact previous screen position may be lost during restoration.
 
 ---
 
-## 🗑️ Delete Selected
+## filter
+
+Filter edges based on 
+-  native FK categories :
+  - **nullable** 
+  - **on delete cascade**
+-  extended categories if added 
+  - **triggers_impact**
+  - **simplified asssociations**
+
+
+#### Example 
+filter *on delete cascade* 
+hide not selected 
+
+<img src="./img/onDeleteCascadeEdge.png" width="300px" />
+
+---
+
+## delete 
 
 Permanently removes selected edges from the graph.  
 
-- Direct deletion when a unique edge is selected. 
+- if only one edge selected, delete is immediate 
+  - this is to allow quick visual cleaning of a graph using backspace
+- if several edges are selected a confirmation is necessary    
+     
+ <img src = "./img/deleteEdges.png" width = 230px style="border: 2px solid grey;">.  
+
 ❗ **Undo** is available for this action as well
 
 
@@ -172,4 +188,4 @@ Permanently removes selected edges from the graph.
 - 🟩 [Quick Tour](./quickTour.md)  
 - 🟨 [Main Menu Bar](./menuBar.md)  
 - 🟦 [Node Menu](./menuNodesSelectHide.md)  
-- 🟥 [Edge Menu](./menuEdgesSelectHide.md)  
+- 🟥 [*Edge Menu*](./menuEdgesSelectHide.md)  

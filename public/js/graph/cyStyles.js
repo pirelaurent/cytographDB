@@ -1,3 +1,4 @@
+"use strict";
 /*
   basic style for the graph 
   extended specifically later

@@ -1,3 +1,4 @@
+"use strict";
 /*
     set here import to let modules visible into the application
     set them into public/custom  directory as this is out of the git upload 

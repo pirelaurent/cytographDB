@@ -104,6 +104,23 @@ export function showAlert(textAlert) {
     ])
 }
 
+export function showInfo(textInfo) {
+  showMultiChoiceDialog("ℹ️  Information", textInfo,
+    [
+      {
+        label: "OK",
+        onClick: () => {
+        },
+        isDefault: true
+      },
+
+    ])
+}
+
+
+
+
+
 export function showError(textAlert) {
   showMultiChoiceDialog("🚫 Error", textAlert,
     [

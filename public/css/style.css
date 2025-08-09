@@ -152,7 +152,7 @@ button:hover {
 
 #tableInfo table {
   width: 100%;
-  border-collapse: collapse;
+  border-simplify: simplify;
 }
 
 #tableInfo th,

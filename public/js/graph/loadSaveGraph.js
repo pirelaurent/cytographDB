@@ -29,6 +29,7 @@ import {
 
 import {
   getLocalDBName,
+  setLocalDBName,
 }
   from "../dbFront/tables.js";
 
@@ -333,7 +334,8 @@ export function loadGraphFromFile(event) {
 
     const currentDBName = getLocalDBName();
     // if no db connected accept upload without question 
-    if ((currentDBName != null) && (currentDBName != originalDBName)) {
+    //if ((currentDBName != null) && (currentDBName != originalDBName)) {
+if ((currentDBName != null) && (currentDBName != originalDBName)) {
 
       {
         let original = originalDBName == null ? ' not defined' : originalDBName;
@@ -354,7 +356,9 @@ export function loadGraphFromFile(event) {
         ]);
       }
     }
-
+if (currentDBName===null){
+  showAlert('No database :some details could not be retrieved<br/> <br/>Try <i>DB : connect to DB only</i> then reload');
+}
 
     setCurrentFKMode(json.currentFkMode)
 
@@ -405,5 +409,6 @@ export async function resetPoolFromFront() {
   if (!response.ok) {
     throw new Error("Échec du reset pool");
   }
+  setLocalDBName(null);
   return response.json();
 }

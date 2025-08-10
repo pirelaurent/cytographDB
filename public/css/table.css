@@ -1,68 +1,122 @@
   body {
-      font-family: Arial, sans-serif;
-      padding: 1rem;
-    }
-/* 
+    font-family: Arial, sans-serif;
+    padding: 1rem;
+  }
+
+  /* 
     h1 {
       font-size: 1.2rem;
       margin-bottom: 1rem;
     } */
 
-    table {
-      border-simplify: simplify;
-      width: 100%;
-      margin-top: 1rem;
-    }
-
-    th,
-    td {
-      border: 1px solid #ddd;
-      padding: 0.5rem;
-    }
-
-    th {
-      background-color: #f8f8f8;
-      text-align: left;
-    }
-
-    td {
-      background-color: #fff;
-    }
-
-    .fkContainer {
-      margin-top: 1rem;
-    }
-
-    .pk-title,
-    .fk-title {
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    .pk-block,
-    .fk-block {
-      margin-bottom: 1rem;
-    }
-#tableInfo {
-  display: flex;
-  justify-content: space-between;
-  gap: 1em;
-  flex-wrap: wrap;
+#headerBar h1 {
+  margin: 0; /* supprime marge par défaut */
 }
 
-.half, .third {
-  flex: 1;
-  min-width: 300px;
-}
 
-.index-block, .pk-block, .fk-block {
-  margin-bottom: 1em;
-  padding: 0.5em;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
+    
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 1rem;
 
-.index-title, .fk-title {
-  font-weight: bold;
+  }
+
+  th,
+  td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+  }
+
+  th {
+    background-color: #f8f8f8;
+    text-align: left;
+  }
+
+  td {
+    background-color: #fff;
+  }
+
+  .fkContainer {
+    margin-top: 1rem;
+  }
+
+  .pk-title {
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  .fk-title {
+    font-weight: bold;
+    margin-top: 10px;
+    white-space: normal;
+    /* pas de nowrap */
+    overflow-wrap: anywhere;
+    /* casse où nécessaire */
+    word-break: break-word;
+    /* sécurité pour très longs identifiants */
+    max-width: 100%;
+  }
+
+  .pk-block{
+    margin-bottom: 1rem;
+  }
+
+  .fk-block {
+    margin-bottom: 1rem;
+    display: block;
+    /* ou flex, mais avec min-width:0 */
+    overflow: visible;
+    /* important si un parent mettait hidden */
+  }
+
+
+  #oldtableInfo {
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+    flex-wrap: wrap;
+  }
+
+  #tableInfo {
+    display: inline-flex;
+    /* shrink-to-content */
+    justify-content: flex-start;
+    /* pas d'étirement de l'espace */
+    gap: 1em;
+    flex-wrap: wrap;
+    width: fit-content;
+    /* optionnel, renforce le shrink */
+    max-width: 100%;
+    /* ne dépasse pas l'écran */
+  }
+#tableInfo h2 {
+  margin-top: 0.3em;   /* petit espace */
   margin-bottom: 0.3em;
 }
+
+  .half,
+  .third {
+    flex: 0 0 auto;
+    /* largeur = contenu, pas d'étirement */
+    min-width: 400px;
+  }
+/* la colonne FK peut grandir */
+.half.fk-fluid { flex: 1 1 auto; min-width: 300px; }
+
+  .index-block,
+  .pk-block,
+  .fk-block {
+    margin-bottom: 1em;
+    padding: 0.5em;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+
+  .index-title,
+  .fk-title {
+    /* font-weight: bold; */
+    font-size: 18px;
+    /* color:red; */
+    margin-bottom: 0.3em;
+  }

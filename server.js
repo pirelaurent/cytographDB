@@ -205,7 +205,7 @@ app.post("/load-from-db", async (req, res) => {
      */
 
 
-     //console.log(fkResult.rows);//PLA
+
     const filteredEdges = fkResult.rows
       .filter(
         (e) => tableNames.includes(e.source) && tableNames.includes(e.target)
@@ -215,7 +215,7 @@ app.post("/load-from-db", async (req, res) => {
           source: e.source,
           target: e.target,
           label: e.constraint_name,
-          columnsLabel: `${e.source_column} --> ${e.target_column}`, //PLA
+          columnsLabel: `${e.source_column} --> ${e.target_column}`, 
           onDelete: e.on_delete, // raw code: 'a', 'c', etc.
           onUpdate: e.on_update,  // raw code
           nullable: !e.source_not_null
@@ -231,8 +231,6 @@ app.post("/load-from-db", async (req, res) => {
           .join(' ')
 
       }));
-//console.log('PLA in server.js');
-//console.log(filteredEdges);
 
     res.json({ nodes, edges: filteredEdges });
   } catch (error) {

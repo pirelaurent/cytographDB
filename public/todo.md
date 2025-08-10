@@ -1,15 +1,16 @@
 
 NOK prise en compte du AND dans les select de edge
-
-les edges par columns ne marche pas avec une reprise de json. 
-toggle detailed to 1 ne marche pas en reprise json. 
-
 simplify association create a directed edge: pb to find path 
 
-<img src ="./img/edgePerColumn.png" width = "600px" style="border: 1px solid grey;">
-n'est plus à jour
 
-----------------
+doc to do on new edge and node list with links
+http://localhost:3000/table.html?name=parameters&currentDBName=null
+
+if not postgresConnected : voir si on a reconstitué 
+
+
+pourtant je les trouve. D'où ils sortent ? 
+---------Know how memory-------
 Find direct links: 
 filter by native : root then leaf 
 hide not selected : stay collections and some edge between nodes

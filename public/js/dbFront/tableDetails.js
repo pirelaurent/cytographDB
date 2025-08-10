@@ -27,14 +27,16 @@ const params = new URLSearchParams(window.location.search);
 const tableName = params.get("name");
 
 const currentDBName = params.get("currentDBName");
-if (!currentDBName) currentDBName = "no DB connected";
+let infoWarning="";
+if (currentDBName=='null') infoWarning ='is not available: no db connected'
 
 
 let whereTitle = document.getElementById(
   "whereTitle"
 );
 
-whereTitle.innerHTML = `${tableName}`;
+whereTitle.innerHTML = `${tableName} ${infoWarning}`;
+document.title= `table ${tableName}`;
 
 getTableData(tableName).then((result) => {
 
@@ -47,7 +49,6 @@ getTableData(tableName).then((result) => {
       icon.style.cursor = "help"; // facultatif
       whereTitle.appendChild(icon);
     }
-
 
     // Handle Columns
     const colBody = document.getElementById("columnsTable");

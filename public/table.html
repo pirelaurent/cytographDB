@@ -10,8 +10,6 @@
 </head>
 
 <body>
-
-
 <script>
 function tryClose() {
   if (window.opener) {
@@ -22,22 +20,16 @@ function tryClose() {
   }
 }
 </script>
-
 <div id="headerBar" style="display: flex; align-items: center; gap: 10px;">
 <img
   src="img/table.png"
   alt="Return"
-  title="Back"
+  title="Close"
   style="cursor: pointer; vertical-align: middle; width: 25px; height: 25px;"
   onclick="window.tryClose()"
 />
-
-  
   <h1 id="whereTitle"></h1>
 </div>
-
-
-  <div id="badDB" style="color:red"></div>
   <div id="tableInfo">
     <div class="half">
       <h2>Columns</h2>

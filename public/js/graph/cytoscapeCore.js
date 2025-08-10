@@ -34,7 +34,7 @@ export function initializeGraph(data, fromDisk = false) {
   }
   cy.add(data);
 
-//console.log('PLA dans initialize')
+
 //console.log(cy.edges()); // on a bien columnsLabel dans data
 
   let current_db = getLocalDBName();

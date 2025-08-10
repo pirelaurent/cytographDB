@@ -30,7 +30,7 @@ export function openTable(tableId) {
 
   window.open(
     `/table.html?name=${tableId}&currentDBName=${localDBName}`,
-    "TableDetails"
+    "Table"
   );
 }
 
@@ -73,7 +73,7 @@ export function connectToDb(menuItemElement) {
         showError("Connection failed to DB : " + dbName);
         throw new Error("Failed to connect to " + dbName);
       }
-
+      // the dbName that is displayed
       setLocalDBName(dbName);
 
       document.getElementById(

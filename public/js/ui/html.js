@@ -130,12 +130,33 @@ export function sendNodeListToHtml() {
         td.addEventListener("click", () => {
           const tableId = node.data('id'); // ou 'label' si c'est ça l'identifiant
           //const localDBName = window.localDBName || ""; // si défini globalement
-    
+          const url = `/table.html?name=${encodeURIComponent(tableId)}&currentDBName=${encodeURIComponent(getLocalDBName())}`;
+          const name = `TableDetails_${tableId}`;
 
-          window.open(
-            `/table.html?name=${encodeURIComponent(tableId)}&currentDBName=${encodeURIComponent(getLocalDBName())}`,
-            `TableDetails_${tableId}`
-          );
+          /*           window.open(
+                      `/table.html?name=${encodeURIComponent(tableId)}&currentDBName=${encodeURIComponent(getLocalDBName())}`,
+                      `TableDetails_${tableId}`
+                    ); 
+          */
+          // 1) Tenter de récupérer la fenêtre existante
+          let w = window.open('', name);
+
+          if (w && !w.closed) {
+            // Mise à jour de l’URL au cas où + focus
+            try {
+              if (w.location.href !== url) w.location.href = url;
+              w.focus();
+            } catch (e) {
+              // Fallback si cross-origin ou autre
+              w = window.open(url, name);
+              if (w) w.focus();
+            }
+          } else {
+            // 2) Sinon, on l’ouvre puis focus
+            w = window.open(url, name);
+            if (w) w.focus();
+          }
+
         });
       } else if (idx === 4 && val !== "-" && !isNaN(Number(val))) {
         // Dernière colonne (triggers) si c'est bien un nombre
@@ -422,12 +443,12 @@ export function sendEdgeListToHtml() {
     //tdSource.textContent = sameAsAbove ? '〃' : sourceName;
 
     tdSource.title = `Open table: ${sourceName}`;
-    tdSource.addEventListener("click", () => 
+    tdSource.addEventListener("click", () =>
       window.open(
         `/table.html?name=${encodeURIComponent(sourceName)}&currentDBName=${encodeURIComponent(getLocalDBName())}`,
         `TableDetails_${sourceName}`
       )
-  );
+    );
     tr.appendChild(tdSource);
 
     // --- Target ---

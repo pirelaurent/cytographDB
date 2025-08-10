@@ -3,13 +3,10 @@ NOK prise en compte du AND dans les select de edge
 simplify association create a directed edge: pb to find path 
 
 
-doc to do on new edge and node list with links
-http://localhost:3000/table.html?name=parameters&currentDBName=null
+---- know how ----
+if a window has been opened to a table details and is not exited by close, 
+a further call to display this page will only make blink the title but cannot gie the cursor. Security reason. 
 
-if not postgresConnected : voir si on a reconstitué 
-
-
-pourtant je les trouve. D'où ils sortent ? 
 ---------Know how memory-------
 Find direct links: 
 filter by native : root then leaf 

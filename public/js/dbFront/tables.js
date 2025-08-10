@@ -30,7 +30,7 @@ export function openTable(tableId) {
 
   window.open(
     `/table.html?name=${tableId}&currentDBName=${localDBName}`,
-    "Table"
+    `TableDetails_${tableId}`
   );
 }
 

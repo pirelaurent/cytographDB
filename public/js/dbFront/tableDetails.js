@@ -27,8 +27,8 @@ const params = new URLSearchParams(window.location.search);
 const tableName = params.get("name");
 
 const currentDBName = params.get("currentDBName");
-let infoWarning="";
-if (currentDBName=='null') infoWarning ='is not available: no db connected'
+let infoWarning = "";
+if (currentDBName == 'null') infoWarning = 'is not available: no db connected'
 
 
 let whereTitle = document.getElementById(
@@ -36,7 +36,7 @@ let whereTitle = document.getElementById(
 );
 
 whereTitle.innerHTML = `${tableName} ${infoWarning}`;
-document.title= `table ${tableName}`;
+document.title = `table ${tableName}`;
 
 getTableData(tableName).then((result) => {
 
@@ -99,6 +99,7 @@ getTableData(tableName).then((result) => {
 
     /// Display Primary Key
     const pkContainer = document.getElementById("primaryKeyContainer");
+    pkContainer.innerHTML = "";
 
     if (data.primaryKey.name && data.primaryKey.columns.length > 0) {
       const pkDiv = document.createElement("div");
@@ -106,7 +107,7 @@ getTableData(tableName).then((result) => {
 
       // Crée dynamiquement le titre avec ou sans commentaire
       const titleDiv = document.createElement("div");
-      titleDiv.className = "fk-title";
+      titleDiv.className = "pk-title";
 
       if (data.primaryKey.comment) {
         titleDiv.title = data.primaryKey.comment;
@@ -184,9 +185,9 @@ getTableData(tableName).then((result) => {
           allUpDelInfo += `      <br/><span>ON DELETE: <code>${deleteInfo}</code></span>`
         }
 
-        const div = document.createElement("div");
-        div.className = "fk-block";
-        div.innerHTML = `
+        //const div = document.createElement("div");
+        fkDiv.className = "fk-block";
+        fkDiv.innerHTML = `
       <div class="fk-title" title="${fk.comment || ''}" >${fk.constraint_name}
          ${fk.comment ? '<span style="cursor: help;"> 💬</span>' : ''}
       </div>
@@ -204,54 +205,40 @@ getTableData(tableName).then((result) => {
             .join("")}
       </ul>
     `;
-        fkDiv.append(div);
       });
     }
 
     // 🔍 Indexes
 
-    const indexContainer = document.createElement("div");
-    indexContainer.className = "third"; // nouvelle colonne
-
-    const header = document.createElement("h2");
-    header.textContent = "Indexes";
-    indexContainer.appendChild(header);
-
-    if (data.indexes && data.indexes.length > 0) {
+    const indexContainer = document.getElementById("indexesContainer");
+    indexContainer.innerHTML = ""; // nettoie
+console.log('PLA indexContainer')
+    if (data.indexes?.length) {
       data.indexes.forEach(idx => {
-        const div = document.createElement("div");
-        div.className = "index-block";
+        const block = document.createElement("div");
+        block.className = "index-block";
 
-        // Crée dynamiquement le titre de l'index avec ou sans commentaire
         const titleDiv = document.createElement("div");
         titleDiv.className = "index-title";
-
         if (idx.comment) {
           titleDiv.title = idx.comment;
-          titleDiv.innerHTML = `
-        ${idx.name}
-        <span style="cursor: help;">💬</span>
-      `;
+          titleDiv.innerHTML = `${idx.name} <span style="cursor:help;">💬</span>`;
         } else {
           titleDiv.textContent = idx.name;
         }
 
-        // Récupération du contenu HTML des colonnes (déjà généré)
-        const columnsHTML = extractIndexColumns(idx.definition);
+        block.appendChild(titleDiv);
+        block.insertAdjacentHTML("beforeend", extractIndexColumns(idx.definition));
 
-        // Construction du bloc final
-        div.appendChild(titleDiv);
-        div.insertAdjacentHTML("beforeend", columnsHTML);
-
-        indexContainer.appendChild(div);
+        indexContainer.appendChild(block); // ✅ on ajoute SEULEMENT des enfants
       });
     } else {
-      const noIndex = document.createElement("p");
-      noIndex.textContent = "No indexes found.";
-      indexContainer.appendChild(noIndex);
+      indexContainer.textContent = "No indexes found.";
     }
 
-    document.getElementById("tableInfo").appendChild(indexContainer);
+
+
+
 
     // 🔧 Helper pour extraire les colonnes de l'index
     function extractIndexColumns(def) {

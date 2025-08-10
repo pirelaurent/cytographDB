@@ -62,7 +62,7 @@
     margin-bottom: 1rem;
   }
 
-  .fk-block {
+  .fk-block, .pk-block {
     margin-bottom: 1rem;
     display: block;
     /* ou flex, mais avec min-width:0 */
@@ -114,7 +114,8 @@
   }
 
   .index-title,
-  .fk-title {
+  .fk-title,
+  .pk-title {
     /* font-weight: bold; */
     font-size: 18px;
     /* color:red; */

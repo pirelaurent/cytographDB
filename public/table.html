@@ -10,26 +10,21 @@
 </head>
 
 <body>
-<script>
-function tryClose() {
-  if (window.opener) {
-      window.opener.focus();
-    window.close();
-  } else {
-    alert("Please close this tab manually.");
-  }
-}
-</script>
-<div id="headerBar" style="display: flex; align-items: center; gap: 10px;">
-<img
-  src="img/table.png"
-  alt="Return"
-  title="Close"
-  style="cursor: pointer; vertical-align: middle; width: 25px; height: 25px;"
-  onclick="window.tryClose()"
-/>
-  <h1 id="whereTitle"></h1>
-</div>
+  <script>
+    function tryClose() {
+      if (window.opener) {
+        window.opener.focus();
+        window.close();
+      } else {
+        alert("Please close this tab manually.");
+      }
+    }
+  </script>
+  <div id="headerBar" style="display: flex; align-items: center; gap: 10px;">
+    <img src="img/table.png" alt="Return" title="Close"
+      style="cursor: pointer; vertical-align: middle; width: 25px; height: 25px;" onclick="window.tryClose()" />
+    <h1 id="whereTitle"></h1>
+  </div>
   <div id="tableInfo">
     <div class="half">
       <h2>Columns</h2>
@@ -52,7 +47,15 @@ function tryClose() {
       <h2>Foreign Keys</h2>
       <div id="foreignKeysContainer" class="fkContainer"></div>
     </div>
+    <div class="third">
+      <h2>Indexes</h2>
+      <div id="indexesContainer" class="indexContainer"></div>
+    </div>
+
+
   </div>
+
+
 
   <script type="module" src="/js/dbFront/tableDetails.js"></script>
 </body>

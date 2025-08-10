@@ -22,8 +22,7 @@ import {
   loadGraphState,
   showOverlayWithFiles,
   saveGraphState,
-  sendNodeListToHtml,
-  sendEdgeListToHtml,
+ 
   saveGraphToFile,
 
 } from "../graph/loadSaveGraph.js";
@@ -33,6 +32,7 @@ import {
   generateTriggers,
 } from "../dbFront/tables.js"
 
+  import {sendNodeListToHtml, sendEdgeListToHtml} from "../ui/html.js";
 
 import {
   follow,

@@ -64,7 +64,7 @@ When cursor is over a node-table :
 - a pop up show the number of edges **<-out & <-in**
 - Unrelated elements are faded for clarity.
   
-  *note: 'ctrl g' or can create a png snapshot of the screen at any time*
+  *note: at any time 'ctrl g' or clic on photo icon create a png snapshot of screen*
 
 ### edge info
 
@@ -77,6 +77,15 @@ When cursor is over a edge :
 
 
 ---
+### list of nodes for a glance 
+
+
+**list** menu generates an HTML file listing all node's labels, sorted alphabetically.
+**All headers are sortable** by a click . 
+
+<img src = "./img/listNodes.png" width = 300px style="border: 2px solid grey;">  
+
+--- 
 
 ### browse table schema
 
@@ -129,13 +138,13 @@ New edges represent trigger-based relationships (violet below)
 
 Labels of new *trigger_impact* edge is the trigger's name.
 
-These edges can be easily selected later through **edges - filters... - generated triggers**
+These edges can be easily selected later through **edges - filters... -  trigger_impact**
 
 ## show detailed columns of foreign keys 
 
 **Edges - toggle details 1 --> N** ( reverse: *toggle details N --> 1* )
 
- Show **an edge per linked column** between source and destination tables 
+ Show **an edge per linked column** between source and destination tables   
  On hover, **corresponding columns'name** are shown. 
 
 <img src ="./img/edgePerColumn.png" width = "600px" style="border: 1px solid grey;">

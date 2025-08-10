@@ -113,9 +113,11 @@ Useful to enhance some parts, before a PNG snapshot for example.
 ### <img src ='./img/listMenu.png' >
 
 Generates an HTML file listing all node's labels, sorted alphabetically.
-As other action, this one apply to current perimeter (selected nodes or all nodes if no selected)
+As other actions, this list applies to current perimeter (selected nodes or all nodes if no selected) 
+**All headers are sortable** by clic on the label. 
+
 <img src = "./img/listNodes.png" width = 400px style="border: 2px solid grey;">  
-( remember ** indicates two triggers on **intervention**)
+
 
 ---
 

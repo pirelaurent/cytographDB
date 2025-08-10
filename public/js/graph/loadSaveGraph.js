@@ -1,18 +1,7 @@
 // Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 
 "use strict";
 
@@ -49,6 +38,7 @@ import {
 
 import { getCustomNodesCategories }
   from "../filters/categories.js";
+
 
 
 //---------------------
@@ -258,115 +248,11 @@ function sendGraphState(filename) {
 /*
  generate list of nodes label on a new html page 
 */
-export function sendNodeListToHtml() {
-  let nodes;
-  // permimeter
-  nodes = getCy().nodes(":selected:visible");
-  if (nodes.length === 0) nodes = getCy().nodes(":visible");
-  if (nodes.length == 0) {
-    showAlert("no nodes to list in current perimeter. <br/> Check your selection. ");
-    return;
-  }
-
-  const sortedNodes = nodes.sort((a, b) => {
-    const labelA = a.data("label") || "";
-    const labelB = b.data("label") || "";
-    return labelA.localeCompare(labelB);
-  });
-  const html = `
-    <html>
-    <head><title>Node List</title></head>
-    <body>
-      <h2><button class="close-btn" title="Close" onclick="window.close()">x</button> &nbsp; ${sortedNodes.length
-    } nodes in current perimeter</h2>
-      <ul>
-        ${sortedNodes.map((node) => `<li>${node.data('label')}</li>`).join("")}
-      </ul>
-    </body>
-    </html>
-  `;
-  const win = window.open("", "nodeListWindow");
-  // win.document.write(html);
-  win.document.body.innerHTML = html;
-  win.document.close();
-
-}
-
-/*
- generate list of nodes label on a new html page 
-*/
-export function sendEdgeListToHtml() {
-  let edges = getCy().edges(":selected:visible");
-  if (edges.length === 0) edges = getCy().edges(":visible");
-
-  if (edges.length == 0) {
-    showAlert("no selected edges to list.");
-    return;
-  }
-
-  const sortedEdges = edges.sort((a, b) => {
-    let labelA = ` 
-      ${a.source().id()} --> 
-      ${a.target().id()}
-      \n ${a.data("label")}
-      `
-    if (a.hasClass('fk_detailed')) labelA += '\n' + a.data('columnsLabel');
-
-    let labelB = ` 
-      ${b.source().id()} --> 
-      ${b.target().id()}
-      \n ${b.data("label")}
-      `
-    if (b.hasClass('fk_detailed')) labelB += '\n' + b.data('columnsLabel');
-    return labelA.localeCompare(labelB);
-  });
-
-  const win = window.open("", "edgeListWindow");
-  let outputLines = "<ul>";
-  let lastSourceTarget = '';
-  let lastFKLabel = '';
-
-  sortedEdges.forEach((edge) => {
-    let sourceTarget = ` 
-      ${edge.source().id()} --> 
-      ${edge.target().id()}
-      `
-    if (lastSourceTarget != sourceTarget) {
-      outputLines += `<strong>${sourceTarget}</strong><br/>`;
-      lastSourceTarget = sourceTarget;
-    }
-
-    if (lastFKLabel != edge.data("label")) {
-      outputLines += `&nbsp; ${edge.data("label")}<br/>`;
-      lastFKLabel = edge.data("label");
-    }
-
-    if (edge.hasClass('fk_detailed')) {
-      outputLines += `&nbsp;&nbsp;&nbsp;- ${edge.data('columnsLabel')}<br/>`;
-    }
 
 
 
 
 
-  });
-
-  outputLines += "</ul>";
-  //console.log(outputLines);//PLA
-  const html = `
-    <html>
-    <head><title>Edge List</title></head>
-    <body>
-      <h2>${edges.length} edges <small>(in current perimeter)</small></h2>
-       ${outputLines}
-    </body>
-    </html>
-  `;
-  // ${edges.map((name) => `<li>${name}</li>`).join("")}
-  // win.document.write(html);
-  win.document.body.innerHTML = html;
-  win.document.close();
-}
 
 /*
 

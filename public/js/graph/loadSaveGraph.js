@@ -74,7 +74,7 @@ export function loadInitialGraph() {
       initializeGraph(data);
       // store details at load time /now generated with details 
       saveDetailedEdges();
-      enterFkSynthesisMode();
+      enterFkSynthesisMode(true);
 
       hideWaitLoading();
       proportionalSizeNodeSizeByLinks();
@@ -296,7 +296,7 @@ export function saveGraphToFile() {
   }
   // if detailed for change but not on screen, restore 
   if (wasFkMode === 'synthesis') {
-    enterFkSynthesisMode();
+    enterFkSynthesisMode(true);
   }
 
   const blob = new Blob([JSON.stringify(json, null, 2)], {
@@ -370,7 +370,7 @@ if (currentDBName===null){
     resetPositionStackUndo();
     // show in syntetic after saving details 
     saveDetailedEdges();
-    enterFkSynthesisMode();
+    enterFkSynthesisMode(true);
     //getCy().layout({ name: 'cose'}).run();
   };
   reader.readAsText(file);

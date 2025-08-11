@@ -68,7 +68,7 @@ export function setInterceptors() {
         (c) => c !== "hovered"
       );
 
-      const technicalClasses = ['fk_detailed', 'fk_synth', 'showLabel'];
+      const technicalClasses = ['fk_detailed', 'fk_synth', 'showLabel','showColumns'];
       const filteredClasses = classArray.filter(
         cls => !technicalClasses.includes(cls)
       );
@@ -126,7 +126,7 @@ export function setInterceptors() {
       const classArray = Array.from(classList);
       let libelArray = "";
 
-      const technicalClasses = ['fk_detailed', 'fk_synth', 'showLabel'];
+      const technicalClasses = ['fk_detailed', 'fk_synth', 'showLabel','showColumns'];
       const filteredClasses = classArray.filter(
         cls => !technicalClasses.includes(cls)
       );

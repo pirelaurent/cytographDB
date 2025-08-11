@@ -89,7 +89,7 @@ export function sendNodeListToHtml() {
   // titre + bouton close
   const h2 = doc.createElement("h2");
   const closeNodeImg = createIconButton(doc, {
-    src: "img/table.png",
+    src: "img/closePage.png",
     alt: "Return",
     title: "Close",
     onClick: () => win.close()
@@ -391,7 +391,7 @@ export function sendEdgeListToHtml() {
   // Title + close button
   const h2 = doc.createElement("h2");
   const closeEdgeImg = createIconButton(doc, {
-    src: "img/table.png",
+    src: "img/closePage.png",
     alt: "Return",
     title: "Close",
     onClick: () => win.close()

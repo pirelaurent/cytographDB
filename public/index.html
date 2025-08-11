@@ -186,6 +186,7 @@
                 <li action="hideSelected" title="Hide the selected nodes">selected</li>
                 <li action="swapHidden" title="Toggle visibility for selected and hidden elements">swap</li>
               </ul>
+           
             </li>
 
             <li data-category="follow">follow & show ...
@@ -265,7 +266,7 @@
                   <ul class="submenu">
                     <li action="nodeIsOrphan">orphan</li>
                     <li action="nodeIsRoot">root</li>
-                      <li action="nodeIsLeaf">leaf</li>
+                    <li action="nodeIsLeaf">leaf</li>
                     <li action="nodeIsAssociation">dry association</li>
                     <li action="nodeIsMultiAssociation">all associations</li>
                     <li action="nodeHasTriggers">has triggers</li>
@@ -341,17 +342,24 @@
             <li data-category="selection">
               <span class="label" title="Select edges related to selected nodes">from selected nodes... </span>
               <ul class="submenu">
+                <li action="bothEdges">all</li>
                 <li action="outgoingEdges">outgoing</li>
                 <li action="incomingEdges">incoming</li>
-                <li action="bothEdges">both</li>
+             
                 <li action="betweenNodes">
                   <span class="label" title="Select edges between selected nodes">connecting two nodes</span>
                 </li>
               </ul>
             </li>
             <li class="separator"></li>
-            <li id="toggle-fk-mode" action="toggleFkMode">toggle details 1 --> n</li>
+            <!-- li id="toggle-fk-mode" action="toggleFkMode">toggle details 1 : n</li -->
+            <li data-category="edge details">edge details ...
+                  <ul class="submenu">
+                    <li action ="enterFkDetailedMode"> 1 edge per column</li>
+                    <li action = "enterFkSynthesisMode"> 1 edge per FK</li>
 
+                  </ul>
+                   </li>
             <li class="separator"></li>
 
             <li data-category="label">label ...
@@ -397,10 +405,11 @@
                 <li action="edgeIsOnDeleteCascade" title="Select FK ON DELETE CASCADE">on delete cascade
                 </li>
 
-            <li class="separator"></li>
+                <li class="separator"></li>
                 <li action="edgeIsTriggerGenerated" title="Select generated trigger impacts edges">trigger_impact
                 </li>
-                <li action="edgeIsASimplifiedNode" title="Select edges from simplified associations">simplified associations</li>
+                <li action="edgeIsASimplifiedNode" title="Select edges from simplified associations">simplified
+                  associations</li>
 
               </ul>
             </li>

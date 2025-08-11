@@ -733,17 +733,19 @@ export function menuEdges(option) {
       nodes.connectedEdges().select();
       break;
 
-    case "oneEdgePerFK":
-      enterFkSynthesisMode();
+    case "enterFkSynthesisMode":
+      enterFkSynthesisMode(false);
       break;
 
-    case "oneEdgePerFKColumns":
-      enterFkDetailedMode();
+    case "enterFkDetailedMode":
+      enterFkDetailedMode(false);
       break;
-
+/* deprecated
     case "toggleFkMode":
       toggleFkMode();
       break;
+*/
+
 
     //--- select by data Snapshot done into function
 

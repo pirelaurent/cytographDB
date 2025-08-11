@@ -51,21 +51,22 @@ new created edges are added with the class 'fk_synth'
 
 import {
     getCy,
+    perimeterForEdgesAction,
 } from '../graph/cytoscapeCore.js';
 import { showAlert, showInfo } from '../ui/dialog.js';
 
- let currentFkMode;
+let currentFkMode;
 
-export function getCurrentFKMode() { return currentFkMode};
-export function setCurrentFKMode(fkMode) {  currentFkMode = fkMode};
+export function getCurrentFKMode() { return currentFkMode };
+export function setCurrentFKMode(fkMode) { currentFkMode = fkMode };
 
-let detailedEdgesArray = []; // to be able to reverse, store details here 
+let detailedEdgesArray; // to be able to reverse, store details here 
 
 // called at startup now as request load details
 export function saveDetailedEdges() {
-    detailedEdgesArray = getCy().edges();
+    detailedEdgesArray = getCy().edges(); // cytoscape collection, not array
     currentFkMode = 'detailed';
-    document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
+    //document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
 }
 
 /*
@@ -92,43 +93,72 @@ export function toggleFkMode() {
  swap the edges synthetic with detailed
  Security for reloaded graph from json 
  as they can have been saved synthetic or detailed
+ global act on the full edges, otherwise in perimeter
 */
 
-export function enterFkDetailedMode() {
+export function enterFkDetailedMode(global) {
+    let synthEdges;
+    if (global) {
+        synthEdges = getCy().edges('.fk_synth');
+    } else {
+        synthEdges = perimeterForEdgesAction().filter('.fk_synth')
+    }
+
     // verify we are in synthetic  
-    const synthEdges = getCy().edges('.fk_synth');
     if (synthEdges.length == 0) return false;
 
     // then change for stored detailed 
 
     if (detailedEdgesArray.length != 0) {
-        synthEdges.remove();
-        getCy().add(detailedEdgesArray)
+        if (global) {
+            getCy().batch(() => {
+                synthEdges.remove();
+                getCy().add(detailedEdgesArray)
+            });
+        }
+        else {
+            const originalArray = [];
+            synthEdges.forEach(synth => {
+                detailedEdgesArray.filter(
+                    e => e.data('label') === synth.data('label')
+                ).forEach(e => { 
+                    if (synth.selected()) e.select();else e.unselect();
+                    originalArray.push(e) 
+                
+                })
+            })
+            // must change an array in a cy collection 
+            const original = getCy().collection(originalArray); // <- conversion Array -> collection
+            getCy().batch(() => {
+                synthEdges.remove();
+                getCy().add(original);
+            });
+        }
     } else {
         showInfo("No detailed edges for this graph");
         return false;
     }
     currentFkMode = 'detailed';
-    document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
+    //document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
     return true;
 }
 
 /*
  swap the edges detailed with synthetic
- Security for reloaded graph from json.
+global: false when commin from menu , true for load/save
 */
 
 
-export function enterFkSynthesisMode() {
+export function enterFkSynthesisMode(global) {
     let edges = getCy().edges('.fk_detailed');
     // stored graph could be synthetic only 
     if (edges.length == 0) {
-        showInfo("no detailed edges for this graph" ); 
-            return false;
-        }
+        showInfo("no detailed edges to reduce for this graph");
+        return false;
+    }
 
     currentFkMode = 'synthesis';
-    document.getElementById('toggle-fk-mode').textContent = 'toggle details 1 --> n';
+    //document.getElementById('toggle-fk-mode').textContent = 'toggle details 1 --> n';
 
     const grouped = {};
     // information for synthesis is inside detailed 

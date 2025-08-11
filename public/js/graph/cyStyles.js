@@ -224,6 +224,30 @@ const cyStyles = [
     },
   },
 
+   {
+    selector: "edge.fk_detailed",
+    style: {
+      'line-color': '#9683EC',
+      'target-arrow-shape': "triangle",
+      'target-arrow-color': '#6952cf',
+         'source-arrow-color': '#6952cf',
+    },
+  },
+
+{
+    selector: "edge:selected",
+    style: {
+      "line-color": "chartreuse",
+      //"target-arrow-color": "black",
+      "line-style": "dashed",
+      "z-index": 1002, // higher than not selected
+      width: 4,
+    },
+  },
+
+
+
+
   // must enforce the color otherwise cytoscape don't fade colored edges
   {
     selector: "edge.faded",

@@ -100,31 +100,6 @@ ORDER BY cols.ordinal_position;
 */
 
 
-export let edgesQueryOLD = `
-SELECT DISTINCT
-  con.conname AS constraint_name,
-  src_table.relname AS source,
-  tgt_table.relname AS target,
-  con.confdeltype AS on_delete,
-  con.confupdtype AS on_update,
-  des.description AS comment,
-  src_col.attname AS source_column,
-  src_col.attnotnull AS source_not_null
-FROM pg_constraint con
-JOIN pg_class src_table ON src_table.oid = con.conrelid
-JOIN pg_class tgt_table ON tgt_table.oid = con.confrelid
-JOIN pg_namespace src_ns ON src_ns.oid = src_table.relnamespace
-JOIN pg_namespace tgt_ns ON tgt_ns.oid = tgt_table.relnamespace
-JOIN unnest(con.conkey) AS colnum ON true
-JOIN pg_attribute src_col
-  ON src_col.attrelid = src_table.oid AND src_col.attnum = colnum
-LEFT JOIN pg_description des ON des.objoid = con.oid AND des.classoid = 'pg_constraint'::regclass
-WHERE con.contype = 'f'
-  AND src_ns.nspname = 'public'
-  AND tgt_ns.nspname = 'public';
-
-`;
-
 export let edgesQuery = `
 SELECT
   con.conname AS constraint_name,
@@ -195,17 +170,58 @@ ORDER BY
 
 `;
 
-export let indexQuery = `
+
+export let OldindexQuery = `
 SELECT
-    idx.indexname,
-    idx.indexdef,
-    obj_description(c.oid, 'pg_class') AS comment
+  idx.indexname,
+  idx.indexdef,
+  obj_description(i.oid, 'pg_class') AS comment,
+  c.conname AS constraint_name,
+  CASE c.contype
+    WHEN 'p' THEN 'PRIMARY KEY'
+    WHEN 'u' THEN 'UNIQUE'
+    WHEN 'x' THEN 'EXCLUDE'
+    ELSE NULL
+  END AS constraint_type
 FROM pg_indexes idx
-JOIN pg_class c ON c.relname = idx.indexname
+JOIN pg_class i
+  ON i.relname = idx.indexname
+JOIN pg_namespace ni
+  ON ni.oid = i.relnamespace
+  AND ni.nspname = idx.schemaname
+LEFT JOIN pg_constraint c
+  ON c.conindid = i.oid            -- <— index support of constraint ?
 WHERE idx.schemaname = 'public'
   AND idx.tablename = $1
 ORDER BY idx.indexname;
 `;
+
+export let indexQuery =`
+-- indexQuery
+SELECT DISTINCT ON (i.oid)
+  i.oid                             AS index_oid,
+  i.relname                         AS indexname,     -- << attendu par ton JS
+  pg_get_indexdef(i.oid)            AS indexdef,      -- << attendu par ton JS
+  obj_description(i.oid,'pg_class') AS comment,       -- << attendu par ton JS
+  CASE c.contype
+    WHEN 'p' THEN 'PRIMARY KEY'
+    WHEN 'u' THEN 'UNIQUE'
+    WHEN 'x' THEN 'EXCLUDE'
+    ELSE NULL
+  END                               AS constraint_type -- << attendu par ton JS
+, ix.indisprimary                   AS is_primary
+, ix.indisunique                    AS is_unique
+FROM pg_class t
+JOIN pg_namespace nt ON nt.oid = t.relnamespace
+JOIN pg_index ix      ON ix.indrelid = t.oid
+JOIN pg_class i       ON i.oid = ix.indexrelid
+LEFT JOIN pg_constraint c ON c.conindid = i.oid
+WHERE nt.nspname = 'public'
+  AND t.relname  = $1
+ORDER BY i.oid;
+
+`
+
 
 /*
  get comments on tables 

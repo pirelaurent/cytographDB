@@ -165,27 +165,8 @@ app.post("/load-from-db", async (req, res) => {
 
     for (const name of tableNames) {
 
-
       const details = await getTableDetails(client, name);
-      /*
-      console.log(details);//PLA
-      foreignKeys: [
-    {
-      constraint_name: 'intervention_employee_id_fkey',
-      source_table: 'intervention',
-      target_table: 'employee',
-      comment: null,
-      column_mappings: [Array],
-      all_source_not_null: true,
-      is_target_unique: true,
-      on_delete: 'c',
-      on_update: 'a'
-    },
-      
-      */
       const trigs = triggersByTable.get(name) || [];
-
-
       const data = {
         id: name,
         label: name + (trigs.length > 0 ? "\n" + "*".repeat(trigs.length) : ""),
@@ -203,8 +184,6 @@ app.post("/load-from-db", async (req, res) => {
     /* 
      build edges
      */
-
-
 
     const filteredEdges = fkResult.rows
       .filter(

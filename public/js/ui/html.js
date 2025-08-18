@@ -36,12 +36,32 @@ export function sendNodeListToHtml() {
 
   // helpers
   function zeroBlank(val) { return val !== 0 ? String(val) : "-"; }
+
+
+
   function rowValuesFromNode(node) {
+    // list of index in node include PK and optional unique constraints 
+    // indexes = { name, definition, comment, constraint_type, is_primary?, is_unique? }
+    const realIndexes = (node.data('indexes') || []).filter(ix => {
+      const t = (ix.constraint_type || '').toUpperCase();   // 'PRIMARY KEY' | 'UNIQUE' | 'EXCLUDE' | ''
+      const isPk = t === 'PRIMARY KEY' || ix.is_primary === true;
+      const isUnique =
+        t === 'UNIQUE' ||
+        ix.is_unique === true ||
+        /create\s+unique\s+index/i.test(ix.definition || '');
+      const isExclude = t === 'EXCLUDE'; // mets false si tu veux les garder
+
+      return !isPk && !isUnique && !isExclude; // retire "&& !isExclude" pour conserver EXCLUDE
+    });
+
+
+
+
     return [
       // remove the stars from label
       node.data('label').replace(/\*/g, "") || "",
       zeroBlank(node.data('columns')?.length || 0),
-      zeroBlank(node.data('indexes')?.length || 0),
+      zeroBlank(realIndexes?.length || 0),
       zeroBlank(node.data('foreignKeys')?.length || 0),
       zeroBlank(node.data('triggers')?.length || 0)
     ];

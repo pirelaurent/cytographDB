@@ -11,7 +11,7 @@ async function getTableData(tableName) {
       throw new Error(` HTTP error ${response.status}`);
     }
     const data = await response.json();
-
+    //console.log(data);//PLA PLA
     return { success: true, data };
   } catch (error) {
     return { success: false, error };
@@ -53,6 +53,12 @@ getTableData(tableName).then((result) => {
     // Handle Columns
     const colBody = document.getElementById("columnsTable");
     colBody.innerHTML = "";
+    const columnNumber = document.getElementById("columnNumber");
+
+    //columnNumber.innerText+=`(${data.columns.length})`;
+
+    columnNumber.innerHTML += `<small>(${data.columns.length})</small>`;
+
 
     data.columns.forEach((col) => {
       const tr = document.createElement("tr");
@@ -99,9 +105,13 @@ getTableData(tableName).then((result) => {
 
     /// Display Primary Key
     const pkContainer = document.getElementById("primaryKeyContainer");
+
+
     pkContainer.innerHTML = "";
 
     if (data.primaryKey.name && data.primaryKey.columns.length > 0) {
+
+
       const pkDiv = document.createElement("div");
       pkDiv.className = "pk-block";
 
@@ -145,100 +155,164 @@ getTableData(tableName).then((result) => {
     //   AB	1..1 vers 1..1	AX: NOT NULL, AY: NOT NULL, A.id et B.id sont uniques (PK ou UNIQUE)
 
     const fkDiv = document.getElementById("foreignKeysContainer");
+    const fkNumber = document.getElementById("fkNumber");
+
+    fkNumber.innerHTML += `<small>(${data.foreignKeys.length})</small>`;
+
+
     fkDiv.innerHTML = ""; // Clear any existing content
 
-    if (data.foreignKeys && data.foreignKeys.length > 0) {
-      data.foreignKeys.forEach((fk) => {
-        /* prepare les on delete
-              WHEN 'a' THEN 'NO ACTION'
-              WHEN 'r' THEN 'RESTRICT'
-              WHEN 'c' THEN 'CASCADE'
-              WHEN 'n' THEN 'SET NULL'
-              WHEN 'd' THEN 'SET DEFAULT'
-        */
-        let allUpDelInfo = "";
-        let updateInfo = "";
-        switch (fk.on_update) {
-          // no info displayed if default
-          //case 'a': updateInfo = "NO ACTION";break
-          case 'r': updateInfo = "RESTRICT"; break
-          case 'c': updateInfo = "CASCADE"; break
-          case 'n': updateInfo = "SET NULL"; break
-          case 'r': updateInfo = "SET DEFAULT"; break
-        }
+   if (Array.isArray(data.foreignKeys) && data.foreignKeys.length > 0) {
+  const frag = document.createDocumentFragment();
 
-        if (updateInfo != "") {
-          allUpDelInfo = `    <br/><span>ON UPDATE: <code>${updateInfo}</code></span>`
-        }
+  data.foreignKeys.forEach((fk) => {
+    // if no action, no output
+   // const actionMap = { a: "NO ACTION", r: "RESTRICT", c: "CASCADE", n: "SET NULL", d: "SET DEFAULT" };
+       const actionMap = {  r: "RESTRICT", c: "CASCADE", n: "SET NULL", d: "SET DEFAULT" };
+    const upd = actionMap[fk.on_update] || "";
+    const del = actionMap[fk.on_delete] || "";
 
-        let deleteInfo = "";
-        switch (fk.on_delete) {
-          // no info displayed if default
-          //case 'a': deleteInfo = "NO ACTION";break
-          case 'r': deleteInfo = "RESTRICT"; break
-          case 'c': deleteInfo = "CASCADE"; break
-          case 'n': deleteInfo = "SET NULL"; break
-          case 'r': deleteInfo = "SET DEFAULT"; break
-        }
+    let allUpDelInfo = "";
+    if (upd) allUpDelInfo += `<br/><span>ON UPDATE: <code>${upd}</code></span>`;
+    if (del) allUpDelInfo += `<br/><span>ON DELETE: <code>${del}</code></span>`;
 
-        if (deleteInfo != "") {
-          allUpDelInfo += `      <br/><span>ON DELETE: <code>${deleteInfo}</code></span>`
-        }
-
-        //const div = document.createElement("div");
-        fkDiv.className = "fk-block";
-        fkDiv.innerHTML = `
-      <div class="fk-title" title="${fk.comment || ''}" >${fk.constraint_name}
-         ${fk.comment ? '<span style="cursor: help;"> 💬</span>' : ''}
+    // ← un CADRE par FK
+    const block = document.createElement("div");
+    block.className = "fk-block";
+    block.innerHTML = `
+      <div class="fk-title" title="${fk.comment || ''}">
+        ${fk.constraint_name}
+        ${fk.comment ? '<span style="cursor: help;"> 💬</span>' : ''}
       </div>
-      Source: <strong>${fk.source_table}</strong>
-      <small> (${fk.all_source_not_null ? "NOT NULL" : "NULLABLE"})</small><br/>
-      
-      Target: <strong>${fk.target_table}</strong>
-      <small> (${fk.is_target_unique ? "UNIQUE/PK" : "NOT UNIQUE"})</small><br/>
+      <div>
+        Source: <strong>${fk.source_table}</strong>
+        <small> (${fk.all_source_not_null ? "NOT NULL" : "NULLABLE"})</small>
+      </div>
+      <div>
+        Target: <strong>${fk.target_table}</strong>
+        <small> (${fk.is_target_unique ? "UNIQUE/PK" : "NOT UNIQUE"})</small>
+      </div>
       ${allUpDelInfo}
       <ul>
-        ${fk.column_mappings
-            .map(
-              (col) => `<li>${col.source_column} → ${col.target_column}</li>`
-            )
-            .join("")}
+        ${fk.column_mappings.map(col => `<li>${col.source_column} → ${col.target_column}</li>`).join("")}
       </ul>
     `;
-      });
-    }
+    frag.appendChild(block);
+  });
 
-    // 🔍 Indexes
+  fkDiv.appendChild(frag);
+} else {
+  fkDiv.textContent = "No foreign keys found.";
+}
+
+    /*
+   🔍 Indexes 
+   Avoid to repeat PK in index 
+    Le test par nom suffit souvent en PostgreSQL (la PK et son index portent le même nom).
+
+Le test par colonnes + UNIQUE couvre les cas où les noms diffèrent mais l’index est exactement celui de la PK (ou un équivalent recréé).
+
+Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK mais non unique, il ne sera pas filtré (c’est volontaire : ce n’est pas la PK).
+    */
 
     const indexContainer = document.getElementById("indexesContainer");
     indexContainer.innerHTML = ""; // nettoie
-console.log('PLA indexContainer')
-    if (data.indexes?.length) {
-      data.indexes.forEach(idx => {
+
+
+    const raw = Array.isArray(data.indexes) ? data.indexes : [];
+
+    // (optionnel) dédoublonnage par nom d'index
+    const seen = new Set();
+    const indexes = raw.filter(i => {
+      const k = i.name || i.indexname;
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+
+    // Partitionning
+    const primary = [];
+    const uniqueOrExclude = [];
+    const pure = [];
+
+    for (const idx of indexes) {
+      const t = idx.constraint_type?.toUpperCase?.() || null;
+      if (t === 'PRIMARY KEY' || idx.is_primary === true) {
+        primary.push(idx);
+      } else if (t === 'UNIQUE' || t === 'EXCLUDE') {
+        uniqueOrExclude.push(idx);
+      } else {
+        // no constraint type → pure index 
+        pure.push(idx);
+      }
+    }
+    // (optionnel) tris
+    const byName = arr => arr.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    byName(primary); byName(uniqueOrExclude); byName(pure);
+    // pure index 
+    if (pure.length) {
+      const indexNumber = document.getElementById("indexNumber");
+
+      indexNumber.innerHTML += `<small>(${pure.length})</small>`;
+
+      pure.forEach(idx => {
+
         const block = document.createElement("div");
         block.className = "index-block";
 
         const titleDiv = document.createElement("div");
         titleDiv.className = "index-title";
+        let indicator = "";
+        if (idx.constraint_type == 'UNIQUE') {
+          indicator = '(uniq constraint)';
+        }
         if (idx.comment) {
           titleDiv.title = idx.comment;
           titleDiv.innerHTML = `${idx.name} <span style="cursor:help;">💬</span>`;
         } else {
-          titleDiv.textContent = idx.name;
+          titleDiv.textContent = idx.name + indicator;
         }
 
         block.appendChild(titleDiv);
+        // 
         block.insertAdjacentHTML("beforeend", extractIndexColumns(idx.definition));
 
-        indexContainer.appendChild(block); // ✅ on ajoute SEULEMENT des enfants
+        indexContainer.appendChild(block);
       });
     } else {
-      indexContainer.textContent = "No indexes found.";
+      indexContainer.textContent = "No indexes found (out of PK).";
     }
 
 
+    if (uniqueOrExclude.length) {
+      const uniqueNumber = document.getElementById("uniqueNumber");
 
+      uniqueNumber.innerHTML += `<small>(${uniqueOrExclude.length})</small>`;
 
+      uniqueOrExclude.forEach(idx => {
+
+        const block = document.createElement("div");
+        block.className = "index-block";
+
+        const titleDiv = document.createElement("div");
+        titleDiv.className = "index-title";
+
+        if (idx.comment) {
+          titleDiv.title = idx.comment;
+          titleDiv.innerHTML = `${idx.name} <span style="cursor:help;">💬</span>`;
+        } else {
+          titleDiv.textContent = `${idx.name} (${idx.constraint_type})`;
+        }
+
+        block.appendChild(titleDiv);
+        // 
+        block.insertAdjacentHTML("beforeend", extractIndexColumns(idx.definition));
+
+        uniqueContainer.appendChild(block);
+      });
+    } else {
+      uniqueContainer.textContent = "No other constraints";
+    }
 
     // 🔧 Helper pour extraire les colonnes de l'index
     function extractIndexColumns(def) {

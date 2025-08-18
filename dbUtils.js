@@ -33,7 +33,8 @@ export async function getTableDetails(client, tableName) {
   const indexes = indexResult.rows.map(row => ({
     name: row.indexname,
     definition: row.indexdef,
-    comment: row.comment
+    comment: row.comment,
+    constraint_type: row.constraint_type
   }));
 
   const commentRes = await client.query(tableCommentQuery, [tableName]);

@@ -97,13 +97,14 @@ As the graph could be very dense, you can restrict by selecting some edges befor
 
 ## list 
 
-Generates an HTML file with details for edges in current perimeter
+Generates an HTML file with details for edges in current perimeter.   
+The **Source** and **Target** tables are directly accessible.
 
-<img src="./img/edgesList.png" width="400px" style="border: 1px solid grey;"/>
+<img src="./img/edgesList.png" width="800px" style="border: 1px solid grey;"/>
 
 ### List *in 1 -> N detailed mode*
 ( img truncated below )
-<img src="./img/edgesListOneToNTruncated.png" width="400px" style="border: 1px solid grey;"/>
+<img src="./img/edgesListOneToNTruncated.png" width="800px" style="border: 1px solid grey;"/>
 
 ---
 

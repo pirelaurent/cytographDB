@@ -623,7 +623,7 @@ export function menuNodes(option) {
       break;
 
     //------------
-    case "listCurrentNodes":
+    case "listNodes":
       sendNodeListToHtml();
       break;
 

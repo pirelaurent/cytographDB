@@ -16,3 +16,14 @@ edges select all : to have only edges selected (no more node)
 nodes select from selected edges 
 nodes hide not selected 
 display layout dagre
+-----------------------
+index et fk sont inversés dans node list  29 31 pour bidt_stock_mvt
+normal: 31 fk, 29 index 77 colonnes.  on a dans le retour 29 fk, 31 index , 77 colonnes
+les fk ne sortent pas toutes
+
+avec cyto employee : 3 foreign key 1PK qui est reprise en index 
+
+voirequete export let indexQuery = ` dans dbreq.js pour constraint name, 
+
+voir sendNodeListToHtml : node.data('indexes' ) semble être index + entrants 
+on les prend depuis getTableDetails dans dbutils à la racine

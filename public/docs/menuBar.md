@@ -64,11 +64,26 @@ The current scope is displayed in the status bar, with emphasized numbers:
 
 ####  <img src="./img/connectToDBMenu.png"> 
 
-Used when a json stored graph is reloaded from disk and come not from DB. 
-To access **table details**, must reconnect to the **original or compatible database** used when the graph was created.
-Without reconnection, you can have warning like : 
-- `no connection to database. Connect first to the original DB`
+Use it when a previous stored json graph is uploaded from disk to reconnect it. 
+The app checks compatibilty between current connected DB and DB used when the stored graph was designed : 
+- if the same : app continue with same DB   
+- if not the same, ask for compatibility :
+
+  <img src= "./img/compatibility.png" width ="300px" style ="border:1px solid #888">.  
+  - ***Yes***: app options will come from the accepted DB.    
+  - ***No***:  some app options will have no results
+  - <img src= "./img/NoDetailsAvailable.png" width ="300px" style ="border:1px solid #888">.  
+- if no current connection to a DB:
+  
+-  <img src= "./img/NoDetailsNoDB.png" width ="300px" style ="border:1px solid #888">.  
+
+### application options needing a connected database. 
+
+- triggers 
 - <img src = './img/DBErrorOnTriggers.png' width ="200px" style="border: 1px solid grey;">
+- table definition 
+- <img src = './img/DBNoTabeDefinition.png' width ="500px" style="border: 1px solid grey;">
+  
 
 ---
 
@@ -76,7 +91,7 @@ Without reconnection, you can have warning like :
 
 Used to save and load graph data in JSON format.
 
-### Download / Upload
+### Download 
 
 - Use the browser's file dialog to save/load graph from local disk. 
 
@@ -84,6 +99,11 @@ Used to save and load graph data in JSON format.
 <img src="./img/drafInput.png"> 
 
 You can assign a name to your graph before downloading ( can change also in navigator)
+
+### Upload 
+
+Load a Json file saved by download. 
+A check of DB is done as explained upper.  
 
 ---
 
@@ -135,5 +155,5 @@ Expand or shrink the scoped graph in both directions.
 - ⚪️ [Main](./main.md)
 - 🟩 [Quick Tour](./quickTour.md)  
 - 🟨 [*Main Menu Bar*](./menuBar.md)  
-- 🟦 [Node Menu](./menuNodes SelectHide.md)  
+- 🟦 [Node Menu](./menuNodesSelectHide.md)  
 - 🟥 [Edge Menu](./menuEdgesSelectHide.md)   

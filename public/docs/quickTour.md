@@ -19,16 +19,15 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
 -  without special categories
   - round rectangle (*production line, factory, employee*)
 
-#### tables with native categorie(s) 
+#### tables with native categorie(s) :
 
-Native categories of nodes are visible on sample:
 - **orphan** : no links
   -  pentagon ( *parameters* )
 - **root** : no outgoing link. 
   - triangle (*product, company*).
 - **leaf** : no incoming, one outgoing 
   - rounded triangle (*skills*)
-- **dry association** :  no incomings, 2 outgoings, strict list of columns from FK in table
+- **(dry) association** :  no incomings, 2 outgoings, strict list of columns from FK in table
   - ellipse (*authorization*) 
 - **multi-association** : no incomings, >2 outgoings, or: 2 outgoings with extra column in table
   - ellipse with double border (*intervention*)
@@ -36,59 +35,64 @@ Native categories of nodes are visible on sample:
 #### standard alteration 
 
 - table  **'has triggers'**
-  -  label of node is followed by ***stars \****, 1 per trigger (*intervention*)
+  -  label of node is followed by ***stars \****, 1 per trigger (*intervention\*\**)
 
-### default FK edge representation
+### FK edge representation:
 
 - standard FK 
-  - straight line with destination arrow as triangle
-    - (*production_line -> factory) , (employee -> factory*)
-- FK '**on cascade delete**' 
+  - straight line with destination arrow as triangle     
+ <img src ="./img/edgeSimple.png" width = "200px">.  
+
+- FK '**on delete cascade**' 
   - standard FK but a circle as source-arrow
-    - (*autorization-> employee, autorisation -> production_line*) and many others
+ <img src ="./img/edgeCascade.png" width = "200px">.  
 - FK '**nullable**'
   - special line color ( default blue sky )
-    - (*employee->employee, chief and work_with*)
+ <img src ="./img/edgeNullable.png" width = "100px">. 
 
 ## hover for more informations
 
-with hover "on" in main menu bar, details appear under cursor on node or edge
+with hover "on" in main menu bar, details appear under cursor on **node** or **edge**
 
-<img src = "./img/basicInformationNode.png" width = "400px" style="border: 1px solid grey;">
+<img src = "./img/basicInformationNode.png" height = "200px" style="border: 1px solid grey;">
+<img src = "./img/edgeInformation.png" height = "200px" style="border: 1px solid grey;">
 
 ### node info
 
-When cursor is over a node-table : 
-- **outgoings edges** (foreign keys) are green 
-- **incomings edges** (referenced by other tables) are red 
-- a pop up show the number of edges **<-out & <-in**
-- Unrelated elements are faded for clarity.
+**outgoings edges** (foreign keys) are green 
+**incomings edges** (referenced by other tables) are red 
+The pop up show the number of edges **<-out & <-in**
+*[standard and custom categories if any]* 
+
   
-  *note: at any time 'ctrl g' or clic on photo icon create a png snapshot of screen*
+  *note: at any time 'ctrl g' or clic on photo icon create a png snapshot of current screen*
 
 ### edge info
 
-<img src = "./img/basicInformationEdge.png" width = "400px" style="border: 1px solid grey;">
-
-When cursor is over a edge :
-  - source table -> destination table 
-  - name of the FK constraint 
-  - [optional categories]
+source table -> destination table 
+name of the FK constraint 
+*[standard and custom categories if any]*
 
 
 ---
-### list of nodes for a glance 
+### list of nodes at a glance 
 
-
-**list** menu generates an HTML file listing all node's labels, sorted alphabetically.
-**All headers are sortable** by a click . 
+**list** in node menu generates an window with nodes of current perimeter (only selected if any, all otherwise)
 
 <img src = "./img/listNodes.png" width = 300px style="border: 2px solid grey;">  
+
+**All headers are sortable** by a click . 
+**Clic on a table name goes directly to table's details**
+*Index count are indexes out of primary key* 
 
 --- 
 
 ### browse table schema
 
+you can browse details of a table 
+- either from a table name in a list (node list or edge list)
+- either from the contextual menu directly on a node in graph:
+- 
 #### contextual menu on node 
 
 right-click on a node let appear a sub menu: 
@@ -99,19 +103,22 @@ right-click on a node let appear a sub menu:
 
 #### table definition 
 
-  - chain to a new window with detailed schema information (partial below) 
+  - chain to a new window with detailed schema information. 
     - if any comment in schema, a tip is available.
+    - Indexes are out of primary key 
+    - *Unique* or *Exclude* constraints are listed apart. 
+      - total constraints number are : PK + Indexes + other constraints
   
 <img src ="./img/tableDetails.png" width = "800px" style="border: 1px solid grey;">
 
 #### table triggers  
 
-  - chain to pages starting with triggers'list allowing to browse the PSQL code.  
+  - chain to a new window with triggers'list allowing to browse the PSQL code.  
 
 <img src = "./img/triggerMainPage.png" width ="600px" style="border: 1px solid grey;">
 
 
-<small>*[click here for more on FK constraints in SQL ](./moreSQL.md)*</small> 
+<small>*[click here for tutorial on FK constraints in SQL ](./moreSQL.md)*</small> 
 
 #### Impacted Tables
 
@@ -125,10 +132,8 @@ In the upper sample, the `employee` table is in 'Impacted Tables' because an Upd
 <img src ="./img/function-intervention-code.png" width = "600px" style="border: 1px solid grey;">
 
 ---
-## more capacities of cytographDB edges
 
-
-### add trigger impacts in the Network
+## extend graph with trigger impacts 
 
 From menu: **Edges → Data Model → Generate Trigger Impact**
 
@@ -138,32 +143,37 @@ New edges represent trigger-based relationships (violet below)
 
 Labels of new *trigger_impact* edge is the trigger's name.
 
-These edges can be easily selected later through **edges - filters... -  trigger_impact**
+These edges can be easily selected later through **edges - filters...  trigger_impact**
 
 ## show detailed columns of foreign keys 
 
-**Edges - toggle details 1 --> N** ( reverse: *toggle details N --> 1* )
+### 1 edge per FK 
 
- Show **an edge per linked column** between source and destination tables   
- On hover, **corresponding columns'name** are shown. 
+This is the default FK presentation in the graph.   
 
+
+### 1 edge per column 
+
+A previous FK edge is splitted in an edge per matching columns.  
+Clic on ***Edges-label-show***  to see all matching column names:
+ 
 <img src ="./img/edgePerColumn.png" width = "600px" style="border: 1px solid grey;">
 
- 
-This is a quick way to look at columns mapping without opening table details.  
+If the graph is too loaded with information:   
+-You can select some edges before calling *1 edge per column*. 
+-You are not obliged to ***show labels*** as you will have same information with ***hover***
 
-## walk the model 
+## Walk through the model 
 
-using a directed graph allows to walk through table dependencies.  
+This kind of directed graph allows to walk through table dependencies.  
 
-### current perimeter
- actions start from *current perimeter* 
+ Actions apply to ***current perimeter***: 
 - **selected visibles** if any
-- **all visibles** if no selected
+- **all visibles** if none selected
 
-### follow & show... *outgoing/incoming/both* 
+### follow & show... *outgoing / incoming / both* 
 
-Starting from  *current perimeter*, choosing  a direction will select next nodes on the path.  
+Starting from nodes in *current perimeter*, this actionselect next nodes in the chosen direction.  
 
 Below, graph starts with selection of one table, *production_line*, followed by two successive clic *follow outgoing*. 
 <img src ="./img/outgoingProduction_line.png" width = "500px" style="border: 1px solid grey;">

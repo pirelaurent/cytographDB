@@ -219,7 +219,6 @@ LEFT JOIN pg_constraint c ON c.conindid = i.oid
 WHERE nt.nspname = 'public'
   AND t.relname  = $1
 ORDER BY i.oid;
-
 `
 
 

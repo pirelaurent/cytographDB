@@ -333,6 +333,10 @@ export function loadGraphFromFile(event) {
     const originalDBName = json.originalDBName || null;
 
     const currentDBName = getLocalDBName();
+const message = `All details would not be available<br/> 
+    <br/> if compatible DB is accessible:<br/> Use <i> connect to DB only</i> then reload the json file`;
+
+
     // if no db connected accept upload without question 
     //if ((currentDBName != null) && (currentDBName != originalDBName)) {
 if ((currentDBName != null) && (currentDBName != originalDBName)) {
@@ -341,7 +345,7 @@ if ((currentDBName != null) && (currentDBName != originalDBName)) {
         let original = originalDBName == null ? ' not defined' : originalDBName;
         let current = currentDBName;
 
-        showMultiChoiceDialog(` <i>${file.name}</i> was done with DB:<br/>${original}`, `is <b>${current}</b> compatible ?`, [
+        showMultiChoiceDialog(` <i>${file.name}</i> was created from <i>${original}</i>`, `is current <b>${current}</b> compatible ?`, [
           {
             label: "✅ Yes",
             onClick: () => { }
@@ -350,15 +354,14 @@ if ((currentDBName != null) && (currentDBName != originalDBName)) {
             label: "❌ No",
             onClick: () => {
               resetPoolFromFront()
-              showAlert('Some details from database could not be retrieved<br/> <br/>Try selecting <i>DB: connect to DB only</i> then reload')
+              showAlert(`${message}`)
             }
           },
         ]);
       }
     }
 if (currentDBName===null){
-  showAlert('No database :some details could not be retrieved<br/> <br/>Try <i>DB : connect to DB only</i> then reload');
-}
+  showAlert(`no DB connected. ${message}`)}
 
     setCurrentFKMode(json.currentFkMode)
 
@@ -410,5 +413,6 @@ export async function resetPoolFromFront() {
     throw new Error("Échec du reset pool");
   }
   setLocalDBName(null);
+    document.getElementById("current-db").innerHTML = "";
   return response.json();
 }

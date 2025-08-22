@@ -24,7 +24,7 @@ function createIconButton(doc, { src, alt, title, width = 25, height = 25, onCli
 }
 
 
-export function sendNodeListToHtml() {
+export function listNodesToHtml() {
   let nodes;
   // permimeter
   nodes = getCy().nodes(":selected:visible");
@@ -234,7 +234,7 @@ export function sendNodeListToHtml() {
   // Mark the first column as already sorted ascending
   const firstTh = table.querySelector("th"); // First header cell
   firstTh.classList.add("sort-asc");
-}//sendNodeListToHtml
+}//listNodesToHtml
 
 
 

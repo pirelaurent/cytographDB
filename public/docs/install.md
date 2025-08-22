@@ -58,8 +58,6 @@ node server.js
 
 Visit: [http://localhost:3000](http://localhost:3000)
 
-> External resources in `index.html` require an active **internet connection**.
-
 ---
 
 ## 6️⃣ Verify DB Connection
@@ -77,7 +75,7 @@ Choose one to generate its graph.
 
 # 🧪 Optional: Install Demo Database `democytodb`
 
-To test the app, use the SQL scripts in `public/docs/sql`.
+To test the app as this documentation, use the SQL scripts in `public/docs/sql`.
 
 ### Step 1: Create the Database
 

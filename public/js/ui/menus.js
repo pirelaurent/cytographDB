@@ -32,7 +32,7 @@ import {
   generateTriggers,
 } from "../dbFront/tables.js"
 
-  import {sendNodeListToHtml, sendEdgeListToHtml} from "../ui/html.js";
+  import {listNodesToHtml, sendEdgeListToHtml} from "../ui/html.js";
 
 import {
   follow,
@@ -624,7 +624,7 @@ export function menuNodes(option) {
 
     //------------
     case "listNodes":
-      sendNodeListToHtml();
+      listNodesToHtml();
       break;
 
     //---------------- nodes connected to selected edges

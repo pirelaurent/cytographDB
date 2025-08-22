@@ -25,5 +25,5 @@ avec cyto employee : 3 foreign key 1PK qui est reprise en index
 
 voirequete export let indexQuery = ` dans dbreq.js pour constraint name, 
 
-voir sendNodeListToHtml : node.data('indexes' ) semble être index + entrants 
+voir listNodesToHtml : node.data('indexes' ) semble être index + entrants 
 on les prend depuis getTableDetails dans dbutils à la racine

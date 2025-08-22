@@ -7,7 +7,7 @@
 // main.js (aucun import statique vers des modules optionnels !)
 const optionalModules = [
   '../custom/democytodb.js',
-  '../custom/AWProject.js',
+  '../custom/myModule.js',
   '../custom/fake.js',
 ];
 
@@ -20,8 +20,6 @@ optionalModules.forEach(spec => {
   });
 });
 
-// la suite de ton appli part immédiatement
-//startApp(); // <-- rien n’est bloqué
 
 /*
     to avoid upload of modif in YOUR LOCAL REPO : 

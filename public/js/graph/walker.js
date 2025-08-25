@@ -13,6 +13,13 @@ import {
 
 } from "../ui/dialog.js";
 
+
+import {
+  showWaitCursor,
+  hideWaitCursor
+} from "../ui/html.js"
+
+
 import {
   pushSnapshot,
 } from "../graph/snapshots.js";
@@ -244,60 +251,78 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
     showAlert("no selected nodes as starting points.");
     return;
   }
+  let msgIteration = "";
 
-  startNodes.forEach((start) => {
-    dfs([start], new Set([start.id()]), 1, start.id());
-  });
-  if (iterationCount >= maxIterations) {
-    showAlert(`Limited iterations ${maxIterations} reached. <br/>(Partial results)`);
-  }
-  const elementsToShow = getCy().collection();
+  showWaitCursor().then(() => {
+    try {
+      // 1) calcul
+      for (const start of startNodes) {
+        dfs([start], new Set([start.id()]), 1, start.id());
+        // si c’est TRÈS long, on peut céder la main périodiquement :
+        // await new Promise(r => setTimeout(r));
+      }
 
-  paths.forEach((path) => {
-    for (let i = 0; i < path.length - 1; i++) {
-      const source = path[i];
-      const target = path[i + 1];
-      const edge = source.edgesTo(target);
-      elementsToShow.merge(source).merge(target).merge(edge);
+      // 2) post-traitement APRÈS calcul
+
+      if (iterationCount >= maxIterations) {
+        msgIteration = `<br/>limited iterations ${maxIterations} were reached. <br/>(Partial results)<br/>`;
+      }
+
+      const elementsToShow = getCy().collection();
+      paths.forEach((path) => {
+        for (let i = 0; i < path.length - 1; i++) {
+          const source = path[i];
+          const target = path[i + 1];
+          const edge = source.edgesTo(target);
+          elementsToShow.merge(source).merge(target).merge(edge);
+        }
+      });
+
+      if (elementsToShow.length === 0) {
+        showAlert(`No long path (>${minLength}) from the starting nodes.`);
+        return;
+      }
+
+      // Clear all previous selections and fade everything
+      getCy().elements().unselect().addClass("faded");
+
+      // Highlight the actual path elements
+      elementsToShow.removeClass("faded").select();
+
+      // Make sure only *starting* nodes are specially marked
+      getCy().nodes().removeClass("start-node"); // optional visual marker
+      getCy().nodes()
+        .filter((n) => successfulStarts.has(n.id()))
+        .addClass("start-node")
+        .select();
+
+      let okMess = `${paths.length} long path(s) `;
+      let okLimit = "";
+      let limit = paths.length;
+      if (limit > 1000) {
+        limit = 1000;
+        okLimit = "(limited to 1000)";
+      }
+      if (paths.length < 50) { showLongPathList(limit, paths) }
+      else
+        showMultiChoiceDialog(okMess, `👁️ show the list ? ${okLimit}  ${msgIteration}`, [
+          {
+            label: '✅ Yes',
+            onClick: () => showLongPathList(limit, paths)
+          },
+          {
+            label: "❌ No",
+            onClick: () => { } // rien
+          }
+        ])
+
+    } finally {
+      hideWaitCursor();
     }
   });
 
-  if (elementsToShow.length === 0) {
-    showAlert(`No long path (>${minLength} )from the starting nodes.`);
-    return;
-  }
 
-  // Clear all previous selections and fade everything
-  getCy().elements().unselect().addClass("faded");
 
-  // Highlight the actual path elements
-  elementsToShow.removeClass("faded").select();
-
-  // Make sure only *starting* nodes are specially marked
-  getCy().nodes().removeClass("start-node"); // optional visual marker
-  getCy().nodes()
-    .filter((n) => successfulStarts.has(n.id()))
-    .addClass("start-node")
-    .select();
-
-  let okMess = `${paths.length} long path(s) `;
-  let okLimit = "";
-  let limit = paths.length;
-  if (limit > 1000) {
-    limit = 1000;
-    okLimit = "(limited to 1000)";
-  }
-
-  showMultiChoiceDialog(okMess, '👁️ show the list ? ' + okLimit, [
-    {
-      label: '✅ Yes',
-      onClick: () => showLongPathList(limit, paths)
-    },
-    {
-      label: "❌ No",
-      onClick: () => { } // rien
-    }
-  ])
 };
 
 /*
@@ -305,20 +330,52 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
 */
 function showLongPathList(limit, paths) {
   // Génère le HTML des chemins
+
+
+  let prevIds = null;
   const pathHtml = [];
+
   for (let idx = 0; idx < limit; idx++) {
     const path = paths[idx];
+    const ids = path.map(n => n.id());
+
+    // calcule la longueur du préfixe commun avec le chemin précédent
+    let commonLen = 0;
+    if (prevIds) {
+      const len = Math.min(ids.length, prevIds.length);
+      while (commonLen < len && ids[commonLen] === prevIds[commonLen]) {
+        commonLen++;
+      }
+    }
+
+    // construit la ligne avec préfixe en gris
+    const parts = [];
+    for (let i = 0; i < ids.length; i++) {
+      const cls = i < commonLen ? 'prefix' : 'rest';
+      // flèche avant sauf pour le premier, avec la même couleur que l’élément courant
+      const arrow = i === 0 ? '' : ` <span class="${cls}">→</span> `;
+      parts.push(`${arrow}<span class="${cls}">${ids[i]}</span>`);
+    }
+
     pathHtml.push(
-      `<div class="path">${idx + 1} : ${path.map((n) => n.id()).join(" → ")}</div>`
+      `<div class="path">${idx + 1} : ${parts.join('')}</div>`
     );
+
+    prevIds = ids;
   }
 
+
+
+
+
+
+  const imgSrc = `${location.origin}/img/closePage.png`;
   // Template HTML complet
   const html = `
     <html>
       <head>
         <title>Long Paths</title>
-        
+          <link rel="stylesheet" href="${location.origin}/css/style.css">
         <style>
           body { font-family: sans-serif; padding: 1em; }
           h1 { margin-bottom: 1em; }
@@ -326,10 +383,16 @@ function showLongPathList(limit, paths) {
         </style>
       </head>
       <body>
-        <h1><button class="close-btn" title="Close" onclick="window.close()">✖</button> &nbsp;Long path list</h1>
-        <div id="path-container">
+        
+      <h1>
+        <button class="close-btn" title="Close" onclick="window.close()">
+          <img src="${imgSrc}">
+        </button>
+        &nbsp;Long path list
+      </h1>
+      <div id="path-container">
           ${pathHtml.join("\n")}
-        </div>
+      </div>
       </body>
     </html>
   `;
@@ -455,36 +518,61 @@ export function downloadJson(jsonObject, filename = "trace.json") {
 /*
  used by long path 
 */
+
 function openJsonInNewTab(jsonArray, aTitle) {
-  // internal helper function
-  function toSimplifiedText(jsonArray) {
-    return jsonArray.map(obj => {
-      let lines = [];
+  function toSimplifiedText(arr) {
+    return arr.map(obj => {
+      const lines = [];
       lines.push(` <b>${obj.to}</b> <--  <b>${obj.from}</b>`);
       for (const col of obj.columns) {
         lines.push(`  ${col.target_column} <-- ${col.source_column}`);
-
       }
       return lines.join('\n');
     }).join('\n\n');
   }
-  // main function
 
   const simplifiedText = toSimplifiedText(jsonArray);
+
+  // chemin absolu (important si la nouvelle page est "vierge")
+  const imgSrc = `${location.origin}/img/closePage.png`;
+
   const html = `
+    <!doctype html>
     <html>
-      <head><title>${aTitle}</title></head>
+      <head>
+  <meta charset="utf-8">
+  <title>${aTitle}</title>
+  <link rel="stylesheet" href="${location.origin}/css/style.css">
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 1rem 1.25rem; }
+    h1 { margin: 0 0 0.5rem; font-size: 1.4rem; }
+    h2 { margin: 0 0 1rem; font-size: 1.1rem; display:flex; align-items:center; gap:0.5rem; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+  </style>
+ </head>
       <body>
-       <h1> from ${aTitle}</h1>
-       <h2> <button class="close-btn" title="close" onclick="window.close()">X</button> &nbsp;chains of PK matched exactly by FK </h2>
-        <pre style="white-space: pre-wrap; word-break: break-word;">${simplifiedText}</pre>
+        <h1>
+        <button class="close-btn" title="close" onclick="window.close()">
+            <img src="${imgSrc}" alt="close">
+          </button>
+        
+        from ${aTitle}</h1>
+        <h2>
+          
+          chains of PK matched exactly by FK
+        </h2>
+        <pre>${simplifiedText}</pre>
       </body>
-    </html>
+  </html>
   `;
-  const blob = new Blob([html], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  window.open(url, 'aTitle');
+
+  // ouvre un onglet "standard"
+  const win = window.open('', 'longPath');
+
+  // injecte le HTML complet
+  win.document.documentElement.innerHTML = html;
 }
+
 
 /*
  experimental 
@@ -496,7 +584,7 @@ export function findPkFkChains() {
   const roots = getCy().nodes(":visible:selected").filter(n => n.data('foreignKeys').length === 0);
 
   if (roots.length === 0 || roots.length != 1) {
-    showAlert(" must start from a unique node without foreignKey.");
+    showAlert(" must start from a unique node of category root (no foreignKey).");
     return;
   }
   pushSnapshot();

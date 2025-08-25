@@ -53,7 +53,7 @@ import {
     getCy,
     perimeterForEdgesAction,
 } from '../graph/cytoscapeCore.js';
-import { showAlert, showInfo } from '../ui/dialog.js';
+import { showInfo } from '../ui/dialog.js';
 
 let currentFkMode;
 
@@ -69,25 +69,6 @@ export function saveDetailedEdges() {
     //document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
 }
 
-/*
- toggle edge presentation 
-*/
-export function toggleFkMode() {
-    const cy = getCy();
-    // if called with no graph
-    if (cy.edges().length === 0) {
-        showAlert('empty graph');
-        return;
-    }
-
-    switch (currentFkMode) {
-        case 'detailed':
-            enterFkSynthesisMode()
-            break;
-        case 'synthesis': enterFkDetailedMode();
-            break;
-    }
-}
 
 /*
  swap the edges synthetic with detailed
@@ -150,7 +131,14 @@ global: false when commin from menu , true for load/save
 
 
 export function enterFkSynthesisMode(global) {
-    let edges = getCy().edges('.fk_detailed');
+
+    let edges;
+    if (global) {
+        edges =  getCy().edges('.fk_detailed');
+    } else {
+        edges = perimeterForEdgesAction().filter('.fk_detailed')
+    }
+
     // stored graph could be synthetic only 
     if (edges.length == 0) {
         showInfo("no detailed edges to reduce for this graph");

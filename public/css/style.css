@@ -2,8 +2,9 @@ body {
   margin: 0;
   font-family: sans-serif;
 }
+
 #topbar {
-  height:80px;
+  height: 80px;
 }
 
 #cy {
@@ -60,14 +61,16 @@ button:hover {
   color: black;
   /* au choix */
 }
-#undo-btn,#btn-export {
+
+#undo-btn,
+#btn-export {
   all: unset;
   cursor: pointer;
   padding: 8px;
   border-radius: 4px;
 }
 
-#undo-btn:hover{
+#undo-btn:hover {
   background-color: cornsilk;
 }
 
@@ -77,11 +80,11 @@ button:hover {
 
 #btn-export:hover {
   background-color: cornsilk;
-} 
+}
 
 
 .metrologie {
-  background-color:rosybrown;
+  background-color: rosybrown;
   color: white;
   display: inline-block;
   text-align: center;
@@ -212,8 +215,10 @@ button:hover {
   border: 1px solid #ccc;
   border-radius: 4px;
   z-index: 999;
-  display: none; /* masqué par défaut */
-  pointer-events: none; /* ne gêne pas les clics */
+  display: none;
+  /* masqué par défaut */
+  pointer-events: none;
+  /* ne gêne pas les clics */
 }
 
 
@@ -223,7 +228,8 @@ button:hover {
   padding: 1em;
 }
 
-.fk-block,.pk-block {
+.fk-block,
+.pk-block {
   margin-bottom: 1.5em;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -276,23 +282,26 @@ button:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4); /* semi-transparent */
+  background: rgba(0, 0, 0, 0.4);
+  /* semi-transparent */
   z-index: 1000;
 }
 
-#hoverInfoToggle{
+#hoverInfoToggle {
   height: 146x;
   width: 16px;
   margin: 0;
   vertical-align: middle;
 }
+
 #hoverInfoToggle:checked {
   accent-color: red;
 
 }
 
 #graphUpload {
-  display: none; /* cacher le vrai input */
+  display: none;
+  /* cacher le vrai input */
 }
 
 .upload-label {
@@ -310,8 +319,9 @@ button:hover {
 }
 
 .doc-link {
-  color:darkred ;            /* couleur du lien normal */
-  text-decoration: none; 
+  color: darkred;
+  /* couleur du lien normal */
+  text-decoration: none;
   margin-left: auto;
   padding-right: 15px;
 
@@ -319,11 +329,13 @@ button:hover {
 
 
 .doc-link:hover {
-  color: red;           /* couleur au survol */
-  text-decoration: underline; /* ou autre effet au hover */
+  color: red;
+  /* couleur au survol */
+  text-decoration: underline;
+  /* ou autre effet au hover */
 }
 
-#nameFilter{
+#nameFilter {
   font-size: 1.1em;
   height: 25px;
 }
@@ -331,12 +343,12 @@ button:hover {
 
 .label {
   margin-right: 10px;
-  margin-left: 15px; 
+  margin-left: 15px;
 }
 
 .labelPrevious {
-  margin-right:4px;
-  margin-left: 15px; 
+  margin-right: 4px;
+  margin-left: 15px;
 }
 
 
@@ -359,25 +371,32 @@ button:hover {
 
 .overlay {
   position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.5);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
-  align-items: flex-start;   /* change ici pour alignement vertical */
+  align-items: flex-start;
+  /* change ici pour alignement vertical */
   z-index: 10000;
 }
+
 .dialog {
-  margin-top: 30vh;  /* ne se met pas en place. a revoir*/
+  margin-top: 30vh;
+  /* ne se met pas en place. a revoir*/
 }
 
 /* Modal background */
 #nameFilterModal.modal-bg {
   display: none;
   position: fixed;
-  left: 0; top: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0,0,0,0.3);
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
   z-index: 9999;
   justify-content: center;
   align-items: center;
@@ -420,3 +439,22 @@ button:hover {
 #nameFilterModal .modal-btn {
   margin-right: 12px;
 }
+
+.close-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.close-btn img {
+  width: 25px;
+  height: 25px;
+  display: block;
+}
+.path { color: #000; }
+.path .prefix { color: #888; }  /* gris pour le début identique */
+.path .rest { color: #000; }    /* noir pour la suite différente */
+
+/* Force le curseur sur toute la page quand html a la classe 'busy' */
+html.busy, html.busy * { cursor: wait !important; }

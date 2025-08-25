@@ -77,7 +77,6 @@ import {
 import {
   enterFkDetailedMode,
   enterFkSynthesisMode,
-  toggleFkMode,
 } from "../graph/detailedEdges.js";
 
 
@@ -740,11 +739,7 @@ export function menuEdges(option) {
     case "enterFkDetailedMode":
       enterFkDetailedMode(false);
       break;
-/* deprecated
-    case "toggleFkMode":
-      toggleFkMode();
-      break;
-*/
+
 
 
     //--- select by data Snapshot done into function

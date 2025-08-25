@@ -63,11 +63,6 @@ Take in account currently selected ***nodes*** to pursuit with edge selection :
 
 <img src = "./img/edgeConnectingNodes.png" width = 300px>   
 
-## toggle details N -> 1 
-
-draw an edge **per column of FK**
-<img src = "./img/edgePerColumns2.png" width = 500px>  
-
 ---
 
 ## Label

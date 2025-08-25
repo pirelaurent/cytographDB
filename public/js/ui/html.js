@@ -24,6 +24,22 @@ function createIconButton(doc, { src, alt, title, width = 25, height = 25, onCli
 }
 
 
+export function showWaitCursor() {
+  document.documentElement.classList.add('busy');
+  // double rAF pour garantir un paint avant le calcul
+  return new Promise(resolve =>
+    requestAnimationFrame(() => requestAnimationFrame(resolve))
+  );
+}
+
+export function hideWaitCursor() {
+  document.documentElement.classList.remove('busy');
+}
+
+
+
+
+
 export function listNodesToHtml() {
   let nodes;
   // permimeter
@@ -98,7 +114,6 @@ export function listNodesToHtml() {
   th.sort-asc::after { content: " ▲"; }
   th.sort-desc::after { content: " ▼"; }
   h2 { display:flex; align-items:center; gap:.5rem; }
-  .close-btn { cursor:pointer; }
 `;
   doc.head.appendChild(style);
 
@@ -166,7 +181,7 @@ export function listNodesToHtml() {
             try {
               if (w.location.href !== url) w.location.href = url;
               w.focus();
-            } catch (e) {
+            } catch {
               // Fallback si cross-origin ou autre
               w = window.open(url, name);
               if (w) w.focus();

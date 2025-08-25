@@ -200,11 +200,12 @@ Below , a *follow long path* is started from the leaf node *skills*
 
 <img src ="./img/longPathGrahList.png" width = "300px" style="border: 1px solid grey;">
 
-If the long path search starts from all nodes, we got all practicable path : 
+If the long path search starts from all nodes, we got all practicable path.  
+To facilitate reading common path parts are greyed when the same as previous. 
 
-<img src ="./img/longPathGrahList2.png" width = "400px" style="border: 1px solid grey;">
+<img src ="./img/longPathGrahList3.png" width = "400px" style="border: 1px solid grey;">. 
 
-### follow & show... N->1 chains 
+### follow & show... pk <- fk chains
 
 This walk must start from a ***root***.   
 If search backward tables where a FK uses exactly all the columns of the PK' source and continue with new tables. 

@@ -224,17 +224,18 @@ const cyStyles = [
     },
   },
 
-   {
+  {
     selector: "edge.fk_detailed",
     style: {
       'line-color': '#9683EC',
       'target-arrow-shape': "triangle",
       'target-arrow-color': '#6952cf',
-         'source-arrow-color': '#6952cf',
+      'source-arrow-color': '#6952cf',
+      'color': '#3317ad',
     },
   },
 
-{
+  {
     selector: "edge:selected",
     style: {
       "line-color": "chartreuse",
@@ -300,7 +301,7 @@ const cyStyles = [
       "background-color": "lime",
     },
   },
-    {
+  {
     selector: "node.leaf",
     style: {
       shape: "round-triangle",
@@ -332,9 +333,9 @@ const cyStyles = [
     style: {
       shape: "pentagon",
       color: "#222",
-    "background-color": "#bbca9a", // ou une couleur par défaut
-    "border-style": "solid", // pour éviter l'écrasement du style sélectionné
-    "border-width": 1  
+      "background-color": "#bbca9a", // ou une couleur par défaut
+      "border-style": "solid", // pour éviter l'écrasement du style sélectionné
+      "border-width": 1
     },
   },
 ];

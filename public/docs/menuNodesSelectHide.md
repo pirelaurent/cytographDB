@@ -42,9 +42,9 @@ Starts from currently selected nodes and follows the edges in choosen directions
 - **outgoing**
 - **incoming**
 - **both**   
-- **association** :  When a selected node is an association, reveal and select the other side nodes involved in this association.   
+- **association** :  When a selected node is an association, reveal and select the other side nodes involved in this association.
 - **long paths** : From a selected node (mainly *leaf nodes*) find path that involve at least three tables in successive **output direction**.
-- **N->1 chains** : This walk is limited to successive follow incoming steps starting from a *root node*, but it verifies that all primary key columns of the referenced table are included in the foreign key columns of the relying table.
+- **pk <- fk chains** : This walk follows successive incoming edges from a root node and checks that the referencing table’s foreign key fully covers all columns of the referenced table’s primary key.It continues on next nodes as long as this pattern is correct.
 
 See details at [quicktour *walk the model* ](quickTour.md#walk-the-model) 
 

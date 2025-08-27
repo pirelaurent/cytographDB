@@ -709,7 +709,7 @@ export function V0_findFunctionalDescendantsCytoscape(rootNode) {
           match = true;
           continue; //not break
         } else {
-          //console.log("Fk not on PK :"+fk.constraint_name);//PLA
+          //console.log("Fk not on PK :"+fk.constraint_name);
         }
       }
       if (match) {

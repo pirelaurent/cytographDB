@@ -1,28 +1,42 @@
 "use strict";
 /*
-    set here import to let modules visible into the application
-    set them into public/custom  directory as this is out of the git upload 
-    as a js module app, path must be relative : 
+  loaded at startup
+  scan directory public/custom/*.js  to load optional custom modules .     
 */
-// main.js (aucun import statique vers des modules optionnels !)
-const optionalModules = [
-  '../custom/democytodb.js',
-  '../custom/myModule.js',
-  '../custom/fake.js',
-  '../custom/AWProject.js',
-];
 
-// on déclenche les imports sans attendre qu’ils finissent
-optionalModules.forEach(spec => {
-  import(spec).then(() => {
-    console.info('[custom] chargé :', spec);
-  }).catch(err => {
-    console.debug('[custom] ignoré :', spec, err?.message || err);
+
+(async () => {
+  let modules = [];
+  try {
+    const res = await fetch('/api/custom-modules', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    modules = await res.json(); // ex: ['/custom/a.js', '/custom/b.js', ...]
+  } catch (e) {
+    console.error('[custom] impossible de récupérer la liste', e);
+    return;
+  }
+
+  // Fire-and-forget //
+  modules.forEach(spec => {
+    // (optionnel) bust cache si tu changes souvent les fichiers
+    const url = `${spec}?v=${Date.now()}`;
+
+    import(/* @vite-ignore */ url)
+      .then(mod => {
+        console.info('[custom] loaded :', spec);
+        // Si un module exporte une init() par convention :
+        if (typeof mod?.init === 'function') mod.init();
+        // ou si default est une fonction :
+        if (typeof mod?.default === 'function') mod.default();
+      })
+      .catch(err => {
+        console.debug('[custom] ignored :', spec, err?.message || err);
+      });
   });
-});
+})();
 
 
 /*
-    to avoid upload of modif in YOUR LOCAL REPO : 
+    note to avoid upload of modif in YOUR LOCAL REPO : 
     git update-index --skip-worktree public/customModulesIndex.js
 */

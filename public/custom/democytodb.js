@@ -8,8 +8,6 @@ import {
 
 import { registerCustomModule, getCustomNodesCategories } from "../js/filters/categories.js";
 
-console.log("[DEBUG] democytodb.js chargé");
-
 /*----------------------------------------------
   module name
 */

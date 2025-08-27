@@ -1,28 +1,33 @@
 # Customization
 
 You can enhance your graph for a specific database by 
-- adding a module : 
+- adding in a module : 
   - **Custom categories** to enable element filtering
   - **Custom styles** for tables of standard and custom categories
-- declaring the module to be associated to some db names you want to enhance
+  - a list of db names you want to associate with this customization
 
 ---
 
 ## Principles
 
-When a graph is loaded, the app calls two methods for custom enhancements with db name as parameter:
+cytographDB scan the directory *custom*, searching for js files .   
+It loads the corresponding modules.
+The modules associates DBnames to be used with it.    
+
+When a graph is loaded, the app calls two functions :  
 
 ```js
   createCustomCategories(current_db);
   getCustomStyles(current_db);
 ```
-with the name of `current_db' 
-- the app retrieve an associated module in an internal collection **customModules[]** . 
-- the app call the corresponding methods defined inside the module.
+
+- the app try to retrieve an associated module in an internal collection **customModules[]** . 
+- then it call the previous functions, those defined inside the module.
 
 
-### Code of the democytodb custom module as an example
+### democytodb custom module as an example
 
+ *public/custom/democytodb.js*
 ```js
 import {
   getCy,
@@ -43,13 +48,14 @@ const democytodbModule = {
 };
 
 /*
- It's your module responsibility to register itself with DB names it applies to
+The module mustregister itself with the DB names list it applies to
 */
 registerCustomModule("democytodb", democytodbModule);
 registerCustomModule("democytodbV2", democytodbModule);
+
 ```
 
----
+
 
 ##  Create your own Custom Module
 
@@ -61,15 +67,21 @@ registerCustomModule("democytodbV2", democytodbModule);
 
     ```js
     registerCustomModule("myDBtest", myModule);
-    registerCustomModule("myDBstaging", myModule);```
+    registerCustomModule("myDBstaging", myModule);
+    
+    ```
+
+2. **put the file in** `public/custom`
+
+a log in the navigator console show custom modules : ```[custom] loaded : /custom/democytodb.js```
 
 
-2. **put the file in**:  
-   `public/custom`
 
-> Remember : this folder is excluded from version control to protect user-specific code.
+#### Note : 
 
-see  `.gitignore` Rule:
+this folder is excluded from version control to protect user-specific code.
+
+  `.gitignore` Rule:
 
 ``` bash
 # Optional: exclude custom modules except for democytodb.js
@@ -81,28 +93,17 @@ see  `.gitignore` Rule:
 
 ## Weave Your Module with the App
 
-To activate your module:
-
-**Declare your code in `public/js/customModulesIndex.js`**  
-
-```js
-//... add you module here 
-const optionalModules = [
-  '../custom/democytodb.js',
-  '../custom/myModule.js',
-  '../custom/fake.js',
-];
-// the following try to load your module as a module .
-// if failed you will have a message in console, but app continue.  
-
-```
-**Restart the application**
+The only thing you have to do is to put your module source code in the *public/custom* directory.
+and to **restart the application**
 
 ✅ From now on, whenever you open a DB named `myDBtest` or `myDBstaging`,  
 the `myModule` customization will be applied automatically.
 
+You can leave several modules in the custom dir
 
-## add your custom documentation 
+--- 
+
+# custom documentation 
 
 You can set your owwn documentation under ***custom/docs***.
 

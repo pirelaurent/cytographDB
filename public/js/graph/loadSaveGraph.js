@@ -72,7 +72,7 @@ export function loadInitialGraph() {
       // traiter les données pour le graph, par ex : getCy().add(data)
     })
     .catch((err) => {
-      showAlert("load-from-db:" + err);
+      showAlert(`load-from-db:${dbName} :` + err);
       hideWaitLoading();
     });
 }

@@ -21,7 +21,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import fs from "fs";
-import { readFile } from 'fs/promises';
+
+import { readFile, readdir } from 'fs/promises';
 import path from "path";
 import { fileURLToPath } from "url";
 import { getTableDetails } from "./dbUtils.js"
@@ -600,7 +601,22 @@ app.get('/api/custom-docs-check', (req, res) => {
   });
 });
 
-
+/*
+ scan directory custom to get modules list 
+*/
+app.get('/api/custom-modules', async (_req, res) => {
+    const customDir = path.join(__dirname, 'public', 'custom');
+  try {
+    const entries = await readdir(customDir, { withFileTypes: true });
+    const jsFiles = entries
+      .filter(d => d.isFile() && d.name.endsWith('.js'))
+      .map(d => `/custom/${d.name}`);
+    res.json(jsFiles);
+  } catch (err) {
+    console.error('Listing error:', err);
+    res.status(500).json({ error: 'Cannot list custom modules' });
+  }
+});
 
 
 

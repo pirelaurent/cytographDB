@@ -114,7 +114,7 @@ app.post("/load-from-db", async (req, res) => {
 
     const fkResult = await client.query(edgesQuery);
     /*
-    console.log(fkResult);//PLA
+    //console.log(fkResult);
     {
       constraint_name: 'line_product_production_line_id_fkey',
       source: 'line_product',

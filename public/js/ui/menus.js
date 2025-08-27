@@ -773,7 +773,6 @@ export function menuEdges(option) {
       // Show visible edges, or selected ones if any are selected
       let edgesToShow = perimeterForEdgesAction();
 
-      //PLA
       for (let edge of edgesToShow) {
         if (edge.hasClass('fk_detailed')) {
           edge.addClass("showColumns")

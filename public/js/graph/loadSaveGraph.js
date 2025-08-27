@@ -2,7 +2,6 @@
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
 //
 
-
 "use strict";
 
 import {
@@ -12,7 +11,7 @@ import {
   metrologie,
   restoreProportionalSize,
   proportionalSizeNodeSizeByLinks,
-} from "./cytoscapeCore.js"
+} from "./cytoscapeCore.js";
 import {
   enterFkSynthesisMode,
   saveDetailedEdges,
@@ -21,37 +20,26 @@ import {
   enterFkDetailedMode,
 } from "./detailedEdges.js";
 
-import {
-  showAlert,
-  showError,
-  showMultiChoiceDialog
-} from "../ui/dialog.js"
+import { showAlert, showError, showMultiChoiceDialog } from "../ui/dialog.js";
+
+import { getLocalDBName, setLocalDBName } from "../dbFront/tables.js";
+
+import { resetPositionStackUndo } from "./snapshots.js";
 
 import {
-  getLocalDBName,
-  setLocalDBName,
-}
-  from "../dbFront/tables.js";
-
-import {
-  resetPositionStackUndo
-} from "./snapshots.js";
-
-import { getCustomNodesCategories }
-  from "../filters/categories.js";
-
-
+  getCustomNodesCategories,
+  restoreCustomNodesCategories,
+} from "../filters/categories.js";
 
 //---------------------
 export function loadInitialGraph() {
-
   let dbName = getLocalDBName();
   if (!dbName) {
     showAlert("you must first connect a database.");
     return;
   }
 
-  if (typeof cy !== 'undefined' && cy) {
+  if (typeof cy !== "undefined" && cy) {
     getCy().elements().remove();
   }
 
@@ -72,7 +60,7 @@ export function loadInitialGraph() {
     .then((data) => {
       resetPositionStackUndo();
       initializeGraph(data);
-      // store details at load time /now generated with details 
+      // store details at load time /now generated with details
       saveDetailedEdges();
       enterFkSynthesisMode(true);
 
@@ -89,7 +77,9 @@ export function loadInitialGraph() {
     });
 }
 
-//------------------
+/*
+ check filename in the box
+*/
 export function loadGraphState() {
   const filename = document.getElementById("graphName").value.trim();
   if (!filename) {
@@ -99,9 +89,11 @@ export function loadGraphState() {
   loadGraphNamed(filename);
 }
 
-//------------------
+/*
+ load from a stored file on server (not yet used)
+*/
 function loadGraphNamed(filename) {
-  if (typeof cy !== 'undefined' && cy) {
+  if (typeof cy !== "undefined" && cy) {
     getCy().elements().remove();
   }
   waitLoading("⏳ Loading saved graph");
@@ -122,13 +114,15 @@ function loadGraphNamed(filename) {
     .then((graphState) => {
       if (cy) {
         getCy().json(graphState); // Restore the graph state
-        getCy().elements().forEach((ele) => {
-          if (ele.data("hidden")) {
-            ele.style("display", "none");
-          } else {
-            ele.removeStyle("display");
-          }
-        });
+        getCy()
+          .elements()
+          .forEach((ele) => {
+            if (ele.data("hidden")) {
+              ele.style("display", "none");
+            } else {
+              ele.removeStyle("display");
+            }
+          });
       } else {
         cy = cytoscape({
           container: document.getElementById("cy"),
@@ -141,6 +135,8 @@ function loadGraphNamed(filename) {
       restoreProportionalSize();
       resetPositionStackUndo();
 
+      restoreCustomNodesCategories();
+
       hideWaitLoading();
       metrologie();
     })
@@ -150,7 +146,7 @@ function loadGraphNamed(filename) {
     });
 }
 /*
-  fenêtre en superposition et affichage de la liste des fichiers
+ window on top to choose un the list of availbale files on server
 */
 export function showOverlayWithFiles() {
   fetch("/list-saves")
@@ -216,13 +212,15 @@ export function saveGraphState() {
 
 function sendGraphState(filename) {
   // preserve hidden status
-  getCy().elements().forEach((ele) => {
-    if (ele.style("display") === "none") {
-      ele.data("hidden", true);
-    } else {
-      ele.removeData("hidden");
-    }
-  });
+  getCy()
+    .elements()
+    .forEach((ele) => {
+      if (ele.style("display") === "none") {
+        ele.data("hidden", true);
+      } else {
+        ele.removeData("hidden");
+      }
+    });
 
   const graphState = getCy().json(); // Capture the current graph state
 
@@ -250,12 +248,8 @@ function sendGraphState(filename) {
  generate list of nodes label on a new html page 
 */
 
-
-
-
-
-
 /*
+ download and upload from local disk 
 
 */
 
@@ -273,29 +267,31 @@ export function saveGraphToFile() {
     filename += ".json";
   }
 
-  getCy().elements().forEach((ele) => {
-    if (ele.style("display") === "none") {
-      ele.data("hidden", true);
-    } else {
-      ele.removeData("hidden");
-    }
-  });
+  getCy()
+    .elements()
+    .forEach((ele) => {
+      if (ele.style("display") === "none") {
+        ele.data("hidden", true);
+      } else {
+        ele.removeData("hidden");
+      }
+    });
 
   /*
    temporarily switch to detail mode to save graph
   */
   let wasFkMode = getCurrentFKMode();
-  if (wasFkMode === 'synthesis') {
+  if (wasFkMode === "synthesis") {
     enterFkDetailedMode();
   }
-  // then save graph 
+  // then save graph
   const json = {
     ...getCy().json(),
     originalDBName: getLocalDBName(),
     currentFkMode: getCurrentFKMode(),
-  }
-  // if detailed for change but not on screen, restore 
-  if (wasFkMode === 'synthesis') {
+  };
+  // if detailed for change but not on screen, restore
+  if (wasFkMode === "synthesis") {
     enterFkSynthesisMode(true);
   }
 
@@ -320,7 +316,6 @@ export function saveGraphToFile() {
 */
 
 export function loadGraphFromFile(event) {
-
   const file = event.target.files[0];
   if (!file) return;
 
@@ -333,37 +328,40 @@ export function loadGraphFromFile(event) {
     const originalDBName = json.originalDBName || null;
 
     const currentDBName = getLocalDBName();
-const message = `All details would not be available<br/> 
+    const message = `All details would not be available<br/> 
     <br/> if compatible DB is accessible:<br/> Use <i> connect to DB only</i> then reload the json file`;
 
-
-    // if no db connected accept upload without question 
+    // if no db connected accept upload without question
     //if ((currentDBName != null) && (currentDBName != originalDBName)) {
-if ((currentDBName != null) && (currentDBName != originalDBName)) {
-
+    if (currentDBName != null && currentDBName != originalDBName) {
       {
-        let original = originalDBName == null ? ' not defined' : originalDBName;
+        let original = originalDBName == null ? " not defined" : originalDBName;
         let current = currentDBName;
 
-        showMultiChoiceDialog(` <i>${file.name}</i> was created from <i>${original}</i>`, `is current <b>${current}</b> compatible ?`, [
-          {
-            label: "✅ Yes",
-            onClick: () => { }
-          },
-          {
-            label: "❌ No",
-            onClick: () => {
-              resetPoolFromFront()
-              showAlert(`${message}`)
-            }
-          },
-        ]);
+        showMultiChoiceDialog(
+          ` <i>${file.name}</i> was created from <i>${original}</i>`,
+          `is current <b>${current}</b> compatible ?`,
+          [
+            {
+              label: "✅ Yes",
+              onClick: () => {},
+            },
+            {
+              label: "❌ No",
+              onClick: () => {
+                resetPoolFromFront();
+                showAlert(`${message}`);
+              },
+            },
+          ]
+        );
       }
     }
-if (currentDBName===null){
-  showAlert(`no DB connected. ${message}`)}
+    if (currentDBName === null) {
+      showAlert(`no DB connected. ${message}`);
+    }
 
-    setCurrentFKMode(json.currentFkMode)
+    setCurrentFKMode(json.currentFkMode);
 
     // affiche, utilise, etc.
     const cyData = { ...json };
@@ -371,7 +369,9 @@ if (currentDBName===null){
     getCy().json(cyData);
     restoreProportionalSize();
     resetPositionStackUndo();
-    // show in syntetic after saving details 
+
+    restoreCustomNodesCategories();
+    // show in syntetic after saving details
     saveDetailedEdges();
     enterFkSynthesisMode(true);
     //getCy().layout({ name: 'cose'}).run();
@@ -390,8 +390,6 @@ export function linkToUi() {
   }
 }
 
-
-
 function waitLoading(message) {
   document.getElementById("waitLoading").style.display = "block";
   document.getElementById("waitLoading").innerHTML = message;
@@ -406,13 +404,13 @@ function hideWaitLoading() {
 */
 
 export async function resetPoolFromFront() {
-  const response = await fetch('/api/reset-pool', {
-    method: 'POST'
+  const response = await fetch("/api/reset-pool", {
+    method: "POST",
   });
   if (!response.ok) {
     throw new Error("Échec du reset pool");
   }
   setLocalDBName(null);
-    document.getElementById("current-db").innerHTML = "";
+  document.getElementById("current-db").innerHTML = "";
   return response.json();
 }

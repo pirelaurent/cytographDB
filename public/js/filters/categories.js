@@ -5,6 +5,8 @@
 
 import { getCy } from "../graph/cytoscapeCore.js";
 
+import {fillInGuiNodesCustomCategories} from "../ui/custom.js";
+
 /*
  adaptation to specific database 
  new categories must be pushed into customCategories 
@@ -27,7 +29,29 @@ export function registerCustomModule(dbName, moduleObject) {
   //console.log("register module "+dbName)
   customModules[dbName] = moduleObject;
 }
+export let standardCategories = new Set(['orphan','root','leaf','association','multiAssociation','hasTriggers']);
+export let internalCategories = new Set(['fk_detailed', 'fk_synth', 'showLabel','showColumns'])
 
+/*
+ custom classes are stored with graph, but customNodesCatories has to be restored
+ by creating a set of all found classes of node 
+ and eliminate standard nodes categories and internal classes 
+*/
+
+export function restoreCustomNodesCategories(){  
+  let allClasses = new Set();
+
+getCy().nodes().forEach(node => {
+  node.classes().forEach(cls => allClasses.add(cls));
+});
+let filtered = new Set(
+  [...allClasses].filter(
+    cls => !standardCategories.has(cls) && !internalCategories.has(cls)
+  )
+);
+ setCustomNodesCategories(filtered);
+ fillInGuiNodesCustomCategories();
+}
 
 /*
  associated classes to separate nodes into catagories . 

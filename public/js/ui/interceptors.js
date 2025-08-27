@@ -32,6 +32,8 @@ import {
   openTriggerPage,
 }
   from "../dbFront/tables.js"
+  
+ import { internalCategories } from "../filters/categories.js"; 
 
 /*
  all the events set in gui are defined here 
@@ -68,9 +70,9 @@ export function setInterceptors() {
         (c) => c !== "hovered"
       );
 
-      const technicalClasses = ['fk_detailed', 'fk_synth', 'showLabel','showColumns'];
+      //const internalCategories = ['fk_detailed', 'fk_synth', 'showLabel','showColumns'];
       const filteredClasses = classArray.filter(
-        cls => !technicalClasses.includes(cls)
+        cls => !internalCategories.has(cls)
       );
 
       let classInfo = '';
@@ -126,9 +128,9 @@ export function setInterceptors() {
       const classArray = Array.from(classList);
       let libelArray = "";
 
-      const technicalClasses = ['fk_detailed', 'fk_synth', 'showLabel','showColumns'];
+
       const filteredClasses = classArray.filter(
-        cls => !technicalClasses.includes(cls)
+        cls => !internalCategories.has(cls)
       );
 
       let classInfo;

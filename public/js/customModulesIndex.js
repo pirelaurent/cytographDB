@@ -9,6 +9,7 @@ const optionalModules = [
   '../custom/democytodb.js',
   '../custom/myModule.js',
   '../custom/fake.js',
+  '../custom/AWProject.js',
 ];
 
 // on déclenche les imports sans attendre qu’ils finissent

@@ -260,9 +260,9 @@
             <li data-category="filterNodes">filter by ...
               <ul class="submenu">
                 <li data-category="nodesName" data-skip-action>name ...</li>
-
+            
                 <li data-skip-action>native category ...
-
+            
                   <ul class="submenu">
                     <li action="nodeIsOrphan">orphan</li>
                     <li action="nodeIsRoot">root</li>
@@ -274,7 +274,7 @@
                 <li action="noCare" id="customList">custom category ...</li>
               </ul>
             </li>
-            </li>
+         
 
 
 
@@ -397,20 +397,26 @@
               </ul>
             </li>
 
-            <li data-category="filterEdges" title="Filter specific edge types (data model only)">filter ...
-
+            <li data-category="filterEdges" title="Filter specific edge types (data model only)">filter by ...
+            
               <ul class="submenu">
-                <li action="edgeIsNullable" title="Select FK nullable (N-0)"> nullable
-                </li>
-                <li action="edgeIsOnDeleteCascade" title="Select FK ON DELETE CASCADE">on delete cascade
-                </li>
-
-                <li class="separator"></li>
-                <li action="edgeIsTriggerGenerated" title="Select generated trigger impacts edges">trigger_impact
-                </li>
-                <li action="edgeIsASimplifiedNode" title="Select edges from simplified associations">simplified
-                  associations</li>
-
+                <li data-category="edgesName" data-skip-action>name ...</li>
+            
+                <li data-skip-action>native category ...
+            
+                  <ul class="submenu">
+                    <li action="edgeIsNullable" title="Select FK nullable (N-0)"> nullable
+                    </li>
+                    <li action="edgeIsOnDeleteCascade" title="Select FK ON DELETE CASCADE">on delete cascade
+                    </li>
+            
+                    <li class="separator"></li>
+                    <li action="edgeIsTriggerGenerated" title="Select generated trigger impacts edges">trigger_impact
+                    </li>
+                    <li action="edgeIsASimplifiedNode" title="Select edges from simplified associations">simplified
+                      associations</li>
+                  </ul>
+            
               </ul>
             </li>
 
@@ -482,14 +488,18 @@
 
   <!-- Modal for name filter -->
   <div id="nameFilterModal" class="modal-bg">
-    <div class="modal-content">
-      <h3>Filter nodes by name (regex)</h3>
-      <input type="text" id="modalNameFilterInput" placeholder="searched name (regex)" class="modal-input" />
-      <div id="modalNameFilterResult" class="modal-result"></div>
-      <button id="modalNameFilterOk" class="modal-btn">OK</button>
-      <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
-    </div>
+  <div class="modal-content">
+    <h3 id="nameFilterTitle">Filter by name (regex)</h3>
+
+    <!-- champ caché pour retenir l'option -->
+    <input type="hidden" id="modalNameFilterType" value="node" />
+
+    <input type="text" id="modalNameFilterInput" placeholder="searched name (regex)" class="modal-input" />
+
+    <button id="modalNameFilterOk" class="modal-btn">OK</button>
+    <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
   </div>
+</div>
 
 
 

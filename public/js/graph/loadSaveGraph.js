@@ -369,10 +369,11 @@ export function loadGraphFromFile(event) {
     getCy().json(cyData);
     restoreProportionalSize();
     resetPositionStackUndo();
-
     restoreCustomNodesCategories();
-    // show in syntetic after saving details
+    // show in synthetic after saving details
     saveDetailedEdges();
+
+
     enterFkSynthesisMode(true);
     //getCy().layout({ name: 'cose'}).run();
   };

@@ -114,6 +114,10 @@ export function swapHidden() {
   const nodesHidden = getCy().nodes(":hidden");
   nodesVisibles.hide();
   nodesHidden.show();
+// avoid blnak screen 
+  getCy().fit();
+
+
     metrologie();
 }
 

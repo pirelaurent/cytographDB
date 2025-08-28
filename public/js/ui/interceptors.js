@@ -406,10 +406,13 @@ export function setInterceptors() {
     btnIn.addEventListener("click", menuSelectSizeIncoming);
   }
 
-  document.querySelectorAll('li[data-category="nodesName"]').forEach(li => {
-    li.addEventListener('click', openNameFilterModal);
-  });
+document.querySelectorAll('li[data-category="nodesName"]').forEach(li => {
+  li.addEventListener('click', (e) => openNameFilterModal(e, "node"));
+});
 
+document.querySelectorAll('li[data-category="edgesName"]').forEach(li => {
+  li.addEventListener('click', (e) => openNameFilterModal(e, "edge"));
+});
 
 } // setInterceptor
 

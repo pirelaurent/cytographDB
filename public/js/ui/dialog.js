@@ -1,67 +1,61 @@
-"use stricts"
+"use stricts";
 
 /*
  replace alert, warning, confirm with modal window
 */
 
-import {
-  setPostgresConnected,
-}
-from "../dbFront/tables.js"
+import { setPostgresConnected } from "../dbFront/tables.js";
 
-import { 
+import {
   getCy,
   perimeterForNodesSelection,
   metrologie,
+  perimeterForEdgesSelection,
+} from "../graph/cytoscapeCore.js";
 
-} from "../graph/cytoscapeCore.js"
-
-import {pushSnapshot} from "../graph/snapshots.js"
+import { pushSnapshot } from "../graph/snapshots.js";
 
 export function showMultiChoiceDialog(title, message, choices) {
- const overlay = document.createElement('div');
-  overlay.className = 'overlay';
+  const overlay = document.createElement("div");
+  overlay.className = "overlay";
 
+  const dialog = document.createElement("div");
+  dialog.style.background = "white";
+  dialog.style.padding = "20px";
+  dialog.style.borderRadius = "8px";
+  dialog.style.minWidth = "300px";
+  dialog.style.boxShadow = "0 0 10px rgba(0,0,0,0.3)";
 
-
-  const dialog = document.createElement('div');
-  dialog.style.background = 'white';
-  dialog.style.padding = '20px';
-  dialog.style.borderRadius = '8px';
-  dialog.style.minWidth = '300px';
-  dialog.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
-
-  const titleElem = document.createElement('h3');
+  const titleElem = document.createElement("h3");
   titleElem.innerHTML = title;
   dialog.appendChild(titleElem);
 
-  const msgElem = document.createElement('p');
-
+  const msgElem = document.createElement("p");
 
   msgElem.innerHTML = message;
-  
+
   dialog.appendChild(msgElem);
 
-  const btnContainer = document.createElement('div');
-  btnContainer.style.marginTop = '15px';
-  btnContainer.style.display = 'flex';
-  btnContainer.style.gap = '10px';
-  btnContainer.style.justifyContent = 'flex-end';
+  const btnContainer = document.createElement("div");
+  btnContainer.style.marginTop = "15px";
+  btnContainer.style.display = "flex";
+  btnContainer.style.gap = "10px";
+  btnContainer.style.justifyContent = "flex-end";
   const buttons = [];
-  choices.forEach(choice => {
-    const btn = document.createElement('button');
+  choices.forEach((choice) => {
+    const btn = document.createElement("button");
     btn.innerHTML = choice.label;
     btn.onclick = () => {
       overlay.remove();
       choice.onClick();
     };
-    btn.style.padding = '6px 12px';
-    btn.style.borderRadius = '4px';
-    btn.style.border = '1px solid #ccc';
-    btn.style.background = '#eee';
-    btn.style.cursor = 'pointer';
+    btn.style.padding = "6px 12px";
+    btn.style.borderRadius = "4px";
+    btn.style.border = "1px solid #ccc";
+    btn.style.background = "#eee";
+    btn.style.cursor = "pointer";
     btnContainer.appendChild(btn);
-        buttons.push({ btn, choice });
+    buttons.push({ btn, choice });
   });
 
   dialog.appendChild(btnContainer);
@@ -69,22 +63,23 @@ export function showMultiChoiceDialog(title, message, choices) {
   document.body.appendChild(overlay);
 
   // --- Ici, on cherche le bouton 'par défaut'
-  const defaultBtn = buttons.find(b => b.choice.isDefault)?.btn || buttons[0].btn;
+  const defaultBtn =
+    buttons.find((b) => b.choice.isDefault)?.btn || buttons[0].btn;
   defaultBtn.focus();
   function cleanup() {
     document.body.removeChild(overlay);
-    document.removeEventListener('keydown', onDialogKeydown);
+    document.removeEventListener("keydown", onDialogKeydown);
   }
 
   function onDialogKeydown(e) {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       defaultBtn.click();
       e.preventDefault();
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       cleanup();
     }
   }
-  document.addEventListener('keydown', onDialogKeydown);
+  document.addEventListener("keydown", onDialogKeydown);
 }
 
 /*
@@ -92,45 +87,33 @@ export function showMultiChoiceDialog(title, message, choices) {
 */
 
 export function showAlert(textAlert) {
-  showMultiChoiceDialog("⚠️  Warning", textAlert,
-    [
-      {
-        label: "OK",
-        onClick: () => {
-        },
-        isDefault: true
-      },
-
-    ])
+  showMultiChoiceDialog("⚠️  Warning", textAlert, [
+    {
+      label: "OK",
+      onClick: () => {},
+      isDefault: true,
+    },
+  ]);
 }
 
 export function showInfo(textInfo) {
-  showMultiChoiceDialog("ℹ️  Information", textInfo,
-    [
-      {
-        label: "OK",
-        onClick: () => {
-        },
-        isDefault: true
-      },
-
-    ])
+  showMultiChoiceDialog("ℹ️  Information", textInfo, [
+    {
+      label: "OK",
+      onClick: () => {},
+      isDefault: true,
+    },
+  ]);
 }
 
-
-
-
-
 export function showError(textAlert) {
-  showMultiChoiceDialog("🚫 Error", textAlert,
-    [
-      {
-        label: "OK",
-        onClick: () => {
-        },
-          isDefault: true
-      },
-    ])
+  showMultiChoiceDialog("🚫 Error", textAlert, [
+    {
+      label: "OK",
+      onClick: () => {},
+      isDefault: true,
+    },
+  ]);
 }
 
 // default const OR_SELECTED = " or_selected";
@@ -162,25 +145,35 @@ export function cytogaphdb_version() {
 
 /*
  modal to enter the regex search by name
+ hiddenType store 'nodes' or 'edges' for further filter. 
 */
-export function openNameFilterModal() {
-  document.getElementById('nameFilterModal').style.display = 'flex';
-  //document.getElementById('modalNameFilterInput').value = document.getElementById('nameFilter').value;
-  document.getElementById('modalNameFilterInput').focus();
+export function openNameFilterModal(event, type) {
+  document.getElementById("nameFilterModal").style.display = "flex";
+  const title = document.getElementById("nameFilterTitle");
+  document.getElementById("modalNameFilterInput").value='';
+  const hiddenType = document.getElementById("modalNameFilterType");
+
+  // Mets à jour le titre + le champ caché
+  const isNode =
+    type === "node" || event?.currentTarget?.dataset.category === "nodesName";
+  title.textContent = `Filter ${isNode ? "nodes" : "edges"} by name (regex)`;
+  hiddenType.value = isNode ? "nodes" : "edges";
+
+  document.getElementById("modalNameFilterInput").focus();
 }
 
 export function closeNameFilterModal() {
-  document.getElementById('nameFilterModal').style.display = 'none';
-  document.getElementById('modalNameFilterResult').textContent = '';
+  document.getElementById("nameFilterModal").style.display = "none";
 }
 
 export function modalSelectByName() {
-  const val = document.getElementById('modalNameFilterInput').value;
-  const ok = selectByName(val);
+  const val = document.getElementById("modalNameFilterInput").value;
+  const hiddenType = document.getElementById("modalNameFilterType").value;
+  const ok = selectByName(val, hiddenType);
   if (ok) closeNameFilterModal();
 }
 
-export function selectByName(pattern) {
+export function selectByName(pattern, hiddenType) {
   let regex;
   try {
     regex = new RegExp(pattern);
@@ -188,20 +181,38 @@ export function selectByName(pattern) {
     showAlert(e.message);
     return false;
   }
-  // unselect les cachés
-  getCy().nodes(":selected:hidden").unselect();
 
-  // périmètre
-  let nodes = perimeterForNodesSelection();
-  if (nodes == null) return;
+  if (hiddenType === "nodes") {
+    // unselect hidden to free the count 
+    //getCy().nodes(":selected:hidden").unselect();
 
-  nodes.forEach((node) => {
-    if (regex.test(node.id())) {
-      node.select(); //add
-    } else {
-      if (modeSelect() == AND_SELECTED) node.unselect();
-    }
-  });
+    // perimeter
+    let nodes = perimeterForNodesSelection();
+    if (nodes == null) return;
+
+    nodes.forEach((node) => {
+      if (regex.test(node.id())) {
+        node.select(); //add
+      } else {
+        if (modeSelect() == AND_SELECTED) node.unselect();
+      }
+    });
+  }
+  //
+if (hiddenType === "edges") {
+    // perimeter
+    let edges = perimeterForEdgesSelection();
+    if (edges == null) return;
+
+    edges.forEach((edge) => {
+      if (regex.test(edge.data('label'))) {
+        edge.select(); //add
+      } else {
+        if (modeSelect() == AND_SELECTED) edge.unselect();
+      }
+    });
+  }
+
   return true;
 }
 
@@ -349,33 +360,31 @@ export function menuSelectSizeIncoming() {
   });
 }
 
-
-
-export function deleteNodesSelected(){
+export function deleteNodesSelected() {
   let nodesToKill = getCy().nodes(":selected:visible");
-      if (nodesToKill.length == 0) {
-      }
+  if (nodesToKill.length == 0) {
+  }
 
-      if (nodesToKill.length > 1) {
-        // confirm title, messagge
-        showMultiChoiceDialog(`delete ${nodesToKill.length} nodes`, `Confirm ?`, [
-          {
-            label: "✅ Yes",
-            onClick: () => {
-              pushSnapshot();
-              nodesToKill.remove();
-              metrologie();
-            }
-          },
+  if (nodesToKill.length > 1) {
+    // confirm title, messagge
+    showMultiChoiceDialog(`delete ${nodesToKill.length} nodes`, `Confirm ?`, [
+      {
+        label: "✅ Yes",
+        onClick: () => {
+          pushSnapshot();
+          nodesToKill.remove();
+          metrologie();
+        },
+      },
 
-          {
-            label: "❌ No",
-            onClick: () => { } // rien
-          }
-        ]);
-      } else {
-        pushSnapshot();
-        nodesToKill.remove();
-        metrologie();
-      }
+      {
+        label: "❌ No",
+        onClick: () => {}, // rien
+      },
+    ]);
+  } else {
+    pushSnapshot();
+    nodesToKill.remove();
+    metrologie();
+  }
 }

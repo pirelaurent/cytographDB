@@ -235,6 +235,17 @@ const cyStyles = [
     },
   },
 
+// Variante quand l’edge est aussi "nullable"
+{
+  selector: "edge.fk_detailed.nullable",
+  style: {
+    'line-color': "#77B5FE",// bleu ciel
+  },
+},
+
+
+
+
   {
     selector: "edge:selected",
     style: {

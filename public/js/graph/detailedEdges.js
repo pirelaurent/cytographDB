@@ -64,6 +64,7 @@ let detailedEdgesArray; // to be able to reverse, store details here
 
 // called at startup now as request load details
 export function saveDetailedEdges() {
+    //console.log('on save les detailed Array')//PLA
     detailedEdgesArray = getCy().edges(); // cytoscape collection, not array
     currentFkMode = 'detailed';
     //document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
@@ -85,10 +86,19 @@ export function enterFkDetailedMode(global) {
         synthEdges = perimeterForEdgesAction().filter('.fk_synth')
     }
 
+//synthEdges.forEach(e => console.log(e.data('label'))); //PLA toutes les fk sont la 
+
+
+
     // verify we are in synthetic  
     if (synthEdges.length == 0) return false;
 
     // then change for stored detailed 
+
+
+
+
+    //detailedEdgesArray.forEach(e => console.log(e.data('label')));//PLA les fk nullable n'ont qu'un élément 
 
     if (detailedEdgesArray.length != 0) {
         if (global) {

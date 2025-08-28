@@ -80,7 +80,7 @@ export function saveDetailedEdges() {
  global : false from menu 
 */
 
-export function enterFkDetailedMode(global) {
+export function enterFkDetailedMode(global = true) {
     let synthEdges;
     if (global) {
         synthEdges = getCy().edges('.fk_synth');
@@ -137,7 +137,7 @@ global: false when commin from menu , true for load/save
 */
 
 
-export function enterFkSynthesisMode(global) {
+export function enterFkSynthesisMode(global =true) {
 
     let edges;
     if (global) {

@@ -475,6 +475,7 @@ app.get("/triggers", async (req, res) => {
     const filteredTriggers = rows.filter((row) => row.table_name === table);
     const enriched = await Promise.all(
       filteredTriggers.map(async (row) => {
+
         try {
           const matches = [
             ...row.definition.matchAll(

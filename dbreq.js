@@ -167,34 +167,27 @@ GROUP BY
     event_object_table, trigger_name, action_timing, action_statement
 ORDER BY
     trigger_name;
-
 `;
 
+/*
+ get functionBody
+*/
 
-export let OldindexQuery = `
+export let functionBodyQuery =`
 SELECT
-  idx.indexname,
-  idx.indexdef,
-  obj_description(i.oid, 'pg_class') AS comment,
-  c.conname AS constraint_name,
-  CASE c.contype
-    WHEN 'p' THEN 'PRIMARY KEY'
-    WHEN 'u' THEN 'UNIQUE'
-    WHEN 'x' THEN 'EXCLUDE'
-    ELSE NULL
-  END AS constraint_type
-FROM pg_indexes idx
-JOIN pg_class i
-  ON i.relname = idx.indexname
-JOIN pg_namespace ni
-  ON ni.oid = i.relnamespace
-  AND ni.nspname = idx.schemaname
-LEFT JOIN pg_constraint c
-  ON c.conindid = i.oid            -- <— index support of constraint ?
-WHERE idx.schemaname = 'public'
-  AND idx.tablename = $1
-ORDER BY idx.indexname;
-`;
+      p.oid,
+      p.proname AS name,
+      n.nspname AS schema,
+      p.prokind,                              -- 'f' function, 'p' procedure, 'a' aggregate, 'w' window
+      pg_get_function_identity_arguments(p.oid) AS args,
+      p.prorettype::regtype::text AS return_type
+    FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE p.proname = $1
+    ORDER BY n.nspname, p.proname, pg_get_function_identity_arguments(p.oid)
+    LIMIT 1
+`
+
 
 export let indexQuery =`
 -- indexQuery

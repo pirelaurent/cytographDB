@@ -370,11 +370,13 @@ export function loadGraphFromFile(event) {
     restoreProportionalSize();
     resetPositionStackUndo();
     restoreCustomNodesCategories();
+
     // show in synthetic after saving details
     saveDetailedEdges();
 
 
     enterFkSynthesisMode(true);
+    metrologie();
     //getCy().layout({ name: 'cose'}).run();
   };
   reader.readAsText(file);

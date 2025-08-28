@@ -76,6 +76,8 @@ export function saveDetailedEdges() {
  Security for reloaded graph from json 
  as they can have been saved synthetic or detailed
  global act on the full edges, otherwise in perimeter
+
+ global : false from menu 
 */
 
 export function enterFkDetailedMode(global) {
@@ -89,16 +91,11 @@ export function enterFkDetailedMode(global) {
 //synthEdges.forEach(e => console.log(e.data('label'))); //PLA toutes les fk sont la 
 
 
-
     // verify we are in synthetic  
     if (synthEdges.length == 0) return false;
 
-    // then change for stored detailed 
 
-
-
-
-    //detailedEdgesArray.forEach(e => console.log(e.data('label')));//PLA les fk nullable n'ont qu'un élément 
+    //detailedEdgesArray.forEach(e => console.log(e.data('label')));//PLA les fk nullable n'ont qu'une fois  
 
     if (detailedEdgesArray.length != 0) {
         if (global) {
@@ -151,7 +148,7 @@ export function enterFkSynthesisMode(global) {
 
     // stored graph could be synthetic only 
     if (edges.length == 0) {
-        showInfo("no detailed edges to reduce for this graph");
+        showInfo("no detailed columns to reduce in edge perimeter");
         return false;
     }
 

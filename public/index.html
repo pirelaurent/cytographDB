@@ -174,11 +174,10 @@
                 <li action="all" title="Select all visible (ctrl a)">all</li>
                 <li action="none" title="Clear the current selection">none</li>
                 <li action="invert" title="Invert the current selection">swap selected</li>
-                <li action="selectNodesFromSelectedEdges" title="Select nodes connected by the selected edges">from
-                  selected
-                  edges</li>
+                
               </ul>
             </li>
+
             <li data-category="hideNode">hide ...
               <ul class="submenu">
                 <li action="hideNone" title="Show the entire graph">none</li>
@@ -189,73 +188,16 @@
            
             </li>
 
-            <li data-category="follow">follow & show ...
-              <ul class="submenu">
-                <li action="followOutgoing" title="Follow outgoing edges and show target nodes">
-                  outgoing</li>
 
-                <li action="followIncoming" title="Follow incoming edges and show source nodes">
-                  Incoming
-                </li>
+          <li data-category="selection">
+            <span class="label" title="Select nodes connected by the selected edges">from selected edges... </span>
+            <ul class="submenu">
+              <li action="selectNodesFromSelectedEdges">both sides</li>
+              <li action="selectSourceNodes">source nodes</li>
+              <li action="selectDestNodes">destination nodes</li>
+            </ul>
+          </li>
 
-                <li action="followBoth" title="Follow all connected edges and show nodes">both
-                </li>
-                <li class="separator"></li>
-                <li action="followCrossAssociations" title="Select nodes linked through associations">association
-                </li>
-                <li class="separator"></li>
-                <li action="findLongOutgoingPaths"
-                  title="Find nodes reachable by long forward paths (more than 2 hops)">
-                  long paths
-                </li>
-                <li action="findPkFkChains" title="Find chain of relations from a root">
-                  pk &lt;- fk  chains
-                </li>
-              </ul>
-            </li>
-
-            <li data-category="followEdges" title="Filter nodes by edge count (degree)">degree ...
-              <ul class="submenu">
-                <li action="noEdge" title="Select nodes without any edges">none</li>
-                <li data-category="looping" action="looping" title="Nodes with self-loops (self-reference)">looping</li>
-                <li data-category="outgoing" title="Filter nodes by number of outgoing edges">outgoing ...
-                  <ul class="submenu">
-                    <li data-skip-action>
-                      <div class="submenu-content">
-                        <span class="label"> outgoing edges</span>
-                        <select id="filter-op">
-                          <option value=">">...</option>
-                          <option value=">=">&ge;</option>
-                          <option value="=">=</option>
-                          <option value="<">&lt;</option>
-                          <option value="<=">&le;</option>
-                        </select>
-                        <input type="number" id="filter-value" value="0" min="0" max="50">
-                        <button id="btnSizeOutgoing">Go</button>
-                      </div>
-                    </li>
-                  </ul>
-                </li>
-                <li data-category="incoming" title="Filter nodes by number of incoming edges">incoming ...
-                  <ul class="submenu">
-                    <li data-skip-action>
-                      <div class="submenu-content">
-                        <span class="label">incoming edges</span>
-                        <select id="filter-op-in">
-                          <option value=">">...</option>
-                          <option value=">=">&ge;</option>
-                          <option value="=">=</option>
-                          <option value="<">&lt;</option>
-                          <option value="<=">&le;</option>
-                        </select>
-                        <input type="number" id="filter-value-in" value="0" min="0" max="50">
-                        <button id="btnSizeIncoming">Go</button>
-                      </div>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
 
             <li data-category="filterNodes">filter by ...
               <ul class="submenu">
@@ -274,9 +216,58 @@
                 <li action="noCare" id="customList">custom category ...</li>
               </ul>
             </li>
+
+            <li data-category="followEdges" title="Filter nodes by edge count (degree)">with edges ...
+              <ul class="submenu">
+                <li action="noEdge" title="Select nodes without any edges">no edge</li>
+                <li data-category="looping" action="looping" title="Nodes with self-loops (self-reference)">looping edges</li>
+                <li data-category="outgoing" title="Filter nodes by number of outgoing edges">outgoing count...
+                  <ul class="submenu">
+                    <li data-skip-action>
+                      <div class="submenu-content">
+                        <span class="label"> number of edges</span>
+                        <select id="filter-op">
+                          <option value=">">&gt;</option>
+                          <option value=">=">&ge;</option>
+                          <option value="=">=</option>
+                          <option value="<">&lt;</option>
+                          <option value="<=">&le;</option>
+                        </select>
+                        <input type="number" id="filter-value" value="0" min="0" max="50">
+                        <button id="btnSizeOutgoing">Go</button>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                <li data-category="incoming" title="Filter nodes by number of incoming edges">incoming count...
+                  <ul class="submenu">
+                    <li data-skip-action>
+                      <div class="submenu-content">
+                        <span class="label">number of edges</span>
+                        <select id="filter-op-in">
+                          <option value=">">&gt;</option>
+                          <option value=">=">&ge;</option>
+                          <option value="=">=</option>
+                          <option value="<">&lt;</option>
+                          <option value="<=">&le;</option>
+                        </select>
+                        <input type="number" id="filter-value-in" value="0" min="0" max="50">
+                        <button id="btnSizeIncoming">Go</button>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+
+
+
+
+
+            
          
 
-
+            <li class="separator"></li>
 
             <li data-category="size">label ...
 
@@ -303,6 +294,35 @@
             <li action="listNodes" title="List currently visible nodes"> list
 
             </li>
+
+
+            <li class="separator"></li>
+            <li data-category="follow">follow & show ...
+              <ul class="submenu">
+                <li action="followOutgoing" title="Follow outgoing edges and show target nodes">
+                  outgoing</li>
+
+                <li action="followIncoming" title="Follow incoming edges and show source nodes">
+                  Incoming
+                </li>
+
+                <li action="followBoth" title="Follow all connected edges and show nodes">both
+                </li>
+                <li class="separator"></li>
+                <li action="followCrossAssociations" title="Select nodes linked through associations">association
+                </li>
+                <li class="separator"></li>
+                <li action="findLongOutgoingPaths"
+                  title="Find nodes reachable by long forward paths (more than 2 hops)">
+                  long paths
+                </li>
+                <li action="findPkFkChains" title="Find chain of relations from a root">
+                  pk &lt;- fk  chains
+                </li>
+              </ul>
+            </li>
+
+
 
 
             <li class="separator"></li>
@@ -342,24 +362,48 @@
             <li data-category="selection">
               <span class="label" title="Select edges related to selected nodes">from selected nodes... </span>
               <ul class="submenu">
-                <li action="bothEdges">all</li>
-                <li action="outgoingEdges">outgoing</li>
-                <li action="incomingEdges">incoming</li>
+                <li action="bothEdges">all directions</li>
+                <li action="outgoingEdges">as source</li>
+                <li action="incomingEdges">as destination</li>
              
                 <li action="betweenNodes">
-                  <span class="label" title="Select edges between selected nodes">connecting two nodes</span>
+                  <span class="label" title="Select edges between selected nodes">betwween two selected nodes</span>
                 </li>
               </ul>
             </li>
-            <li class="separator"></li>
-            <!-- li id="toggle-fk-mode" action="toggleFkMode">toggle details 1 : n</li -->
-            <li data-category="edge details">edge details ...
-                  <ul class="submenu">
-                    <li action ="enterFkDetailedMode"> 1 edge per column</li>
-                    <li action = "enterFkSynthesisMode"> 1 edge per FK</li>
 
+          <li data-category="filterEdges" title="Filter specific edge types (data model only)">filter by ...
+            
+              <ul class="submenu">
+                <li data-category="edgesName" data-skip-action>name ...</li>
+            
+                <li data-skip-action>native category ...
+            
+                  <ul class="submenu">
+                    <li action="edgeIsNullable" title="Select FK nullable (N-0)"> nullable
+                    </li>
+                    <li action="edgeIsOnDeleteCascade" title="Select FK ON DELETE CASCADE">on delete cascade
+                    </li>
+            
+                    <li class="separator"></li>
+                    <li action="edgeIsTriggerGenerated" title="Select generated trigger impacts edges">trigger_impact
+                    </li>
+                    <li action="edgeIsASimplifiedNode" title="Select edges from simplified associations">simplified
+                      associations</li>
                   </ul>
-                   </li>
+            
+              </ul>
+            </li>
+
+
+            <!-- li id="toggle-fk-mode" action="toggleFkMode">toggle details 1 : n</li -->
+            <li data-category="edgeDetails">edge details ...
+              <ul class="submenu">
+                <li action="enterFkSynthesisMode"> 1 edge per FK</li>
+                <li action="enterFkDetailedMode"> 1 edge per column</li>
+              </ul>
+            </li>
+
             <li class="separator"></li>
 
             <li data-category="label">label ...
@@ -397,28 +441,7 @@
               </ul>
             </li>
 
-            <li data-category="filterEdges" title="Filter specific edge types (data model only)">filter by ...
             
-              <ul class="submenu">
-                <li data-category="edgesName" data-skip-action>name ...</li>
-            
-                <li data-skip-action>native category ...
-            
-                  <ul class="submenu">
-                    <li action="edgeIsNullable" title="Select FK nullable (N-0)"> nullable
-                    </li>
-                    <li action="edgeIsOnDeleteCascade" title="Select FK ON DELETE CASCADE">on delete cascade
-                    </li>
-            
-                    <li class="separator"></li>
-                    <li action="edgeIsTriggerGenerated" title="Select generated trigger impacts edges">trigger_impact
-                    </li>
-                    <li action="edgeIsASimplifiedNode" title="Select edges from simplified associations">simplified
-                      associations</li>
-                  </ul>
-            
-              </ul>
-            </li>
 
             <li class="separator"></li>
 

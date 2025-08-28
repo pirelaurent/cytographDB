@@ -3,17 +3,14 @@
 import { getCyStyles } from "./cyStyles.js";
 import { showAlert } from "../ui/dialog.js";
 import { modeSelect, AND_SELECTED } from "../ui/dialog.js";
-import {
-  getLocalDBName
-} from "../dbFront/tables.js"
+import { getLocalDBName } from "../dbFront/tables.js";
 import {
   createNativeNodesCategories,
   createCustomCategories,
   getCustomStyles,
-
 } from "../filters/categories.js";
 import { fillInGuiNodesCustomCategories } from "../ui/custom.js";
-import { pushSnapshot } from "./snapshots.js"
+import { pushSnapshot } from "./snapshots.js";
 //-------------------
 /*
  cy defined in a module cannot be accessed directly
@@ -29,13 +26,12 @@ export function getCy() {
 //--------------------------
 export function initializeGraph(data, fromDisk = false) {
   // cy a été créé avec des data vides , mais si on s'en est servi, faut nettoyer
-  if (typeof cy !== 'undefined' && cy) {
+  if (typeof cy !== "undefined" && cy) {
     cy.elements().remove();
   }
   cy.add(data);
 
-
-//console.log(cy.edges()); // on a bien columnsLabel dans data
+  //console.log(cy.edges()); // on a bien columnsLabel dans data
 
   let current_db = getLocalDBName();
 
@@ -50,7 +46,7 @@ export function initializeGraph(data, fromDisk = false) {
 
   fillInGuiNodesCustomCategories();
 
-  cy.once("layoutstop", () => { });
+  cy.once("layoutstop", () => {});
 
   //avoid layout when come from disk
   if (!fromDisk) {
@@ -65,7 +61,7 @@ export function showAll() {
   getCy().nodes().show();
   getCy().edges().show();
   document.getElementById("cy").style.backgroundColor = "white";
-    metrologie();
+  metrologie();
 }
 
 export function hideSelected() {
@@ -73,40 +69,43 @@ export function hideSelected() {
   let nodesToHide = getCy().nodes(":selected");
   nodesToHide.hide();
   nodesToHide.unselect();
-    metrologie();
+      cy.fit(cy.nodes(':visible'), 30); // padding 30px
+  metrologie();
 }
 
 export function hideNotSelected() {
   pushSnapshot();
-  getCy().nodes(":visible")
+  getCy()
+    .nodes(":visible")
     .filter(function (node) {
       return !node.selected();
     })
     .hide();
-    metrologie();
+    cy.fit(cy.nodes(':visible'), 30); // padding 30px
+  metrologie();
 }
 
 export function hideNotSelectedThenDagre() {
   {
-    hideNotSelected()
+    hideNotSelected();
     // cannot reorg if too few nodes
     if (getCy().nodes(":selected:visible").length > 3) {
       setAndRunLayoutOptions("dagre");
     }
   }
-    metrologie();
+  metrologie();
 }
-
 
 export function selectAllVisibleNodes() {
   if (cy) {
     pushSnapshot();
-    let nodes = restrictToVisible() ? getCy().nodes(":visible") : getCy().nodes();
+    let nodes = restrictToVisible()
+      ? getCy().nodes(":visible")
+      : getCy().nodes();
     nodes.select();
   }
-    metrologie();
+  metrologie();
 }
-
 
 export function swapHidden() {
   pushSnapshot();
@@ -114,11 +113,10 @@ export function swapHidden() {
   const nodesHidden = getCy().nodes(":hidden");
   nodesVisibles.hide();
   nodesHidden.show();
-// avoid blnak screen 
+  // avoid blnak screen
   getCy().fit();
 
-
-    metrologie();
+  metrologie();
 }
 
 export function selectNodesFromSelectedEdges() {
@@ -127,7 +125,32 @@ export function selectNodesFromSelectedEdges() {
     .edges(":selected:visible")
     .connectedNodes(":visible");
   connectedNodes.select();
-    metrologie();
+  metrologie();
+}
+
+export function selectSourceNodesFromSelectedEdges() {  
+  pushSnapshot();
+  const cy = getCy();
+  const srcNodes = cy
+    .edges(":selected:visible")
+    .sources() // récupère tous les nodes source
+    .filter(":visible"); // garde seulement les visibles (comme ton code)
+
+  srcNodes.select();
+  metrologie();
+}
+
+export function selectTargetNodesFromSelectedEdges() {
+  pushSnapshot();
+  const cy = getCy();
+
+  const tgtNodes = cy
+    .edges(":selected:visible")
+    .targets() // récupère tous les nodes cible
+    .filter(":visible");
+
+  tgtNodes.select();
+  metrologie();
 }
 
 /*
@@ -315,8 +338,6 @@ export function perimeterForEdgesSelection() {
   return edges;
 }
 
-
-
 //------------- display counts in menu bar------------
 export function metrologie() {
   //display some measures
@@ -375,7 +396,6 @@ export function metrologie() {
   }
 
   labelEdges.innerHTML = display;
-
 }
 
 // Fonction utilitaire pour calculer le centre d’un groupe de nœuds
@@ -423,9 +443,7 @@ export function changePosRelative(xFactor, yFactor) {
   });
 }
 
-
 export function selectOutputBetween(min, max) {
-
   let nodes = perimeterForNodesSelection();
   if (nodes == null) return;
   pushSnapshot();
@@ -442,7 +460,7 @@ export function selectOutputBetween(min, max) {
       var loopEdges = outgoingEdges.filter(function (edge) {
         return edge.source().id() !== edge.target().id();
       });
-      var noLoop = (loopEdges.length === 0);
+      var noLoop = loopEdges.length === 0;
       if (nOutput == 0 || noLoop) node.select();
     } else {
       if (nOutput > min && nOutput < max) {
@@ -463,7 +481,6 @@ export function selectInputBetween(min, max) {
     let incomingEdges = node.incomers("edge:visible");
     incomingEdges = incomingEdges.filter((edge) => edge.source().visible());
 
-
     const nInput = incomingEdges.length;
 
     if ((min == 0) & (max == 0)) {
@@ -481,7 +498,6 @@ export function selectInputBetween(min, max) {
     }
   });
 }
-
 
 export function increaseFontSize(delta) {
   let selectedNodes = perimeterForNodesAction();
@@ -539,11 +555,13 @@ export function proportionalSizeNodeSizeByLinks() {
 }
 
 export function noProportionalSize() {
-  getCy().nodes().forEach((node) => {
-    node.removeData("degree");
-    node.removeStyle("width");
-    node.removeStyle("height");
-  });
+  getCy()
+    .nodes()
+    .forEach((node) => {
+      node.removeData("degree");
+      node.removeStyle("width");
+      node.removeStyle("height");
+    });
 }
 
 /*
@@ -567,7 +585,6 @@ function mapValue(value, inMin, inMax, outMin, outMax) {
   return outMin + ratio * (outMax - outMin);
 }
 
-
 /*
  create a png image by button or ctrl g like graphic
 */
@@ -580,7 +597,6 @@ export function captureGraphAsPng() {
   link.click();
   getCy().edges().removeClass("forPNG");
 }
-
 
 export function distributeNodesHorizontally() {
   let nodes = getCy().nodes(":selected:visible");
@@ -720,16 +736,18 @@ export function selectEdgesBetweenSelectedNodes() {
     return;
   }
 
-  const selectedIds = new Set(selectedNodes.map(n => n.id()));
+  const selectedIds = new Set(selectedNodes.map((n) => n.id()));
 
-  const internalEdges = getCy().edges().filter(edge => {
-    const source = edge.source().id();
-    const target = edge.target().id();
-    return selectedIds.has(source) && selectedIds.has(target);
-  });
+  const internalEdges = getCy()
+    .edges()
+    .filter((edge) => {
+      const source = edge.source().id();
+      const target = edge.target().id();
+      return selectedIds.has(source) && selectedIds.has(target);
+    });
 
-  internalEdges.forEach(edge => {
-    edge.show();     // d'abord visible
-    edge.select();   // ensuite sélectionné
+  internalEdges.forEach((edge) => {
+    edge.show(); // d'abord visible
+    edge.select(); // ensuite sélectionné
   });
 }

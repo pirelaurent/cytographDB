@@ -240,6 +240,7 @@ const cyStyles = [
   selector: "edge.fk_detailed.nullable",
   style: {
     'line-color': "#77B5FE",// bleu ciel
+    'target-arrow-color': '#77B5FE',
   },
 },
 

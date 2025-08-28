@@ -22,17 +22,12 @@ import {
   loadGraphState,
   showOverlayWithFiles,
   saveGraphState,
- 
   saveGraphToFile,
-
 } from "../graph/loadSaveGraph.js";
 
-import {
-  connectToDb,
-  generateTriggers,
-} from "../dbFront/tables.js"
+import { connectToDb, generateTriggers } from "../dbFront/tables.js";
 
-  import {listNodesToHtml, sendEdgeListToHtml} from "../ui/html.js";
+import { listNodesToHtml, sendEdgeListToHtml } from "../ui/html.js";
 
 import {
   follow,
@@ -41,7 +36,6 @@ import {
   simplifyAssociations,
   restoreAssociations,
   findPkFkChains,
-
 } from "../graph/walker.js";
 
 import {
@@ -53,6 +47,8 @@ import {
   swapHidden,
   setAndRunLayoutOptions,
   selectNodesFromSelectedEdges,
+  selectTargetNodesFromSelectedEdges,
+  selectSourceNodesFromSelectedEdges,
   perimeterForNodesAction,
   perimeterForEdgesAction,
   perimeterForNodesSelection,
@@ -71,16 +67,12 @@ import {
   increaseFontSize,
   selectEdgesBetweenSelectedNodes,
   proportionalSizeNodeSizeByLinks,
-
 } from "../graph/cytoscapeCore.js";
 
 import {
   enterFkDetailedMode,
   enterFkSynthesisMode,
 } from "../graph/detailedEdges.js";
-
-
-
 
 import {
   pushSnapshot,
@@ -96,17 +88,14 @@ import {
   showError,
   modalSelectByName,
   closeNameFilterModal,
-  deleteNodesSelected
-} from "./dialog.js"
+  deleteNodesSelected,
+} from "./dialog.js";
 
-
-import {
-  getLocalDBName,
-} from "../dbFront/tables.js";
+import { getLocalDBName } from "../dbFront/tables.js";
 
 import { createCustomCategories } from "../filters/categories.js";
 
-import { selectEdgesByNativeCategories, } from "./custom.js"
+import { selectEdgesByNativeCategories } from "./custom.js";
 
 /*
  connect an html menu object to a treatment function with action selected
@@ -177,8 +166,12 @@ export function menuDisplay(option) {
     case "showall":
       pushSnapshot();
       {
-        getCy().nodes().forEach((node) => node.show());
-        getCy().edges().forEach((edge) => edge.show());
+        getCy()
+          .nodes()
+          .forEach((node) => node.show());
+        getCy()
+          .edges()
+          .forEach((edge) => edge.show());
       }
       break;
 
@@ -204,7 +197,9 @@ export function menuDisplay(option) {
 
     case "fitSelected":
       getCy().fit(
-        getCy().nodes(":selected").union(getCy().nodes(":selected").connectedEdges()),
+        getCy()
+          .nodes(":selected")
+          .union(getCy().nodes(":selected").connectedEdges()),
         50
       );
       break;
@@ -268,17 +263,19 @@ export function menuDisplay(option) {
 
     case "applyStyle":
       // ele.removeClass('*'); // enlève toutes les classes (comme .highlighted, .faded, etc.)
-      getCy().elements().forEach((ele) => {
-        const classesToKeep = ["hidden"];
-        const currentClasses = ele.classes();
+      getCy()
+        .elements()
+        .forEach((ele) => {
+          const classesToKeep = ["hidden"];
+          const currentClasses = ele.classes();
 
-        // Filtrer les classes à retirer
-        const toRemove = currentClasses.filter(
-          (c) => !classesToKeep.includes(c)
-        );
-        // apply
-        ele.removeClass(toRemove.join(" ")); // retire uniquement les classes non protégées
-      });
+          // Filtrer les classes à retirer
+          const toRemove = currentClasses.filter(
+            (c) => !classesToKeep.includes(c)
+          );
+          // apply
+          ele.removeClass(toRemove.join(" ")); // retire uniquement les classes non protégées
+        });
 
       getCy().style(mergedStyles);
       break;
@@ -324,8 +321,7 @@ export function menuGraph(option) {
   switch (option) {
     case "localUpload":
       {
-
-        if (typeof getCy() !== 'undefined' && getCy()) {
+        if (typeof getCy() !== "undefined" && getCy()) {
           getCy().elements().remove();
         }
 
@@ -338,7 +334,9 @@ export function menuGraph(option) {
         if (input) {
           input.click();
         } else {
-          console.warn("graphUpload input not found when trying to trigger click");
+          console.warn(
+            "graphUpload input not found when trying to trigger click"
+          );
         }
 
         document.getElementById("graphUpload").value = "";
@@ -378,7 +376,9 @@ export function menuNodes(option) {
     case "all":
       {
         pushSnapshot();
-        let nodes = restrictToVisible() ? getCy().nodes(":visible") : getCy().nodes();
+        let nodes = restrictToVisible()
+          ? getCy().nodes(":visible")
+          : getCy().nodes();
         nodes.forEach((node) => {
           node.select();
         });
@@ -389,7 +389,9 @@ export function menuNodes(option) {
     case "none":
       {
         pushSnapshot();
-        let nodes = restrictToVisible() ? getCy().nodes(":visible") : getCy().nodes();
+        let nodes = restrictToVisible()
+          ? getCy().nodes(":visible")
+          : getCy().nodes();
         nodes.forEach((node) => {
           node.unselect();
         });
@@ -399,7 +401,9 @@ export function menuNodes(option) {
     case "invert":
       {
         pushSnapshot();
-        let nodes = restrictToVisible() ? getCy().nodes(":visible") : getCy().nodes();
+        let nodes = restrictToVisible()
+          ? getCy().nodes(":visible")
+          : getCy().nodes();
         nodes.forEach((node) => {
           node.selected() ? node.unselect() : node.select();
         });
@@ -456,9 +460,6 @@ export function menuNodes(option) {
       selectInputBetween(0, 0);
       break;
 
-
-
-
     case "nodeHasTriggers":
       {
         let nodes = perimeterForNodesSelection();
@@ -499,8 +500,6 @@ export function menuNodes(option) {
       }
       break;
 
-
-
     case "nodeIsMultiAssociation":
       {
         let nodes = perimeterForNodesSelection();
@@ -536,6 +535,15 @@ export function menuNodes(option) {
     case "selectNodesFromSelectedEdges":
       selectNodesFromSelectedEdges();
       break;
+
+    case "selectSourceNodes":
+      selectSourceNodesFromSelectedEdges();
+      break;
+
+    case "selectDestNodes":
+      selectTargetNodesFromSelectedEdges();
+      break;
+
     //----------- FOLLOW nodes -
 
     case "followOutgoing":
@@ -635,12 +643,10 @@ export function menuNodes(option) {
       break;
 
     case "deleteNodesSelected":
-
       deleteNodesSelected();
 
       break;
   }
-
 }
 
 /*
@@ -687,7 +693,6 @@ export function menuEdges(option) {
     */
 
     case "outgoingEdges":
-
       let nodesOut = getCy().nodes(":selected:visible");
       if (nodesOut.length == 0) {
         showAlert("no selected nodes.");
@@ -740,8 +745,6 @@ export function menuEdges(option) {
       enterFkDetailedMode(false);
       break;
 
-
-
     //--- select by data Snapshot done into function
 
     case "selectEdgesByCategory":
@@ -774,8 +777,8 @@ export function menuEdges(option) {
       let edgesToShow = perimeterForEdgesAction();
 
       for (let edge of edgesToShow) {
-        if (edge.hasClass('fk_detailed')) {
-          edge.addClass("showColumns")
+        if (edge.hasClass("fk_detailed")) {
+          edge.addClass("showColumns");
           //labelToShow = ele.data('columnsLabel').replace('\n', "<BR/>");
         } else edge.addClass("showLabel");
       }
@@ -801,7 +804,8 @@ export function menuEdges(option) {
 
     case "hideEdgeNotSelected":
       pushSnapshot();
-      getCy().edges(":visible")
+      getCy()
+        .edges(":visible")
         .filter(function (node) {
           return !node.selected();
         })
@@ -833,7 +837,7 @@ export function menuEdges(option) {
     case "restoreAssociations":
       pushSnapshot();
       restoreAssociations();
-      createCustomCategories(getLocalDBName());// explication needed
+      createCustomCategories(getLocalDBName()); // explication needed
       break;
 
     case "selectAssociations":
@@ -859,21 +863,25 @@ export function menuEdges(option) {
 
       if (edgesToKill.length > 1) {
         // confirm title, messagge
-        showMultiChoiceDialog(`⚠️ delete ${edgesToKill.length} edges`, `Confirm ?`, [
-          {
-            label: "✅ Yes",
-            onClick: () => {
-              pushSnapshot();
-              edgesToKill.remove();
-              metrologie();
-            }
-          },
+        showMultiChoiceDialog(
+          `⚠️ delete ${edgesToKill.length} edges`,
+          `Confirm ?`,
+          [
+            {
+              label: "✅ Yes",
+              onClick: () => {
+                pushSnapshot();
+                edgesToKill.remove();
+                metrologie();
+              },
+            },
 
-          {
-            label: "❌ No",
-            onClick: () => { } // rien
-          }
-        ]);
+            {
+              label: "❌ No",
+              onClick: () => {}, // rien
+            },
+          ]
+        );
 
         break;
       } else {
@@ -904,10 +912,13 @@ export function visibility(option) {
   }
 }
 
-
 // Boutons modaux
-document.getElementById('modalNameFilterOk').addEventListener('click', modalSelectByName);
-document.getElementById('modalNameFilterCancel').addEventListener('click', closeNameFilterModal);
+document
+  .getElementById("modalNameFilterOk")
+  .addEventListener("click", modalSelectByName);
+document
+  .getElementById("modalNameFilterCancel")
+  .addEventListener("click", closeNameFilterModal);
 
 /*
 document.getElementById('modalNameFilterInput').addEventListener('keydown', (e) => {
@@ -919,9 +930,11 @@ document.getElementById('modalNameFilterInput').addEventListener('keydown', (e) 
 });
 */
 // close when a click outside
-document.getElementById('nameFilterModal').addEventListener('click', function (e) {
-  if (e.target === this) closeNameFilterModal();
-});
+document
+  .getElementById("nameFilterModal")
+  .addEventListener("click", function (e) {
+    if (e.target === this) closeNameFilterModal();
+  });
 
 /*
  used to resize node layout in any way horizontal or vertical or both 
@@ -939,4 +952,3 @@ function vertiMore() {
 function vertiLess() {
   changePosRelative(1, 1 / 1.3);
 }
-

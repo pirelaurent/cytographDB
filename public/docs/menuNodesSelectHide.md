@@ -2,196 +2,226 @@
 
 <img src ="./img/nodesMenu.png" width =200px >
 
+## Status Bar
+
+Displays selected nodes on visible and hidden layers:  
+<img src = "./img/nodeStatusBar.png" width = "200px">  
+
+**0 selected / 10 available** in visible layer  
+(0 selected / 0 available) in hidden layer  
+
+The perimeter of actions applies to selected nodes if any, or to all nodes if no selection.  
+
 ---
 
-## 🔍 Selection on screen
+## 🔍 Selection on Screen
 
-Selections can be made by :
-- Clicking nodes individually
-  - Clicking outside any element remove current selection
-- Shift + click for multi-selection
-- Drawing a rectangle over nodes
+Selections can be made by:  
+- Clicking nodes individually  
+  - Clicking outside any element removes the current selection  
+- **Shift + Click** for multi-selection  
+- Drawing a rectangle over nodes  
 
-### select ...
+### Select ...
 
 <img src ="./img/nodeSelect.png" width =150px >
 
-**all** : select all visible nodes (also available with `Ctrl + A`)
-**none** : remove any selection
-**swap selected** : invert the current selection (selected become unselected, and vice versa)
+- **All**: select all visible nodes (also available with `Ctrl + A`)  
+- **None**: clear any selection  
+- **Swap selected**: invert the current selection (selected become unselected, and vice versa)  
 
-### hide ...
+### Hide ...
 
-<img src ="./img/nodeHide.png" width =150px >
-**none** : show all nodes 
-**not Selected** : Hide everything else
-**selected** : Hide selected nodes
-**swap** : Swap visible and hidden nodes
+<img src ="./img/nodeHide.png" width =150px >  
 
-### from selected edges ...
+- **None**: show all nodes  
+- **Not selected**: hide everything except selected nodes  
+- **Selected**: hide selected nodes  
+- **Swap**: swap visible and hidden nodes  
+
+### From Selected Edges ...
 
 <img src ="./img/nodeFromEdge.png" width =150px>
 
-**both sides** : select all nodes connected to a selected edge in any manner
-**source nodes** : select nodes that are at the origin of a selected edge
-**destination nodes** : select nodes that are a destination of a selected edge.
+This menu works only with previously selected edges.  
 
-💡 **use case sample**:  
-Filter edges by native category like `"triggers generated"`, then use **From Selected Edges ... both sides** to highlight a subgraph of source tables and impacted tables.
+- **Both sides**: select all nodes connected in any manner to a selected edge  
+- **Source nodes**: select nodes that are the origin of a selected edge (FK owner)  
+- **Destination nodes**: select nodes that are the destination of a selected edge  
 
-### filter by ...
+💡 **Tip:** Example use case — filter edges by native category such as `"triggers generated"`.  
+Then apply **From Selected Edges → Both Sides** to highlight a subgraph of source and impacted tables by triggers.  
+
+### Filter By ...
 
 <img src ='./img/filterByMenu.png' width= "150px" >
 
-#### by name
- <img src ='./img/filterByName.png' width= "300px" >
+#### By Name
 
-**Regex-based filter** on node labels (e.g., table names). Match nodes are selected. 
+<img src ='./img/filterByName.png' width= "300px" >
 
-⚠️ caution : with some navigator automatic fill-in can show the text but don't distribute it to regex. Enter manually or copy/paste. 
+Applies a **regex-based filter** on node labels (e.g., table names). Matching nodes are selected.  
 
+⚠️ **Caution:** Some browsers may show text with autofill but not pass it to the regex.  
+Enter manually or copy/paste your filter.  
 
+#### By Native Category 
 
-#### by native category 
+<img src ='./img/nodeNativeCategories.png' width= "150px" >  
 
-<img src ='./img/nodeNativeCategories.png' width= "150px" >.  
- Native categories are calculated at load time and are availble to filter nodes.   
-  **orphan** : isolated table, no outgoing, no incoming edge.
-  **root** : table without outgoing edge, one or more incoming edges (zero are *orphan*).
-  **leaf** : table without incoming edge. 
-  **dry association** : association tables with two links and no private column.(MxN relation)
-  **all associations**: association tables with only output edges.
-  **has triggers** : tables with triggers.
+Native categories are calculated at load time and are available to filter nodes with any database.  
 
-#### by custom category
+- **Orphan**: isolated table, no outgoing or incoming edge  
+- **Root**: table without outgoing edge (no FK), one or more incoming edges  
+- **Leaf**: table without incoming edge (never referenced)  
+- **Dry association**: association table with two links and no private column (MxN relation)  
+- **All associations**: association tables with only outgoing edges  
+- **Has triggers**: tables with triggers  
 
-Categories are added via custom logic.   
-Within custom code `democytodb.js` a ***product*** category is defined by 
+#### By Custom Category
+
+Custom categories are added via custom logic. (@see [Customization Options](./customization.md))  
+
+The filter automatically adapts to the list of custom categories. In `democytodb` there is only one:  
+<img src = "./img/customCategory.png" width ="150px">  
+
+This custom ***product*** category is created for demo by the `public/custom/democytodb.js` code:  
+
 ```js
 if (node.data("label").includes("product")) node.addClass("product");
 ```
-A specific layout is also defined for this category : label has a larger font. 
 
-Filter adapts automatically the list of custom categories. 
-In democytodb there is only one :
-<img src = "./img/customCategory.png" width ="150px">.  
+A specific layout is also defined that you can see on the graph images:  
 
-#### checking categories
+```js
+{
+  selector: "node.product",
+  style: {
+    "color": "#6D071A",
+    "font-size": "25px",
+    "font-style": "italic"
+  },
+},
+```
 
-Native and custom categories are displayed while hovering the node (with hover option on): 
-<img src = "./img/nativeAndCustomHover.png">.  
+#### How to See Categories
+
+Native and custom categories are displayed while hovering over the node (with *hover* option on):  
+<img src = "./img/nativeAndCustomHover.png">  
 
 ---
 
-### with edges 
+### Select ... With Edges 
 
-Select nodes with their edges characteristics. 
-<img src = "./img/nodeByEdges.png" width ="150px">. 
+Select nodes based on their edge characteristics.  
+<img src = "./img/nodeByEdges.png" width ="150px">  
 
+- **None**: no edges on node (same as *filter by...native category... orphan*)  
+- **Looping**: node has a self-referencing edge (hierarchical references)  
+- **Outgoing**: condition on number of outgoing (FK) links  
+- **Incoming**: condition on number of incoming links  
 
-**None** : no edges on node (same as *filter by orphan*)
-**Looping** : node has a self-referencing edge (hierarchical)
-**Outgoing** : apply condition to nodes with outbound links
-**Incoming** : same logic, for inbound links
+<img src = "./img/nodeByEdgesCount.png" width ="250px">  
 
-<img src = "./img/nodeByEdgesCount.png" width ="250px">. 
-
-
-💡 **Tip**: Combine with **AND/OR** selection to find specific structures.     
+💡 **Tip:** Combine **AND/OR** selections to find specific structures.  
 
 <img src = "./img/and-or.png" width ="180px">  
 
-Example: select *first nodes with 2 outgoing* - set AND - select *no incoming edges*  
-(this detects the same as *dry association* category).
+Example: select *first nodes with 2 outgoing* → set **AND** → select *no incoming edges*.  
+(This detects the same as the *Dry Association* category.)  
 
----  
+---
 
-### label 
+### Label 
 
- <img src = "./img/labelNodes.png" width ="150px">.  
+<img src = "./img/labelNodes.png" width ="150px">  
 
-- **show** : default display with table name on node
-- **hide** : No label (a single point). Size of node is reduced to this point.
+- **Show**: default display with table name on node  
+- **Hide**: no label (a single point). Node size is reduced to this point  
 
-Below, *associations* were selected, then *label hide* reduce them visually as small circles.
+Below, *associations* were selected (*Filter by native category → All association*).  
+Then menu *Label → Hide* reduces them visually as small circles.  
 
 <img src = "./img/labelHide.png" width = 300px>  
 
-if nothing is selected, action applies to whole visible nodes. 
+*(If no nodes are selected, the action applies to all visible nodes).*  
 
-- **font +/-**
+- **Font +/-**: increase or decrease the font size of node labels in the current perimeter (selected if any, all if none).  
 
-Increase or decrease font size of nodes labels in the current perimeter (selected if any, all if none)
-Useful to enhance some parts of graph, before a PNG snapshot for example.   
-
----  
-
-
-### list 
-
-Generates an HTML file listing all tables, sorted alphabetically.
-As other actions, this applies to current perimeter (selected nodes if any, all nodes otherwise)
-
-**All headers are sortable** by clicking on the label. 
-
-<img src = "./img/listNodes.png" width = 400px style="border: 2px solid grey;">  
-
-#### chaining to table details 
-
-- Clicking on a table name will chain to table definition. 
-   <img src = "./img/detailsFromList.png" width ="600px">.
-
-- Clicking on a triggers number of a table will chain to triggers definition.
-
- <img src = "./img/triggersFromList.png" width ="500px">.  
- 
-#### close button 
-
- <img src = "./img/closeButton.png" >
-
-This close the current browser tab.   
-
-💡 **Tip**:   
-If you don't close a tab and recall later the same, the tab will be updated but don't come to front (for standard security reason).  You can see it blink when updated. => don't think your action is dead before a check.    
-
+💡 **Tip:** Useful to emphasize certain parts of the graph.  
 
 ---
+
+### List 
+
+Generates an HTML file with all tables, sorted alphabetically.  
+This applies to the current perimeter (selected nodes if any, all nodes otherwise).  
+
+**All headers are sortable** by clicking on the header.  
+
+<img src = "./img/listNodes.png" width = 300px style="border: 2px solid grey;">  
+
+#### Chaining to Table Details 
+
+- Clicking on a table name opens its table definition.  
+   <img src = "./img/detailsFromList.png" width ="650px">  
+
+- Clicking on a trigger number opens its trigger definition.  
+ <img src = "./img/triggersFromList.png" width ="600px">  
+
+#### Close Button 
+
+<img src = "./img/closeButton.png" width ="50px" >
+
+Closes the current browser tab.  
+
+💡 **Tip:**  
+If you don’t close a tab and later recall the same display, the tab will be updated but will not come to the front (for security reasons).  
+You can see it blink when updated. Don’t assume your action failed — check your tab list.  
+
+---
+
+## Follow and Show
 
 ### <img src ='./img/nodeFollowAndShowMenu.png' width = "150px" >
 
-*(These actions of following path search into visible and hidden nodes)*
+These actions follow paths from current nodes visible perimeter and can bring hidden nodes back into view if they are linked.  
 
-- **outgoing**, **incoming**, **both**   
-Starts from currently selected nodes and follows the edges in choosen directions to reveal and select new nodes.   
+- **Outgoing**, **Incoming**, **Both**:  
+  Start from selected nodes and follow edges in the chosen direction(s). Linked nodes are selected.  
+  The operation can be repeated to show successive dependencies.  
 
+- **Association**:  
+  When a selected node is an association, reveal and select the nodes on the other side of the association regardless of direction.  
 
-- **association** :  When a selected node is an association, reveal and select the nodes of the other side of this association.
-  
-- **long paths** : From a selected node (mainly *leaf nodes*) find path that involve at least three tables in successive **output direction**.
-- **pk <- fk chains** : This walk follows successive incoming edges from a root node and checks that the referencing table’s foreign key fully covers all columns of the referenced table’s primary key.   
-This continues on next nodes as long as this pattern is correct.
+- **Long paths**:  
+  From a selected node (mainly *leaf nodes*), find paths that involve three or more tables in successive **output direction**.  
+  All paths are calculated and displayed.  
 
-See more details at [quicktour *walk the model* ](quickTour.md#walk-the-model) 
+- **PK ← FK chains**:  
+  Follows successive incoming edges from a root node **and** checks that the referencing table’s foreign key **fully covers** all columns of the referenced table’s primary key.  
+  The walk continues as long as this pattern is correct.  
+
+See more details at [Quick Tour → *Walk the model*](quickTour.md#walk-the-model).  
 
 ---
 
-### delete 
+### Delete 
 
 Permanently removes *selected nodes* from the graph.   
-Same action is performed by *backspace* : 
 
-- if only one node selected, delete is immediate 
-  - this is to allow quick visual cleaning of a graph using backspace
-- if several nodes are selected a confirmation is asked:      
-   
- <img src = "./img/deleteNodes.png" width = 230px style="border: 2px solid grey;">   
+- If only one node is selected, deletion is immediate  
+  - This allows quick visual cleaning of a graph using **Backspace**  
+- If several nodes are selected, a confirmation is shown:      
 
+<img src = "./img/deleteNodes.png" width = 230px style="border: 2px solid grey;">   
 
-❗ Remember **Undo** ( or ctrl z ) is available for these actions as well
+💡 **Tip:** The same action can be performed using **Backspace**.  
+💡 **Tip:** Use <img src ="../img/rollback2.png" height =20px/> **Undo** to restore an accidental deletion.  
 
 ---
 
-- ⚪️ [Main](./main.md)
+- ⚪️ [Main](./main.md)  
 - 🟩 [Quick Tour](./quickTour.md)  
 - 🟨 [Main Menu Bar](./menuBar.md)  
 - 🟦 [*Node Menu*](./menuNodesSelectHide.md)  

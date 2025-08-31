@@ -9,83 +9,92 @@ Menus and submenus appear on hover and disappear when the cursor leaves.
 
 ## <img src ="../img/rollback2.png" height =20px/> Undo
 
-The **counterclockwise symbol** in the menu restores the previous state.  
+The **counterclockwise arrow** restores the previous state of the graph after an action.  
 You can also use the keyboard shortcut **Ctrl + Z**.
 
 ---
 
-
 ## <img src ="../img/redCapture.png" height =25px/> PNG Snapshot
 
-This button captures the current view of the graph and prompts you to download it as a PNG image.   
-The edges are temporarily enhanced in the graph to be more visible when printing.   
-You can also use the keyboard shortcut **Ctrl + g**. Useful to keep snapshot without moving mouse out of graph. 
+This button captures the current view and prompts you to download it as a PNG image.   
+The edges are temporarily enhanced in the graph image so they are more visible when printing.   
+You can also use the keyboard shortcut **Ctrl + G** — useful for taking a snapshot without moving the mouse outside the graph. 
 
 ---
 
-## 🔎 Select Mode: OR / AND
+## 🔎 Select Mode: OR / AND  
+<img src ="./img/and-or.png" height =60px/>
 
-- **OR (default):** Adds new selection to the current selection.
-- **AND:** Applies the selection criteria **only to already selected elements** resulting in an AND operation.
+- **OR (default):** Adds new elements to the current selection.
+- **AND:** Applies the selection **only to already selected elements**, resulting in an AND operation.
 
-💡 **Advice:** Switch back to **OR** after using **AND**, further selections may otherwise return no result.
+💡 **Tip:** Switch back to **OR** after using **AND**, otherwise further selections may return no results.
 
 --- 
 
-## Hover toggle 
+## Hover Toggle 
+<img src ="./img/hoverToggle.png" height =35px/>
 
-Displays element details when the cursor hovers over them.
+Displays element details when the cursor hovers over nodes or edges.
 
 ---
 
-## 🎯 Perimeter of actions
-
-### Automatic Scope
+### Perimeter of Actions
 
 - If some visible nodes are **selected**, actions apply only to them.
-- If none, actions apply to the entire visible graph.
+- If none are selected, actions apply to the entire visible graph.
 
-The current scope is displayed in the status bar, with emphasized numbers:
+The status bar shows the current scope with highlighted numbers:
 
- **No selection** → action applies to all nodes (e.g., 9 in `democytodb`):  
+ **No selection** → the action applies to all nodes (e.g., 9 in `democytodb`):  
   <img src= "./img/scope9.png" width = '200px'>
 
-  **Selection of 4 nodes** → action applies only to those:  
+  **Selection of 4 nodes** → the action applies only to those 4:  
   <img src= "./img/scope4.png" width = '200px'>
 
----
+---  
+
+# Database Access 
 
 ## <img src= "./img/DBmenu.png">
 
+The main purpose of **CytographDB** is to create a graph from an available PostgreSQL database.  
 ### <img src= "./img/createGraphMenu.png">
 
-- Select a database from the dropdown.
-- Click **OK** to generate the graph.
+- A dropdown with all available databases is displayed.
+- Choose one and click **OK** to generate the graph.
+
 
 ####  <img src="./img/connectToDBMenu.png"> 
 
-Use it when a previous stored json graph is uploaded from disk to reconnect it. 
-The app checks compatibilty between current connected DB and DB used when the stored graph was designed : 
-- if the same : app continue with same DB   
-- if not the same, ask for compatibility :
+At any time, the full graph or a simplified view can be saved as a JSON file.  
+When reloading such a JSON file, CytographDB checks if the currently connected database is the same one used for that extract.   
 
-  <img src= "./img/compatibility.png" width ="300px" style ="border:1px solid #888">.  
-  - ***Yes***: app options will come from the accepted DB.    
-  - ***No***:  some app options will have no results
-  - <img src= "./img/NoDetailsAvailable.png" width ="300px" style ="border:1px solid #888">.  
-- if no current connection to a DB:
+- **Same database**: the application continues directly.  
+- **Different database**: the application asks the user to check compatibility:
+
+  <img src= "./img/compatibility.png" width ="300px" style ="border:1px solid #888">   
+
+  ***Yes***: application options will come from the accepted database, under the user's responsibility.    
+  ***No***: some application options may not return any results.  
+  <img src= "./img/NoDetailsAvailable.png" width ="300px" style ="border:1px solid #888">  
+
+- If there is **no database connection at all**:  
+<img src= "./img/NoDetailsNoDB.png" width ="300px" style ="border:1px solid #888">  
+
+### Options Requiring a Database 
+
+***Triggers list and code details***  
+<img src = './img/DBErrorOnTriggers.png' width ="200px" style="border: 1px solid grey;">
+
+***Table details***  
+<img src = './img/DBNoTabeDefinition.png' width ="500px" style="border: 1px solid grey;">
+
+💡 **Tip:** Use *Connect to DB only* ***before*** reloading a stored JSON file.
   
--  <img src= "./img/NoDetailsNoDB.png" width ="300px" style ="border:1px solid #888">.  
-
-### application options needing a connected database. 
-
-- triggers 
-- <img src = './img/DBErrorOnTriggers.png' width ="200px" style="border: 1px solid grey;">
-- table definition 
-- <img src = './img/DBNoTabeDefinition.png' width ="500px" style="border: 1px solid grey;">
-  
-
 ---
+
+# File Access 
 
 ## <img src="./img/filesMenu.png"> 
 
@@ -93,67 +102,90 @@ Used to save and load graph data in JSON format.
 
 ### Download 
 
-- Use the browser's file dialog to save/load graph from local disk. 
+Save the graph to your local disk using the browser. 
 
 #### Graph Name Input
-<img src="./img/drafInput.png"> 
 
-You can assign a name to your graph before downloading ( can change also in navigator)
+You can assign a name to your graph before downloading.  
+In any case, the browser allows you to change it. 
+
+<img src="./img/drafInput.png"> 
 
 ### Upload 
 
-Load a Json file saved by download. 
-A check of DB is done as explained upper.  
+Load a JSON file previously saved via download.  
+The database check is performed as explained above in **Database Access**.  
 
----
+--- 
 
-## <img src ="./img/displayMenu.png">
+# Graphical Options 
 
+You can use the mouse wheel to zoom in and out.  
+💡 **Tip:** Zoom out is centered on the mouse position.  
 
-### <img src="./img/fitScreenMenu.png"> 
+You can move the graph by holding the left mouse button and dragging the cursor.
 
-- **All :** zoom/unzoom to fit all the nodes.
-- **Selected :** fit only selected nodes.
+### Menu Display
+
+ <img src="./img/fitScreenMenu.png">  
+ <img src="./img/fitAllSelected.png" width= "130px" > 
+
+- **All:** fit the graph to show all nodes on one screen.
+- **Selected:** fit only the selected nodes.
+
+💡 **Tip:** If the screen is empty, try ***Fit Screen → All*** as your nodes may be far away. 
 
 ### <img src="./img/layoutMenu.png"> 
 
-Applies layout algorithms to reorganize the current scope.
+Apply a layout algorithm to reorganize ***the current scope***:  
+- the whole graph if no nodes are selected  
+- only the selected nodes if there is a selection  
 
-- A variety of algorithms are available.
-- Some layouts may spread nodes out of screen.
-  - use **fit screen**, **zoom**, or try a different layout.
-- Layout results have a random part and can vary at each execution.
+Several algorithms are available.  
+Some may spread nodes outside the screen: use **Fit Screen** or try a different layout.  
+Layout calculations include a random component and may vary with each execution.
 
-- layout applies to current perimeter ( all visible or only selected if any)
-
- **Undo (or ctrl z)** is supported to reverse to previous presentation.
-
-### <img src="./img/moveMenu.png"> 
-
-Native cytoscape action are available to mode nodes : 
-- left clic and drag a single node manually.
-- Dragging one of the selected nodes moves the entire selection.
-
-#### resize ...
-
-Expand or shrink the scoped graph in both directions.
-
-#### align & distribute ...
-
-- **align:** Arrange nodes along a common axis.
-- **distribute:** Evenly space nodes between boundary elements.
-
-#### rotate ...
-
-- Rotates selected nodes by **15°** increments.
-- Node labels remain **horizontally aligned**.
-- Help to reduce label overlaps.
+💡 **Tip:** Use **Undo (Ctrl + Z)** to restore the previous layout.
 
 ---
 
+### Move Elements 
 
-- ⚪️ [Main](./main.md)
+Native Cytoscape actions are available to move nodes:  
+- Left-click and drag a single node manually.  
+- Dragging one of the selected nodes moves the entire selection.  
+
+#### Move... Options
+
+<img src="./img/moveMenu.png"> 
+
+#### Resize...
+
+Expand or shrink the perimeter in different directions: horizontally, vertically, or both.
+
+#### Align...
+
+Arrange nodes within the perimeter along a common axis, horizontal or vertical. 
+
+#### Distribute...
+
+Distribute nodes within the perimeter along a common axis:  
+- **Horizontal:** nodes are equally spaced between the leftmost and rightmost.  
+- **Vertical:** nodes are equally spaced between the topmost and bottommost.  
+
+💡 **Tip:** If the spacing is too tight, move one end and try again.
+
+#### Rotate...
+
+Rotate the nodes in the current perimeter in **15°** increments, either left (counterclockwise) or right (clockwise).  
+Node labels remain **horizontally aligned**.
+
+💡 **Tip:** Mainly used to avoid overlapping labels. 
+
+---
+
+- ⚪️ [Main](./main.md)  
 - 🟩 [Quick Tour](./quickTour.md)  
 - 🟨 [*Main Menu Bar*](./menuBar.md)  
 - 🟦 [Node Menu](./menuNodesSelectHide.md)  
-- 🟥 [Edge Menu](./menuEdgesSelectHide.md)   
+- 🟥 [Edge Menu](./menuEdgesSelectHide.md)  

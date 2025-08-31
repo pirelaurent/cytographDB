@@ -1,186 +1,229 @@
 # Edge Menu
 
-![Edge Menu](./img/edgesMenu.png)
+<img src = "./img/edgesMenu.png" width = "200px">  
 
 ---
 
-## status bar
+## Status Bar
 
-Displays selected and visible edges: 
-<img src = "./img/edgeStatusBar.png" width = "200px">
-  **4 selected / 12 total**
+Displays selected and visible edges. Sample:  
+<img src = "./img/edgeStatusBar.png" width = "200px">  
 
-Perimeter of actions applies to selection if any, to all edges if no selection.  
+**4 selected / 12 total**
 
----
-
-### hover on edge
-
-when checked, mouse over an edge shows some details
-<img src = "./img/edgeHover.png" width = "200px">  
-
-## select ...
-
-Edges can be selected
--  individually by:
-  - Click 
-  - Shift + Click 
-- with nodes by drawing a rectangle (shift clic) on the graph 
-  
-
-Selected edges have distinct dashed and colored lines to be recognized 
-<img src = "./img/edgeSelected.png" width = "300px">   
-
-- **select ... all** → Select all visible edges
-- **select ... none** → Deselect all edges
-- **select ... swap Selected** → Invert current edge selection
+The perimeter of actions applies to selected edges if any, or to all edges if no selection.  
+Here the perimeter contains the 4 selected edges.
 
 ---
 
-## hide ...
+## 🔍 Selection on Screen
 
-- **hide ... none** → Show all edges
-- **hide ... not selected** → Hide all except selected edges
-- **hide ...selected** → Hide selected edges
-- **hide ...swap** → Invert visible and hidden edges
-
---- 
-
-## from selected nodes ... 
-
-Take in account currently selected ***nodes*** to pursuit with edge selection :
-
-
-  - **outgoing Edges** → Select only edges going out of selected nodes
-  - **incoming Edges** → Select only incoming edges to selected nodes
-  - **boths** → Select all edges connected to selected nodes
-    - 💡Similar to ***Nodes > Follow & Show***, except this action selects only the edges—**not** the terminal nodes.
-
-
-- **connecting two nodes (of the current selection)** 
-  
-  below three tables were selected, then the link that connect them (including loops)
-
-<img src = "./img/edgeConnectingNodes.png" width = 300px>   
+Selections can be made by:  
+- Clicking edges individually  
+  - Clicking outside any element removes the current selection  
+- **Shift + Click** for multi-selection  
+- Edges are also selected with nodes when drawing a rectangle (**Shift + drag**) on the graph  
 
 ---
 
-## Label
+## Select ...
 
-**font + / -**  : act on edges in perimeter (selected edges if any , all otherwise)
+<img src ="./img/edgeSelect.png" width =150px >
 
-**show/hide** 
-- Toggle edge labels of current perimeter (selected edges if any , all otherwise)
-- Displays the foreign key name (common edges) or the trigger name (trigger impact edges) 
+- **All**: select all visible edges  
+- **None**: deselect all edges  
+- **Swap**: invert current edge selection  
 
+💡 **Tip:** Selected edges have dashed and colored lines (here in green *chartreuse*).  
 
-<img src="./img/edgeLabels.png" width="600px" />
-
-💡  *hover* gives more details 
-
-### label show *in 1->N edges per FK*
-
-In this representation, there is one edge per column involved in FK.   
-The *label show* action shows the corresponding columns on the line.  
-As the graph could be very dense, you can restrict by selecting some edges before calling *show label*, like below 
-
-<img src="./img/labelEdgesOneToN.png" width="600px" />.  
-
-💡  *hover* gives more details 
+<img src = "./img/edgeSelected.png" width = "250px">  
 
 ---
 
-## list 
+## Hide ...
 
-Generates an HTML file with details for edges in current perimeter.   
-The **Source** and **Target** tables are clicable for details.
+<img src ="./img/edgeHide.png" width =150px >   
 
-<img src="./img/edgesList.png" width="800px" style="border: 1px solid grey;"/>
-
-### List *in 1 -> N detailed mode*
-( img truncated below )
-<img src="./img/edgesListOneToNTruncated.png" width="800px" style="border: 1px solid grey;"/>
+- **None** → show all edges  
+- **Not selected** → hide all edges except selected  
+- **Selected** → hide selected edges  
+- **Swap** → invert visible and hidden edges  
 
 ---
 
-# data model...
+## From Selected Nodes ... 
 
-Actions that add information to the original model .
+<img src ="./img/edgeFromNode.png" width =200px >   
 
+Takes into account currently selected ***nodes*** to continue with edge selection:  
 
-## data model ... generate trigger impacts
+- **All directions**: all edges of selected nodes are selected  
+- **As source**: select edges where a selected node is the source  
+- **As destination**: select edges where a selected node is the destination  
+- **Between two selected nodes**: select edges where both ends are selected nodes  
 
-- Analyzes all triggers and function code
-- Identifies C(R)UD operations that imply impacts on other tables
-- Adds **oriented edges** from the trigger's source table to the impacted table
-- Triggers impact edges 
-  - are styled distinctly  
-  - have trigger's name as label
-  - have native category '***trigger_impact***'
+💡 **Tip:** These edge selections do not affect node selection — a selected edge may connect to only one selected node.  
 
-<img src="./img/triggerHover.png" width="300px" style="border: 1px solid grey;"/>
-
----
-
-### data model ... simplify associations
-
-For **dry association tables** (2 foreign keys, no other link, no extra columns):
-
-- Removes the association node
-- Creates a **direct edge** between the linked tables (A → C)
-- Edge label remembers tables' name:  source-(association)-destination
-- Edge is visually **non-oriented** (uses circles as end points, not arrows)
-  - ⚠️ Caution for *follow* walks, orientation still exists (for compatibility with Cytograph)
-
-
-<img src="./img/collapseAssociations.png" width="500px" />
-
-in upper image, *intervention* node is not simplified due to the trigger impact added recently. It is no more a *strict association*. 
+Illustration of *between* below (three nodes were previously selected):  
+<img src = "./img/edgeConnectingNodes.png" width = 250px>   
 
 ---
 
-### restore association
+## Filter By ...
 
-Restores the original association nodes between tables for the edges in current perimeter.  
-Note: The exact previous screen position may be lost during restoration.
+<img src = "./img/edgeFilter.png" width = 150px>  
+
+#### By Name
+
+<img src ='./img/edgeFilterByName.png' width= "300px" >
+
+Applies a **regex-based filter** on edge labels (e.g., FK names). Matching edges are selected.  
+
+⚠️ **Caution:** Some browsers may display text with autofill but not pass it to the regex.  
+Enter manually or copy/paste your filter.  
+
+#### By Native Category 
+
+<img src ='./img/edgeNativeCategories.png' width= "150px" >  
+
+- ***Nullable, On Delete Cascade*** are automatically calculated at FK load time.  
+- ***Trigger_impact*** is available only when *Generate trigger impacts* has been applied through the *Data model...* menu.  
+- ***Simplified associations*** are available only when *Simplify associations* has been applied through the *Data model...* menu.  
+
+#### Example
+
+*Filter by → Native category → On delete cascade → Hide not selected*  
+
+<img src="./img/onDeleteCascadeEdge.png" width="250px" />
 
 ---
 
-## filter
+## Edge Details...
 
-Filter edges based on 
--  native FK categories :
-  - **nullable** 
-  - **on delete cascade**
--  extended categories if added 
-  - **triggers_impact**
-  - **simplified asssociations**
+<img src = "./img/edgeDetails.png" width = 150px>  
 
+By default, the graph is displayed with **one edge per FK**:  
+- The label is the name of the FK  
 
-#### Example 
-filter *on delete cascade* 
-hide not selected 
+### One Edge per Column
 
-<img src="./img/onDeleteCascadeEdge.png" width="300px" />
+Each related column between source and destination is shown as a link.  
+- Their labels are the corresponding columns  
 
 ---
 
-## delete 
+## Label... 
+
+<img src = "./img/edgeLabel.png" width = 150px>    
+
+### Show / Hide 
+
+Toggle edge labels in the current perimeter (selected edges if any, all otherwise).  
+
+#### Mode *One edge per FK*
+
+Displays:  
+- Common edges: the foreign key name  
+- Trigger impact edges: the trigger name  
+- Simplified association: *source table – (hidden association table) – destination table*  
+
+<img src="./img/edgeLabels.png" width="500px" />
+
+#### Mode *One edge per Column*
+
+Displays:  
+- Common edges: pairs of corresponding columns  
+- Trigger impact edges: no change  
+- Simplified association: no change  
+
+<img src="./img/edgeLabelsNxM.png" width="600px" />  
+
+These actions apply to the current edge perimeter (selected edges if any, all if no selection).  
+
+💡 **Tip:** Hovering edges also shows details.  
+
+#### Font + / -  
+
+Increase or decrease font size of edge labels in the current perimeter (selected edges if any, all otherwise).  
+
+---
+
+## List 
+
+Generates an HTML file with details of edges in the current perimeter.  
+
+The **Source**, **Target**, and **FK** headers allow sorting.  
+
+#### Mode *One edge per FK*
+
+<img src="./img/edgesList.png" width="600px" style="border: 1px solid grey;"/>  
+
+#### Mode *One edge per Column*
+
+<img src="./img/edgesListPerColumn.png" width="700px" style="border: 1px solid grey;"/>  
+
+For illustration purposes, the upper image kept simplified associations (line_product, authorization).  
+
+---
+
+# Data Model...
+
+Actions that add or modify information in the original graph.  
+
+<img src = "./img/dataModelMenu.png" width = 180px>  
+
+### Generate Trigger Impacts
+
+Analyzes all triggers and scans function code to identify C(R)UD operations managed by the trigger.  
+
+Adds **oriented edges** from the trigger’s source table to the impacted tables.  
+Trigger impact edges:  
+- Are styled distinctly  
+- Have the trigger’s name as label  
+- Have native category `trigger_impact`  
+
+Example (only one trigger impact in `democytodb`):  
+<img src="./img/triggerHover.png" width="250px" style="border: 1px solid grey;"/>  
+
+### Simplify Associations
+
+For **dry association tables** (2 foreign keys, no other links, no extra columns):  
+
+- Removes the association node  
+- Creates a **direct edge** between the linked tables (A → C)  
+- Edge label records table names: ***source – (association) – destination***  
+- Edge is visually **non-oriented** (two circles as endpoints, not arrows)  
+
+⚠️ **Caution:** Random internal orientation still exists for compatibility with Cytograph. Do not rely on simplified associations for source/destination accuracy.  
+
+<img src="./img/collapseAssociations.png" width="400px" />
+
+In the upper image, *intervention*, an association node, was not simplified: it is no longer a *dry association* because it gained a new edge for a trigger.  
+
+### Restore Association
+
+Restores the original association nodes between tables for the edges in the current perimeter.  
+
+💡 **Tip:** The restored node appears in the middle; previous positions are lost.  
+
+---
+
+## Delete 
 
 Permanently removes selected edges from the graph.  
 
-- if only one edge selected, delete is immediate 
-  - this is to allow quick visual cleaning of a graph using backspace
-- if several edges are selected a confirmation is necessary    
-     
- <img src = "./img/deleteEdges.png" width = 230px style="border: 2px solid grey;">.  
+- If only one edge is selected, deletion is immediate  
+  - This allows quick visual cleaning of a graph using **Backspace**  
+- If several edges are selected, a confirmation is shown:      
 
-❗ **Undo** is available for this action as well
+<img src = "./img/deleteEdges.png" width = 230px style="border: 2px solid grey;">  
 
+💡 **Tip:** Use **Backspace** as a shortcut.  
+💡 **Tip:** <img src ="../img/rollback2.png" height =20px/> **Undo** restores an accidental deletion.  
 
 ---
 
-- ⚪️ [Main](./main.md)
+- ⚪️ [Main](./main.md)  
 - 🟩 [Quick Tour](./quickTour.md)  
 - 🟨 [Main Menu Bar](./menuBar.md)  
 - 🟦 [Node Menu](./menuNodesSelectHide.md)  

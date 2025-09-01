@@ -109,24 +109,37 @@ export function selectAllVisibleNodes() {
 
 export function swapHidden() {
   pushSnapshot();
-  const nodesVisibles = getCy().nodes(":visible");
-  const nodesHidden = getCy().nodes(":hidden");
-  nodesVisibles.hide();
-  nodesHidden.show();
+  const elementsVisibles = getCy().elements(":visible");
+  const elementsHidden = getCy().elements(":hidden");
+  elementsVisibles.hide();
+  elementsHidden.show();
+
   // avoid blnak screen
   getCy().fit();
 
   metrologie();
 }
+/*
+ node select catch all edges associated.
+ To maintain selected edges, store them then restore 
+*/
 
 export function selectNodesFromSelectedEdges() {
   pushSnapshot();
-  const connectedNodes = getCy()
-    .edges(":selected:visible")
-    .connectedNodes(":visible");
+  const cy = getCy();
+
+  const selectedEdges = cy.edges(':selected:visible');
+  const connectedNodes = selectedEdges.connectedNodes(':visible');
+
   connectedNodes.select();
+
+  // Restaure l’état initial des arêtes sélectionnées :
+  cy.edges(':selected').unselect();
+  selectedEdges.select();
+
   metrologie();
 }
+
 
 export function selectSourceNodesFromSelectedEdges() {  
   pushSnapshot();

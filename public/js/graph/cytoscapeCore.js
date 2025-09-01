@@ -109,10 +109,28 @@ export function selectAllVisibleNodes() {
 
 export function swapHidden() {
   pushSnapshot();
-  const elementsVisibles = getCy().elements(":visible");
-  const elementsHidden = getCy().elements(":hidden");
-  elementsVisibles.hide();
-  elementsHidden.show();
+  pushSnapshot();
+  const cy = getCy();
+
+  // 1) calcul de l’état final des nœuds
+  const nodesToShow = cy.nodes(':hidden');
+  const nodesToHide = cy.nodes(':visible');
+
+  // 2) swap des nœuds (en batch pour éviter les recomputes)
+  cy.startBatch();
+  nodesToHide.hide();
+  nodesToShow.show();
+  cy.endBatch();
+
+  // 3) après le batch, l’état visible() est fiable -> on recalcule les arêtes à montrer
+  const edges = cy.edges();
+  const edgesToShow = edges.filter(e => e.source().visible() && e.target().visible());
+
+  // D’abord, tout masquer proprement…
+  edges.hide();
+
+  // …puis ne montrer que celles qui doivent l’être
+  edgesToShow.show();
 
   // avoid blnak screen
   getCy().fit();
@@ -355,21 +373,18 @@ export function perimeterForEdgesSelection() {
 export function metrologie() {
   //display some measures
 
-  const wholeVisible = cy.nodes(":visible").length;
-
-  const selectedCountVisible = cy.nodes(":selected:visible").length;
-  const wholeHidden = cy.nodes(":hidden").length;
-  const selectedCountHidden = cy.nodes(":selected:hidden").length;
-
-  const allEdges = cy.edges().length;
-  const selectedEdges = cy.edges(":selected:visible").length;
-
+  const wholeNodesVisible = cy.nodes(":visible").length;
+  const selectedCountNodesVisible = cy.nodes(":selected:visible").length;
+  const wholeNodesHidden = cy.nodes(":hidden").length;
+  const selectedCountNodesHidden = cy.nodes(":selected:hidden").length;
   const labelNodes = document.querySelector("#NodesId");
 
-  //  const whole = cy.nodes().length;
-  //let display = `Nodes : ${whole}&nbsp;&nbsp;[`;
-  //display += `${selectedCountVisible}:${wholeVisible}]&nbsp; (${selectedCountHidden}:${wholeHidden})`;
 
+  const wholeEdgesVisible = cy.edges(":visible").length;
+  const selectedCountEdgesVisible = cy.edges(":selected:visible").length;
+  const wholeEdgesHidden = cy.edges(":hidden").length;
+  const selectedCountEdgesHidden = cy.edges(":selected:hidden").length;
+  const labelEdges = document.querySelector("#EdgesId");
   /*
  to obective the perimeter : enhance the number 
  if select = 0 : small font and big font for total  
@@ -378,21 +393,21 @@ export function metrologie() {
 
   let big = '<span class = "bigPerim">';
   let small = '<span class = "smallPerim">';
-  let display = "";
+  let display = "Nodes&nbsp;&nbsp;";
 
-  if (selectedCountVisible > 0) {
-    display += `Nodes&nbsp;&nbsp;${big}${selectedCountVisible}/</span> ${small}${wholeVisible}</span>`;
+  if (selectedCountNodesVisible > 0) {
+    display += `${big}${selectedCountNodesVisible}/</span> ${small}${wholeNodesVisible}</span>`;
   } else {
-    display += `Nodes&nbsp;&nbsp;${small}${selectedCountVisible}/</span> ${big}${wholeVisible}</span>`;
+    display += `${small}${selectedCountNodesVisible}/</span> ${big}${wholeNodesVisible}</span>`;
   }
 
   // hidden
-  let dispHidden = `&nbsp;&nbsp;&nbsp; ${small}(${selectedCountHidden}/</span>${small}${wholeHidden})</span>`;
+  let dispHidden = `&nbsp;&nbsp; ${small}(${selectedCountNodesHidden}/</span>${small}${wholeNodesHidden})</span>`;
   if (!restrictToVisible()) {
-    if (selectedCountHidden > 0) {
-      dispHidden = `&nbsp; ${big}(${selectedCountHidden}/</span>${small}${wholeHidden})</span>`;
+    if (selectedCountNodesHidden > 0) {
+      dispHidden = `&nbsp; ${big}(${selectedCountNodesHidden}/</span>${small}${wholeNodesHidden})</span>`;
     } else {
-      dispHidden = `&nbsp; ${small}(${selectedCountHidden}/</span>${big}${wholeHidden})</span>`;
+      dispHidden = `&nbsp; ${small}(${selectedCountNodesHidden}/</span>${big}${wholeNodesHidden})</span>`;
     }
   }
   display += dispHidden;
@@ -401,13 +416,21 @@ export function metrologie() {
   // ------------ edges info
 
   display = "Edges &nbsp;";
-  const labelEdges = document.querySelector("#EdgesId");
-  if (selectedEdges != 0) {
-    display += `&nbsp;${big} ${selectedEdges}/</span>${small}${allEdges}</span>`;
+  if (selectedCountEdgesVisible > 0) {
+    display += `${big}${selectedCountEdgesVisible}/</span> ${small}${wholeEdgesVisible}</span>`;
   } else {
-    display += `&nbsp;${small} ${selectedEdges}/</span>${big}${allEdges}</span>`;
+    display += `${small}${selectedCountEdgesVisible}/</span> ${big}${wholeEdgesVisible}</span>`;
   }
-
+// hidden
+  dispHidden = `&nbsp;&nbsp; ${small}(${selectedCountEdgesHidden}/</span>${small}${wholeEdgesHidden})</span>`;
+  if (!restrictToVisible()) {
+    if (selectedCountEdgesHidden > 0) {
+      dispHidden = `&nbsp; ${big}(${selectedCounEdgesHidden}/</span>${small}${wholeEdgesHidden})</span>`;
+    } else {
+      dispHidden = `&nbsp; ${small}(${selectedCountEdgesHidden}/</span>${big}${wholeEdgesHidden})</span>`;
+    }
+  }
+  display += dispHidden;
   labelEdges.innerHTML = display;
 }
 

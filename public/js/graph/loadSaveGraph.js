@@ -27,9 +27,13 @@ import { getLocalDBName, setLocalDBName } from "../dbFront/tables.js";
 import { resetPositionStackUndo } from "./snapshots.js";
 
 import {
+  createNativeNodesCategories,
   getCustomNodesCategories,
   restoreCustomNodesCategories,
 } from "../filters/categories.js";
+
+
+
 
 //---------------------
 export function loadInitialGraph() {
@@ -63,6 +67,9 @@ export function loadInitialGraph() {
       // store details at load time /now generated with details
       saveDetailedEdges();
       enterFkSynthesisMode(true);
+// moved after reduction to 1 edge per fk 
+createNativeNodesCategories();
+
 
       hideWaitLoading();
       proportionalSizeNodeSizeByLinks();

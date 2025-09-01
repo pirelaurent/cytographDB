@@ -5,7 +5,7 @@ import { showAlert } from "../ui/dialog.js";
 import { modeSelect, AND_SELECTED } from "../ui/dialog.js";
 import { getLocalDBName } from "../dbFront/tables.js";
 import {
-  createNativeNodesCategories,
+
   createCustomCategories,
   getCustomStyles,
 } from "../filters/categories.js";
@@ -35,8 +35,8 @@ export function initializeGraph(data, fromDisk = false) {
 
   let current_db = getLocalDBName();
 
-  // customize nodes
-  createNativeNodesCategories();
+  // customize nodes**to be moved after reduction 
+  //createNativeNodesCategories();
 
   createCustomCategories(current_db);
   let moreStyles = getCustomStyles(current_db);

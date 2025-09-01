@@ -5,7 +5,7 @@
 
 import { getCy } from "../graph/cytoscapeCore.js";
 
-import {fillInGuiNodesCustomCategories} from "../ui/custom.js";
+import { fillInGuiNodesCustomCategories } from "../ui/custom.js";
 
 /*
  adaptation to specific database 
@@ -29,7 +29,7 @@ export function registerCustomModule(dbName, moduleObject) {
   //console.log("register module "+dbName)
   customModules[dbName] = moduleObject;
 }
-export let standardCategories = new Set(['orphan','root','leaf','association','multiAssociation','hasTriggers']);
+export let standardCategories = new Set(['orphan', 'root', 'leaf', 'association', 'multiAssociation', 'hasTriggers']);
 //export let internalCategories = new Set(['fk_detailed', 'fk_synth', 'showLabel','showColumns'])
 export let internalCategories = new Set(); //PLA
 /*
@@ -38,19 +38,19 @@ export let internalCategories = new Set(); //PLA
  and eliminate standard nodes categories and internal classes 
 */
 
-export function restoreCustomNodesCategories(){  
+export function restoreCustomNodesCategories() {
   let allClasses = new Set();
 
-getCy().nodes().forEach(node => {
-  node.classes().forEach(cls => allClasses.add(cls));
-});
-let filtered = new Set(
-  [...allClasses].filter(
-    cls => !standardCategories.has(cls) && !internalCategories.has(cls)
-  )
-);
- setCustomNodesCategories(filtered);
- fillInGuiNodesCustomCategories();
+  getCy().nodes().forEach(node => {
+    node.classes().forEach(cls => allClasses.add(cls));
+  });
+  let filtered = new Set(
+    [...allClasses].filter(
+      cls => !standardCategories.has(cls) && !internalCategories.has(cls)
+    )
+  );
+  setCustomNodesCategories(filtered);
+  fillInGuiNodesCustomCategories();
 }
 
 /*
@@ -62,7 +62,7 @@ export function createCustomCategories(myCurrentDB) {
   //console.log("createCustomCategories in customCategorie for "+myCurrentDB)
 
   if (customModules[myCurrentDB]) {
-    customModules[myCurrentDB].createCustomCategories(); 
+    customModules[myCurrentDB].createCustomCategories();
   } else {
     console.log(`No customCategories registered for ${myCurrentDB}`);
   }
@@ -105,25 +105,29 @@ function countFKSourceColumns(node) {
 }
 
 
+/*
+ Native categories based on number and type of edges 
 
+*/
 
 
 export function createNativeNodesCategories() {
   getCy().nodes().forEach((node) => {
+
+    let debug;
+    //debug = (node.id() === 'xxxxx');
+
     if (node.data("triggers")?.length > 0) node.addClass("hasTriggers");
 
-    // Dédupliqué : une destination table = 1
-    const outTargets = new Set(
-      node.outgoers("edge").map(edge => edge.target().id())
-    );
-    const nbOut = outTargets.size;
-
-    const inSources = new Set(
-      node.incomers("edge").map(edge => edge.source().id())
-    );
-    const nbIn = inSources.size;
+    const nbOut = node.outdegree();
 
 
+    const nbIn = node.indegree();
+    if (debug) {
+      console.log(node.id());
+      console.log('nbout:' + nbOut + " outdegree:" + node.outdegree());
+      console.log('nbIn:' + nbIn)
+    }
     if (nbOut >= 2 && nbIn === 0) {
       if (nbOut === 2) {
         const allCols = node.data("columns") || [];
@@ -147,7 +151,7 @@ export function createNativeNodesCategories() {
       node.addClass("root");
     }
 
-      if (nbOut === 1 && nbIn === 0) {
+    if (nbOut === 1 && nbIn === 0) {
       node.addClass("leaf");
     }
   });

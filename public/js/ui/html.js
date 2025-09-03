@@ -108,6 +108,7 @@ export function listNodesToHtml() {
 
   // ---- BODY ----
   const body = doc.body;
+  body.className = "alt-body";
   body.textContent = ""; // nettoie le body
 
   // titre + bouton close
@@ -314,6 +315,7 @@ export function sendEdgeListToHtml() {
   });
 
   // Open window and build DOM
+  
   const win = window.open("", "edgeListWindow");
   const doc = win.document;
 
@@ -323,8 +325,6 @@ export function sendEdgeListToHtml() {
   meta.setAttribute("charset", "UTF-8");
   doc.head.appendChild(meta);
 
-  const style = doc.createElement("style");
-
   // styles
   const link = doc.createElement("link");
   link.rel = "stylesheet";
@@ -332,6 +332,7 @@ export function sendEdgeListToHtml() {
   doc.head.appendChild(link);
   // BODY
   const body = doc.body;
+  body.className = "alt-body";
   body.textContent = "";
 
   // Title + close button
@@ -354,10 +355,10 @@ export function sendEdgeListToHtml() {
 
   const thead = doc.createElement("thead");
   const thr = doc.createElement("tr");
-  let tablo =   ["Source", "Target", "FK"];
+  let tablo = ["Source", "Target", "FK"];
   if (true) tablo.push("Columns");
 
-tablo.forEach((h) => {
+  tablo.forEach((h) => {
     const th = doc.createElement("th");
     th.textContent = h;
     thr.appendChild(th);
@@ -370,28 +371,34 @@ tablo.forEach((h) => {
   body.appendChild(table);
 
   // Fill rows
+  let rowColor = "one";
   // Après rowsData.sort(...), avant la boucle d'insertion des <tr> :
   let lastTriple = { s: null, t: null, f: null };
 
   rowsData.forEach(({ sourceName, targetName, fkLabel, columns }) => {
     const tr = doc.createElement("tr");
-
+    tr.className = rowColor;
     const sameAsAbove =
       lastTriple.s === sourceName &&
       lastTriple.t === targetName &&
       lastTriple.f === fkLabel;
+
+    if (!sameAsAbove) {
+      rowColor = (rowColor === "one" ? "two" : "one");
+      tr.className = rowColor;
+    }
 
     // --- Source ---
     const tdSource = doc.createElement("td");
     tdSource.className = "link";
     tdSource.dataset.value = sourceName;
     if (sameAsAbove) {
-      tdSource.textContent = "〃";
+      tdSource.textContent = "";
       tdSource.classList.add("repeat-marker");
     } else {
       tdSource.textContent = sourceName;
     }
-    //tdSource.textContent = sameAsAbove ? '〃' : sourceName;
+
 
     tdSource.title = `Open table: ${sourceName}`;
     tdSource.addEventListener("click", () =>
@@ -409,7 +416,7 @@ tablo.forEach((h) => {
     tdTarget.className = "link";
     tdTarget.dataset.value = targetName;
     if (sameAsAbove) {
-      tdTarget.textContent = "〃";
+      tdTarget.textContent = "";
       tdTarget.classList.add("repeat-marker");
     } else {
       tdTarget.textContent = targetName;
@@ -432,28 +439,25 @@ tablo.forEach((h) => {
     tdFk.dataset.value = fkLabel || "";
 
     if (sameAsAbove) {
-      tdFk.textContent = "〃";
+      tdFk.textContent = "";
       tdFk.classList.add("repeat-marker");
     } else {
       tdFk.textContent = fkLabel || "-";
     }
-    // pour le tri
-    //tdFk.textContent = sameAsAbove ? '〃' : (fkLabel || "-");
+
+
     tr.appendChild(tdFk);
 
     // --- Columns ---
     const tdCols = doc.createElement("td");
     tdCols.className = "text";
-if (columns !=""){
-tdCols.textContent = columns;
-} else {
-  const symbol = `<img src ="./img/onePerFk.png" width="40px" title="1 edge per fk">`;
-  tdCols.innerHTML = symbol;
-}
+    if (columns != "") {
+      tdCols.textContent = columns;
+    } else {
+      const symbol = `<img src ="./img/onePerFk.png" width="40px" title="1 edge per fk">`;
+      tdCols.innerHTML = symbol;
+    }
 
-
-    
-    
     tr.appendChild(tdCols);
 
     tbody.appendChild(tr);

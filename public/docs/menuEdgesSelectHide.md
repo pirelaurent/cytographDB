@@ -154,15 +154,20 @@ Generates an HTML file with details of edges in the current perimeter.
 
 The **Source**, **Target**, and **FK** headers allow sorting.  
 
-#### Mode *One edge per FK*
+#### Mode *One edge per FK* 
 
-<img src="./img/edgesList.png" width="600px" style="border: 1px solid grey;"/>  
+<img src="./img/edgesList.png" width="600px" style="border: 1px solid grey;"/>    
+ When an edge is in mode *1 Edge per FK* a straight line symbol  remains this mode 
+<img src ="../../img/onePerFk.png" width="50px">   
 
-#### Mode *One edge per Column*
+
+#### Mode *One edge per Column*  
+
+For edges in mode *1 edge per column* the list show corresponding columns names on successive lines.    
+Edges in *1 per FK* have the straight line symbol in place of columns.   
 
 <img src="./img/edgesListPerColumn.png" width="700px" style="border: 1px solid grey;"/>  
 
-For illustration purposes, the upper image kept simplified associations (line_product, authorization).  
 
 ---
 

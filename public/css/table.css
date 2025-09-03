@@ -9,12 +9,13 @@
       margin-bottom: 1rem;
     } */
 
-#headerBar h1 {
-  margin: 0; /* supprime marge par défaut */
-}
+  #headerBar h1 {
+    margin: 0;
+    /* supprime marge par défaut */
+  }
 
 
-    
+
   table {
     border-collapse: collapse;
     width: 100%;
@@ -29,12 +30,13 @@
   }
 
   th {
-    background-color: #f8f8f8;
+    background-color: #dfdddd;
     text-align: left;
+    color: black;
   }
 
   td {
-    background-color: #fff;
+    background-color: #ffffff;
   }
 
   .fkContainer {
@@ -58,11 +60,17 @@
     max-width: 100%;
   }
 
-  .pk-block{
-    margin-bottom: 1rem;
-  }
+.fk-block,
+.pk-block {
+  margin-bottom: 1.5em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1em;
+  background-color: #f9f9f9;
+}
 
-  .fk-block, .pk-block {
+  .fk-block,
+  .pk-block {
     margin-bottom: 1rem;
     display: block;
     /* ou flex, mais avec min-width:0 */
@@ -90,10 +98,12 @@
     max-width: 100%;
     /* ne dépasse pas l'écran */
   }
-#tableInfo h2 {
-  margin-top: 0.3em;   /* petit espace */
-  margin-bottom: 0.3em;
-}
+
+  #tableInfo h2 {
+    margin-top: 0.3em;
+    /* petit espace */
+    margin-bottom: 0.3em;
+  }
 
   .half,
   .third {
@@ -101,8 +111,13 @@
     /* largeur = contenu, pas d'étirement */
     min-width: 400px;
   }
-/* la colonne FK peut grandir */
-.half.fk-fluid { flex: 1 1 auto; min-width: 300px; }
+
+  /* la colonne FK peut grandir */
+  .half.fk-fluid {
+    flex: 1 1 auto;
+    min-width: 300px;
+    
+  }
 
   .index-block,
   .pk-block,

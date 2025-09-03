@@ -223,29 +223,23 @@ button:hover {
 
 
 
-#foreignKeysContainer {
-  font-family: Arial, sans-serif;
-  padding: 1em;
-}
-
-.fk-block,
-.pk-block {
-  margin-bottom: 1.5em;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 1em;
-  background-color: #f9f9f9;
-}
+/* 
 
 .fk-title {
   font-weight: bold;
   font-size: 1.2em;
   margin-bottom: 0.5em;
 }
+ */
+/* 
+#foreignKeysContainer {
+  font-family: Arial, sans-serif;
+  padding: 1em;
+}
 
 #foreignKeysContainer ul {
   padding-left: 1.2em;
-}
+} */
 
 #spacingControls span {
   display: flex;
@@ -465,9 +459,22 @@ html.busy, html.busy * { cursor: wait !important; }
 */
 
   table { border-collapse: collapse; cursor: pointer; }
-  th, td { padding: 5px 10px; border: 1px solid #ccc; color:grey;}
+  th { padding: 5px 10px; border: 1px solid #ccc; color:grey;}
+  td { padding: 5px 10px; border: 1px solid #ccc; color:grey;}
   th {background-color: #8e2e2e; color: white}
+
   td.num { text-align: left; padding-left:30px; }
   td.asc { text-align: center;color:black; font-weight: bold;}
   th.sort-asc::after { content: " ▲"; }
   th.sort-desc::after { content: " ▼"; }
+  tr.one { background-color: #efefef;}
+  tr.one td { color:black}
+  tr.two {background-color:white }
+  tr.two td { color :rgb(42, 37, 37)}
+/*
+ body for generated pages
+*/
+  body.alt-body {
+  font-family: system-ui, sans-serif;
+  margin: 20px; /* ou autre mise en forme */
+}

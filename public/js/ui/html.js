@@ -2,15 +2,16 @@
  generated html here 
 */
 "use strict";
-import {
-  getCy,
-} from "../graph/cytoscapeCore.js"
+import { getCy } from "../graph/cytoscapeCore.js";
 
-import {
-  getLocalDBName,
-} from "../dbFront/tables.js"
+import { showAlert } from "./dialog.js";
 
-function createIconButton(doc, { src, alt, title, width = 25, height = 25, onClick }) {
+import { getLocalDBName } from "../dbFront/tables.js";
+
+function createIconButton(
+  doc,
+  { src, alt, title, width = 25, height = 25, onClick }
+) {
   const img = doc.createElement("img");
   img.src = new URL(src, location.href).href; // make sure the path works in the popup
   img.alt = alt || "";
@@ -23,63 +24,60 @@ function createIconButton(doc, { src, alt, title, width = 25, height = 25, onCli
   return img;
 }
 
-
 export function showWaitCursor() {
-  document.documentElement.classList.add('busy');
+  document.documentElement.classList.add("busy");
   // double rAF pour garantir un paint avant le calcul
-  return new Promise(resolve =>
+  return new Promise((resolve) =>
     requestAnimationFrame(() => requestAnimationFrame(resolve))
   );
 }
 
 export function hideWaitCursor() {
-  document.documentElement.classList.remove('busy');
+  document.documentElement.classList.remove("busy");
 }
+/*
+ generate a page with nodes list in a new tab
 
-
-
-
-
+*/
 export function listNodesToHtml() {
   let nodes;
   // permimeter
   nodes = getCy().nodes(":selected:visible");
   if (nodes.length === 0) nodes = getCy().nodes(":visible");
   if (nodes.length == 0) {
-    showAlert("no nodes to list in current perimeter. <br/> Check your selection. ");
+    showAlert(
+      "no nodes to list in current perimeter. <br/> Check your selection. "
+    );
     return;
   }
 
   // helpers
-  function zeroBlank(val) { return val !== 0 ? String(val) : "-"; }
-
-
+  function zeroBlank(val) {
+    return val !== 0 ? String(val) : "-";
+  }
 
   function rowValuesFromNode(node) {
-    // list of index in node include PK and optional unique constraints 
+    // list of index in node include PK and optional unique constraints
     // indexes = { name, definition, comment, constraint_type, is_primary?, is_unique? }
-    const realIndexes = (node.data('indexes') || []).filter(ix => {
-      const t = (ix.constraint_type || '').toUpperCase();   // 'PRIMARY KEY' | 'UNIQUE' | 'EXCLUDE' | ''
-      const isPk = t === 'PRIMARY KEY' || ix.is_primary === true;
+    const realIndexes = (node.data("indexes") || []).filter((ix) => {
+      const t = (ix.constraint_type || "").toUpperCase(); // 'PRIMARY KEY' | 'UNIQUE' | 'EXCLUDE' | ''
+      const isPk = t === "PRIMARY KEY" || ix.is_primary === true;
       const isUnique =
-        t === 'UNIQUE' ||
+        t === "UNIQUE" ||
         ix.is_unique === true ||
-        /create\s+unique\s+index/i.test(ix.definition || '');
-      const isExclude = t === 'EXCLUDE'; // mets false si tu veux les garder
+        /create\s+unique\s+index/i.test(ix.definition || "");
+      const isExclude = t === "EXCLUDE"; // mets false si tu veux les garder
 
       return !isPk && !isUnique && !isExclude; // retire "&& !isExclude" pour conserver EXCLUDE
     });
 
-
-
-
     return [
       // remove the stars from label
-      node.data('label').replace(/\*/g, "") || "",
-      zeroBlank(node.data('columns')?.length || 0),
+      node.data("label").replace(/\*/g, "") || "",
+      zeroBlank(node.data("columns")?.length || 0),
       zeroBlank(realIndexes?.length || 0),
-      zeroBlank(node.data('foreignKeys')?.length || 0),
-      zeroBlank(node.data('triggers')?.length || 0)
+      zeroBlank(node.data("foreignKeys")?.length || 0),
+      zeroBlank(node.data("triggers")?.length || 0),
     ];
   }
 
@@ -103,19 +101,10 @@ export function listNodesToHtml() {
   doc.head.appendChild(meta);
 
   // styles
-  const style = doc.createElement("style");
-  style.textContent = `
-  body { font-family: system-ui, sans-serif; }
-  table { border-collapse: collapse; cursor: pointer; }
-  th, td { padding: 5px 10px; border: 1px solid #ccc; color:grey;}
-  th {background-color: #b11e1e; color: white}
-  td.num { text-align: left; padding-left:30px; }
-  td.asc { text-align: center;color:black; font-weight: bold;}
-  th.sort-asc::after { content: " ▲"; }
-  th.sort-desc::after { content: " ▼"; }
-  h2 { display:flex; align-items:center; gap:.5rem; }
-`;
-  doc.head.appendChild(style);
+  const link = doc.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "/css/style.css";
+  doc.head.appendChild(link);
 
   // ---- BODY ----
   const body = doc.body;
@@ -127,12 +116,13 @@ export function listNodesToHtml() {
     src: "img/closePage.png",
     alt: "Return",
     title: "Close",
-    onClick: () => win.close()
+    onClick: () => win.close(),
   });
   h2.appendChild(closeNodeImg);
 
-
-  h2.appendChild(doc.createTextNode(` Nodes (${sortedNodes.length} in current perimeter)`));
+  h2.appendChild(
+    doc.createTextNode(` Nodes (${sortedNodes.length} in current perimeter)`)
+  );
   body.appendChild(h2);
 
   // table
@@ -140,7 +130,7 @@ export function listNodesToHtml() {
   table.id = "myTable";
   const thead = doc.createElement("thead");
   const thr = doc.createElement("tr");
-  ["Table", "Cols", "Index", "FK", "Trig"].forEach(h => {
+  ["Table", "Cols", "Index", "FK", "Trig"].forEach((h) => {
     const th = doc.createElement("th");
     th.textContent = h;
     thr.appendChild(th);
@@ -163,9 +153,11 @@ export function listNodesToHtml() {
         td.className = "asc";
         td.style.cursor = "pointer";
         td.addEventListener("click", () => {
-          const tableId = node.data('id'); // ou 'label' si c'est ça l'identifiant
+          const tableId = node.data("id"); // ou 'label' si c'est ça l'identifiant
           //const localDBName = window.localDBName || ""; // si défini globalement
-          const url = `/table.html?name=${encodeURIComponent(tableId)}&currentDBName=${encodeURIComponent(getLocalDBName())}`;
+          const url = `/table.html?name=${encodeURIComponent(
+            tableId
+          )}&currentDBName=${encodeURIComponent(getLocalDBName())}`;
           const name = `TableDetails_${tableId}`;
 
           /*           window.open(
@@ -174,7 +166,7 @@ export function listNodesToHtml() {
                     ); 
           */
           // 1) Tenter de récupérer la fenêtre existante
-          let w = window.open('', name);
+          let w = window.open("", name);
 
           if (w && !w.closed) {
             // Mise à jour de l’URL au cas où + focus
@@ -191,19 +183,17 @@ export function listNodesToHtml() {
             w = window.open(url, name);
             if (w) w.focus();
           }
-
         });
       } else if (idx === 4 && val !== "-" && !isNaN(Number(val))) {
         // Dernière colonne (triggers) si c'est bien un nombre
         td.className = "num";
         td.style.cursor = "pointer";
         td.addEventListener("click", () => {
-          const tableName = node.data('label').replace(/\*/g, "");
+          const tableName = node.data("label").replace(/\*/g, "");
           const url = `/triggers.html?table=${encodeURIComponent(tableName)}`;
           window.open(url, `triggers of ${tableName}`);
         });
-      }
-      else td.className = "num";
+      } else td.className = "num";
       td.textContent = val;
       tr.appendChild(td);
     });
@@ -219,7 +209,7 @@ export function listNodesToHtml() {
     const isAsc = !th.classList.contains("sort-asc");
 
     // reset classes
-    ths.forEach(h => h.classList.remove("sort-asc", "sort-desc"));
+    ths.forEach((h) => h.classList.remove("sort-asc", "sort-desc"));
     th.classList.add(isAsc ? "sort-asc" : "sort-desc");
 
     rows.sort((a, b) => {
@@ -227,17 +217,20 @@ export function listNodesToHtml() {
       let bText = b.children[col].textContent.trim();
 
       if (numeric) {
-        const toNum = v => v === "-" ? 0 : Number(v);
+        const toNum = (v) => (v === "-" ? 0 : Number(v));
         const an = toNum(aText);
         const bn = toNum(bText);
         return isAsc ? an - bn : bn - an;
       } else {
-        const cmp = aText.localeCompare(bText, undefined, { numeric: true, sensitivity: "base" });
+        const cmp = aText.localeCompare(bText, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        });
         return isAsc ? cmp : -cmp;
       }
     });
 
-    rows.forEach(r => tbodyEl.appendChild(r));
+    rows.forEach((r) => tbodyEl.appendChild(r));
   }
 
   const numericCols = [1, 2, 3, 4];
@@ -249,81 +242,11 @@ export function listNodesToHtml() {
   // Mark the first column as already sorted ascending
   const firstTh = table.querySelector("th"); // First header cell
   firstTh.classList.add("sort-asc");
-}//listNodesToHtml
-
-
+} //listNodesToHtml
 
 /*
- generate list of nodes label on a new html page 
+ les listes de edges 
 */
-export function OldsendEdgeListToHtml() {
-  let edges = getCy().edges(":selected:visible");
-  if (edges.length === 0) edges = getCy().edges(":visible");
-
-  if (edges.length == 0) {
-    showAlert("no selected edges to list.");
-    return;
-  }
-
-  const sortedEdges = edges.sort((a, b) => {
-    let labelA = ` 
-      ${a.source().id()} --> 
-      ${a.target().id()}
-      \n ${a.data("label")}
-      `
-    if (a.hasClass('fk_detailed')) labelA += '\n' + a.data('columnsLabel');
-
-    let labelB = ` 
-      ${b.source().id()} --> 
-      ${b.target().id()}
-      \n ${b.data("label")}
-      `
-    if (b.hasClass('fk_detailed')) labelB += '\n' + b.data('columnsLabel');
-    return labelA.localeCompare(labelB);
-  });
-
-  const win = window.open("", "edgeListWindow");
-  let outputLines = "<ul>";
-  let lastSourceTarget = '';
-  let lastFKLabel = '';
-
-  sortedEdges.forEach((edge) => {
-    let sourceTarget = ` 
-      ${edge.source().id()} --> 
-      ${edge.target().id()}
-      `
-    if (lastSourceTarget != sourceTarget) {
-      outputLines += `<strong>${sourceTarget}</strong><br/>`;
-      lastSourceTarget = sourceTarget;
-    }
-
-    if (lastFKLabel != edge.data("label")) {
-      outputLines += `&nbsp; ${edge.data("label")}<br/>`;
-      lastFKLabel = edge.data("label");
-    }
-
-    if (edge.hasClass('fk_detailed')) {
-      outputLines += `&nbsp;&nbsp;&nbsp;- ${edge.data('columnsLabel')}<br/>`;
-    }
-
-  });
-
-  outputLines += "</ul>";
-
-  const html = `
-    <html>
-    <head><title>Edge List</title></head>
-    <body>
-      <h2>${edges.length} edges <small>(in current perimeter)</small></h2>
-       ${outputLines}
-    </body>
-    </html>
-  `;
-  // ${edges.map((name) => `<li>${name}</li>`).join("")}
-  // win.document.write(html);
-  win.document.body.innerHTML = html;
-  win.document.close();
-}
 
 export function sendEdgeListToHtml() {
   let edges = getCy().edges(":selected:visible");
@@ -337,9 +260,6 @@ export function sendEdgeListToHtml() {
   // Helpers
   const cleanLabel = (s) => (s || "").replace(/\*/g, "");
 
-
-
-
   // Nouveau (avec support de data-value)
   function sortTable(tableEl, col, numeric = false) {
     const tbodyEl = tableEl.querySelector("tbody");
@@ -349,7 +269,7 @@ export function sendEdgeListToHtml() {
     const isAsc = !th.classList.contains("sort-asc");
 
     // reset classes
-    ths.forEach(h => h.classList.remove("sort-asc", "sort-desc"));
+    ths.forEach((h) => h.classList.remove("sort-asc", "sort-desc"));
     th.classList.add(isAsc ? "sort-asc" : "sort-desc");
 
     rows.sort((a, b) => {
@@ -360,24 +280,30 @@ export function sendEdgeListToHtml() {
       const bText = (bCell.dataset.value ?? bCell.textContent).trim();
 
       if (numeric) {
-        const toNum = v => v === "-" ? 0 : Number(v);
-        return isAsc ? toNum(aText) - toNum(bText) : toNum(bText) - toNum(aText);
+        const toNum = (v) => (v === "-" ? 0 : Number(v));
+        return isAsc
+          ? toNum(aText) - toNum(bText)
+          : toNum(bText) - toNum(aText);
       } else {
-        const cmp = aText.localeCompare(bText, undefined, { numeric: true, sensitivity: "base" });
+        const cmp = aText.localeCompare(bText, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        });
         return isAsc ? cmp : -cmp;
       }
     });
 
-    rows.forEach(r => tbodyEl.appendChild(r));
+    rows.forEach((r) => tbodyEl.appendChild(r));
   }
 
-
   // Prepare data rows
-  const rowsData = edges.map(e => {
+  const rowsData = edges.map((e) => {
     const sourceName = cleanLabel(e.source().data("label") || e.source().id());
     const targetName = cleanLabel(e.target().data("label") || e.target().id());
     const fkLabel = e.data("label") || "";
-    const columns = e.hasClass("fk_detailed") ? (e.data("columnsLabel") || "") : "-";
+    const columns = e.hasClass("fk_detailed")
+      ? e.data("columnsLabel") || ""
+      : "";
     return { sourceName, targetName, fkLabel, columns };
   });
 
@@ -398,27 +324,12 @@ export function sendEdgeListToHtml() {
   doc.head.appendChild(meta);
 
   const style = doc.createElement("style");
-  style.textContent = `
-  body { font-family: system-ui, sans-serif; margin: 12px; overflow-x: auto; }
-  table {
-  border-collapse: collapse;
-  width: auto;
-  table-layout: auto;
-  max-width: 100%;
-}
-    th, td { padding: 6px 10px; border: 1px solid #ccc; }
-    th { background-color: #8e2e2e; color: white; cursor: pointer; position: sticky; top: 0; }
-    td.num { text-align: left; padding-left:30px; }
-    td.text { }
-    td.link { color:black; font-weight: 600; cursor: pointer; }
-    th.sort-asc::after { content: " ▲"; }
-    th.sort-desc::after { content: " ▼"; }
-    h2 { display:flex; align-items:center; gap:.5rem; margin: 0 0 10px; }
-    .close-btn { cursor:pointer; }
-    .repeat-marker { text-align: left; padding-left:30px; }
-  `;
-  doc.head.appendChild(style);
 
+  // styles
+  const link = doc.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "/css/style.css";
+  doc.head.appendChild(link);
   // BODY
   const body = doc.body;
   body.textContent = "";
@@ -429,10 +340,12 @@ export function sendEdgeListToHtml() {
     src: "img/closePage.png",
     alt: "Return",
     title: "Close",
-    onClick: () => win.close()
+    onClick: () => win.close(),
   });
   h2.appendChild(closeEdgeImg);
-  h2.appendChild(doc.createTextNode(`Edges (${edges.length}  in current perimeter)`));
+  h2.appendChild(
+    doc.createTextNode(`Edges (${edges.length}  in current perimeter)`)
+  );
   body.appendChild(h2);
 
   // Table
@@ -441,7 +354,10 @@ export function sendEdgeListToHtml() {
 
   const thead = doc.createElement("thead");
   const thr = doc.createElement("tr");
-  ["Source", "Target", "FK", "Columns"].forEach(h => {
+  let tablo =   ["Source", "Target", "FK"];
+  if (true) tablo.push("Columns");
+
+tablo.forEach((h) => {
     const th = doc.createElement("th");
     th.textContent = h;
     thr.appendChild(th);
@@ -470,7 +386,7 @@ export function sendEdgeListToHtml() {
     tdSource.className = "link";
     tdSource.dataset.value = sourceName;
     if (sameAsAbove) {
-      tdSource.textContent = '〃';
+      tdSource.textContent = "〃";
       tdSource.classList.add("repeat-marker");
     } else {
       tdSource.textContent = sourceName;
@@ -480,7 +396,9 @@ export function sendEdgeListToHtml() {
     tdSource.title = `Open table: ${sourceName}`;
     tdSource.addEventListener("click", () =>
       window.open(
-        `/table.html?name=${encodeURIComponent(sourceName)}&currentDBName=${encodeURIComponent(getLocalDBName())}`,
+        `/table.html?name=${encodeURIComponent(
+          sourceName
+        )}&currentDBName=${encodeURIComponent(getLocalDBName())}`,
         `TableDetails_${sourceName}`
       )
     );
@@ -491,7 +409,7 @@ export function sendEdgeListToHtml() {
     tdTarget.className = "link";
     tdTarget.dataset.value = targetName;
     if (sameAsAbove) {
-      tdTarget.textContent = '〃';
+      tdTarget.textContent = "〃";
       tdTarget.classList.add("repeat-marker");
     } else {
       tdTarget.textContent = targetName;
@@ -499,7 +417,9 @@ export function sendEdgeListToHtml() {
     tdTarget.title = `Open table: ${targetName}`;
     tdTarget.addEventListener("click", () =>
       window.open(
-        `/table.html?name=${encodeURIComponent(targetName)}&currentDBName=${encodeURIComponent((getLocalDBName()))}`,
+        `/table.html?name=${encodeURIComponent(
+          targetName
+        )}&currentDBName=${encodeURIComponent(getLocalDBName())}`,
         `TableDetails_${targetName}`
       )
     );
@@ -512,10 +432,10 @@ export function sendEdgeListToHtml() {
     tdFk.dataset.value = fkLabel || "";
 
     if (sameAsAbove) {
-      tdFk.textContent = '〃';
+      tdFk.textContent = "〃";
       tdFk.classList.add("repeat-marker");
     } else {
-      tdFk.textContent = (fkLabel || "-");
+      tdFk.textContent = fkLabel || "-";
     }
     // pour le tri
     //tdFk.textContent = sameAsAbove ? '〃' : (fkLabel || "-");
@@ -524,7 +444,16 @@ export function sendEdgeListToHtml() {
     // --- Columns ---
     const tdCols = doc.createElement("td");
     tdCols.className = "text";
-    tdCols.textContent = columns || "-";
+if (columns !=""){
+tdCols.textContent = columns;
+} else {
+  const symbol = `<img src ="./img/onePerFk.png" width="40px" title="1 edge per fk">`;
+  tdCols.innerHTML = symbol;
+}
+
+
+    
+    
     tr.appendChild(tdCols);
 
     tbody.appendChild(tr);
@@ -535,7 +464,7 @@ export function sendEdgeListToHtml() {
   });
 
   // Sorting
-  const sortableCols = [0, 1, 2]
+  const sortableCols = [0, 1, 2];
 
   doc.querySelectorAll("#edgeTable th").forEach((th, index) => {
     if (sortableCols.includes(index)) {

@@ -458,3 +458,16 @@ button:hover {
 
 /* Force le curseur sur toute la page quand html a la classe 'busy' */
 html.busy, html.busy * { cursor: wait !important; }
+
+
+/*
+ css for the list 
+*/
+
+  table { border-collapse: collapse; cursor: pointer; }
+  th, td { padding: 5px 10px; border: 1px solid #ccc; color:grey;}
+  th {background-color: #8e2e2e; color: white}
+  td.num { text-align: left; padding-left:30px; }
+  td.asc { text-align: center;color:black; font-weight: bold;}
+  th.sort-asc::after { content: " ▲"; }
+  th.sort-desc::after { content: " ▼"; }

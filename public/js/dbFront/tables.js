@@ -162,6 +162,7 @@ export async function generateTriggers(nodes) {
         const edgeId = triggerName;
 
         const targetNode = getCy().getElementById(target);
+
         const sourceNode = getCy().getElementById(source);
 
         if (targetNode.nonempty() && sourceNode.nonempty()) {
@@ -185,7 +186,7 @@ export async function generateTriggers(nodes) {
           }
         } else {
           console.warn(
-            `Missing node(s) for trigger '${triggerName}' — skipping edge from '${source}' to '${target}'`
+            `missing impact destination : '${source}' --> '${target}'`
           );
         }
       });

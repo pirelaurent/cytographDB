@@ -45,6 +45,7 @@ import {
   reqListOfTables,
   edgesQuery,
   triggerQuery,
+  triggerQueryOneTable,
   tableCommentQuery,
 } from "./dbreq.js";
 
@@ -439,7 +440,9 @@ app.get("/api/function", async (req, res) => {
 
 
 /*
- fetch trigger for triggers.html page that called it directly
+ fetch one triggers by table name. 
+ called from triggers.html page that called it directly
+ this also parse content through collectFunctionBodies
 */
 
 app.get("/triggers", async (req, res) => {
@@ -462,9 +465,13 @@ app.get("/triggers", async (req, res) => {
   // search keywords in source code 
 
   try {
-    const { rows } = await client.query(triggerQuery);
+    //const { rows } = await client.query(triggerQuery);
 
-    const filteredTriggers = rows.filter((row) => row.table_name === table);
+    //const filteredTriggers = rows.filter((row) => row.table_name === table);
+    const { rows } = await client.query(triggerQueryOneTable, [table]);
+    const filteredTriggers = rows;
+
+
     const enriched = await Promise.all(
       filteredTriggers.map(async (row) => {
 
@@ -479,7 +486,7 @@ app.get("/triggers", async (req, res) => {
           let fullText = row.definition + "\n";
 
           for (const functionName of functionNames) {
-            const body = await collectFunctionBodies(client, functionName);
+            const body = await collectFunctionBodies(client,table, functionName);
             fullText += body + "\n";
           }
 

@@ -81,17 +81,19 @@
       }
 
       document.getElementById("title").innerHTML = `<img
-  src="img/closePage.png"
-  alt="Return"
-  title="Close"
-    style="cursor: pointer; vertical-align: middle; width: 25px; height: 25px;"
-  onclick="window.tryClose()"
-/>
+        src="img/closePage.png"
+        alt="Return"
+        title="Close"
+          style="cursor: pointer; vertical-align: middle; width: 25px; height: 25px;"
+        onclick="window.tryClose()"
+      />
  ${table} ⚡  `;
 
 
       document.title = `${table} ⚡ `
+// PLA where we get the triggers list 
       const response = await fetch(`/triggers?table=${table}`);
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -105,7 +107,7 @@
       }
 
       const rows = data.triggers.map(t => {
-
+// where we prepare links to trigger code 
         const fnLink = (t.functionNames && t.functionNames.length > 0)
           ? t.functionNames.map(fn =>
             `<a href="/function.html?table=${encodeURIComponent(table)}&triggerName=${encodeURIComponent(t.name)}&name=${encodeURIComponent(fn)}" target="functionPage">${fn}</a>`

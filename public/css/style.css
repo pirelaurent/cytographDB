@@ -293,13 +293,6 @@ button:hover {
 
 }
 
-  #toggleEdgeDetails, #toggleEdgeLabel {
-  display: flex;
-  align-items: center;  /* centre verticalement */
-  gap: 10px;  
-            /* espace entre l’image et le texte (facultatif) */
-}
-
 #graphUpload {
   display: none;
   /* cacher le vrai input */

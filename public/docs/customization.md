@@ -34,7 +34,6 @@ import {
 } from "../js/graph/cytoscapeCore.js"
 import {   registerCustomModule, getCustomNodesCategories } from "../js/filters/categories.js";
 
-console.log("[DEBUG] democytodb.js custom is loaded");
 // must declare a module as follow:
 const democytodbModule = {
   // method to customize styles

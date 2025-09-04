@@ -336,24 +336,30 @@ export function setInterceptors() {
    contextual menu for edge 
   */
 
-
   let edgeForInfo;
 
   const clicEdgeMenu = document.getElementById("clicEdgeMenu");
 
   getCy().on("cxttap", "edge", function (evt) {
     edgeForInfo = evt.target;
+    const option = document.getElementById("toggleEdgeDetails");
+    option.classList.remove('hidden')
+    if (edgeForInfo.hasClass('trigger_impact')) {
+      option.classList.add("hidden");
+    }
+
     const { x, y } = whereClicInContainer(evt.renderedPosition);
     clicEdgeMenu.style.left = `${x - 10}px`;
     clicEdgeMenu.style.top = `${y - 20}px`;
     clicEdgeMenu.style.display = "block";
   });
 
-/*
- back to synth from edge contextual menu
-*/
+  /*
+   back to synth from edge contextual menu
+  */
 
   document.getElementById("toggleEdgeDetails").addEventListener("click", () => {
+    if (edgeForInfo.hasClass('trigger_impact')) return;
     let synthEdges = getCy().collection([edgeForInfo]);
     if (edgeForInfo.hasClass('fk_synth')) {
       enterFkDetailedModeForEdges(synthEdges);
@@ -367,12 +373,13 @@ export function setInterceptors() {
   });
 
   document.getElementById("toggleEdgeLabel").addEventListener("click", () => {
-    if (edgeForInfo.hasClass('fk_synth')) {
-      if (edgeForInfo.hasClass("showLabel")) edgeForInfo.removeClass("showLabel"); else edgeForInfo.addClass("showLabel");
+    if (edgeForInfo.hasClass('trigger_impact') || edgeForInfo.hasClass('fk_synth')) {
+      edgeForInfo.toggleClass('showLabel');
     }
     else if (edgeForInfo.hasClass('fk_detailed')) {
-      if (edgeForInfo.hasClass("showColumns")) edgeForInfo.removeClass("showColumns"); else edgeForInfo.addClass("showColumns");
+      edgeForInfo.toggleClass('showColumns');
     }
+
   });
 
 

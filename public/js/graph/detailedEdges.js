@@ -87,6 +87,7 @@ const originalArray = [];
                 detailedEdgesArray.filter(
                     e => e.data('label') === synth.data('label')
                 ).forEach(e => { 
+                    if (synth.hasClass('trigger_impact')) return;
                     if (synth.selected()) e.select();else e.unselect();
                     if (synth.hasClass('showLabel')) e.addClass('showColumns'); else e.removeClass('showColumns');
                     originalArray.push(e) 

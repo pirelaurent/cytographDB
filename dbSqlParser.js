@@ -6,20 +6,7 @@
 import { functionBodyQuery } from "./dbreq.js";
 
 export async function getFunctionBody(client, routineName) {
-  /*OLD
-  console.time(`fetch-${functionName}`);
-   const query = `
-    SELECT pg_get_functiondef(p.oid) AS definition
-    FROM pg_proc p
-    JOIN pg_namespace n ON p.pronamespace = n.oid
-    WHERE p.proname = $1
-    LIMIT 1
-  `; 
-  const { rows } = await client.query(query, [routineName]);
-  return rows[0]?.definition || "";
-*/
   
-
   const { rows } = await client.query(functionBodyQuery, [routineName]);
   const r = rows[0];
   if (!r) {
@@ -65,7 +52,7 @@ export async function getFunctionBody(client, routineName) {
 }
 
 /*
- tables name found in source plSQL 
+actions on  tables name found in source plSQL 
 */
 export function extractImpactedTables(text) {
   const raw = [
@@ -97,7 +84,7 @@ export function extractCalledFunctions(text) {
     (fn) =>
       /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(fn) && // identifiant SQL valid
       isNaN(Number(fn)) && // exclude numbers
-      !["true", "false", "null", "concat", "length"].includes(fn.toLowerCase()) // avoid
+      !["true", "false", "null", "concat", "length","min","max","array","coalesce"].includes(fn.toLowerCase()) // avoid PLA
   );
 }
 
@@ -106,25 +93,35 @@ export function extractCalledFunctions(text) {
 */
 export async function collectFunctionBodies(
   client,
+  table,
   functionName,
   seen = new Set(),
-  depth = 0
+  depth = 0,
 ) {
   if (seen.has(functionName) || depth > 15) return "";
   seen.add(functionName);
   const fullResult = await getFunctionBody(client, functionName);
+  // missing function definition 
+ if (fullResult.kind === 'not_found')
+ {
+  console.log(`*** WARNING from ${table} : found  ${fullResult.name} as  '${fullResult.kind}'`); 
+  return;
+ } 
 
   if (fullResult.kind === "function" || fullResult.kind === "procedure") {
     let body = fullResult.body;
     let allCode = body + "\n";
     const subCalls = extractCalledFunctions(body);
     for (const subFn of subCalls) {
-      allCode += await collectFunctionBodies(client, subFn, seen, depth + 1);
+      // recurse with collected calls
+      allCode += await collectFunctionBodies(client, table, subFn, seen, depth + 1);
     }
     return allCode;
   } else {
-    console.log("*** WARNING on function bodies ****** " + fullResult.name + ":" + fullResult.kind); 
+    // on server console 
+    console.log(`*** WARNING from ${table} : found ${fullResult.name} as  '${fullResult.kind}'`); 
   }
+  // test with bidt_stock_mvt
 }
 
 /*

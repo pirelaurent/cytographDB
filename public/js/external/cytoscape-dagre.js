@@ -214,7 +214,7 @@ DagreLayout.prototype.run = function () {
       width: nbb.w,
       height: nbb.h,
       name: node.id()
-    }); // console.log( g.node(node.id()) );
+    }); 
   } // set compound parents
 
 

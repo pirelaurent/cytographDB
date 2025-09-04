@@ -11,15 +11,13 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
 
 <img src = "./img/democytoscapedb.png" width = "600px" style="border: 1px solid grey;">
 
-### default table representation ( see upper graph )
+# General UI 
+
+## Node = table representation
 
 ( all UI choices can be customized later by yourself per database )
 
-#### table 
--  without special categories
-  - round rectangle (*production line, factory, employee*)
-
-#### tables with native categorie(s) :
+### table shapes
 
 - **orphan** : no links
   -  pentagon ( *parameters* )
@@ -31,15 +29,39 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
   - ellipse (*authorization*) 
 - **multi-association** : no incomings, >2 outgoings, or: 2 outgoings with extra column in table
   - ellipse with double border (*intervention*)
+- default table 
+  - round rectangle (*production line, factory, employee*)
   
 #### standard alteration 
 
 - table  **'has triggers'**
   -  label of node is followed by ***stars \****, 1 per trigger (*intervention\*\**)
 
-### FK edge representation:
 
-- standard FK 
+### hover on node
+
+
+When mouse cursor is over a node, direct neighbours are highlighted:
+- **outgoings edges** (foreign keys) are green 
+- **incomings edges** (referenced by other tables) are red 
+- ***More***: with hover "on" in main menu bar, a detail popup is added:  
+  
+<img src = "./img/basicInformationNode.png" height = "200px" style="border: 1px solid grey;">
+
+
+These pop up show :
+- number of edges **<-out & <-in** 
+- ***[standard & custom categories ]*** if any
+  
+<img src = "./img/hoverInfo.png"  width = "250px" style="border: 1px solid grey;">
+
+💡 at any time 'ctrl g' or *photo icon clic* create a png snapshot of current screen
+
+--- 
+
+## Edge = FK representation
+
+- FK    
   - straight line with destination arrow as triangle     
  <img src ="./img/edgeSimple.png" width = "200px">.  
 
@@ -50,84 +72,72 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
   - special line color ( default blue sky )
  <img src ="./img/edgeNullable.png" width = "100px">. 
 
-## hover for more informations
+### edge info popup 
 
-with hover "on" in main menu bar, details appear under cursor on **node** or **edge**
-
-<img src = "./img/basicInformationNode.png" height = "200px" style="border: 1px solid grey;">
-<img src = "./img/edgeInformation.png" height = "200px" style="border: 1px solid grey;">
+with hover "on" in main menu bar, a popup is added when mouse is over an edge
 
 
-### visual node info
+-**source table -> destination table** 
+-**FK name** 
+-***[standard and custom categories]*** if any
 
-**outgoings edges** (foreign keys) are green 
-**incomings edges** (referenced by other tables) are red 
-
-The pop up show the number of edges **<-out & <-in** and *[standard & custom categories ]* if any
-<img src = "./img/hoverInfo.png"  width = "250px" style="border: 1px solid grey;">
-💡 at any time 'ctrl g' or *photo icon clic* create a png snapshot of current screen
-
-## edge info
-
-source table -> destination table 
-name of the FK constraint 
-*[standard and custom categories]* if any
 <img src = "./img/hoverEdgeInfo.png"  width = "450px" style="border: 1px solid grey;">
 
 note: *fk_synth* rely to*1 edge per FK* mode. See Edge menu.  
 
 ---
+# more informations
+
+## nodes 
+
 ### list nodes (i.e. tables)
 
 **list** generates a window with nodes of current ***perimeter*** (only selected if any, all otherwise)
 
 <img src = "./img/listNodes.png" width = 300px style="border: 2px solid grey;">  
+( Index count don't include primary key )   
 
-**All headers are sortable** by a click . 
+**All headers are sortable**  
 **Clic on a table name goes directly to table's details**
-( Index number don't count primary key ) 
+
 
 --- 
 
-### browse table details
+### table details
 
 you can go to details 
-- from a list (node list or edge list)
+- from the previous node list (also from an edge list)
 - from a contextual menu in the graph
-  
-#### contextual menu *on node* 
-
-right-click on a node let appear a sub menu: 
+  - right-click on a node let appear a sub menu: 
 
 <img src = "./img/contextualNodeMenu.png" width ="240px" style="border: 1px solid grey;">
 
-  (second option appears only for tables with category '*hasTriggers*')
+  ( '*table triggers*' if any)
 
-#### table definition 
+#### table definition  
 
 a new tab show detailed schema information. 
 - if any comment in schema, a tip is available.
-- Indexes are out of primary key 
-- *Unique* or *Exclude* constraints are listed apart if any
+- constraints list is out of pk and index. Can be *Unique* or *Exclude* constraints if any.
 
-total for constraints is : PK + Indexes + other constraints
+Calculation for total constraints : PK + Indexes + other constraints
   
 <img src ="./img/tableDetails.png" width = "800px" style="border: 1px solid grey;">
 
-#### table triggers details
+#### table triggers 
 
 a new tab open with triggers'list,  allowing to browse the PSQL code.  
 
 <img src = "./img/triggerMainPage.png" width ="600px" style="border: 1px solid grey;">
 
 
-<small>*[click here for tutorial on FK constraints in SQL ](./moreSQL.md)*</small> 
+<small>*[some docs on FK constraints in SQL ](./moreSQL.md)*</small> 
 
 #### impacted Tables
 
-A code analysis search for `UPDATE`, `DELETE`, or `CREATE` operations in triggers and functions.
+An automatic code analysis search for `UPDATE`, `DELETE`, or `CREATE` operations in triggers and functions.
 
-In the upper sample, the `employee` table appears in *Impacted Tables* because an *Update* has been found in code: 
+In the upper sample, the `employee` table appears in *Impacted Tables* because an *UPDATE employee* has been found in the triggers code: 
 
 
 #### code details
@@ -136,11 +146,13 @@ In the upper sample, the `employee` table appears in *Impacted Tables* because a
 
 ---
 
-## extend graph with trigger impacts 
+## Edges
 
-From menu: **Edges → Data Model → Generate Trigger Impact**
+### add trigger impacts to fk graph
 
-New edges represent trigger-based relationships (violet below)
+menu: **Edges → Data Model → Generate Trigger Impact**
+
+New generated edges represent trigger-based relationships (violet below)
 
 <img src ="./img/triggerNetwork.png" width = "350px" style="border: 1px solid grey;">
 

@@ -151,7 +151,7 @@ WHERE tc.table_name = $1
     `;
 
 /*
- get triggers info 
+ get triggers info globally
 */
 
 export let triggerQuery = `
@@ -163,11 +163,31 @@ SELECT
     action_statement AS definition
 FROM
     information_schema.triggers
+
 GROUP BY
     event_object_table, trigger_name, action_timing, action_statement
 ORDER BY
     trigger_name;
 `;
+
+export let triggerQueryOneTable = `
+SELECT
+    event_object_table AS table_name,
+    trigger_name,
+    string_agg(event_manipulation, ', ') AS triggered_on,
+    action_timing AS timing,
+    action_statement AS definition
+FROM
+    information_schema.triggers
+WHERE
+    event_object_table = $1
+GROUP BY
+    event_object_table, trigger_name, action_timing, action_statement
+ORDER BY
+    trigger_name;
+`;
+
+
 
 /*
  get functionBody

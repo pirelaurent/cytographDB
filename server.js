@@ -97,14 +97,6 @@ app.post("/load-from-db", async (req, res) => {
     // separate names in a collection
     const tableNames = [...new Set(columnResult.rows.map((r) => r.table_name))];
 
-    /*  map table => commentaire. now in details 
-
-   const commentResult = await client.query(reqTableComments);
-   const tableComments = new Map(
-     commentResult.rows.map(({ table_name, comment }) => [table_name, comment])
-   );
-   */
-
     // dispatch columns in a new dict array
     columnResult.rows.forEach(({ table_name, column_name }) => {
       if (!columnMap[table_name]) columnMap[table_name] = [];

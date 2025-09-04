@@ -32,8 +32,10 @@ import {
   openTriggerPage,
 }
   from "../dbFront/tables.js"
-  
- import { internalCategories } from "../filters/categories.js"; 
+
+import { internalCategories } from "../filters/categories.js";
+
+import { enterFkDetailedModeForEdges, enterFkSynthesisModeForEdges } from "../graph/detailedEdges.js";
 
 /*
  all the events set in gui are defined here 
@@ -117,7 +119,7 @@ export function setInterceptors() {
       let labelToShow = ele.data('label');
 
       if (edge.hasClass('fk_detailed')) {
-        labelToShow += "<BR/>"+ele.data('columnsLabel');
+        labelToShow += "<BR/>" + ele.data('columnsLabel');
       }
 
 
@@ -157,21 +159,12 @@ export function setInterceptors() {
     document.getElementById("info-panel").style.display = "none";
   });
 
-  // menu to continue action when a node is clicked
+  // menu to show actions when a node is clicked
+
   const clicNodeMenu = document.getElementById("clicNodeMenu");
 
-  // retrait du menu si on clic ailleurs
-  getCy().on("mouseover", "node", function (event) {
-    const node = event.target;
-    if (node.hasClass("hasTriggers")) {
-      document.getElementById("open-trigger").style.display = "list-item";
-    } else {
-      document.getElementById("open-trigger").style.display = "none";
-    }
-    clicNodeMenu.style.display = "none";
-  });
 
-  // surlignage en couleurs des liens entrants et sortants
+  // show colored link automatically
   getCy().on("mouseover", "node", function (evt) {
     const node = evt.target;
     // Réinitialise les styles
@@ -193,15 +186,28 @@ export function setInterceptors() {
     });
   });
 
+  getCy().on("mouseout", "node", function () {
+    getCy().edges().removeClass("incoming outgoing faded ");
+    getCy().nodes().removeClass("faded start-node"); // due to long path
+    clicNodeMenu.style.display = "none";
+  });
+
+
+
+  getCy().on("mouseout", "edge", function () {
+    clicEdgeMenu.style.display = "none";
+  });
+
   // set to front selected nodes
   getCy().on("select", "node", function (evt) {
     const ele = evt.target;
     ele.style("z-index", Date.now());
   });
 
-  // Masquer le menu si on clique ailleurs
+  // hide nodeMenu if a click on back 
   document.addEventListener("click", () => {
     clicNodeMenu.style.display = "none";
+    clicEdgeMenu.style.display = "none";
   });
 
   let ctrlPressed = false;
@@ -267,25 +273,7 @@ export function setInterceptors() {
     }
   });
 
-  getCy().on("mouseout", "node", function () {
-    {
-      getCy().edges().removeClass("incoming outgoing faded ");
-    }
-    getCy().nodes().removeClass("faded start-node"); // due to long path
-  });
 
-  document.getElementById("open-table").addEventListener("click", () => {
-    openTable(nodeForInfo.id());
-  });
-
-  document.getElementById("open-trigger").addEventListener("click", () => {
-
-    if (nodeForInfo.data().triggers.length >= 1) {
-      openTriggerPage(nodeForInfo);
-    }
-    else showAlert("no triggers on this table")
-
-  });
 
   // show red when AND selection
 
@@ -303,32 +291,92 @@ export function setInterceptors() {
     select.classList.add("AND-select");
   }
 
+  /*
+    useful to position contextual menu in current container
+  */
 
-
-  // Affichage du menu contextuel sur clic droit
-  let nodeForInfo = null;
-  getCy().on("cxttap", "node", function (evt) {
-    nodeForInfo = evt.target;
-    const renderedPos = evt.renderedPosition;
-    // Obtenir la position du container Cytoscape dans la page
+  function whereClicInContainer(renderedPos) {
     const containerRect = getCy().container().getBoundingClientRect();
-    // Calculer la position réelle dans la fenêtre
+    // real pos in window
     const x = containerRect.left + renderedPos.x;
     const y = containerRect.top + renderedPos.y;
+    return { x, y }
+  }
 
+  /* 
+  contextual menu for node 
+  */
+
+  // global to be reused once clicked on subMenu
+  let nodeForInfo;
+
+
+  getCy().on("cxttap", "node", function (evt) {
+    nodeForInfo = evt.target;
+    const { x, y } = whereClicInContainer(evt.renderedPosition)
     clicNodeMenu.style.left = `${x + 5}px`;
     clicNodeMenu.style.top = `${y - 5}px`;
+    document.getElementById("open-trigger").style.display = nodeForInfo.hasClass("hasTriggers") ? "list-item" : "none"
     clicNodeMenu.style.display = "block";
   });
 
-  //--------------------  marquage d'un noeud sélectionné
 
-  /*         NE PAS REFAIRE A LA MANO LAISSER CYTO
-                    NO: getCy().on("tap", "node", function (evt) {
-                    car cet évènement arrive après le select natif
+  document.getElementById("open-table").addEventListener("click", () => {
+    openTable(nodeForInfo.id());
+  });
+
+  document.getElementById("open-trigger").addEventListener("click", () => {
+    if (nodeForInfo.data().triggers.length >= 1) {
+      openTriggerPage(nodeForInfo);
+    }
+    else showAlert("no triggers on this table")
+  });
+
+  /*
+   contextual menu for edge 
+  */
+
+
+  let edgeForInfo;
+
+  const clicEdgeMenu = document.getElementById("clicEdgeMenu");
+
+  getCy().on("cxttap", "edge", function (evt) {
+    edgeForInfo = evt.target;
+    const { x, y } = whereClicInContainer(evt.renderedPosition);
+    clicEdgeMenu.style.left = `${x - 10}px`;
+    clicEdgeMenu.style.top = `${y - 20}px`;
+    clicEdgeMenu.style.display = "block";
+  });
+
+/*
+ back to synth from edge contextual menu
 */
 
-  // trace selection
+  document.getElementById("toggleEdgeDetails").addEventListener("click", () => {
+    let synthEdges = getCy().collection([edgeForInfo]);
+    if (edgeForInfo.hasClass('fk_synth')) {
+      enterFkDetailedModeForEdges(synthEdges);
+    } else {
+      // find all others from same label , ie details of a unique synth
+      let cy = getCy();
+      let aLabel = edgeForInfo.data('label');
+      let edges = cy.edges(':visible').filter(edge => edge.data('label') === aLabel);
+      enterFkSynthesisModeForEdges(edges);
+    }
+  });
+
+  document.getElementById("toggleEdgeLabel").addEventListener("click", () => {
+    if (edgeForInfo.hasClass('fk_synth')) {
+      if (edgeForInfo.hasClass("showLabel")) edgeForInfo.removeClass("showLabel"); else edgeForInfo.addClass("showLabel");
+    }
+    else if (edgeForInfo.hasClass('fk_detailed')) {
+      if (edgeForInfo.hasClass("showColumns")) edgeForInfo.removeClass("showColumns"); else edgeForInfo.addClass("showColumns");
+    }
+  });
+
+
+  // trace current selection values
   getCy().on("select unselect", "node", function () {
     metrologie();
   });
@@ -406,13 +454,13 @@ export function setInterceptors() {
     btnIn.addEventListener("click", menuSelectSizeIncoming);
   }
 
-document.querySelectorAll('li[data-category="nodesName"]').forEach(li => {
-  li.addEventListener('click', (e) => openNameFilterModal(e, "node"));
-});
+  document.querySelectorAll('li[data-category="nodesName"]').forEach(li => {
+    li.addEventListener('click', (e) => openNameFilterModal(e, "node"));
+  });
 
-document.querySelectorAll('li[data-category="edgesName"]').forEach(li => {
-  li.addEventListener('click', (e) => openNameFilterModal(e, "edge"));
-});
+  document.querySelectorAll('li[data-category="edgesName"]').forEach(li => {
+    li.addEventListener('click', (e) => openNameFilterModal(e, "edge"));
+  });
 
 } // setInterceptor
 

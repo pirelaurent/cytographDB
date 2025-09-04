@@ -80,6 +80,30 @@ export function saveDetailedEdges() {
  global : false from menu 
 */
 
+export function enterFkDetailedModeForEdges(synthEdges){
+
+const originalArray = [];
+            synthEdges.forEach(synth => {
+                detailedEdgesArray.filter(
+                    e => e.data('label') === synth.data('label')
+                ).forEach(e => { 
+                    if (synth.selected()) e.select();else e.unselect();
+                    if (synth.hasClass('showLabel')) e.addClass('showColumns'); else e.removeClass('showColumns');
+                    originalArray.push(e) 
+                })
+            })
+            // must change an array in a cy collection 
+            const original = getCy().collection(originalArray); // <- conversion Array -> collection
+            getCy().batch(() => {
+                synthEdges.remove();
+                getCy().add(original);
+            });
+}
+
+/*
+    restore details from a synth edge 
+*/
+
 export function enterFkDetailedMode(global = true) {
     let synthEdges;
     if (global) {
@@ -88,13 +112,8 @@ export function enterFkDetailedMode(global = true) {
         synthEdges = perimeterForEdgesAction().filter('.fk_synth')
     }
 
-//synthEdges.forEach(e => console.log(e.data('label'))); //PLA toutes les fk sont la 
-
-
     // verify we are in synthetic  
     if (synthEdges.length == 0) return false;
-
-
     //detailedEdgesArray.forEach(e => console.log(e.data('label')));//PLA les fk nullable n'ont qu'une fois  
 
     if (detailedEdgesArray.length != 0) {
@@ -105,25 +124,10 @@ export function enterFkDetailedMode(global = true) {
             });
         }
         else {
-            const originalArray = [];
-            synthEdges.forEach(synth => {
-                detailedEdgesArray.filter(
-                    e => e.data('label') === synth.data('label')
-                ).forEach(e => { 
-                    if (synth.selected()) e.select();else e.unselect();
-                    originalArray.push(e) 
-                
-                })
-            })
-            // must change an array in a cy collection 
-            const original = getCy().collection(originalArray); // <- conversion Array -> collection
-            getCy().batch(() => {
-                synthEdges.remove();
-                getCy().add(original);
-            });
+            enterFkDetailedModeForEdges(synthEdges);
         }
     } else {
-        showInfo("No detailed edges for this graph");
+        showInfo("No detailed edges to shrink");
         return false;
     }
     currentFkMode = 'detailed';
@@ -133,7 +137,7 @@ export function enterFkDetailedMode(global = true) {
 
 /*
  swap the edges detailed with synthetic
-global: false when commin from menu , true for load/save
+global: false when coming from menu , true for load/save
 */
 
 
@@ -155,6 +159,15 @@ export function enterFkSynthesisMode(global =true) {
     currentFkMode = 'synthesis';
     //document.getElementById('toggle-fk-mode').textContent = 'toggle details 1 --> n';
 
+    enterFkSynthesisModeForEdges(edges);
+}
+
+/*
+ from a bucket of detailed edges, find those from same origin (via same label)
+ Take the first to be root ot the refactored simple edge 
+*/
+
+export function enterFkSynthesisModeForEdges(edges){
     const grouped = {};
     // information for synthesis is inside detailed 
     edges.forEach(edge => {
@@ -165,10 +178,12 @@ export function enterFkSynthesisMode(global =true) {
         grouped[constraintName].push(edge);
     });
 
-    // Supprime les détaillées
+// here a dict of groups by fk label 
+
+    // remove detailed from cy but they are stored in a global collection
     edges.remove();
 
-    // Ajoute les synthétiques
+    // add a synthetic edge for a group of detailed
     Object.entries(grouped).forEach(([constraintName, edgeGroup]) => {
         const first = edgeGroup[0];
         const source = first.data('source');
@@ -177,6 +192,8 @@ export function enterFkSynthesisMode(global =true) {
         const onUpdate = first.data('onUpdate');
 
         const nullable = edgeGroup.some(e => e.data('nullable'));
+        const labeled = edgeGroup.some(e => e.hasClass('showColumns'));
+
 
         getCy().add({
             group: 'edges',
@@ -191,7 +208,8 @@ export function enterFkSynthesisMode(global =true) {
             classes: [
                 'fk_synth',
                 onDelete === 'c' ? 'delete_cascade' : '',
-                nullable ? 'nullable' : ''
+                nullable ? 'nullable' : '',
+                labeled ? 'showLabel' :''
             ].filter(Boolean).join(' ')
         });
     });

@@ -456,7 +456,6 @@
       </button>
       <button id="btn-export" title="PNG Snapshot  (ctrl g)">
         <img src="./img/redCapture.png" alt="PNG Snapshot" style="width: 22px; height: 22px;">
-
       </button>
 
       <!-- span class="labelPrevious">select</span-->
@@ -473,9 +472,8 @@
 
       <div id="doc-links" style="margin-left: auto; display: flex; gap: 12px;">
         <a href="/docs/main.md" class="doc-link" target="docTab">Documentation</a>
-        <!-- ce lien sera ajouté dynamiquement -->
       </div>
-      <!-- here we will add  "custom/docs/index.md" -->
+      <!-- here we will add  "custom/docs/index.md" if any -->
 
       <div id="info-panel" class="info-panel">
         <div id="nodeDetails"></div>
@@ -489,6 +487,13 @@
       <li id="open-table">🔍table definition</li>
       <li id="open-trigger">⚡table triggers</li>
     </ul>
+
+    <ul id="clicEdgeMenu" class="hidden">
+      <li id="toggleEdgeDetails"><img src = "./img/toggle.png" >  per FK / per Cols</li>
+      <li id="toggleEdgeLabel"><img src = "./img/toggle.png"> label show/hide</li>
+    </ul>
+
+
 
     <div id="toast" role="status" aria-live="polite"></div>
 

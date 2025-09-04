@@ -171,7 +171,7 @@ button:hover {
   padding: 0.5rem 1rem;
 }
 
-#clicNodeMenu {
+#clicNodeMenu, #clicEdgeMenu {
   position: absolute;
   background: #fff;
   border: 1px solid #ccc;
@@ -185,13 +185,13 @@ button:hover {
   display: none;
 }
 
-#clicNodeMenu li {
+#clicNodeMenu li , #clicEdgeMenu li{
   padding: 6px 12px;
   cursor: pointer;
 }
 
-#clicNodeMenu li:hover {
-  background-color: #f0f0f0;
+#clicNodeMenu li:hover , #clicEdgeMenu li:hover{
+  background-color: #d0cece;
 }
 
 .hidden {
@@ -291,6 +291,13 @@ button:hover {
 #hoverInfoToggle:checked {
   accent-color: red;
 
+}
+
+  #toggleEdgeDetails, #toggleEdgeLabel {
+  display: flex;
+  align-items: center;  /* centre verticalement */
+  gap: 10px;  
+            /* espace entre l’image et le texte (facultatif) */
 }
 
 #graphUpload {

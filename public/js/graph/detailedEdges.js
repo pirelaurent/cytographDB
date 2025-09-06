@@ -107,11 +107,13 @@ const originalArray = [];
 
 export function enterFkDetailedMode(global = true) {
     let synthEdges;
+    
     if (global) {
         synthEdges = getCy().edges('.fk_synth');
     } else {
         synthEdges = perimeterForEdgesAction().filter('.fk_synth')
     }
+
 
     // verify we are in synthetic  
     if (synthEdges.length == 0) return false;
@@ -128,7 +130,7 @@ export function enterFkDetailedMode(global = true) {
             enterFkDetailedModeForEdges(synthEdges);
         }
     } else {
-        showInfo("No detailed edges to shrink");
+        if (!global) showInfo("No detailed edges to shrink");
         return false;
     }
     currentFkMode = 'detailed';

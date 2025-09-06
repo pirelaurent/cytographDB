@@ -11,15 +11,42 @@ import {
 } from "../filters/categories.js";
 import { fillInGuiNodesCustomCategories } from "../ui/custom.js";
 import { pushSnapshot } from "./snapshots.js";
+
 //-------------------
 /*
  cy defined in a module cannot be accessed directly
  use methods from outside
 */
 let cy;
+let detachBlockers = null;
+
 export function setCy(instance) {
   cy = instance;
+
+// not enough for windows event interceptor
+//const container = cy.container();
+
+  if (detachBlockers) {
+    detachBlockers();
+    detachBlockers = null;
+  }
+
+
+document.addEventListener("contextmenu", e => {
+//  console.log("contextmenu global bloqué");
+  e.preventDefault();
+});
+
+// instance but not execute until a new call to setCy
+detachBlockers = () => {
+    document.removeEventListener("contextmenu", onContextMenu, true);
+    document.removeEventListener("mousedown", onMouseDownRight, true);
+  };
+
 }
+
+
+
 export function getCy() {
   return cy;
 }
@@ -347,6 +374,13 @@ export function perimeterForEdgesAction() {
   }
   return edges;
 }
+
+
+
+
+
+
+
 
 export function perimeterForEdgesSelection() {
   // if restrict take visible otherwise take whole graph

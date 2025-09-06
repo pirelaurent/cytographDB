@@ -44,6 +44,7 @@ export function main() {
   console.log("start of application. Create cy");
   // autre layout
   cytoscape.use(cytoscapeDagre);
+  
   setCy(cytoscape({
     container: document.getElementById("cy"),
     elements: [],

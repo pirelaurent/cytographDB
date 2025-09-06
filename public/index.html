@@ -520,20 +520,18 @@
     <h3 id="nameFilterTitle">Filter by name (regex)</h3>
 
     <!-- champ caché pour retenir l'option -->
-    <input type="hidden" id="modalNameFilterType" value="node" />
+    <input type="hidden" id="modalNameFilterType" value="nodeOrEdge" />
 
     <input type="text" id="modalNameFilterInput" placeholder="searched name (regex)" class="modal-input" />
-
-    <button id="modalNameFilterOk" class="modal-btn">OK</button>
     <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
+    <button id="modalNameFilterOk" class="modal-btn">OK</button>
+
+<input type="checkbox" id="searchOnHidden" title="include hidden">  <!--checked-->    
+    <small>include hidden</small>
+
   </div>
 </div>
 
 
-
-
-
-
 </body>
-
 </html>

@@ -150,7 +150,7 @@ export function cytogaphdb_version() {
 export function openNameFilterModal(event, type) {
   document.getElementById("nameFilterModal").style.display = "flex";
   const title = document.getElementById("nameFilterTitle");
-  document.getElementById("modalNameFilterInput").value='';
+  document.getElementById("modalNameFilterInput").value = "";
   const hiddenType = document.getElementById("modalNameFilterType");
 
   // Mets à jour le titre + le champ caché
@@ -168,27 +168,35 @@ export function closeNameFilterModal() {
 
 export function modalSelectByName() {
   const val = document.getElementById("modalNameFilterInput").value;
+
   const hiddenType = document.getElementById("modalNameFilterType").value;
   const ok = selectByName(val, hiddenType);
   if (ok) closeNameFilterModal();
 }
 
+// hiddentType is node or edges
 export function selectByName(pattern, hiddenType) {
   let regex;
   try {
-    regex = new RegExp(pattern);
+    regex = new RegExp(pattern.trimEnd(),'i');
   } catch (e) {
-    showAlert(e.message);
+    showAlert("unvalid regex:",e.message);
     return false;
   }
 
   if (hiddenType === "nodes") {
-    // unselect hidden to free the count 
-    //getCy().nodes(":selected:hidden").unselect();
+    /*
+ by name will search in visible and hidden. 
+ If found in hidden, bring back these nodes
+*/
 
-    // perimeter
-    let nodes = perimeterForNodesSelection();
+    // perimeter special
+    const withHidden = document.getElementById("searchOnHidden").checked;
+    let nodes = withHidden ? getCy().nodes() : perimeterForNodesSelection();
     if (nodes == null) return;
+
+    // un select residual hidden selecteed nodes if any
+    if (withHidden) getCy().$("node:hidden").unselect();
 
     nodes.forEach((node) => {
       if (regex.test(node.id())) {
@@ -196,23 +204,34 @@ export function selectByName(pattern, hiddenType) {
       } else {
         if (modeSelect() == AND_SELECTED) node.unselect();
       }
+
+      getCy().$("node:selected").show(); //$ for elements( )
+      // show also edges
+      getCy().$("node:selected").connectedEdges().show();
+      // (future compound nodes, show montrer les parents
+      getCy().$("node:selected").ancestors().show();
     });
   }
+
   //
-if (hiddenType === "edges") {
+  if (hiddenType === "edges") {
     // perimeter
-    let edges = perimeterForEdgesSelection();
+    const withHidden = document.getElementById("searchOnHidden").checked;
+    let edges = withHidden ? getCy().edges() : perimeterForEdgesSelection();
     if (edges == null) return;
 
+    // un select residual hidden selecteed nodes if any
+    if (withHidden) getCy().$("edge:hidden").unselect();
+
     edges.forEach((edge) => {
-      if (regex.test(edge.data('label'))) {
+      if (regex.test(edge.data("label"))) {
         edge.select(); //add
       } else {
         if (modeSelect() == AND_SELECTED) edge.unselect();
       }
     });
   }
-
+  getCy().$("edge:selected").show(); //$ for elements( )
   return true;
 }
 

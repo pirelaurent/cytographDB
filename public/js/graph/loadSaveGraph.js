@@ -6,6 +6,7 @@
 
 import {
   getCy,
+  setCy,
   initializeGraph,
   setAndRunLayoutOptions,
   metrologie,
@@ -24,7 +25,7 @@ import { showAlert, showError, showMultiChoiceDialog } from "../ui/dialog.js";
 
 import { getLocalDBName, setLocalDBName } from "../dbFront/tables.js";
 
-import { resetPositionStackUndo } from "./snapshots.js";
+import { popSnapshot, pushSnapshot, resetPositionStackUndo } from "./snapshots.js";
 
 import {
   createNativeNodesCategories,
@@ -131,10 +132,10 @@ function loadGraphNamed(filename) {
             }
           });
       } else {
-        cy = cytoscape({
+        setCy  (cytoscape({
           container: document.getElementById("cy"),
           ...graphState,
-        });
+        }));
         initializeGraph(null, true);
       }
       //document.getElementById("current-graph").textContent = filename;
@@ -287,9 +288,11 @@ export function saveGraphToFile() {
   /*
    temporarily switch to detail mode to save graph
   */
-  let wasFkMode = getCurrentFKMode();
+//save current aspect as we save in details PLA
+pushSnapshot();
+let wasFkMode = getCurrentFKMode();
   if (wasFkMode === "synthesis") {
-    enterFkDetailedMode();
+    enterFkDetailedMode(true);
   }
   // then save graph
   const json = {
@@ -316,6 +319,9 @@ export function saveGraphToFile() {
   // revision : keep graph name in box
   //document.getElementById("current-graph").textContent = filename;
   //filenameInput.value = "";
+
+  popSnapshot();
+  setCurrentFKMode(wasFkMode);
 }
 
 /*

@@ -37,7 +37,6 @@ export function hideWaitCursor() {
 }
 /*
  generate a page with nodes list in a new tab
-
 */
 export function listNodesToHtml() {
   let nodes;
@@ -117,7 +116,11 @@ export function listNodesToHtml() {
     src: "img/closePage.png",
     alt: "Return",
     title: "Close",
-    onClick: () => win.close(),
+    onClick: () => {
+      const ids = getCheckedIds(doc);                
+        window.applySelectionFromPopup?.(ids);
+      win.close();
+    }
   });
   h2.appendChild(closeNodeImg);
 
@@ -131,7 +134,7 @@ export function listNodesToHtml() {
   table.id = "myTable";
   const thead = doc.createElement("thead");
   const thr = doc.createElement("tr");
-  ["Table", "Cols", "Index", "FK", "Trig"].forEach((h) => {
+  ["  ", "Table", "Cols", "Index", "FK", "Trig"].forEach((h) => {
     const th = doc.createElement("th");
     th.textContent = h;
     thr.appendChild(th);
@@ -145,7 +148,22 @@ export function listNodesToHtml() {
 
   // fill in lines
   for (const node of sortedNodes) {
-    const tr = doc.createElement("tr");
+
+    const tr = doc.createElement('tr');
+
+    const tdCheck = doc.createElement('td');
+    const id = node.id();
+    const cb = doc.createElement('input');
+    cb.type = 'checkbox';
+    cb.id = 'cb_' + id;                          
+    cb.name = 'nodeIds';                        
+    cb.value = id;                             
+    cb.checked = !!node.selected();              
+    cb.classList.add('nodeChk');
+    tdCheck.appendChild(cb);
+    tr.appendChild(tdCheck);
+
+
     const vals = rowValuesFromNode(node);
     vals.forEach((val, idx) => {
       const td = doc.createElement("td");
@@ -201,7 +219,7 @@ export function listNodesToHtml() {
     tbody.appendChild(tr);
   }
 
-  // ---- tri par clic ----
+  // ---- sort by a clic ----
   function sortTable(tableEl, col, numeric = false) {
     const tbodyEl = tableEl.querySelector("tbody");
     const rows = Array.from(tbodyEl.querySelectorAll("tr"));
@@ -214,6 +232,23 @@ export function listNodesToHtml() {
     th.classList.add(isAsc ? "sort-asc" : "sort-desc");
 
     rows.sort((a, b) => {
+
+      const aCell = a.children[col];
+      const bCell = b.children[col];
+
+      // 1) Si la colonne contient des checkboxes, on trie dessus
+      const aCb = aCell.querySelector('input[type="checkbox"]');
+      const bCb = bCell.querySelector('input[type="checkbox"]');
+      if (aCb && bCb) {
+        // false < indeterminate < true
+        const val = cb => cb.indeterminate ? 0.5 : (cb.checked ? 1 : 0);
+        const cmp = val(aCb) - val(bCb);
+
+        // isAsc === true : non cochées -> au début ; false : cochées -> au début
+        return isAsc ? cmp : -cmp;
+      }
+
+
       let aText = a.children[col].textContent.trim();
       let bText = b.children[col].textContent.trim();
 
@@ -234,21 +269,74 @@ export function listNodesToHtml() {
     rows.forEach((r) => tbodyEl.appendChild(r));
   }
 
-  const numericCols = [1, 2, 3, 4];
+  const numericCols = [2, 3, 4, 5]; //between the 0..5 cols 
   doc.querySelectorAll("#myTable th").forEach((th, index) => {
+    if (index === 0) addInvertToggle(table, 0, doc);
+    if (index === 1) th.classList.add("sort-asc");
+
     th.addEventListener("click", () => {
       sortTable(table, index, numericCols.includes(index));
     });
   });
-  // Mark the first column as already sorted ascending
-  const firstTh = table.querySelector("th"); // First header cell
-  firstTh.classList.add("sort-asc");
-} //listNodesToHtml
+
+// get checked box values 
+  function getCheckedIds(root = document, selector = '') {
+    const scope = selector ? `${selector} ` : '';
+    return Array.from(root.querySelectorAll(`${scope}input[type="checkbox"]:checked`))
+      .map(cb => cb.value || cb.id || null)           // valeur si définie, sinon id
+      .filter(Boolean)
+      .map(v => v.startsWith('cb_') ? v.slice(3) : v); // optionnel: retire le préfixe cb_
+  }
+
+  function addInvertToggle(table, colIndex, doc = document) {
+    const th = table.tHead?.rows?.[0]?.cells?.[colIndex];
+    if (!th) return;
+
+    const btn = doc.createElement('button');
+    btn.type = 'button';
+    btn.title = 'Inverser les coches';
+    btn.setAttribute('aria-label', 'Inverser les coches');
+    // look minimal
+    btn.style.padding = '2px';
+    btn.style.marginLeft = '6px';
+    btn.style.border = 'none';
+    btn.style.background = 'transparent';
+    btn.style.cursor = 'pointer';
+    btn.style.lineHeight = '0'; // compact
+
+    // --- icône ---
+    const img = doc.createElement('img');
+    img.src = './img/toggleWhite.png';      // ⇐ ton image
+    img.alt = '';                         // décoratif (aria-label sur le bouton)
+    img.width = 16;                       // ajuste la taille
+    img.height = 16;
+    img.draggable = false;
+
+    btn.appendChild(img);
+
+    // Inversion sur clic (sans déclencher le tri)
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const tbody = table.tBodies[0];
+      const selector = `tr td:nth-child(${colIndex + 1}) input[type="checkbox"]`;
+      tbody.querySelectorAll(selector).forEach(cb => {
+        if (cb.disabled) return;
+        cb.indeterminate = false;
+        cb.checked = !cb.checked;
+        // propage un vrai changement si ton code écoute 'change'
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    });
+
+    th.appendChild(btn);
+  }
+}
 
 /*
- les listes de edges 
+ edges list 
 */
-
 export function sendEdgeListToHtml() {
   let edges = getCy().edges(":selected:visible");
   if (edges.length === 0) edges = getCy().edges(":visible");
@@ -315,7 +403,7 @@ export function sendEdgeListToHtml() {
   });
 
   // Open window and build DOM
-  
+
   const win = window.open("", "edgeListWindow");
   const doc = win.document;
 
@@ -480,3 +568,17 @@ export function sendEdgeListToHtml() {
   // Mark initial sort on "Source"
   table.querySelector("th").classList.add("sort-asc");
 }
+
+/*
+ callback from the generated page 
+*/
+
+window.applySelectionFromPopup = function (ids) {
+  console.log('[parent] ids reçus du popup:', ids);
+
+   const cy = getCy();
+  cy.batch(() => {
+    cy.elements().unselect();
+    if (ids?.length) cy.$(ids.map(id => `#${CSS.escape(id)}`).join(',')).select();
+  });
+};

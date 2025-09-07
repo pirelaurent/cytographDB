@@ -492,3 +492,11 @@ html.busy, html.busy * { cursor: wait !important; }
   filter: brightness(1.25) saturate(1.05);
   transform: translateY(-4px);
 }
+/* node list checkbox*/
+input.nodeChk {
+  accent-color: #b11e1e;
+  width: 16px; height: 16px;         
+}
+input.nodeChk:hover{
+  accent-color: rgb(222, 82, 82)
+}

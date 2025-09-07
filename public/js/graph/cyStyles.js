@@ -164,14 +164,7 @@ const cyStyles = [
   }
 },
 
- // couleur spéciale seulement si PAS incoming/outgoing
-{ selector: 'edge:selected:not(.incoming):not(.outgoing)',
-  style: {
-    'line-color': 'chartreuse',
-    'target-arrow-color': 'black'
-  }
-},
- 
+
   {
     selector: "edge.trigger_impact",
     style: {

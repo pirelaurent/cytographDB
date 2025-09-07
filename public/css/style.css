@@ -173,7 +173,7 @@ button:hover {
 
 #clicNodeMenu, #clicEdgeMenu {
   position: absolute;
-  background: #fff;
+  background: #ffff;
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 4px 0;
@@ -191,7 +191,7 @@ button:hover {
 }
 
 #clicNodeMenu li:hover , #clicEdgeMenu li:hover{
-  background-color: #d0cece;
+  background-color: #f1e9e9;
 }
 
 .hidden {
@@ -477,4 +477,18 @@ html.busy, html.busy * { cursor: wait !important; }
   body.alt-body {
   font-family: system-ui, sans-serif;
   margin: 20px; /* ou autre mise en forme */
+}
+
+#arrowLeft, #arrowMiddle, #arrowRight {
+  cursor: pointer;
+    filter: brightness(0.85) saturate(1.25);
+/*  transition: filter .12s ease, transform .12s ease;  animé, optionnel */
+}
+
+/* effet au survol : plus “brillant” + léger lift (optionnel) */
+#arrowLeft:hover,
+#arrowMiddle:hover,
+#arrowRight:hover {
+  filter: brightness(1.25) saturate(1.05);
+  transform: translateY(-4px);
 }

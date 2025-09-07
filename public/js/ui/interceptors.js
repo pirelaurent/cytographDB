@@ -36,6 +36,7 @@ import {
 import { internalCategories } from "../filters/categories.js";
 
 import { enterFkDetailedModeForEdges, enterFkSynthesisModeForEdges } from "../graph/detailedEdges.js";
+import { follow } from "../graph/walker.js";
 
 /*
  all the events set in gui are defined here 
@@ -173,17 +174,28 @@ export function setInterceptors() {
     getCy().nodes().addClass("faded");
     node.removeClass("faded");
 
-    getCy().edges().forEach((edge) => {
-      if (edge.source().id() === node.id()) {
-        edge.addClass("outgoing");
-        edge.target().removeClass("faded");
-      } else if (edge.target().id() === node.id()) {
-        edge.addClass("incoming");
-        edge.source().removeClass("faded");
-      } else {
-        edge.addClass("faded");
-      }
-    });
+    const cy = getCy();
+
+cy.batch(() => {
+  cy.edges().forEach(edge => {
+    // Toujours repartir propre
+    edge.removeClass('outgoing incoming faded');
+
+    if (edge.source().id() === node.id()) {
+      edge.addClass('outgoing');
+      // si tu veux aussi dé-fader les nœuds connectés :
+      edge.target().removeClass('faded');
+      edge.source().removeClass('faded');
+    } else if (edge.target().id() === node.id()) {
+      edge.addClass('incoming');
+      edge.source().removeClass('faded');
+      edge.target().removeClass('faded');
+    } else {
+      edge.addClass('faded');
+    }
+  });
+});
+
   });
 
   getCy().on("mouseout", "node", function () {
@@ -209,6 +221,14 @@ export function setInterceptors() {
     clicNodeMenu.style.display = "none";
     clicEdgeMenu.style.display = "none";
   });
+
+
+
+
+
+
+
+
 
   let ctrlPressed = false;
 
@@ -250,7 +270,6 @@ export function setInterceptors() {
   /*
     some cleaning action between two actions on Nodes menu
   */
-
 
   document.getElementById('NodesId').addEventListener('click', () => {
     // clean input text 
@@ -310,7 +329,7 @@ export function setInterceptors() {
   // global to be reused once clicked on subMenu
   let nodeForInfo;
 
-
+/* 
   getCy().on("cxttap", "node", function (evt) {
     nodeForInfo = evt.target;
     const { x, y } = whereClicInContainer(evt.renderedPosition)
@@ -319,6 +338,35 @@ export function setInterceptors() {
     document.getElementById("open-trigger").style.display = nodeForInfo.hasClass("hasTriggers") ? "list-item" : "none"
     clicNodeMenu.style.display = "block";
   });
+ */
+
+getCy().on("cxttap", "node", function (evt) {
+  nodeForInfo = evt.target;
+
+  // Position rendue (px) du centre du nœud
+  const center = nodeForInfo.renderedPosition();
+  const topY   = center.y - nodeForInfo.renderedHeight() / 2;   // haut du nœud
+  const anchor = { x: center.x, y: topY };
+
+  // Convertir vers coords CSS du container (ta fonction existante)
+  const { x, y } = whereClicInContainer(anchor);
+
+  // Poser le menu au-dessus et centré sur le nœud
+  const offsetY = 8; // petit décalage
+  clicNodeMenu.style.left = `${x - (clicNodeMenu.offsetWidth  || 0) / 2}px`;
+  clicNodeMenu.style.top  = `${y+5 - (clicNodeMenu.offsetHeight || 0) - offsetY}px`;
+
+  // Ton affichage conditionnel
+  document.getElementById("open-trigger").style.display =
+    nodeForInfo.hasClass("hasTriggers") ? "list-item" : "none";
+
+  clicNodeMenu.style.display = "block";
+});
+
+
+
+
+
 
 
   document.getElementById("open-table").addEventListener("click", () => {
@@ -379,7 +427,6 @@ export function setInterceptors() {
     else if (edgeForInfo.hasClass('fk_detailed')) {
       edgeForInfo.toggleClass('showColumns');
     }
-
   });
 
 
@@ -468,6 +515,36 @@ export function setInterceptors() {
   document.querySelectorAll('li[data-category="edgesName"]').forEach(li => {
     li.addEventListener('click', (e) => openNameFilterModal(e, "edge"));
   });
+
+const imgInOutArrows = document.getElementById('inOutArrows');
+
+
+ document.getElementById('arrowLeft').addEventListener('click', () => {
+   commonArrow("outgoing");
+  });
+
+ document.getElementById('arrowRight').addEventListener('click', () => {
+   commonArrow("incoming");
+  });
+
+ document.getElementById('arrowMiddle').addEventListener('click', () => {
+   commonArrow("both");
+  });
+
+  function commonArrow(direction){
+  // store current selected 
+  let selectedElements = getCy().elements(":visible:selected");
+  selectedElements.unselect();
+
+  // replace by a unique selected node to call follow 
+  nodeForInfo.select();
+  follow(direction);
+  // restore previoous
+  selectedElements.select();
+
+  }
+
+
 
 } // setInterceptor
 

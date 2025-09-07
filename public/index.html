@@ -174,7 +174,7 @@
                 <li action="all" title="Select all visible (ctrl a)">all</li>
                 <li action="none" title="Clear the current selection">none</li>
                 <li action="invert" title="Invert the current selection">swap selected</li>
-                
+
               </ul>
             </li>
 
@@ -185,26 +185,26 @@
                 <li action="hideSelected" title="Hide the selected nodes">selected</li>
                 <li action="swapHidden" title="Toggle visibility for selected and hidden elements">swap</li>
               </ul>
-           
+
             </li>
 
 
-          <li data-category="selection">
-            <span class="label" title="Select nodes connected by the selected edges">from selected edges... </span>
-            <ul class="submenu">
-              <li action="selectNodesFromSelectedEdges">both sides</li>
-              <li action="selectSourceNodes">source nodes</li>
-              <li action="selectDestNodes">destination nodes</li>
-            </ul>
-          </li>
+            <li data-category="selection">
+              <span class="label" title="Select nodes connected by the selected edges">from selected edges... </span>
+              <ul class="submenu">
+                <li action="selectNodesFromSelectedEdges">both sides</li>
+                <li action="selectSourceNodes">source nodes</li>
+                <li action="selectDestNodes">destination nodes</li>
+              </ul>
+            </li>
 
 
             <li data-category="filterNodes">filter by ...
               <ul class="submenu">
                 <li data-category="nodesName" data-skip-action>name ...</li>
-            
+
                 <li data-skip-action>native category ...
-            
+
                   <ul class="submenu">
                     <li action="nodeIsOrphan">orphan</li>
                     <li action="nodeIsRoot">root</li>
@@ -220,7 +220,8 @@
             <li data-category="followEdges" title="Filter nodes by edge count (degree)">with edges ...
               <ul class="submenu">
                 <li action="noEdge" title="Select nodes without any edges">no edge</li>
-                <li data-category="looping" action="looping" title="Nodes with self-loops (self-reference)">looping edges</li>
+                <li data-category="looping" action="looping" title="Nodes with self-loops (self-reference)">looping
+                  edges</li>
                 <li data-category="outgoing" title="Filter nodes by number of outgoing edges">outgoing count...
                   <ul class="submenu">
                     <li data-skip-action>
@@ -264,8 +265,8 @@
 
 
 
-            
-         
+
+
 
             <li class="separator"></li>
 
@@ -317,7 +318,7 @@
                   long paths
                 </li>
                 <li action="findPkFkChains" title="Find chain of relations from a root">
-                  pk &lt;- fk  chains
+                  pk &lt;- fk chains
                 </li>
               </ul>
             </li>
@@ -365,33 +366,33 @@
                 <li action="bothEdges">all directions</li>
                 <li action="outgoingEdges">as source</li>
                 <li action="incomingEdges">as destination</li>
-             
+
                 <li action="betweenNodes">
                   <span class="label" title="Select edges between selected nodes">between two selected nodes</span>
                 </li>
               </ul>
             </li>
 
-          <li data-category="filterEdges" title="Filter specific edge types (data model only)">filter by ...
-            
+            <li data-category="filterEdges" title="Filter specific edge types (data model only)">filter by ...
+
               <ul class="submenu">
                 <li data-category="edgesName" data-skip-action>name ...</li>
-            
+
                 <li data-skip-action>native category ...
-            
+
                   <ul class="submenu">
                     <li action="edgeIsNullable" title="Select FK nullable (N-0)"> nullable
                     </li>
                     <li action="edgeIsOnDeleteCascade" title="Select FK ON DELETE CASCADE">on delete cascade
                     </li>
-            
+
                     <li class="separator"></li>
                     <li action="edgeIsTriggerGenerated" title="Select generated trigger impacts edges">trigger_impact
                     </li>
                     <li action="edgeIsASimplifiedNode" title="Select edges from simplified associations">simplified
                       associations</li>
                   </ul>
-            
+
               </ul>
             </li>
 
@@ -441,7 +442,7 @@
               </ul>
             </li>
 
-            
+
 
             <li class="separator"></li>
 
@@ -486,11 +487,16 @@
     <ul id="clicNodeMenu" class="hidden">
       <li id="open-table">🔍table definition</li>
       <li id="open-trigger">⚡table triggers</li>
+      <li>
+        <img id="arrowLeft" src="./img/arrowLeft.png"  title="follow outgoing">
+        <img id="arrowMiddle" src="./img/arrowMiddle.png" title="follow both">
+        <img id="arrowRight" src="./img/arrowRight.png" title="follow incoming">
+      </li>
     </ul>
 
     <ul id="clicEdgeMenu" class="hidden">
-      <li id="toggleEdgeDetails"><img src = "./img/toggle.png" > FK/Col</li>
-      <li id="toggleEdgeLabel"><img src = "./img/toggle.png" >  label</li>
+      <li id="toggleEdgeDetails"><img src="./img/toggle.png"> FK/Col</li>
+      <li id="toggleEdgeLabel"><img src="./img/toggle.png"> label</li>
     </ul>
 
 
@@ -516,22 +522,23 @@
 
   <!-- Modal for name filter -->
   <div id="nameFilterModal" class="modal-bg">
-  <div class="modal-content">
-    <h3 id="nameFilterTitle">Filter by name (regex)</h3>
+    <div class="modal-content">
+      <h3 id="nameFilterTitle">Filter by name (regex)</h3>
 
-    <!-- champ caché pour retenir l'option -->
-    <input type="hidden" id="modalNameFilterType" value="nodeOrEdge" />
+      <!-- champ caché pour retenir l'option -->
+      <input type="hidden" id="modalNameFilterType" value="nodeOrEdge" />
 
-    <input type="text" id="modalNameFilterInput" placeholder="searched name (regex)" class="modal-input" />
-    <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
-    <button id="modalNameFilterOk" class="modal-btn">OK</button>
+      <input type="text" id="modalNameFilterInput" placeholder="searched name (regex)" class="modal-input" />
+      <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
+      <button id="modalNameFilterOk" class="modal-btn">OK</button>
 
-<input type="checkbox" id="searchOnHidden" title="include hidden">  <!--checked-->    
-    <small>include hidden</small>
+      <input type="checkbox" id="searchOnHidden" title="include hidden"> <!--checked-->
+      <small>include hidden</small>
 
+    </div>
   </div>
-</div>
 
 
 </body>
+
 </html>

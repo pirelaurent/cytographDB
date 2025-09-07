@@ -548,7 +548,7 @@ export function menuNodes(option) {
 
     case "followOutgoing":
       pushSnapshot();
-      follow();
+      follow("outgoing");
       break;
     case "followIncoming":
       pushSnapshot();

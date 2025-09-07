@@ -155,18 +155,23 @@ const cyStyles = [
     },
   },
 
-  {
-    selector: "edge:selected",
-    style: {
-      "line-color": "chartreuse",
-      "target-arrow-color": "black",
-      "line-style": "dashed",
-      "z-index": 1002, // higher than not selected
-      width: 4,
-    },
-  },
+// surlignage sélection (pas de couleur ici)
+{ selector: 'edge:selected',
+  style: {
+    'line-style': 'dashed',
+    'z-index': 1002,
+    'width': 4
+  }
+},
 
-
+ // couleur spéciale seulement si PAS incoming/outgoing
+{ selector: 'edge:selected:not(.incoming):not(.outgoing)',
+  style: {
+    'line-color': 'chartreuse',
+    'target-arrow-color': 'black'
+  }
+},
+ 
   {
     selector: "edge.trigger_impact",
     style: {
@@ -224,6 +229,22 @@ const cyStyles = [
     },
   },
 
+{
+  selector: "edge.outgoing:selected",
+  style: {
+    "line-color": "green",
+    "target-arrow-color": "rgb(66, 128, 5)",
+  },
+},
+{
+  selector: "edge.incoming:selected",
+  style: {
+    "line-color": "red",
+    "target-arrow-color": "red",
+  },
+},
+
+
   {
     selector: "edge.fk_detailed",
     style: {
@@ -243,23 +264,6 @@ const cyStyles = [
     'target-arrow-color': '#77B5FE',
   },
 },
-
-
-
-
-  {
-    selector: "edge:selected",
-    style: {
-      "line-color": "chartreuse",
-      //"target-arrow-color": "black",
-      "line-style": "dashed",
-      "z-index": 1002, // higher than not selected
-      width: 4,
-    },
-  },
-
-
-
 
   // must enforce the color otherwise cytoscape don't fade colored edges
   {

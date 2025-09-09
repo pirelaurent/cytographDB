@@ -1,5 +1,6 @@
   body {
     font-family: Arial, sans-serif;
+    font-size: 14px;
     padding: 1rem;
   }
 
@@ -25,7 +26,9 @@
 
   th,
   td {
+    color: black;
     border: 1px solid #ddd;
+    background-color: #ffffff;
     padding: 0.5rem;
   }
 
@@ -33,10 +36,6 @@
     background-color: #dfdddd;
     text-align: left;
     color: black;
-  }
-
-  td {
-    background-color: #ffffff;
   }
 
   .fkContainer {
@@ -50,7 +49,7 @@
 
   .fk-title {
     font-weight: bold;
-    margin-top: 10px;
+    margin-top: 1px;
     white-space: normal;
     /* pas de nowrap */
     overflow-wrap: anywhere;
@@ -78,13 +77,6 @@
     /* important si un parent mettait hidden */
   }
 
-
-  #oldtableInfo {
-    display: flex;
-    justify-content: space-between;
-    gap: 1em;
-    flex-wrap: wrap;
-  }
 
   #tableInfo {
     display: inline-flex;
@@ -131,8 +123,8 @@
   .index-title,
   .fk-title,
   .pk-title {
-    /* font-weight: bold; */
-    font-size: 18px;
+    font-weight: bold; 
+    font-size: 16px;
     /* color:red; */
     margin-bottom: 0.3em;
   }

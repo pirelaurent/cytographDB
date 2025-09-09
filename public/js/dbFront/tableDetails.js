@@ -1,6 +1,8 @@
 "use strict";
 // cannot share data with main, so dbName is in the params
 
+import { showError } from "../ui/dialog.js";
+
 /*
  get details on a table 
 */
@@ -11,7 +13,6 @@ async function getTableData(tableName) {
       throw new Error(` HTTP error ${response.status}`);
     }
     const data = await response.json();
-    //console.log(data);
     return { success: true, data };
   } catch (error) {
     return { success: false, error };
@@ -28,20 +29,19 @@ const tableName = params.get("name");
 
 const currentDBName = params.get("currentDBName");
 let infoWarning = "";
-if (currentDBName == 'null') infoWarning = 'is not available: no db connected'
+if (currentDBName == "null") infoWarning = "is not available: no db connected";
 
-
-let whereTitle = document.getElementById(
-  "whereTitle"
-);
+let whereTitle = document.getElementById("whereTitle");
 
 whereTitle.innerHTML = `${tableName} ${infoWarning}`;
 document.title = `table ${tableName}`;
 
-getTableData(tableName).then((result) => {
 
+getTableData(tableName).then((result) => {
   if (result.success) {
     const data = result.data;
+
+
     if (data.comment) {
       whereTitle.title = data.comment;
       const icon = document.createElement("span");
@@ -58,7 +58,6 @@ getTableData(tableName).then((result) => {
     //columnNumber.innerText+=`(${data.columns.length})`;
 
     columnNumber.innerHTML += `<small>(${data.columns.length})</small>`;
-
 
     data.columns.forEach((col) => {
       const tr = document.createElement("tr");
@@ -102,16 +101,11 @@ getTableData(tableName).then((result) => {
       colBody.appendChild(tr);
     });
 
-
     /// Display Primary Key
     const pkContainer = document.getElementById("primaryKeyContainer");
 
-
     pkContainer.innerHTML = "";
-
     if (data.primaryKey.name && data.primaryKey.columns.length > 0) {
-
-
       const pkDiv = document.createElement("div");
       pkDiv.className = "pk-block";
 
@@ -131,22 +125,19 @@ getTableData(tableName).then((result) => {
         titleDiv.textContent = data.primaryKey.name;
       }
 
-      // Construction de la liste des colonnes
-      const ul = document.createElement("ul");
-      data.primaryKey.columns.forEach((column) => {
-        const li = document.createElement("li");
-        li.textContent = column;
-        ul.appendChild(li);
-      });
-
-      // Assemblage
       pkDiv.appendChild(titleDiv);
-      pkDiv.appendChild(ul);
+
+      data.primaryKey.columns.forEach((column, i) => {
+        let oneCol = document.createTextNode(column);
+        pkDiv.appendChild(oneCol);
+        if (i < data.primaryKey.columns.length - 1) {
+          pkDiv.append(document.createElement("br"));
+        }
+      });
       pkContainer.appendChild(pkDiv);
     } else {
       pkContainer.innerHTML = "<p>No primary key defined.</p>";
     }
-
 
     //  foreign keys  X-A-Y   FK:  A-AX  A-AY
     //   A*B*	plusieurs A pour plusieurs B	A.id et B.id non uniques
@@ -159,51 +150,58 @@ getTableData(tableName).then((result) => {
 
     fkNumber.innerHTML += `<small>(${data.foreignKeys.length})</small>`;
 
-
     fkDiv.innerHTML = ""; // Clear any existing content
 
-   if (Array.isArray(data.foreignKeys) && data.foreignKeys.length > 0) {
-  const frag = document.createDocumentFragment();
+    if (Array.isArray(data.foreignKeys) && data.foreignKeys.length > 0) {
+      const frag = document.createDocumentFragment();
 
-  data.foreignKeys.forEach((fk) => {
-    // if no action, no output
-   // const actionMap = { a: "NO ACTION", r: "RESTRICT", c: "CASCADE", n: "SET NULL", d: "SET DEFAULT" };
-       const actionMap = {  r: "RESTRICT", c: "CASCADE", n: "SET NULL", d: "SET DEFAULT" };
-    const upd = actionMap[fk.on_update] || "";
-    const del = actionMap[fk.on_delete] || "";
+      data.foreignKeys.forEach((fk) => {
+        // if no action, no output
+        // const actionMap = { a: "NO ACTION", r: "RESTRICT", c: "CASCADE", n: "SET NULL", d: "SET DEFAULT" };
+        const actionMap = {
+          r: "RESTRICT",
+          c: "CASCADE",
+          n: "SET NULL",
+          d: "SET DEFAULT",
+        };
+        const upd = actionMap[fk.on_update] || "";
+        const del = actionMap[fk.on_delete] || "";
 
-    let allUpDelInfo = "";
-    if (upd) allUpDelInfo += `<br/><span>ON UPDATE: <code>${upd}</code></span>`;
-    if (del) allUpDelInfo += `<br/><span>ON DELETE: <code>${del}</code></span>`;
+        let allUpDelInfo = "";
+        if (upd)
+          allUpDelInfo += `<br/><span>ON UPDATE: <code>${upd}</code></span>`;
+        if (del)
+          allUpDelInfo += `<br/><span>ON DELETE: <code>${del}</code></span>`;
 
-    // ← un CADRE par FK
-    const block = document.createElement("div");
-    block.className = "fk-block";
-    block.innerHTML = `
-      <div class="fk-title" title="${fk.comment || ''}">
+        // ← un CADRE par FK
+        const block = document.createElement("div");
+        block.className = "fk-block";
+        block.innerHTML = `
+      <div class="fk-title" title="${fk.comment || ""}">
         ${fk.constraint_name}
-        ${fk.comment ? '<span style="cursor: help;"> 💬</span>' : ''}
+        ${fk.comment ? '<span style="cursor: help;"> 💬</span>' : ""}
       </div>
       <div>
-        Source: <strong>${fk.source_table}</strong>
+        <strong>${fk.source_table}</strong>
         <small> (${fk.all_source_not_null ? "NOT NULL" : "NULLABLE"})</small>
-      </div>
-      <div>
-        Target: <strong>${fk.target_table}</strong>
+        →
+      <strong>${fk.target_table}</strong>
         <small> (${fk.is_target_unique ? "UNIQUE/PK" : "NOT UNIQUE"})</small>
-      </div>
+   
       ${allUpDelInfo}
-      <ul>
-        ${fk.column_mappings.map(col => `<li>${col.source_column} → ${col.target_column}</li>`).join("")}
-      </ul>
-    `;
-    frag.appendChild(block);
-  });
+        ${fk.column_mappings
+          .map((col) => `<br/>${col.source_column} → ${col.target_column}`)
+          .join("")}
+      </div>
+        `;
 
-  fkDiv.appendChild(frag);
-} else {
-  fkDiv.textContent = "No foreign keys found.";
-}
+        frag.appendChild(block);
+      });
+
+      fkDiv.appendChild(frag);
+    } else {
+      fkDiv.textContent = "No foreign keys found.";
+    }
 
     /*
    🔍 Indexes 
@@ -218,12 +216,11 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
     const indexContainer = document.getElementById("indexesContainer");
     indexContainer.innerHTML = ""; // nettoie
 
-
     const raw = Array.isArray(data.indexes) ? data.indexes : [];
 
     // (optionnel) dédoublonnage par nom d'index
     const seen = new Set();
-    const indexes = raw.filter(i => {
+    const indexes = raw.filter((i) => {
       const k = i.name || i.indexname;
       if (seen.has(k)) return false;
       seen.add(k);
@@ -237,34 +234,36 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
 
     for (const idx of indexes) {
       const t = idx.constraint_type?.toUpperCase?.() || null;
-      if (t === 'PRIMARY KEY' || idx.is_primary === true) {
+      if (t === "PRIMARY KEY" || idx.is_primary === true) {
         primary.push(idx);
-      } else if (t === 'UNIQUE' || t === 'EXCLUDE') {
+      } else if (t === "UNIQUE" || t === "EXCLUDE") {
         uniqueOrExclude.push(idx);
       } else {
-        // no constraint type → pure index 
+        // no constraint type → pure index
         pure.push(idx);
       }
     }
-    // (optionnel) tris
-    const byName = arr => arr.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-    byName(primary); byName(uniqueOrExclude); byName(pure);
-    // pure index 
+    // (optionnel) sort elements
+    const byName = (arr) =>
+      arr.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    byName(primary);
+    byName(uniqueOrExclude);
+    byName(pure);
+    // pure index
     if (pure.length) {
       const indexNumber = document.getElementById("indexNumber");
 
       indexNumber.innerHTML += `<small>(${pure.length})</small>`;
 
-      pure.forEach(idx => {
-
+      pure.forEach((idx) => {
         const block = document.createElement("div");
         block.className = "index-block";
 
         const titleDiv = document.createElement("div");
         titleDiv.className = "index-title";
         let indicator = "";
-        if (idx.constraint_type == 'UNIQUE') {
-          indicator = '(uniq constraint)';
+        if (idx.constraint_type == "UNIQUE") {
+          indicator = "(uniq constraint)";
         }
         if (idx.comment) {
           titleDiv.title = idx.comment;
@@ -274,8 +273,11 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
         }
 
         block.appendChild(titleDiv);
-        // 
-        block.insertAdjacentHTML("beforeend", extractIndexColumns(idx.definition));
+        //
+        block.insertAdjacentHTML(
+          "beforeend",
+          extractIndexColumns(idx.definition)
+        );
 
         indexContainer.appendChild(block);
       });
@@ -283,14 +285,12 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
       indexContainer.textContent = "No indexes found (out of PK).";
     }
 
-
     if (uniqueOrExclude.length) {
       const uniqueNumber = document.getElementById("uniqueNumber");
 
       uniqueNumber.innerHTML += `<small>(${uniqueOrExclude.length})</small>`;
 
-      uniqueOrExclude.forEach(idx => {
-
+      uniqueOrExclude.forEach((idx) => {
         const block = document.createElement("div");
         block.className = "index-block";
 
@@ -305,8 +305,11 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
         }
 
         block.appendChild(titleDiv);
-        // 
-        block.insertAdjacentHTML("beforeend", extractIndexColumns(idx.definition));
+        //
+        block.insertAdjacentHTML(
+          "beforeend",
+          extractIndexColumns(idx.definition)
+        );
 
         uniqueContainer.appendChild(block);
       });
@@ -317,10 +320,9 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
     // 🔧 Helper pour extraire les colonnes de l'index
     function extractIndexColumns(def) {
       const match = def.match(/\(([^)]+)\)/);
-      const cols = match ? match[1].split(",").map(c => c.trim()) : [];
-      return `<ul>${cols.map(col => `<li>${col}</li>`).join("")}</ul>`;
+      const cols = match ? match[1].split(",").map((c) => c.trim()) : [];
+      return `${cols.map((col) => `${col}`).join("<br/>")}`;
     }
-
   } else {
     console.error("Error on load :", result.error);
     showError("Error on loading. Details unavailable.Check your DB connection");

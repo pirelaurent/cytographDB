@@ -91,18 +91,8 @@ This custom ***product*** category is created for demo by the `public/custom/dem
 if (node.data("label").includes("product")) node.addClass("product");
 ```
 
-A specific layout is also defined that you can see on the graph images:  
+A specific layout `  selector: "node.product"`has also been defined in the custom extensions  
 
-```js
-{
-  selector: "node.product",
-  style: {
-    "color": "#6D071A",
-    "font-size": "25px",
-    "font-style": "italic"
-  },
-},
-```
 
 #### How to See Categories
 
@@ -139,14 +129,15 @@ Example: select *first nodes with 2 outgoing* → set **AND** → select *no inc
 - **Show**: default display with table name on node  
 - **Hide**: no label (a single point). Node size is reduced to this point  
 
-Below, *associations* were selected (*Filter by native category → All association*).  
-Then menu *Label → Hide* reduces them visually as small circles.  
+#### label hide 
+Below, only *associations* were selected (*Filter by native category → All association*).  
+***Label → Hide*** reduces them visually as small circles.  
 
 <img src = "./img/labelHide.png" width = 300px>  
 
 *(If no nodes are selected, the action applies to all visible nodes).*  
 
-- **Font +/-**: increase or decrease the font size of node labels in the current perimeter (selected if any, all if none).  
+- **Font +/-**: increase or decrease the font size of node labels in the current perimeter
 
 💡 **Tip:** Useful to emphasize certain parts of the graph.  
 
@@ -159,25 +150,25 @@ This applies to the current perimeter (selected nodes if any, all nodes otherwis
 
 **All headers are sortable** by clicking on the header.  
 
-<img src = "./img/listNodes.png" width = 300px style="border: 2px solid grey;">  
+<img src = "./img/listNodes.png" width = 360px style="border: 2px solid grey;">  
 
 #### Chaining to Table Details 
 
-- Clicking on a table name opens its table definition.  
-   <img src = "./img/detailsFromList.png" width ="650px">  
+Clic on a table name to open details :  
+   <img src = "./img/detailsFromList.png" width ="800px" style="border: 2px solid grey;">  
 
-- Clicking on a trigger number opens its trigger definition.  
+Clicking on a trigger number opens its trigger definition.  
  <img src = "./img/triggersFromList.png" width ="600px">  
 
 #### Close Button 
 
 <img src = "./img/closeButton.png" width ="50px" >
 
-Closes the current browser tab.  
+Closes the current browser tab : that will return to main graph.  
 
-💡 **Tip:**  
-If you don’t close a tab and later recall the same display, the tab will be updated but will not come to the front (for security reasons).  
-You can see it blink when updated. Don’t assume your action failed — check your tab list.  
+💡 **Tip: don't forget to close tab**  
+>If you don’t, a later call to the same named tab will update it as expected, it blinks BUT it will not come to front (standard security reasons).  
+Don’t assume your action failed — check your tab list first. 
 
 ---
 

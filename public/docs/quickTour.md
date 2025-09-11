@@ -92,35 +92,35 @@ note: *fk_synth* rely to*1 edge per FK* mode. See Edge menu.
 
 ### list nodes (i.e. tables)
 
-**list** generates a window with nodes of current ***perimeter*** (only selected if any, all otherwise)
+**list** generates a window with nodes of current ***perimeter***   
+(all if no selected nodes like below, only selected otherwise)
 
-<img src = "./img/listNodes.png" width = 300px style="border: 2px solid grey;">  
-( Index count don't include primary key )   
+<img src = "./img/listNodes.png" width = 380px style="border: 2px solid grey;">   
+
 
 **All headers are sortable**  
+**Left check columns allows reflect selection and can return with changes**
 **Clic on a table name goes directly to table's details**
-
+**Clic on trigger number goes directly to triggers'code**
 
 --- 
 
-### table details
+### table definition 
 
-you can go to details 
-- from the previous node list (also from an edge list)
-- from a contextual menu in the graph
-  - right-click on a node let appear a sub menu: 
-
-<img src = "./img/contextualNodeMenu.png" width ="240px" style="border: 1px solid grey;">
-
-  ( '*table triggers*' if any)
-
-#### table definition  
+- clic on a table name in a list (nodes or edges list)
+- clic on *table definition* in a right-click contextual menu on a node:
+ 
+<img src = "./img/contextualNodeMenu.png" width ="160px" style="border: 1px solid grey;">
+ 
+#### table display
 
 a new tab show detailed schema information. 
 - if any comment in schema, a tip is available.
-- constraints list is out of pk and index. Can be *Unique* or *Exclude* constraints if any.
+- PK is not repeated in Indexes
+- constraints list (if any) is out of pk and index. 
+  - Can be *Unique* or *Exclude* constraints if any.
 
-Calculation for total constraints : PK + Indexes + other constraints
+Total constraints : PK + Indexes + other constraints
   
 <img src ="./img/tableDetails.png" width = "800px" style="border: 1px solid grey;">
 
@@ -142,7 +142,7 @@ In the upper sample, the `employee` table appears in *Impacted Tables* because a
 
 #### code details
 
-<img src ="./img/function-intervention-code.png" width = "500px" style="border: 1px solid grey;">
+<img src ="./img/function-intervention-code.png" width = "400px" style="border: 1px solid grey;">
 
 ---
 
@@ -170,21 +170,24 @@ This is the default FK presentation in the graph.
 ### 1 edge per column 
 
 A previous FK edge is splitted in an edge per matching columns.  
-Clic on ***Edges-label-show***  to see all matching column names:
+Clic on ***Edges-label-show***  to see **all** matching column names:
  
-<img src ="./img/edgePerColumn.png" width = "600px" style="border: 1px solid grey;">
+<img src ="./img/edgePerColumn.png" width = "700px" style="border: 1px solid grey;">   
 
-If the graph is too loaded with information:   
--select some edges before calling *1 edge per column*. 
--find direcly same information with ***hover***
+You can switch FK mode and label on an **edge basis with right click submenu**
+<img src ="./img/edgeFlipFlop.png" width = "200px">
+
+--- 
 
 ## Walk through the model 
 
 This kind of directed graph allows to walk through ***table dependencies***.  
 
- Actions apply to ***current perimeter***:  **selected visibles** if any, **all visibles** if none.
+### Actions on a group of nodes 
 
-### follow & show... *outgoing / incoming / both* 
+ Actions apply to ***current perimeter*** :  **selected visibles** if any, **all visibles** if none.
+
+#### Menus follow & show... *outgoing / incoming / both* 
 
 Starting from nodes in *current perimeter*, this action select next nodes in the chosen direction.  
 
@@ -195,12 +198,22 @@ The same start point *production-line* but with ***follow incoming***
 
 <img src ="./img/incomingProduction-line.png" width = "400px" style="border: 1px solid grey;">
 
-One can see dependencies are stopped by dry associations ( *line_product, authorization* ), the following option help to cross the barrier:
+One can see dependencies are stopped by dry associations ( *line_product, authorization* ), the following option help to cross the barrier only for association :
 
-### follow & show... association
+#### follow & show... association
 
 This continue the walk on the other side of a (dry) association ( now *product* and *employee* are selected): 
 <img src ="./img/associationProduction-line.png" width = "500px" style="border: 1px solid grey;">
+
+#### Individual actions on a chose node 
+The colored direction arrows allow to walk from the current node by : 
+green left : select outgoing 
+yellow center : select both 
+red right : select incoming 
+
+<img src = "./img/contextualNodeMenu.png" width ="160px" style="border: 1px solid grey;">
+
+
 
 ---
 

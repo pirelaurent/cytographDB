@@ -1,13 +1,13 @@
 # Edge Menu
 
-<img src = "./img/edgesMenu.png" width = "200px">  
+<img src = "./img/edgesMenu.png" width = "160px">  
 
 ---
 
 ## Status Bar
 
 Displays selected and visible edges. Sample:  
-<img src = "./img/edgeStatusBar.png" width = "200px">  
+<img src = "./img/edgeStatusBar.png" width = "160px">  
 
 **4 selected / 12 total**
 
@@ -102,15 +102,8 @@ Enter manually or copy/paste your filter.
 
 <img src = "./img/edgeDetails.png" width = 150px>  
 
-By default, the graph is displayed with **one edge per FK**:  
-- The label is the name of the FK  
-
-### One Edge per Column
-
-Each related column between source and destination is shown as a link.  
-- Their labels are the corresponding columns  
-
----
+By default, the graph is displayed with **1 edge per FK**.  
+**1 edge per column**  split the edge in several parts, one part per involved columns. 
 
 ## Label... 
 
@@ -138,11 +131,14 @@ Displays:
 
 <img src="./img/edgeLabelsNxM.png" width="600px" />  
 
-These actions apply to the current edge perimeter (selected edges if any, all if no selection).  
+#### individual actions 
 
-💡 **Tip:** Hovering edges also shows details.  
+With previous menus entries,  actions apply to the current edge perimeter (selected edges if any, all if no selection). 
 
-#### Font + / -  
+The contextual menu on an edge by right clic allow individuals switches 
+<img src = "./img/edgeFlipFlop.png" width = "200px">
+
+#### label.. Font + / -  
 
 Increase or decrease font size of edge labels in the current perimeter (selected edges if any, all otherwise).  
 
@@ -156,15 +152,15 @@ The **Source**, **Target**, and **FK** headers allow sorting.
 
 #### Mode *One edge per FK* 
 
-<img src="./img/edgesList.png" width="600px" style="border: 1px solid grey;"/>    
- When an edge is in mode *1 Edge per FK* a straight line symbol  remains this mode 
-<img src ="../../img/onePerFk.png" width="50px">   
+<img src="./img/edgesList.png" width="600px" style="border: 1px solid grey;"/>  
+
+ When an edge is in mode *1 Edge per FK* a straight line symbol  remains this mode in columns <img src ="../../img/onePerFk.png" width="50px">   
 
 
 #### Mode *One edge per Column*  
 
 For edges in mode *1 edge per column* the list show corresponding columns names on successive lines.    
-Edges in *1 per FK* have the straight line symbol in place of columns.   
+In a mixed mode some using individual changes, some edges can stay in 1 per FK as below.   
 
 <img src="./img/edgesListPerColumn.png" width="700px" style="border: 1px solid grey;"/>  
 
@@ -173,24 +169,26 @@ Edges in *1 per FK* have the straight line symbol in place of columns.
 
 # Data Model...
 
-Actions that add or modify information in the original graph.  
+***Actions that add or modify information in the original graph.***  
 
 <img src = "./img/dataModelMenu.png" width = 180px>  
 
 ### Generate Trigger Impacts
 
-Analyzes all triggers and scans function code to identify C(R)UD operations managed by the trigger.  
+**Goal : Analyzes  triggers and scans function code to identify C(R)UD operations managed by the trigger.**  
 
-Adds **oriented edges** from the trigger’s source table to the impacted tables.  
+Adds **oriented edges** from the trigger’s source table to the **impacted tables**.  
 Trigger impact edges:  
-- Are styled distinctly  
-- Have the trigger’s name as label  
-- Have native category `trigger_impact`  
+- have special style  
+- are labbled with the trigger’s name  
+- Have native category `trigger_impact` that alloww to filter them later ( native category )  
 
-Example (only one trigger impact in `democytodb`):  
+
 <img src="./img/triggerHover.png" width="250px" style="border: 1px solid grey;"/>  
 
 ### Simplify Associations
+
+**Goal : reduce from the graph less significant informations** 
 
 For **dry association tables** (2 foreign keys, no other links, no extra columns):  
 
@@ -203,11 +201,11 @@ For **dry association tables** (2 foreign keys, no other links, no extra columns
 
 <img src="./img/collapseAssociations.png" width="400px" />
 
-In the upper image, *intervention*, an association node, was not simplified: it is no longer a *dry association* because it gained a new edge for a trigger.  
+In the upper image, *intervention*, is no longer a *dry association* because of the new generated edge for a trigger.  
 
 ### Restore Association
 
-Restores the original association nodes between tables for the edges in the current perimeter.  
+Restores the original association nodes between tables (for the edges in the current perimeter).  
 
 💡 **Tip:** The restored node appears in the middle; previous positions are lost.  
 

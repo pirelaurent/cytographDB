@@ -4,12 +4,6 @@
     padding: 1rem;
   }
 
-  /* 
-    h1 {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-    } */
-
   #headerBar h1 {
     margin: 0;
     /* supprime marge par défaut */
@@ -128,5 +122,12 @@
     /* color:red; */
     margin-bottom: 0.3em;
   }
+
+
+
+
+
+
+
 
 .testColor{ color:rgb(32, 125, 125)}

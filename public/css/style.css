@@ -500,3 +500,42 @@ input.nodeChk {
 input.nodeChk:hover{
   accent-color: rgb(222, 82, 82)
 }
+
+/* style.css */
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+th .sort-indicator {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+
+.md-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-headerXX {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* actions à droite du titre */
+  gap: 12px;
+  margin: 6px 0 10px;
+}
+.section-header {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  margin:6px 0 10px;
+  max-width: 400px;   /* <— clé */
+}
+
+
+.section-title {
+  margin: 0; /* évite le saut vertical excessif */
+}

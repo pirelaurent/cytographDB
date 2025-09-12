@@ -1,0 +1,78 @@
+// Export to Markdown
+
+import { showError , alertInDoc} from "../ui/dialog.js";
+/*
+ general output  Html to markdown
+
+ fileName : the futur .md downloaded file 
+ tableId : a tag in the html <table id = 'my Id'>
+*/
+
+// utils/tableExport.js
+export function htmlTableToMarkdown(tableId, opts = {}, title = 'no_title', root = document) {
+  const tableWin = root.defaultView || window;
+
+  const el = root.getElementById(tableId);
+  if (!el) {
+    showError(`Table with id="${tableId}" not found`);
+    return;
+  }
+  // <table> direct
+  const table = el.tagName?.toLowerCase() === "table" ? el : el.closest("table");
+  if (!table) {
+    showError(`Element "${tableId}" is not (or inside) a <table>`);
+    return;
+  }
+
+  const escapeCell = (txt) =>
+    String(txt)
+      .replace(/\r?\n+/g, " ")   // pas de retours ligne dans les cellules
+      .replace(/\|/g, "\\|")     // échapper les pipes pour Markdown
+      .trim();
+
+  const headRows = table.tHead
+    ? Array.from(table.tHead.rows)
+    : [table.rows[0]]; // fallback si pas de thead
+
+  const bodyRows = table.tBodies?.length
+    ? Array.from(table.tBodies).flatMap(tb => Array.from(tb.rows))
+    : Array.from(table.rows).slice(headRows.length); // fallback si pas de tbody
+
+  // ligne d’en-tête
+  const headerCells = Array.from(headRows[0].cells).map(c => escapeCell(c.innerText));
+  const headerLine = `| ${headerCells.join(" | ")} |`;
+  const separatorLine = `| ${headerCells.map(() => "---").join(" | ")} |`;
+
+  // lignes du corps
+  const bodyLines = bodyRows.map(tr => {
+    const cells = Array.from(tr.cells).map(c => escapeCell(c.innerText));
+    return `| ${cells.join(" | ")} |`;
+  });
+  const titleMd = `\n## ${title}\n\n`;
+  const markdownTable = titleMd+ [headerLine, separatorLine, ...bodyLines].join("\n");
+
+  // output .md : file or clipboard
+
+  const filename = opts.filename ?? `${tableId}.md`;
+
+  if (opts.copyToClipboard) {
+    tableWin.navigator.clipboard?.writeText(markdownTable).catch((err) => {
+      console.error("Clipboard copy failed:", err);
+    });
+     alertInDoc(root, "markdown table copied in clipboard !");
+  }
+
+ if (opts.download !== false) {
+  const blob = new Blob([markdownTable], { type: "text/markdown" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000); // leave time to nav and release
+}
+
+}

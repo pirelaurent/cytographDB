@@ -27,7 +27,8 @@ import {
 
 import { connectToDb, generateTriggers } from "../dbFront/tables.js";
 
-import { listNodesToHtml, sendEdgeListToHtml } from "../ui/html.js";
+import { listNodesToHtml } from "../ui/htmlNodes.js";
+import {  sendEdgeListToHtml } from "../ui/htmlEdges.js";
 
 import {
   follow,

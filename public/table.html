@@ -20,6 +20,7 @@
       }
     }
   </script>
+
   <div id="headerBar" style="display: flex; align-items: center; gap: 10px;">
     <img src="img/closePage.png" alt="Return" title="Close"
       style="cursor: pointer; vertical-align: middle; width: 25px; height: 25px;" onclick="window.tryClose()" />
@@ -27,11 +28,21 @@
   </div>
   <div id="tableInfo">
     <div class="half">
-      <h2 id = "columnNumber">Columns</h2>
-      <table>
+      <div class="section-header">
+        <h2 id="columnNumber" class="section-title">Columns</h2>
+        <div class="md-actions" role="group" aria-label="Actions Markdown">
+          <!--<img src="./img/markdown.png" alt="Markdown" title="Format Markdown" height="16" aria-hidden="true" />: -->
+          <img id="mdDownload" src="./img/download.png" alt="Markdown" title="download Markdown" height="22"
+            aria-hidden="true" />
+          <img id="mdCopy" src="./img/clipboardCopy.png" alt="Markdown" title="Copy Markdown to clipboard" height="22"
+            aria-hidden="true" />
+        </div>
+      </div>
+
+      <table id='tableOfTableColumns'>
         <thead>
           <tr>
-            <th>Column</th>
+            <th>Name</th>
             <th>Type</th>
             <th>Nullable</th>
           </tr>
@@ -44,11 +55,11 @@
       <h2>Primary Key</h2>
       <div id="primaryKeyContainer" class="pkContainer"></div>
 
-      <h2 id = "fkNumber">Foreign Keys</h2>
+      <h2 id="fkNumber">Foreign Keys</h2>
       <div id="foreignKeysContainer" class="fkContainer"></div>
     </div>
     <div class="third">
-      <h2 id = "indexNumber">Indexes</h2>
+      <h2 id="indexNumber">Indexes</h2>
       <div id="indexesContainer" class="indexContainer"></div>
       <h2 id="uniqueNumber">constraints</h2>
       <div id="uniqueContainer" class="indexContainer"></div>

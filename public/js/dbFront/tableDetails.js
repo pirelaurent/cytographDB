@@ -2,6 +2,8 @@
 // cannot share data with main, so dbName is in the params
 
 import { showError } from "../ui/dialog.js";
+import { htmlTableToMarkdown} from "../util/markdown.js";
+import { enableTableSorting} from "../util/sortTable.js";
 
 /*
  get details on a table 
@@ -36,11 +38,10 @@ let whereTitle = document.getElementById("whereTitle");
 whereTitle.innerHTML = `${tableName} ${infoWarning}`;
 document.title = `table ${tableName}`;
 
-
+// call full info from DB
 getTableData(tableName).then((result) => {
   if (result.success) {
     const data = result.data;
-
 
     if (data.comment) {
       whereTitle.title = data.comment;
@@ -49,8 +50,11 @@ getTableData(tableName).then((result) => {
       icon.style.cursor = "help"; // facultatif
       whereTitle.appendChild(icon);
     }
+/*
 
-    // Handle Columns
+    list of columns 
+
+*/
     const colBody = document.getElementById("columnsTable");
     colBody.innerHTML = "";
     const columnNumber = document.getElementById("columnNumber");
@@ -101,7 +105,56 @@ getTableData(tableName).then((result) => {
       colBody.appendChild(tr);
     });
 
-    /// Display Primary Key
+    
+
+// Télécharger .md
+document.getElementById("mdDownload")?.addEventListener("click", () => {
+  htmlTableToMarkdown("tableOfTableColumns", {
+    download: true,
+    copyToClipboard: false,
+    filename: `columns_${tableName || "table"}.md`,
+  },
+  tableName
+);
+});
+
+// Copier dans le presse-papiers
+
+document.getElementById("mdCopy")?.addEventListener("click", async () => {
+   htmlTableToMarkdown("tableOfTableColumns", {
+    download: false,
+    copyToClipboard: true,
+  },  tableName
+);
+
+
+  // petit feedback visuel (optionnel)
+  const btn = document.getElementById("mdCopy");
+  if (!btn) return;
+  const oldTitle = btn.title;
+  btn.title = "Copié !";
+  btn.style.outline = "2px solid #7dbb7d";
+  setTimeout(() => {
+    btn.title = oldTitle;
+    btn.style.outline = "none";
+  }, 900);
+}
+
+);
+
+
+
+
+
+
+
+/*
+
+Primary key 
+
+*/
+
+
     const pkContainer = document.getElementById("primaryKeyContainer");
 
     pkContainer.innerHTML = "";
@@ -139,11 +192,18 @@ getTableData(tableName).then((result) => {
       pkContainer.innerHTML = "<p>No primary key defined.</p>";
     }
 
+/*
+
+foreign keys 
+
+
     //  foreign keys  X-A-Y   FK:  A-AX  A-AY
     //   A*B*	plusieurs A pour plusieurs B	A.id et B.id non uniques
     //   AB*	un A pour plusieurs B	AX: NOT NULL, AY: NOT NULL, A.id unique, B.id non unique
     //   A*B	plusieurs A pour un B	AX: NOT NULL, AY: NOT NULL, A.id non unique, B.id unique
     //   AB	1..1 vers 1..1	AX: NOT NULL, AY: NOT NULL, A.id et B.id sont uniques (PK ou UNIQUE)
+
+*/
 
     const fkDiv = document.getElementById("foreignKeysContainer");
     const fkNumber = document.getElementById("fkNumber");
@@ -243,12 +303,14 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
         pure.push(idx);
       }
     }
-    // (optionnel) sort elements
+
+    // (optionnel) sort elements before output
     const byName = (arr) =>
       arr.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
     byName(primary);
     byName(uniqueOrExclude);
     byName(pure);
+
     // pure index
     if (pure.length) {
       const indexNumber = document.getElementById("indexNumber");
@@ -327,4 +389,11 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
     console.error("Error on load :", result.error);
     showError("Error on loading. Details unavailable.Check your DB connection");
   }
+
+// après que le tableau soit rempli :
+   enableTableSorting("tableOfTableColumns");
+
+
 });
+
+

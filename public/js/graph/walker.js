@@ -10,14 +10,11 @@ import {
   showAlert,
   showInfo,
   showMultiChoiceDialog,
+    showWaitCursor,
+  hideWaitCursor
 
 } from "../ui/dialog.js";
 
-
-import {
-  showWaitCursor,
-  hideWaitCursor
-} from "../ui/html.js"
 
 
 import {

@@ -516,8 +516,6 @@ getCy().on("cxttap", "node", function (evt) {
     li.addEventListener('click', (e) => openNameFilterModal(e, "edge"));
   });
 
-const imgInOutArrows = document.getElementById('inOutArrows');
-
 
  document.getElementById('arrowLeft').addEventListener('click', () => {
    commonArrow("outgoing");

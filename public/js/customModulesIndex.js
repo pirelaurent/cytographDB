@@ -1,7 +1,7 @@
 "use strict";
 /*
   loaded at startup
-  scan directory public/custom/*.js  to load optional custom modules .     
+  scan directory public/custom/*.js  to load optional custom modules automatically  
 */
 
 

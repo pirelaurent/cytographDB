@@ -407,3 +407,21 @@ export function deleteNodesSelected() {
     metrologie();
   }
 }
+
+
+export function showWaitCursor() {
+  document.documentElement.classList.add("busy");
+  // double rAF pour garantir un paint avant le calcul
+  return new Promise((resolve) =>
+    requestAnimationFrame(() => requestAnimationFrame(resolve))
+  );
+}
+
+export function hideWaitCursor() {
+  document.documentElement.classList.remove("busy");
+}
+
+// use for manually written page 
+export function  alertInDoc(doc, message) {
+  (doc?.defaultView || window).alert(message);
+}

@@ -11,7 +11,7 @@ import { fillInGuiNodesCustomCategories } from "../ui/custom.js";
  adaptation to specific database 
  new categories must be pushed into customCategories 
 */
-const customModules = {};
+const customModules = [];
 /*
   custom added classes to be proposed in gui filter
 */
@@ -24,14 +24,34 @@ export function getCustomNodesCategories() {
 export function setCustomNodesCategories(someSet) {
   customNodesCategories = someSet;
 }
-
-export function registerCustomModule(dbName, moduleObject) {
-  //console.log("register module "+dbName)
-  customModules[dbName] = moduleObject;
+/*
+ declarative association between a dbName and a module
+ The module must register itself. 
+*/
+export function registerCustomModule(dbPattern, moduleObject) {
+  const pattern =
+    dbPattern instanceof RegExp
+      ? dbPattern
+      : new RegExp(`^${dbPattern}$`); // string exacte par défaut
+  customModules.push({ pattern, module: moduleObject });
 }
+
+/*
+ find the first that match 
+*/
+
+function getCustomModule(dbName) {
+
+  // ⚠️ Avoid regex with  flag "g"
+  const entry = customModules.find(e => e.pattern.test(dbName));
+  return entry?.module;
+}
+
+
 export let standardCategories = new Set(['orphan', 'root', 'leaf', 'association', 'multiAssociation', 'hasTriggers']);
 //export let internalCategories = new Set(['fk_detailed', 'fk_synth', 'showLabel','showColumns'])
 export let internalCategories = new Set(); //PLA
+
 /*
  custom classes are stored with graph, but customNodesCatories has to be restored
  by creating a set of all found classes of node 
@@ -61,19 +81,25 @@ export function restoreCustomNodesCategories() {
 export function createCustomCategories(myCurrentDB) {
   //console.log("createCustomCategories in customCategorie for "+myCurrentDB)
 
-  if (customModules[myCurrentDB]) {
-    customModules[myCurrentDB].createCustomCategories();
-  } else {
-    console.log(`No customCategories registered for ${myCurrentDB}`);
-  }
+const mod = getCustomModule(myCurrentDB);
+if (mod?.createCustomCategories) {
+  mod.createCustomCategories();
+} else {
+  console.log(`No customCategories registered for ${myCurrentDB}`);
+}
 }
 /*
  associated styles . 
  will be added to standard style to create mergedStyles
 */
+
+
+
+
 export function getCustomStyles(myCurrentDB) {
-  if (customModules[myCurrentDB]) {
-    let blocStyle = customModules[myCurrentDB].getCustomStyles();
+  const mod = getCustomModule(myCurrentDB);
+  if (mod) {
+    let blocStyle = mod.getCustomStyles();
     return blocStyle;
   } else {
     return [];
@@ -84,9 +110,6 @@ export function getCustomStyles(myCurrentDB) {
 /*
  standard categories created before custom using classes 
 */
-
-
-
 
 function countFKSourceColumns(node) {
   const fkGroups = node.data("foreignKeys") || [];
@@ -107,9 +130,7 @@ function countFKSourceColumns(node) {
 
 /*
  Native categories based on number and type of edges 
-
 */
-
 
 export function createNativeNodesCategories() {
   getCy().nodes().forEach((node) => {

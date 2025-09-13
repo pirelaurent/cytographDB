@@ -99,9 +99,11 @@ note: *fk_synth* rely to*1 edge per FK* mode. See Edge menu.
 
 
 **All headers are sortable**  
-**Left check columns allows reflect selection and can return with changes**
+**Left check columns reflects selection and can return with changes**
 **Clic on a table name goes directly to table's details**
 **Clic on trigger number goes directly to triggers'code**
+
+💡 **Download and copy symbols** refer to a **markdown export** of the current table. 
 
 --- 
 
@@ -124,6 +126,9 @@ Total constraints : PK + Indexes + other constraints
   
 <img src ="./img/tableDetails.png" width = "800px" style="border: 1px solid grey;">
 
+💡 Download and copy symbols refer to markdown export of columns table.
+💬 Indicates a comment is available. 
+
 #### table triggers 
 
 a new tab open with triggers'list,  allowing to browse the PSQL code.  
@@ -142,15 +147,15 @@ In the upper sample, the `employee` table appears in *Impacted Tables* because a
 
 #### code details
 
-<img src ="./img/function-intervention-code.png" width = "400px" style="border: 1px solid grey;">
+<img src ="./img/function-intervention-code.png" width = "500px" style="border: 1px solid grey;">
 
 ---
 
 ## Edges
 
-### add trigger impacts to fk graph
+### add trigger impacts to graph
 
-menu: **Edges → Data Model → Generate Trigger Impact**
+menu: **Edges → Data Model → Triggers  → generate  impacts**
 
 New generated edges represent trigger-based relationships (violet below)
 
@@ -159,7 +164,9 @@ New generated edges represent trigger-based relationships (violet below)
 Labels of new *trigger_impact* edge is the trigger's name.
 
 These edges can be easily selected later through  
-**edges - filter by... native category -  trigger_impact**
+**edges - filter by... native category -  trigger_impact**   
+Or removed directly by : 
+**Edges → Data Model → Triggers  → remove  impacts**
 
 ## show detailed columns of foreign keys 
 
@@ -174,7 +181,7 @@ Clic on ***Edges-label-show***  to see **all** matching column names:
  
 <img src ="./img/edgePerColumn.png" width = "700px" style="border: 1px solid grey;">   
 
-You can switch FK mode and label on an **edge basis with right click submenu**
+💡 You can switch FK mode and label on an **edge basis with right click submenu**:    
 <img src ="./img/edgeFlipFlop.png" width = "200px">
 
 --- 
@@ -205,7 +212,7 @@ One can see dependencies are stopped by dry associations ( *line_product, author
 This continue the walk on the other side of a (dry) association ( now *product* and *employee* are selected): 
 <img src ="./img/associationProduction-line.png" width = "500px" style="border: 1px solid grey;">
 
-#### Individual actions on a chose node 
+#### Individual actions on a chosen node 
 The colored direction arrows allow to walk from the current node by : 
 green left : select outgoing 
 yellow center : select both 

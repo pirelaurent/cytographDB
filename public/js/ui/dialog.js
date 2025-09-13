@@ -15,35 +15,36 @@ import {
 
 import { pushSnapshot } from "../graph/snapshots.js";
 
-export function showMultiChoiceDialog(title, message, choices) {
-  const overlay = document.createElement("div");
+export function showMultiChoiceDialog(title, message, choices, doc = document) {
+
+  const overlay = doc.createElement("div");
   overlay.className = "overlay";
 
-  const dialog = document.createElement("div");
+  const dialog = doc.createElement("div");
   dialog.style.background = "white";
   dialog.style.padding = "20px";
   dialog.style.borderRadius = "8px";
   dialog.style.minWidth = "300px";
   dialog.style.boxShadow = "0 0 10px rgba(0,0,0,0.3)";
 
-  const titleElem = document.createElement("h3");
+  const titleElem = doc.createElement("h3");
   titleElem.innerHTML = title;
   dialog.appendChild(titleElem);
 
-  const msgElem = document.createElement("p");
+  const msgElem = doc.createElement("p");
 
   msgElem.innerHTML = message;
 
   dialog.appendChild(msgElem);
 
-  const btnContainer = document.createElement("div");
+  const btnContainer = doc.createElement("div");
   btnContainer.style.marginTop = "15px";
   btnContainer.style.display = "flex";
   btnContainer.style.gap = "10px";
   btnContainer.style.justifyContent = "flex-end";
   const buttons = [];
   choices.forEach((choice) => {
-    const btn = document.createElement("button");
+    const btn = doc.createElement("button");
     btn.innerHTML = choice.label;
     btn.onclick = () => {
       overlay.remove();
@@ -60,7 +61,7 @@ export function showMultiChoiceDialog(title, message, choices) {
 
   dialog.appendChild(btnContainer);
   overlay.appendChild(dialog);
-  document.body.appendChild(overlay);
+  doc.body.appendChild(overlay);
 
   // --- Ici, on cherche le bouton 'par défaut'
   const defaultBtn =
@@ -96,14 +97,16 @@ export function showAlert(textAlert) {
   ]);
 }
 
-export function showInfo(textInfo) {
+export function showInfo(textInfo,doc = document) {
   showMultiChoiceDialog("ℹ️  Information", textInfo, [
     {
       label: "OK",
       onClick: () => {},
       isDefault: true,
+
     },
-  ]);
+  ],doc
+);
 }
 
 export function showError(textAlert) {

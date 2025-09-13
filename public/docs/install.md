@@ -1,4 +1,4 @@
-# 🚀 Installation Guide
+# Installation Guide
 
 ---
 
@@ -12,7 +12,7 @@ git clone git@github.com:pirelaurent/cytographDB.git
 
 ## 2️⃣ Node.js Setup
 
-Node version must be >20  (was developed using **Node.js v20.9.0**).
+Node version must be >20  (was developed first using **Node.js v20.9.0**).
 
 ### Install Dependencies
 
@@ -22,18 +22,15 @@ Install required packages listed in `package.json`:
 npm install
 ```
 
-If you encounter issues with your repository manager, reset the default registry, then retry. 
-
-```bash
+> If you encounter issues with your repository manager, reset the default registry, then retry. 
+>```bash
 npm config set registry https://registry.npmjs.org/
-```
-
----
+>```     
 
 ## 3️⃣ Database Credentials
 
 Create a `.env` file with your PostgreSQL access information. 
-Can be done by copying ***.env.model*** into a .env 
+Can be done by copying ***.env.model*** into a ***.env*** 
 
 ```env
 PGUSER=postgres
@@ -68,12 +65,23 @@ In the app menu, navigate to:
 DB > Create graph from DB >
 ```
 
-You should see the list of PostgreSQL databases.  
-Choose one to generate its graph.
+You should see the list of available PostgreSQL databases.  
+Choose one DB name to generate its graph.
 
 ---
 
-# 🧪 Optional: Install Demo Database `democytodb`
+# Documentation format  
+
+
+Install a **markdown plug-in in your navigator** as documentation is in Markdown language. 
+
+This development has used ***Markdown Viewer 5.2***  with the options 
+- *Theme - github* *AUTO*   (for wide tables if any, change to a larger option )
+
+
+---  
+
+## Optional: Install Demo Database `democytodb`
 
 To test the app as this documentation, use the SQL scripts in `public/docs/sql`.
 
@@ -89,9 +97,9 @@ CREATE DATABASE democytodb;
 
 ### Step 2: Initialize Schema
 
-Run `init_demo_schema.sql` from the same directory.
+Take source and Run `init_demo_schema.sql` from the same directory.
 
-> Notice that the demo DB is empty.CytographDB operates only on its schema structure.
+> Notice that the demo DB is empty. CytographDB operates only on its schema structure.
 
 ---
 

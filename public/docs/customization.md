@@ -1,6 +1,6 @@
 # Customization
 
-You can enhance your graph for a specific database by 
+You can enhance your graph for your specific databases by 
 - adding in a module : 
   - **Custom categories** to enable element filtering
   - **Custom styles** for tables of standard and custom categories
@@ -10,75 +10,105 @@ You can enhance your graph for a specific database by
 
 ## Principles
 
-cytographDB scan the directory *custom*, searching for js files .   
-It loads the corresponding modules.
-The modules associates DBnames to be used with it.    
-
-When a graph is loaded, the app calls two functions :  
+cytographDB scan the directory *custom*, searching for js files and run them.   
+These codes must 
+- create a *module* then 
+- link it to a pattern
+  - either exact name: `registerCustomModule("democytodb", democytodbModule);` 
+  - either a regex  : `registerCustomModule(/demo.*/, democytodbModule)` 
+   
+When a graph is loaded, the app calls two functions expected from the corresponding module:  
 
 ```js
   createCustomCategories(current_db);
   getCustomStyles(current_db);
 ```
 
-- the app try to retrieve an associated module in an internal collection **customModules[]** . 
-- then it call the previous functions, those defined inside the module.
-
-
 ### democytodb custom module as an example
 
  *public/custom/democytodb.js*
 ```js
+
+
+
 import {
   getCy,
 } from "../js/graph/cytoscapeCore.js"
-import {   registerCustomModule, getCustomNodesCategories } from "../js/filters/categories.js";
 
-// must declare a module as follow:
-const democytodbModule = {
-  // method to customize styles
-  getCustomStyles() {
-    // Return an array of styling rules  - see source code
-  },
-  // method to create custom categories for filter or for styling 
-  createCustomCategories() {
-    // Add custom classes and categories to nodes - see source code
-  }
-};
+import { registerCustomModule, getCustomNodesCategories } from "../js/filters/categories.js";
 
-/*
-The module mustregister itself with the DB names list it applies to
+/*----------------------------------------------
+  module name
 */
-registerCustomModule("democytodb", democytodbModule);
-registerCustomModule("democytodbV2", democytodbModule);
+const democytodbModule = {
+  /*
+    define specfic properties to this DB nodes
+  */
+  createCustomCategories() {
+    // categories for nodes 
+    getCy().nodes().forEach((node) => {
+      /* 
+        add custom category (class in cyto) that allows filter
+        for visual effect set a style in getCustomStyles
+      */
+      if (node.data("label").includes("product")) node.addClass("product");
+    });
+    // register the category 
+    getCustomNodesCategories().add("product");
+  },
+
+  /*----------------------------------------------
+  GUI aspects
+  method returns a json defining new style for the 'myClass' set in createCustomCategories  
+  */
+
+  getCustomStyles() {
+    return [
+      {
+        selector: "node.product",
+        style: {
+          "color": "#b82641",
+          "font-size": "30px",
+          "font-style": "italic"
+        },
+      },
+    ];
+  },
+};
+/* 
+ autoregister the module 
+ - by exact name between quotes : registerCustomModule("democytodb", democytodbModule);
+ - with a regex to match several names with same module 
+ */
+registerCustomModule(/democyto.*/, democytodbModule);
 
 ```
 
 
 
-##  Create your own Custom Module
+##  Steps to create your own Custom Module
 
 1. **Create a `myModule.js` file**  
    Use `democytodb.js` as a reference template.
 
    Don't forget to link this module to your dbNames.
-   For example:
 
     ```js
-    registerCustomModule("myDBtest", myModule);
-    registerCustomModule("myDBstaging", myModule);
+    registerCustomModule("myExactlyNamedDBtest", myModule);
+    // or regex
+    registerCustomModule(/myDB.*/, myModule);
     
     ```
 
 2. **put the file in** `public/custom`
 
-a log in the navigator console show custom modules : ```[custom] loaded : /custom/democytodb.js```
-
-
+To verify : 
+At startup a log in the navigator console show loaded custom modules : ```[custom] loaded : /custom/democytodb.js```
 
 #### Note : 
 
-this folder is excluded from version control to protect user-specific code.
+This custom folder is excluded in the github reference from version control to protect user-specific code.
+It's up to you to organize the saving of your own modules in *custom*. 
 
   `.gitignore` Rule:
 
@@ -88,21 +118,9 @@ this folder is excluded from version control to protect user-specific code.
 !/public/custom/democytodb.js
 ```
 
----
-
-## Weave Your Module with the App
-
-The only thing you have to do is to put your module source code in the *public/custom* directory.
-and to **restart the application**
-
-✅ From now on, whenever you open a DB named `myDBtest` or `myDBstaging`,  
-the `myModule` customization will be applied automatically.
-
-You can leave several modules in the custom dir
-
 --- 
 
-# custom documentation 
+## custom documentation 
 
 You can set your owwn documentation under ***custom/docs***.
 
@@ -112,8 +130,10 @@ If any ***index\.md*** is found by cytographdb at startup in this directory,  it
 
 This can give custom details and custom examples. 
 
+For the day, this is not related to any dbName, rather to your own file structure (as it is excluded by gitignore)
+
 ---
 
 
 
-- ⚪️ [Main](./main.md)
+- ⚪️ [return to Main](./main.md)

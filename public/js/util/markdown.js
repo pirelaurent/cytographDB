@@ -1,6 +1,6 @@
 // Export to Markdown
 
-import { showError , alertInDoc} from "../ui/dialog.js";
+import { showError , showInfo} from "../ui/dialog.js";
 /*
  general output  Html to markdown
 
@@ -59,7 +59,7 @@ export function htmlTableToMarkdown(tableId, opts = {}, title = 'no_title', root
     tableWin.navigator.clipboard?.writeText(markdownTable).catch((err) => {
       console.error("Clipboard copy failed:", err);
     });
-     alertInDoc(root, "markdown table copied in clipboard !");
+    showInfo('table content (markdown) in clipboard !',root)
   }
 
  if (opts.download !== false) {

@@ -256,7 +256,7 @@ export function sendEdgeListToHtml() {
   // Sorting
   const sortableCols = [0, 1, 2];
 
-  doc.querySelectorAll("#edgeTable th").forEach((th, index) => {
+      doc.querySelectorAll(`#${tableName} th`).forEach((th, index) => {
     if (sortableCols.includes(index)) {
       th.addEventListener("click", () => {
         sortTable(table, index, false); // false all are string

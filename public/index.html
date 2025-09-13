@@ -428,20 +428,30 @@
 
             <li data-category="dataModel" title="actions related to a physical data model ">data model ...
               <ul class="submenu">
-                <li action="generateTriggers">
-                  <span class="label" title="Identify and materialize triggers that affect other tables">generate
-                    trigger impacts</span>
+                <li data-category="edgeDetails">triggers ...
+                  <ul class="submenu">
+                    <li action="generateTriggers">
+                      <span class="label" title="Identify and materialize triggers that affect other tables">generate
+                        impacts</span>
+                    </li>
+                    <li action="removeTriggers">
+                      <span class="label" title="Identify and materialize triggers that affect other tables">
+                        remove impacts</span>
+                    </li>
+                  </ul>
                 </li>
 
-                <li action="simplifyAssociations">
-                  <span class="label" title="Simplify associations into direct edges">simplify association</span>
-                </li>
-                <li action="restoreAssociations" title="Undo simplification and restore association nodes">
-                  <span class="label">restore association</span>
+                <li data-category="edgeDetails">associations ...
+                  <ul class="submenu">
+                    <li action="simplifyAssociations">
+                      <span class="label" title="Simplify associations into direct edges">simplify </span>
+                    </li>
+                    <li action="restoreAssociations" title="Undo simplification and restore association nodes">
+                      <span class="label">restore </span>
+                    </li>
+                  </ul>
                 </li>
               </ul>
-            </li>
-
 
 
             <li class="separator"></li>
@@ -488,7 +498,7 @@
       <li id="open-table">🔍table definition</li>
       <li id="open-trigger">⚡table triggers</li>
       <li>
-        <img id="arrowLeft" src="./img/arrowLeft.png"  title="follow outgoing">
+        <img id="arrowLeft" src="./img/arrowLeft.png" title="follow outgoing">
         <img id="arrowMiddle" src="./img/arrowMiddle.png" title="follow both">
         <img id="arrowRight" src="./img/arrowRight.png" title="follow incoming">
       </li>

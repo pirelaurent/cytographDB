@@ -271,7 +271,7 @@ export function listNodesToHtml() {
   }
 
   const numericCols = [2, 3, 4, 5]; //between the 0..5 cols
-  doc.querySelectorAll("#myTable th").forEach((th, index) => {
+  doc.querySelectorAll(`#${tableName} th`).forEach((th, index) => {
     if (index === 0) addInvertToggle(table, 0, doc);
     if (index === 1) th.classList.add("sort-asc");
 

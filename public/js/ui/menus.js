@@ -852,8 +852,18 @@ export function menuEdges(option) {
 
     case "generateTriggers":
       pushSnapshot();
-      generateTriggers(perimeterForNodesAction());
+      generateTriggers(getCy().nodes()); //perimeterForNodesAction());
       break;
+
+    case "removeTriggers":
+      console.log('pouet')
+      pushSnapshot();
+      getCy().edges(".trigger_impact").remove();
+
+      break;
+
+
+
 
     case "deleteEdgesSelected":
       const edgesToKill = getCy().edges(":selected:visible");

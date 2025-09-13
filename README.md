@@ -14,3 +14,4 @@ Once installed, you can access the documentation from within CytographDB or brow
 ## License
 
 This project is licensed under the GNU General Public License v3.0 – see the [LICENSE](./LICENSE) file for details.
+

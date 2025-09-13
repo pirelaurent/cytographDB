@@ -10,6 +10,7 @@ DROP FUNCTION IF EXISTS check_authorization_before_intervention() CASCADE;
 
 DROP TABLE IF EXISTS intervention;
 DROP TABLE IF EXISTS "authorization";
+DROP TABLE IF EXISTS skills;
 DROP TABLE IF EXISTS employee;
 DROP TABLE IF EXISTS line_product;
 DROP TABLE IF EXISTS product;
@@ -30,7 +31,7 @@ CREATE TABLE company (
 CREATE TABLE factory (
     company_id INT NOT NULL REFERENCES company(id) ON DELETE CASCADE,
     id INT NOT NULL,
-    name TEXT NOT NULL,
+    name VARCHAR(20) NOT NULL,
     PRIMARY KEY (company_id, id)
 );
 
@@ -38,7 +39,7 @@ CREATE TABLE production_line (
     company_id INT NOT NULL,
     factory_id INT NOT NULL,
     id INT NOT NULL,
-    name TEXT NOT NULL,
+    name VARCHAR(20) NOT NULL,
     PRIMARY KEY (company_id, factory_id, id),
     FOREIGN KEY (company_id, factory_id) REFERENCES factory(company_id, id)
 );
@@ -61,7 +62,8 @@ CREATE TABLE line_product (
 CREATE TABLE employee (
     company_id INT NOT NULL,
     id INT NOT NULL,
-    name TEXT NOT NULL,
+    first_name VARCHAR(20) NOT NULL,
+    name VARCHAR(20) NOT NULL,
     factory_id INT NOT NULL,
     activity_points INT DEFAULT 0 NOT NULL,
     PRIMARY KEY (company_id, id),

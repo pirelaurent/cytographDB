@@ -5,7 +5,6 @@ import {
   getCy,
 } from "../js/graph/cytoscapeCore.js"
 
-
 import { registerCustomModule, getCustomNodesCategories } from "../js/filters/categories.js";
 
 /*----------------------------------------------
@@ -16,28 +15,21 @@ const democytodbModule = {
     define specfic properties to this DB nodes
   */
   createCustomCategories() {
-
     // categories for nodes 
     getCy().nodes().forEach((node) => {
       /* 
-        add class for visual effect and set the style in getCustomStyles
+        add custom category (class in cyto) that allows filter
+        for visual effect set a style in getCustomStyles
       */
-
       if (node.data("label").includes("product")) node.addClass("product");
-
     });
-    /*
-     more than simple visual effect through class 
-     adding the class in customNodesCategories will propose it to filter in gui 
-    */
-
+    // register the category 
     getCustomNodesCategories().add("product");
   },
 
   /*----------------------------------------------
   GUI aspects
   method returns a json defining new style for the 'myClass' set in createCustomCategories  
-
   */
 
   getCustomStyles() {
@@ -45,22 +37,18 @@ const democytodbModule = {
       {
         selector: "node.product",
         style: {
-          "color": "#6D071A",
-          "font-size": "25px",
+          "color": "#b82641",
+          "font-size": "30px",
           "font-style": "italic"
-
         },
       },
-
-
     ];
   },
 };
 /* 
- autoregister this module 
- as soon as the module is in the code visibility 
- => add the import into 
-
+ autoregister the module 
+ - by exact name between quotes : registerCustomModule("democytodb", democytodbModule);
+ - with a regex to match several names with same module 
  */
-registerCustomModule("democytodb", democytodbModule);
-registerCustomModule("democytodbV2", democytodbModule);
+registerCustomModule(/democyto.*/, democytodbModule);
+

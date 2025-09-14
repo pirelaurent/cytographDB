@@ -1,4 +1,4 @@
-"use stricts"
+"use stricts";
 
 /*
  when a graph is created by 'create graph from DB' , 
@@ -47,29 +47,19 @@ previous edges are deleted
 new created edges are added with the class 'fk_synth'
 */
 
+import { getCy, perimeterForEdgesAction } from "../graph/cytoscapeCore.js";
+import { showInfo } from "../ui/dialog.js";
 
 
-import {
-    getCy,
-    perimeterForEdgesAction,
-} from '../graph/cytoscapeCore.js';
-import { showInfo } from '../ui/dialog.js';
-
-let currentFkMode;
-
-export function getCurrentFKMode() { return currentFkMode };
-export function setCurrentFKMode(fkMode) { currentFkMode = fkMode };
-
-let detailedEdgesArray; // to be able to reverse, store details here 
+let detailedEdgesArray; // to be able to reverse, store details here
 
 // called at startup now as request load details
 export function saveDetailedEdges() {
-    //console.log('on save les detailed Array')//PLA
-    detailedEdgesArray = getCy().edges(); // cytoscape collection, not array
-    currentFkMode = 'detailed';
-    //document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
-}
 
+  detailedEdgesArray = getCy().edges(); // cytoscape collection, not array
+
+  //document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
+}
 
 /*
  swap the edges synthetic with detailed
@@ -80,25 +70,26 @@ export function saveDetailedEdges() {
  global : false from menu 
 */
 
-export function enterFkDetailedModeForEdges(synthEdges){
-
-const originalArray = [];
-            synthEdges.forEach(synth => {
-                detailedEdgesArray.filter(
-                    e => e.data('label') === synth.data('label')
-                ).forEach(e => { 
-                    if (synth.hasClass('trigger_impact')) return;
-                    if (synth.selected()) e.select();else e.unselect();
-                    if (synth.hasClass('showLabel')) e.addClass('showColumns'); else e.removeClass('showColumns');
-                    originalArray.push(e) 
-                })
-            })
-            // must change an array in a cy collection 
-            const original = getCy().collection(originalArray); // <- conversion Array -> collection
-            getCy().batch(() => {
-                synthEdges.remove();
-                getCy().add(original);
-            });
+export function enterFkDetailedModeForEdges(synthEdges) {
+  const originalArray = [];
+  synthEdges.forEach((synth) => {
+    detailedEdgesArray
+      .filter((e) => e.data("label") === synth.data("label"))
+      .forEach((e) => {
+        if (synth.hasClass("trigger_impact")) return;
+        if (synth.selected()) e.select();
+        else e.unselect();
+        if (synth.hasClass("showLabel")) e.addClass("showColumns");
+        else e.removeClass("showColumns");
+        originalArray.push(e);
+      });
+  });
+  // must change an array in a cy collection
+  const original = getCy().collection(originalArray); // <- conversion Array -> collection
+  getCy().batch(() => {
+    synthEdges.remove();
+    getCy().add(original);
+  });
 }
 
 /*
@@ -106,36 +97,59 @@ const originalArray = [];
 */
 
 export function enterFkDetailedMode(global = true) {
-    let synthEdges;
-    
-    if (global) {
-        synthEdges = getCy().edges('.fk_synth');
+  let synthEdges;
+
+  if (global) {
+    synthEdges = getCy().edges(".fk_synth");
+  } else {
+    synthEdges = perimeterForEdgesAction().filter(".fk_synth");
+  }
+
+  // if no edge to restore
+  if (synthEdges.length == 0) return false;
+
+    enterFkDetailedModeForEdges(synthEdges);
+}
+
+/*
+ when nodes are deleted in mode 1 per FK, the stored details are not aware of. 
+ We can clean obsolete details here .
+*/
+
+export function cleanDetailedEdgesArray()
+{
+  // note all valid ids
+
+  const cy = getCy();
+  const nodeSet = new Set(cy.nodes().map((n) => n.id()));
+
+  // to note detailed on the flow
+
+  let toDrop = cy.collection();
+
+  // as some nodes could have been deleted in fk mode, detailed are not more valid
+
+  detailedEdgesArray.forEach((aDetailedEdge) => {
+    /*
+    console.log('edge id:', edge.id());
+    console.log('source node id:', edge.source().id());
+    console.log('target node id:', edge.target().id());
+    // ou via data :
+    console.log('source id (data):', edge.data('source'));
+    console.log('target id (data):', edge.data('target'));
+    */
+    const sourceId = aDetailedEdge.source().id();
+    const destId = aDetailedEdge.target().id();
+
+    if (nodeSet.has(sourceId) && nodeSet.has(destId)) {
+      cy.add(aDetailedEdge);
     } else {
-        synthEdges = perimeterForEdgesAction().filter('.fk_synth')
+      toDrop = toDrop.union(aDetailedEdge);
+      console.log(`missing nodes to restore details ${sourceId} or ${destId}`);
     }
+  });
 
-
-    // verify we are in synthetic  
-    if (synthEdges.length == 0) return false;
-    //detailedEdgesArray.forEach(e => console.log(e.data('label')));//PLA les fk nullable n'ont qu'une fois  
-
-    if (detailedEdgesArray.length != 0) {
-        if (global) {
-            getCy().batch(() => {
-                synthEdges.remove();
-                getCy().add(detailedEdgesArray)
-            });
-        }
-        else {
-            enterFkDetailedModeForEdges(synthEdges);
-        }
-    } else {
-        if (!global) showInfo("No detailed edges to shrink");
-        return false;
-    }
-    currentFkMode = 'detailed';
-    //document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
-    return true;
+  detailedEdgesArray = detailedEdgesArray.difference(toDrop);
 }
 
 /*
@@ -143,26 +157,23 @@ export function enterFkDetailedMode(global = true) {
 global: false when coming from menu , true for load/save
 */
 
+export function enterFkSynthesisMode(global = true) {
+  let edges;
+  if (global) {
+    edges = getCy().edges(".fk_detailed");
+  } else {
+    edges = perimeterForEdgesAction().filter(".fk_detailed");
+  }
 
-export function enterFkSynthesisMode(global =true) {
+  // stored graph could be synthetic only
+  if (edges.length == 0) {
+    showInfo("already in mode 1 per FK");
+    return false;
+  }
 
-    let edges;
-    if (global) {
-        edges =  getCy().edges('.fk_detailed');
-    } else {
-        edges = perimeterForEdgesAction().filter('.fk_detailed')
-    }
+  //document.getElementById('toggle-fk-mode').textContent = 'toggle details 1 --> n';
 
-    // stored graph could be synthetic only 
-    if (edges.length == 0) {
-        showInfo("no detailed columns to reduce in edge perimeter");
-        return false;
-    }
-
-    currentFkMode = 'synthesis';
-    //document.getElementById('toggle-fk-mode').textContent = 'toggle details 1 --> n';
-
-    enterFkSynthesisModeForEdges(edges);
+  enterFkSynthesisModeForEdges(edges);
 }
 
 /*
@@ -170,50 +181,51 @@ export function enterFkSynthesisMode(global =true) {
  Take the first to be root ot the refactored simple edge 
 */
 
-export function enterFkSynthesisModeForEdges(edges){
-    const grouped = {};
-    // information for synthesis is inside detailed 
-    edges.forEach(edge => {
-        const constraintName = edge.data('label')
-        if (!grouped[constraintName]) {
-            grouped[constraintName] = [];
-        }
-        grouped[constraintName].push(edge);
+export function enterFkSynthesisModeForEdges(edges) {
+  const grouped = {};
+  // information for synthesis is inside detailed
+  edges.forEach((edge) => {
+    const constraintName = edge.data("label");
+    if (!grouped[constraintName]) {
+      grouped[constraintName] = [];
+    }
+    grouped[constraintName].push(edge);
+  });
+
+  // here a dict of groups by fk label
+
+  // remove detailed from cy but they are stored in a global collection
+  edges.remove();
+
+  // add a synthetic edge for a group of detailed
+  Object.entries(grouped).forEach(([constraintName, edgeGroup]) => {
+    const first = edgeGroup[0];
+    const source = first.data("source");
+    const target = first.data("target");
+    const onDelete = first.data("onDelete");
+    const onUpdate = first.data("onUpdate");
+
+    const nullable = edgeGroup.some((e) => e.data("nullable"));
+    const labeled = edgeGroup.some((e) => e.hasClass("showColumns"));
+
+    getCy().add({
+      group: "edges",
+      data: {
+        source,
+        target,
+        label: constraintName,
+        onDelete,
+        onUpdate,
+        nullable,
+      },
+      classes: [
+        "fk_synth",
+        onDelete === "c" ? "delete_cascade" : "",
+        nullable ? "nullable" : "",
+        labeled ? "showLabel" : "",
+      ]
+        .filter(Boolean)
+        .join(" "),
     });
-
-// here a dict of groups by fk label 
-
-    // remove detailed from cy but they are stored in a global collection
-    edges.remove();
-
-    // add a synthetic edge for a group of detailed
-    Object.entries(grouped).forEach(([constraintName, edgeGroup]) => {
-        const first = edgeGroup[0];
-        const source = first.data('source');
-        const target = first.data('target');
-        const onDelete = first.data('onDelete');
-        const onUpdate = first.data('onUpdate');
-
-        const nullable = edgeGroup.some(e => e.data('nullable'));
-        const labeled = edgeGroup.some(e => e.hasClass('showColumns'));
-
-
-        getCy().add({
-            group: 'edges',
-            data: {
-                source,
-                target,
-                label: constraintName,
-                onDelete,
-                onUpdate,
-                nullable
-            },
-            classes: [
-                'fk_synth',
-                onDelete === 'c' ? 'delete_cascade' : '',
-                nullable ? 'nullable' : '',
-                labeled ? 'showLabel' :''
-            ].filter(Boolean).join(' ')
-        });
-    });
+  });
 }

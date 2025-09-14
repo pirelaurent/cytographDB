@@ -1,9 +1,9 @@
 "use strict";
 // cannot share data with main, so dbName is in the params
 
-import { showError } from "../ui/dialog.js";
-import { htmlTableToMarkdown} from "../util/markdown.js";
-import { enableTableSorting} from "../util/sortTable.js";
+import { showError, getIconHelp } from "../ui/dialog.js";
+import { htmlTableToMarkdown } from "../util/markdown.js";
+import { enableTableSorting } from "../util/sortTable.js";
 
 /*
  get details on a table 
@@ -42,15 +42,11 @@ document.title = `table ${tableName}`;
 getTableData(tableName).then((result) => {
   if (result.success) {
     const data = result.data;
-
-    if (data.comment) {
-      whereTitle.title = data.comment;
-      const icon = document.createElement("span");
-      icon.textContent = " 💬";
-      icon.style.cursor = "help"; // facultatif
-      whereTitle.appendChild(icon);
+    if (data.comment){
+    const icon = getIconHelp(document, data.comment);
+    whereTitle.appendChild(icon);
     }
-/*
+    /*
 
     list of columns 
 
@@ -69,25 +65,14 @@ getTableData(tableName).then((result) => {
 
       // Créer manuellement le contenu de la cellule pour insérer l’icône
       const columnCell = document.createElement("td");
+//see line product
 
-      if (hasComment) {
-        const wrapper = document.createElement("span");
-        wrapper.title = col.comment;
-
-        // Texte de la colonne
-        const text = document.createTextNode(col.column + " ");
-        wrapper.appendChild(text);
-
-        // Icône 💬
-        const icon = document.createElement("span");
-        icon.textContent = "💬";
-        icon.style.cursor = "help";
-        wrapper.appendChild(icon);
-
-        columnCell.appendChild(wrapper);
-      } else {
         columnCell.textContent = col.column;
-      }
+      if (hasComment) {
+        // Icône
+        const icon = getIconHelp(document,col.comment);
+        columnCell.appendChild(icon)
+      } 
 
       // Créer les autres cellules
       const typeCell = document.createElement("td");
@@ -105,55 +90,48 @@ getTableData(tableName).then((result) => {
       colBody.appendChild(tr);
     });
 
-    
+    // Télécharger .md
+    document.getElementById("mdDownload")?.addEventListener("click", () => {
+      htmlTableToMarkdown(
+        "tableOfTableColumns",
+        {
+          download: true,
+          copyToClipboard: false,
+          filename: `columns_${tableName || "table"}.md`,
+        },
+        tableName
+      );
+    });
 
-// Télécharger .md
-document.getElementById("mdDownload")?.addEventListener("click", () => {
-  htmlTableToMarkdown("tableOfTableColumns", {
-    download: true,
-    copyToClipboard: false,
-    filename: `columns_${tableName || "table"}.md`,
-  },
-  tableName
-);
-});
+    // Copier dans le presse-papiers
 
-// Copier dans le presse-papiers
+    document.getElementById("mdCopy")?.addEventListener("click", async () => {
+      htmlTableToMarkdown(
+        "tableOfTableColumns",
+        {
+          download: false,
+          copyToClipboard: true,
+        },
+        tableName
+      );
 
-document.getElementById("mdCopy")?.addEventListener("click", async () => {
-   htmlTableToMarkdown("tableOfTableColumns", {
-    download: false,
-    copyToClipboard: true,
-  },  tableName
-);
+      // petit feedback visuel (optionnel)
+      const btn = document.getElementById("mdCopy");
+      if (!btn) return;
+      const oldTitle = btn.title;
+      btn.title = "Copié !";
+      btn.style.outline = "2px solid #7dbb7d";
+      setTimeout(() => {
+        btn.title = oldTitle;
+        btn.style.outline = "none";
+      }, 900);
+    });
 
-
-  // petit feedback visuel (optionnel)
-  const btn = document.getElementById("mdCopy");
-  if (!btn) return;
-  const oldTitle = btn.title;
-  btn.title = "Copié !";
-  btn.style.outline = "2px solid #7dbb7d";
-  setTimeout(() => {
-    btn.title = oldTitle;
-    btn.style.outline = "none";
-  }, 900);
-}
-
-);
-
-
-
-
-
-
-
-/*
+    /*
 
 Primary key 
 
 */
-
 
     const pkContainer = document.getElementById("primaryKeyContainer");
 
@@ -169,11 +147,12 @@ Primary key
       if (data.primaryKey.comment) {
         titleDiv.title = data.primaryKey.comment;
 
-        // Ajout du texte et de l'icône 💬
-        titleDiv.innerHTML = `
-      ${data.primaryKey.name}
-      <span style="cursor: help;">💬</span>
-    `;
+        // Ajout du texte et de l'icône
+        titleDiv.replaceChildren();
+        titleDiv.append(document.createTextNode(data.primaryKey.name));
+        const icon = getIconHelp(document);
+        if (data.primaryKey?.comment) icon.title = data.primaryKey.comment;
+        titleDiv.append(icon);
       } else {
         titleDiv.textContent = data.primaryKey.name;
       }
@@ -192,7 +171,7 @@ Primary key
       pkContainer.innerHTML = "<p>No primary key defined.</p>";
     }
 
-/*
+    /*
 
 foreign keys 
 
@@ -233,28 +212,7 @@ foreign keys
         if (del)
           allUpDelInfo += `<br/><span>ON DELETE: <code>${del}</code></span>`;
 
-        // ← un CADRE par FK
-        const block = document.createElement("div");
-        block.className = "fk-block";
-        block.innerHTML = `
-      <div class="fk-title" title="${fk.comment || ""}">
-        ${fk.constraint_name}
-        ${fk.comment ? '<span style="cursor: help;"> 💬</span>' : ""}
-      </div>
-      <div>
-        <strong>${fk.source_table}</strong>
-        <small> (${fk.all_source_not_null ? "NOT NULL" : "NULLABLE"})</small>
-        →
-      <strong>${fk.target_table}</strong>
-        <small> (${fk.is_target_unique ? "UNIQUE/PK" : "NOT UNIQUE"})</small>
-   
-      ${allUpDelInfo}
-        ${fk.column_mappings
-          .map((col) => `<br/>${col.source_column} → ${col.target_column}`)
-          .join("")}
-      </div>
-        `;
-
+        const block = makeFkBlock(fk, allUpDelInfo);
         frag.appendChild(block);
       });
 
@@ -262,6 +220,68 @@ foreign keys
     } else {
       fkDiv.textContent = "No foreign keys found.";
     }
+
+    /*
+     bloc for FK 
+    */
+
+    function makeFkBlock(fk, allUpDelInfo) {
+      const block = document.createElement("div");
+      block.className = "fk-block";
+
+      // --- Titre ---
+      const title = document.createElement("div");
+      title.className = "fk-title";
+      title.append(document.createTextNode(fk.constraint_name));
+
+      if (fk.comment) title.append(getIconHelp(document, fk.comment));
+
+      // --- Corps ---
+      const body = document.createElement("div");
+
+      const strongSrc = document.createElement("strong");
+      strongSrc.textContent = fk.source_table;
+      body.append(strongSrc);
+
+      const smallSrc = document.createElement("small");
+      smallSrc.textContent = ` (${
+        fk.all_source_not_null ? "NOT NULL" : "NULLABLE"
+      })`;
+      body.append(smallSrc);
+
+      body.append(document.createTextNode(" → "));
+
+      const strongTgt = document.createElement("strong");
+      strongTgt.textContent = fk.target_table;
+      body.append(strongTgt);
+
+      const smallTgt = document.createElement("small");
+      smallTgt.textContent = ` (${
+        fk.is_target_unique ? "UNIQUE/PK" : "NOT UNIQUE"
+      })`;
+      body.append(smallTgt);
+
+      // Infos ON UPDATE/DELETE (si c’est déjà du HTML sûr)
+      if (allUpDelInfo) {
+        const updel = document.createElement("div");
+        updel.innerHTML = allUpDelInfo; // attention : uniquement si la string est de confiance
+        body.append(updel);
+      }
+
+      // Mappings colonnes
+      fk.column_mappings.forEach((col) => {
+        const line = document.createElement("div");
+        line.textContent = `${col.source_column} → ${col.target_column}`;
+        body.append(line);
+      });
+
+      block.append(title, body);
+      return block;
+    }
+
+    // ---- Utilisation ----
+    // const block = makeFkBlock(fk, allUpDelInfo);
+    // parent.append(block);
 
     /*
    🔍 Indexes 
@@ -327,13 +347,11 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
         if (idx.constraint_type == "UNIQUE") {
           indicator = "(uniq constraint)";
         }
-        if (idx.comment) {
-          titleDiv.title = idx.comment;
-          titleDiv.innerHTML = `${idx.name} <span style="cursor:help;">💬</span>`;
-        } else {
-          titleDiv.textContent = idx.name + indicator;
-        }
-
+        titleDiv.innerHTML = `${idx.name}${indicator ?? ""} ${
+          idx.comment
+            ? `<span class="comment-icon" style="cursor:help" title="${idx.comment}"></span>`
+            : ""
+        }`;
         block.appendChild(titleDiv);
         //
         block.insertAdjacentHTML(
@@ -359,13 +377,26 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
         const titleDiv = document.createElement("div");
         titleDiv.className = "index-title";
 
-        if (idx.comment) {
-          titleDiv.title = idx.comment;
-          titleDiv.innerHTML = `${idx.name} <span style="cursor:help;">💬</span>`;
-        } else {
-          titleDiv.textContent = `${idx.name} (${idx.constraint_type})`;
-        }
+        const esc = (s) =>
+          String(s ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
 
+        if (idx.comment) {
+          titleDiv.innerHTML = `
+    ${esc(idx.name)} (${esc(idx.constraint_type)})
+    <span class="comment-icon" style="cursor:help" title="${esc(
+      idx.comment
+    )}"></span>
+  `;
+        } else {
+          titleDiv.innerHTML = `
+    ${esc(idx.name)} (${esc(idx.constraint_type)})
+  `;
+        }
         block.appendChild(titleDiv);
         //
         block.insertAdjacentHTML(
@@ -390,10 +421,8 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
     showError("Error on loading. Details unavailable.Check your DB connection");
   }
 
-// après que le tableau soit rempli :
-   enableTableSorting("tableOfTableColumns");
-
-
+  // après que le tableau soit rempli :
+  enableTableSorting("tableOfTableColumns");
 });
 
 

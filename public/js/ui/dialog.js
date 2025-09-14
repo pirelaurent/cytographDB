@@ -384,8 +384,10 @@ export function menuSelectSizeIncoming() {
 
 export function deleteNodesSelected() {
   let nodesToKill = getCy().nodes(":selected:visible");
-  if (nodesToKill.length == 0) {
-  }
+
+
+
+  
 
   if (nodesToKill.length > 1) {
     // confirm title, messagge
@@ -425,6 +427,18 @@ export function hideWaitCursor() {
 }
 
 // use for manually written page 
+
 export function  alertInDoc(doc, message) {
   (doc?.defaultView || window).alert(message);
+}
+
+// comment-icon is in css . Create a span block ready to append. 
+
+export function getIconHelp(doc,title){
+  const icon = document.createElement("span");
+icon.className = "comment-icon";
+icon.style.cursor = "help";
+if (title) icon.title=title;
+return icon
+
 }

@@ -126,8 +126,8 @@ Total constraints : PK + Indexes + other constraints
   
 <img src ="./img/tableDetails.png" width = "800px" style="border: 1px solid grey;">
 
-💡 Download and copy symbols refer to markdown export of columns table.
-💬 Indicates a comment is available. 
+<img src ="./img/markdownSymbols.png" height="20px" > Download and copy allow markdown exports.
+<img src ="./img/iconHelp.png" height="20px" > Indicates a comment (from DB) is available. 
 
 #### table triggers 
 
@@ -190,29 +190,41 @@ Clic on ***Edges-label-show***  to see **all** matching column names:
 
 This kind of directed graph allows to walk through ***table dependencies***.  
 
-### Actions on a group of nodes 
+#### Actions perimeters 
 
  Actions apply to ***current perimeter*** :  **selected visibles** if any, **all visibles** if none.
 
-#### Menus follow & show... *outgoing / incoming / both* 
+### Menus follow & show... 
 
-Starting from nodes in *current perimeter*, this action select next nodes in the chosen direction.  
+From some selected points, allow to 
+- navigate in any directions
+- select neighbours 
+- bring them back from hidden to visible if necessary. 
 
-Below, graph starts with selection of one table, *production_line*, followed by two successive clic *follow outgoing*. 
-<img src ="./img/outgoingProduction_line.png" width = "400px" style="border: 1px solid grey;">
 
-The same start point *production-line* but with ***follow incoming***
+#### *outgoing / incoming / both* 
 
-<img src ="./img/incomingProduction-line.png" width = "400px" style="border: 1px solid grey;">
+Starting from *current nodes perimeter*, select next ones in the chosen direction.  
 
-One can see dependencies are stopped by dry associations ( *line_product, authorization* ), the following option help to cross the barrier only for association :
+Below, with selected table, *production_line*:
+a first *follow outgoing* has selected factory    
+a second *follow outgoing* has selected company
+
+<img src ="./img/outgoingProduction_line.png" width = "500px" style="border: 1px solid grey;">
+
+With same starting point: *production-line* but with ***follow incoming***   
+
+<img src ="./img/incomingProduction-line.png" width = "500px" style="border: 1px solid grey;"> 
+
+involved dry associations cannot be crossed by *incoming*. 
+If we use *outgoing* to take the other sides, it will bring also *factory* which is not wanted 
 
 #### follow & show... association
 
-This continue the walk on the other side of a (dry) association ( now *product* and *employee* are selected): 
+This continue the walk on the other side of (dry) associations: 
 <img src ="./img/associationProduction-line.png" width = "500px" style="border: 1px solid grey;">
 
-#### Individual actions on a chosen node 
+#### Individual follow actions on a chosen node 
 The colored direction arrows allow to walk from the current node by : 
 green left : select outgoing 
 yellow center : select both 
@@ -220,35 +232,29 @@ red right : select incoming
 
 <img src = "./img/contextualNodeMenu.png" width ="160px" style="border: 1px solid grey;">
 
-
-
 ---
 
-### follow & show... long path
+### follow & show... long path dependencies
 
-Starting from selected node(s), this walk follow outgoing edges from table to table and keep track of all the possible long paths, avoiding loops.   
- 
-💡 start with few nodes, mainly from ***leaf node***.
+ This walk follow outgoing edges from table to table to find all the outgoing long paths, avoiding loops.   
+ 💡 start with few nodes, mainly from ***leaf node***.
 
 Below , *follow long path* was started from the leaf node *skills*  
 
 <img src ="./img/longPathGrahList.png" width = "300px" style="border: 1px solid grey;">.  
-
     
 <img src ="./img/longPathGraph.png" width = "300px" style="border: 1px solid grey;">
-
-
-If the long path search starts from all nodes, we got all practicable paths.  
-To facilitate reading, common path parts are greyed:
+ 
+To facilitate reading, common path parts are greyed. Below we started with all nodes. 
 
 <img src ="./img/longPathGrahList3.png" width = "400px" style="border: 1px solid grey;">. 
 
-### follow & show... pk <- fk chains
+## follow & show... pk <- fk chains
 
-This walk must start from a ***root***.   
-If search backward tables where a FK uses exactly all the columns of the PK' source and continue with new tables. 
+This walk followw inconmint. It must start from a ***root***.   
+If search backward where FK uses exactly all the columns of the PK's source and propagate the same search. 
 
-In democytodb, starting from the root *company* we obtain : 
+In democytodb, starting from the root *company* : 
 
 <img src ="./img/longPathNto1.png" width = "500px" style="border: 1px solid grey;">.  
 And the associated list :   
@@ -266,3 +272,4 @@ See other menus for more options.
 - 🟨 [Main Menu Bar](./menuBar.md)  
 - 🟦 [Node Menu](./menuNodesSelectHide.md)  
 - 🟥 [Edge Menu](./menuEdgesSelectHide.md)   
+

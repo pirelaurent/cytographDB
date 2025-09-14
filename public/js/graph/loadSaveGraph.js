@@ -16,8 +16,6 @@ import {
 import {
   enterFkSynthesisMode,
   saveDetailedEdges,
-  getCurrentFKMode,
-  setCurrentFKMode,
   enterFkDetailedMode,
 } from "./detailedEdges.js";
 
@@ -286,19 +284,17 @@ export function saveGraphToFile() {
     });
 
   /*
-   temporarily switch to detail mode to save graph
+   temporarily switch to detail mode to save graph with full info
   */
 //save current aspect as we save in details PLA
 pushSnapshot();
-let wasFkMode = getCurrentFKMode();
-  if (wasFkMode === "synthesis") {
+
     enterFkDetailedMode(true);
-  }
+
   // then save graph
   const json = {
     ...getCy().json(),
     originalDBName: getLocalDBName(),
-    currentFkMode: getCurrentFKMode(),
   };
   // if detailed for change but not on screen, restore
   if (wasFkMode === "synthesis") {
@@ -321,7 +317,7 @@ let wasFkMode = getCurrentFKMode();
   //filenameInput.value = "";
 
   popSnapshot();
-  setCurrentFKMode(wasFkMode);
+
 }
 
 /*
@@ -374,7 +370,6 @@ export function loadGraphFromFile(event) {
       showAlert(`no DB connected. ${message}`);
     }
 
-    setCurrentFKMode(json.currentFkMode);
 
     // affiche, utilise, etc.
     const cyData = { ...json };

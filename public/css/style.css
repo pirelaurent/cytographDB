@@ -449,6 +449,7 @@ button:hover {
 .path { color: #000; }
 .path .prefix { color: #888; }  /* gris pour le début identique */
 .path .rest { color: #000; }    /* noir pour la suite différente */
+.path {font-size: 1em;}
 
 /* Force le curseur sur toute la page quand html a la classe 'busy' */
 html.busy, html.busy * { cursor: wait !important; }
@@ -537,5 +538,15 @@ th .sort-indicator {
 
 
 .section-title {
-  margin: 0; /* évite le saut vertical excessif */
+  margin: 0; /* avoid vertical jump*/
+}
+
+.comment-icon {
+  display:inline-block;
+  width:1em; height:1em;
+  background: url("../img/infoHelp.png") no-repeat center/contain;
+  vertical-align: text-bottom;
+  margin-left: 0.33em; /* space  */
+ first-child { margin-left: 0; };
+
 }

@@ -421,7 +421,7 @@ getCy().on("cxttap", "node", function (evt) {
   });
 
   document.getElementById("toggleEdgeLabel").addEventListener("click", () => {
-    if (edgeForInfo.hasClass('trigger_impact') || edgeForInfo.hasClass('fk_synth')) {
+    if (edgeForInfo.hasClass('trigger_impact') || edgeForInfo.hasClass('fk_synth')|| edgeForInfo.hasClass('simplified')) {
       edgeForInfo.toggleClass('showLabel');
     }
     else if (edgeForInfo.hasClass('fk_detailed')) {

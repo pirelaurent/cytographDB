@@ -1,7 +1,7 @@
 "use strict";
 // cannot share data with main, so dbName is in the params
 
-import { showError, getIconHelp } from "../ui/dialog.js";
+import { showError, getCommentIcon } from "../ui/dialog.js";
 import { htmlTableToMarkdown } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
 
@@ -43,7 +43,7 @@ getTableData(tableName).then((result) => {
   if (result.success) {
     const data = result.data;
     if (data.comment){
-    const icon = getIconHelp(document, data.comment);
+    const icon = getCommentIcon(document, data.comment);
     whereTitle.appendChild(icon);
     }
     /*
@@ -70,7 +70,7 @@ getTableData(tableName).then((result) => {
         columnCell.textContent = col.column;
       if (hasComment) {
         // Icône
-        const icon = getIconHelp(document,col.comment);
+        const icon = getCommentIcon(document,col.comment);
         columnCell.appendChild(icon)
       } 
 
@@ -150,7 +150,7 @@ Primary key
         // Ajout du texte et de l'icône
         titleDiv.replaceChildren();
         titleDiv.append(document.createTextNode(data.primaryKey.name));
-        const icon = getIconHelp(document);
+        const icon = getCommentIcon(document);
         if (data.primaryKey?.comment) icon.title = data.primaryKey.comment;
         titleDiv.append(icon);
       } else {
@@ -234,7 +234,7 @@ foreign keys
       title.className = "fk-title";
       title.append(document.createTextNode(fk.constraint_name));
 
-      if (fk.comment) title.append(getIconHelp(document, fk.comment));
+      if (fk.comment) title.append(getCommentIcon(document, fk.comment));
 
       // --- Corps ---
       const body = document.createElement("div");

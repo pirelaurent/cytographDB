@@ -51,6 +51,8 @@ export function main() {
     boxSelectionEnabled: true, // ✅ OBLIGATOIRE pour pouvoir draguer
     autounselectify: false, // ✅ Permet sélection multiple
     wheelSensitivity: 0.5, // Valeur par défaut = 1
+      minZoom: 0.2,
+  maxZoom: 1.4,  // avoid fit to go beyonsd
   })
 );
 

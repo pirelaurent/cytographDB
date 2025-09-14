@@ -117,7 +117,7 @@ const cyStyles = [
     style: {
       label: "data(label)",
       "line-style": "dotted",
-      "line-color": "#aaa",
+      //"line-color": "#aaa",
       "text-rotation": "none", // keep horizontal
       "text-margin-y": -10, // move vertically
       width: 2,
@@ -134,12 +134,12 @@ const cyStyles = [
     style: {
       label: "data(columnsLabel)",
       "line-style": "dotted",
-      "line-color": "#aaa",
+      //"line-color": "#aaa",
       "text-rotation": "none", // keep horizontal
       "text-margin-y": -10, // move vertically
       width: 2,
 
-      "target-arrow-shape": "triangle", // ✅ requis
+      "target-arrow-shape": "triangle", // ✅ required
       "target-arrow-color": "#aaa",
       "source-arrow-color": "#aaa",
       //'target-arrow-width': 6, // doesn't work

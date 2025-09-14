@@ -42,7 +42,9 @@
           <div class="loadDB">
             <ul class="menu">
               <li action="loadFromDb"><span class="label">create graph from db</span></li>
-              <li action="connectToDb"><span class="label">connect to db only</span></li>
+              <li action="connectToDb"><span class="label">connect to db only</span>
+              <span class = "comment-icon"  title ="help to connect a DB to use with an uploaded json graph"></span>
+              </li>
             </ul>
             <div class="db-box-container"></div>
           </div>
@@ -55,7 +57,10 @@
           <span class="menu-trigger">Files</span>
           <ul class="menu">
             <li action="localDownload">Download</li>
-            <li action="localUpload">Upload</li>
+            <li action="localUpload">Upload
+<span class = "comment-icon"  title ="Better to be connected to right DB before uploading a saved json graph"></span>
+
+            </li>
 
 
             <!--  uncomment to use a shared storage on the server 
@@ -92,8 +97,8 @@
             <li data-category="fit" data-skip-action>
               fit screen ...
               <ul class="submenu">
-                <li aspectAction="fitScreen">all</li>
-                <li aspectAction="fitSelected">selected</li>
+                <li aspectAction="fitScreen">see all elements</li>
+                <li aspectAction="fitSelected">see all selected </li>
               </ul>
             </li>
 
@@ -113,36 +118,37 @@
               <ul class="submenu">
                 <li data-category="aspect">resize ...
                   <ul class="submenu">
-                    <li>Horizontal
+                    <li>horizontally
                       <ul class="submenu">
                         <li aspectAction="H+">wider</li>
                         <li aspectAction="H-">narrower</li>
                       </ul>
                     </li>
-                    <li>Vertical
-                      <ul class="submenu">
-                        <li aspectAction="V+">taller</li>
-                        <li aspectAction="V-">shorter</li>
-                      </ul>
-                    </li>
-                    <li>Both
+                    <li>globally
                       <ul class="submenu">
                         <li aspectAction="B+">bigger</li>
                         <li aspectAction="B-">smaller</li>
                       </ul>
                     </li>
+                    <li>vertically
+                      <ul class="submenu">
+                        <li aspectAction="V+">taller</li>
+                        <li aspectAction="V-">shorter</li>
+                      </ul>
+                    </li>
+                    
                   </ul>
                 </li>
                 <li data-category="align">align ...
                   <ul class="submenu">
-                    <li aspectAction="alignH">Horizontally</li>
-                    <li aspectAction="alignV">Vertically</li>
+                    <li aspectAction="alignH">horizontally</li>
+                    <li aspectAction="alignV">vertically</li>
                   </ul>
                 </li>
                 <li data-category="distribute">distribute ...
                   <ul class="submenu">
-                    <li aspectAction="distH">Horizontally</li>
-                    <li aspectAction="distV">Vertically</li>
+                    <li aspectAction="distH">horizontally</li>
+                    <li aspectAction="distV">vertically</li>
                   </ul>
                 </li>
                 <li data-category="rotate">rotate ...
@@ -171,8 +177,11 @@
           <ul class="menu">
             <li data-category="selectNodes">select ...
               <ul class="submenu">
-                <li action="all" title="Select all visible (ctrl a)">all</li>
+
                 <li action="none" title="Clear the current selection">none</li>
+                <li action="all" title="Select all visible (ctrl a)">all</li>
+
+                <li class="separator"></li>
                 <li action="invert" title="Invert the current selection">swap selected</li>
 
               </ul>
@@ -180,10 +189,12 @@
 
             <li data-category="hideNode">hide ...
               <ul class="submenu">
-                <li action="hideNone" title="Show the entire graph">none</li>
+
                 <li action="hideNotSelected" title="(ctrl h)">not selected</li>
                 <li action="hideSelected" title="Hide the selected nodes">selected</li>
-                <li action="swapHidden" title="Toggle visibility for selected and hidden elements">swap</li>
+                <li action="hideNone" title="Show the entire graph">none</li>
+                <li class="separator"></li>
+                <li action="swapHidden" title="Toggle visibility for selected and hidden elements">swap hidden</li>
               </ul>
 
             </li>
@@ -192,9 +203,10 @@
             <li data-category="selection">
               <span class="label" title="Select nodes connected by the selected edges">from selected edges... </span>
               <ul class="submenu">
+
+                <li action="selectSourceNodes">select source nodes</li>
                 <li action="selectNodesFromSelectedEdges">both sides</li>
-                <li action="selectSourceNodes">source nodes</li>
-                <li action="selectDestNodes">destination nodes</li>
+                <li action="selectDestNodes">select target nodes</li>
               </ul>
             </li>
 
@@ -219,9 +231,10 @@
 
             <li data-category="followEdges" title="Filter nodes by edge count (degree)">with edges ...
               <ul class="submenu">
-                <li action="noEdge" title="Select nodes without any edges">no edge</li>
+                <li action="noEdge" title="Select nodes without any edges">none</li>
                 <li data-category="looping" action="looping" title="Nodes with self-loops (self-reference)">looping
-                  edges</li>
+                </li>
+                           <li class="separator"></li>
                 <li data-category="outgoing" title="Filter nodes by number of outgoing edges">outgoing count...
                   <ul class="submenu">
                     <li data-skip-action>
@@ -262,12 +275,6 @@
             </li>
 
 
-
-
-
-
-
-
             <li class="separator"></li>
 
             <li data-category="size">label ...
@@ -303,12 +310,12 @@
                 <li action="followOutgoing" title="Follow outgoing edges and show target nodes">
                   outgoing</li>
 
+                <li action="followBoth" title="Follow all connected edges and show nodes">both
+                </li>
                 <li action="followIncoming" title="Follow incoming edges and show source nodes">
                   Incoming
                 </li>
 
-                <li action="followBoth" title="Follow all connected edges and show nodes">both
-                </li>
                 <li class="separator"></li>
                 <li action="followCrossAssociations" title="Select nodes linked through associations">association
                 </li>
@@ -317,6 +324,7 @@
                   title="Find nodes reachable by long forward paths (more than 2 hops)">
                   long paths
                 </li>
+                      <li class="separator"></li>
                 <li action="findPkFkChains" title="Find chain of relations from a root">
                   pk &lt;- fk chains
                 </li>
@@ -342,8 +350,9 @@
 
             <li data-category="selection">select ...
               <ul class="submenu">
-                <li action="allEdges">all</li>
                 <li action="noEdges">none</li>
+                <li action="allEdges">all</li>
+                <li class="separator"></li>
                 <li action="swapEdges">swap selected</li>
 
               </ul>
@@ -354,19 +363,21 @@
             <li data-category="hideEdge">
               <span class="label">hide ...</span>
               <ul class="submenu">
-                <li action="NoneEdgeSelected">none</li>
                 <li action="hideEdgeNotSelected">not selected</li>
                 <li action="hideEdgeSelected">selected</li>
-                <li action="swapEdgeHidden">swap</li>
+                <li action="NoneEdgeSelected">none</li>
+                <li class="separator"></li>
+                <li action="swapEdgeHidden">swap hidden</li>
               </ul>
             </li>
             <li data-category="selection">
               <span class="label" title="Select edges related to selected nodes">from selected nodes... </span>
               <ul class="submenu">
-                <li action="bothEdges">all directions</li>
-                <li action="outgoingEdges">as source</li>
-                <li action="incomingEdges">as destination</li>
 
+                <li action="outgoingEdges">outgoing edges</li>
+                <li action="bothEdges">both directions</li>
+                <li action="incomingEdges">incoming edges</li>
+                <li class="separator"></li>
                 <li action="betweenNodes">
                   <span class="label" title="Select edges between selected nodes">between two selected nodes</span>
                 </li>
@@ -400,8 +411,8 @@
             <!-- li id="toggle-fk-mode" action="toggleFkMode">toggle details 1 : n</li -->
             <li data-category="edgeDetails">edge details ...
               <ul class="submenu">
-                <li action="enterFkSynthesisMode"> 1 edge per FK</li>
-                <li action="enterFkDetailedMode"> 1 edge per column</li>
+                <li action="enterFkSynthesisMode"> 1 per FK</li>
+                <li action="enterFkDetailedMode"> 1 per column</li>
               </ul>
             </li>
 
@@ -505,7 +516,7 @@
     </ul>
 
     <ul id="clicEdgeMenu" class="hidden">
-      <li id="toggleEdgeDetails"><img src="./img/toggle.png"> FK/Col</li>
+      <li id="toggleEdgeDetails"><img src="./img/toggle.png">1/FK - 1/Col</li>
       <li id="toggleEdgeLabel"><img src="./img/toggle.png"> label</li>
     </ul>
 

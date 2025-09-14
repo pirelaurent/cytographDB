@@ -23,16 +23,17 @@ import { showAlert, showError, showMultiChoiceDialog } from "../ui/dialog.js";
 
 import { getLocalDBName, setLocalDBName } from "../dbFront/tables.js";
 
-import { popSnapshot, pushSnapshot, resetPositionStackUndo } from "./snapshots.js";
+import {
+  popSnapshot,
+  pushSnapshot,
+  resetPositionStackUndo,
+} from "./snapshots.js";
 
 import {
   createNativeNodesCategories,
   getCustomNodesCategories,
   restoreCustomNodesCategories,
 } from "../filters/categories.js";
-
-
-
 
 //---------------------
 export function loadInitialGraph() {
@@ -66,9 +67,8 @@ export function loadInitialGraph() {
       // store details at load time /now generated with details
       saveDetailedEdges();
       enterFkSynthesisMode(true);
-// moved after reduction to 1 edge per fk 
-createNativeNodesCategories();
-
+      // moved after reduction to 1 edge per fk
+      createNativeNodesCategories();
 
       hideWaitLoading();
       proportionalSizeNodeSizeByLinks();
@@ -130,10 +130,12 @@ function loadGraphNamed(filename) {
             }
           });
       } else {
-        setCy  (cytoscape({
-          container: document.getElementById("cy"),
-          ...graphState,
-        }));
+        setCy(
+          cytoscape({
+            container: document.getElementById("cy"),
+            ...graphState,
+          })
+        );
         initializeGraph(null, true);
       }
       //document.getElementById("current-graph").textContent = filename;
@@ -260,6 +262,8 @@ function sendGraphState(filename) {
 */
 
 export function saveGraphToFile() {
+
+
   let filenameInput = document.getElementById("graphName");
   let filename = filenameInput.value.trim();
 
@@ -286,24 +290,25 @@ export function saveGraphToFile() {
   /*
    temporarily switch to detail mode to save graph with full info
   */
-//save current aspect as we save in details PLA
-pushSnapshot();
+  //save current aspect as we save in details PLA
+  pushSnapshot();
 
-    enterFkDetailedMode(true);
-
+  enterFkDetailedMode(true);
   // then save graph
   const json = {
     ...getCy().json(),
     originalDBName: getLocalDBName(),
   };
-  // if detailed for change but not on screen, restore
-  if (wasFkMode === "synthesis") {
-    enterFkSynthesisMode(true);
-  }
+  // // if detailed for change but not on screen, restore
+  // if (wasFkMode === "synthesis") {
+  //   enterFkSynthesisMode(true);
+  // }
 
   const blob = new Blob([JSON.stringify(json, null, 2)], {
     type: "application/json",
   });
+
+
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -311,13 +316,15 @@ pushSnapshot();
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+
+setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  //URL.revokeObjectURL(url);
   // revision : keep graph name in box
   //document.getElementById("current-graph").textContent = filename;
   //filenameInput.value = "";
 
   popSnapshot();
-
 }
 
 /*
@@ -370,7 +377,6 @@ export function loadGraphFromFile(event) {
       showAlert(`no DB connected. ${message}`);
     }
 
-
     // affiche, utilise, etc.
     const cyData = { ...json };
     delete cyData.originalDBName;
@@ -381,7 +387,6 @@ export function loadGraphFromFile(event) {
 
     // show in synthetic after saving details
     saveDetailedEdges();
-
 
     enterFkSynthesisMode(true);
     metrologie();

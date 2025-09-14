@@ -434,11 +434,10 @@ export function  alertInDoc(doc, message) {
 
 // comment-icon is in css . Create a span block ready to append. 
 
-export function getIconHelp(doc,title){
+export function getCommentIcon(doc,title){
   const icon = document.createElement("span");
 icon.className = "comment-icon";
 icon.style.cursor = "help";
 if (title) icon.title=title;
 return icon
-
 }

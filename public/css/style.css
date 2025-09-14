@@ -543,8 +543,8 @@ th .sort-indicator {
 
 .comment-icon {
   display:inline-block;
-  width:1em; height:1em;
-  background: url("../img/infoHelp.png") no-repeat center/contain;
+  width:1.1em; height:1.1em;
+  background: url("../img/commentIcon.png") no-repeat center/contain;
   vertical-align: text-bottom;
   margin-left: 0.33em; /* space  */
  first-child { margin-left: 0; };

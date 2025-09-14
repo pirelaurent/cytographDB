@@ -438,7 +438,7 @@ export function simplifyAssociations() {
       a.show();
       b.show();
 
-      let newId = `generated-${a.id()} <-( ${node.id()} )->${b.id()}`;
+      let newId = `${a.id()} <-( ${node.id()} )->${b.id()}`;
 
       // Add the generated edge
 

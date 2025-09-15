@@ -315,9 +315,9 @@ const cyStyles = [
     style: {
       shape: "round-triangle",
       color: "#000000",
-      "border-width": "4px",
-      "border-color": "aqua", 
-      "background-color": "DarkTurquoise",
+
+      //"border-color": "DarkTurquoise", 
+      "background-color": "aqua",
     },
   },
   {

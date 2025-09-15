@@ -362,7 +362,7 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
         indexContainer.appendChild(block);
       });
     } else {
-      indexContainer.textContent = "No indexes found (out of PK).";
+      indexContainer.textContent = "No indexes found (out of PK or constraints).";
     }
 
     if (uniqueOrExclude.length) {

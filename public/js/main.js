@@ -41,7 +41,7 @@ export let nativeNodesCategories = [
 
 
 export function main() {
-  console.log("start of application. Create cy");
+  console.log("start of application cytographDB");
   // autre layout
   cytoscape.use(cytoscapeDagre);
   

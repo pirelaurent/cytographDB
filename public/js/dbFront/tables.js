@@ -194,4 +194,5 @@ export async function generateTriggers(nodes) {
 
     getCy().style().update(); // forcer le style
   }
+  return true;
 }

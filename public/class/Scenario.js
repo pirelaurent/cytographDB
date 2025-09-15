@@ -1,6 +1,6 @@
 /*
  Scenario chains scripts,scripts chains steps, step = js code in a generator function
-
+ UNUSED in current version  
 */
 
 export class Scenario {

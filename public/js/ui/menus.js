@@ -659,6 +659,12 @@ export function menuEdges(option) {
 
   // select edges
   switch (option) {
+
+case "refreshEdges":
+  { alert('pouet');
+    metrologie();
+  } break;
+
     case "allEdges":
       pushSnapshot();
       getCy().edges().select();
@@ -852,11 +858,11 @@ export function menuEdges(option) {
 
     case "generateTriggers":
       pushSnapshot();
-      generateTriggers(getCy().nodes()); //perimeterForNodesAction());
+      generateTriggers(getCy().nodes())
+      .then (()=>metrologie()); 
       break;
 
     case "removeTriggers":
-      console.log('pouet')
       pushSnapshot();
       getCy().edges(".trigger_impact").remove();
 

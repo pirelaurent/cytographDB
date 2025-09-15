@@ -76,6 +76,7 @@ export function loadInitialGraph() {
 
       getCy().fit();
       // traiter les données pour le graph, par ex : getCy().add(data)
+      metrologie();
     })
     .catch((err) => {
       showAlert(`load-from-db:${dbName} :` + err);
@@ -137,6 +138,7 @@ function loadGraphNamed(filename) {
           })
         );
         initializeGraph(null, true);
+        metrologie();
       }
       //document.getElementById("current-graph").textContent = filename;
       document.getElementById("graphName").value = filename;
@@ -290,7 +292,7 @@ export function saveGraphToFile() {
   /*
    temporarily switch to detail mode to save graph with full info
   */
-  //save current aspect as we save in details PLA
+  //save current aspect as we save in details
   pushSnapshot();
 
   enterFkDetailedMode(true);

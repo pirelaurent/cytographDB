@@ -5,7 +5,6 @@ import { showAlert } from "../ui/dialog.js";
 import { modeSelect, AND_SELECTED } from "../ui/dialog.js";
 import { getLocalDBName } from "../dbFront/tables.js";
 import {
-
   createCustomCategories,
   getCustomStyles,
 } from "../filters/categories.js";
@@ -23,29 +22,25 @@ let detachBlockers = null;
 export function setCy(instance) {
   cy = instance;
 
-// not enough for windows event interceptor
-//const container = cy.container();
+  // not enough for windows event interceptor
+  //const container = cy.container();
 
   if (detachBlockers) {
     detachBlockers();
     detachBlockers = null;
   }
 
+  document.addEventListener("contextmenu", (e) => {
+    //  console.log("contextmenu global bloqué");
+    e.preventDefault();
+  });
 
-document.addEventListener("contextmenu", e => {
-//  console.log("contextmenu global bloqué");
-  e.preventDefault();
-});
-
-// instance but not execute until a new call to setCy
-detachBlockers = () => {
+  // instance but not execute until a new call to setCy
+  detachBlockers = () => {
     document.removeEventListener("contextmenu", onContextMenu, true);
     document.removeEventListener("mousedown", onMouseDownRight, true);
   };
-
 }
-
-
 
 export function getCy() {
   return cy;
@@ -62,7 +57,7 @@ export function initializeGraph(data, fromDisk = false) {
 
   let current_db = getLocalDBName();
 
-  // customize nodes**to be moved after reduction 
+  // customize nodes**to be moved after reduction
   //createNativeNodesCategories();
 
   createCustomCategories(current_db);
@@ -79,6 +74,7 @@ export function initializeGraph(data, fromDisk = false) {
   if (!fromDisk) {
     setAndRunLayoutOptions();
   }
+
   metrologie();
 }
 /*
@@ -96,7 +92,7 @@ export function hideSelected() {
   let nodesToHide = getCy().nodes(":selected");
   nodesToHide.hide();
   nodesToHide.unselect();
-      cy.fit(cy.nodes(':visible'), 30); // padding 30px
+  cy.fit(cy.nodes(":visible"), 30); // padding 30px
   metrologie();
 }
 
@@ -108,7 +104,7 @@ export function hideNotSelected() {
       return !node.selected();
     })
     .hide();
-    cy.fit(cy.nodes(':visible'), 30); // padding 30px
+  cy.fit(cy.nodes(":visible"), 30); // padding 30px
   metrologie();
 }
 
@@ -140,8 +136,8 @@ export function swapHidden() {
   const cy = getCy();
 
   // 1) calcul de l’état final des nœuds
-  const nodesToShow = cy.nodes(':hidden');
-  const nodesToHide = cy.nodes(':visible');
+  const nodesToShow = cy.nodes(":hidden");
+  const nodesToHide = cy.nodes(":visible");
 
   // 2) swap des nœuds (en batch pour éviter les recomputes)
   cy.startBatch();
@@ -151,7 +147,9 @@ export function swapHidden() {
 
   // 3) après le batch, l’état visible() est fiable -> on recalcule les arêtes à montrer
   const edges = cy.edges();
-  const edgesToShow = edges.filter(e => e.source().visible() && e.target().visible());
+  const edgesToShow = edges.filter(
+    (e) => e.source().visible() && e.target().visible()
+  );
 
   // D’abord, tout masquer proprement…
   edges.hide();
@@ -173,20 +171,19 @@ export function selectNodesFromSelectedEdges() {
   pushSnapshot();
   const cy = getCy();
 
-  const selectedEdges = cy.edges(':selected:visible');
-  const connectedNodes = selectedEdges.connectedNodes(':visible');
+  const selectedEdges = cy.edges(":selected:visible");
+  const connectedNodes = selectedEdges.connectedNodes(":visible");
 
   connectedNodes.select();
 
   // Restaure l’état initial des arêtes sélectionnées :
-  cy.edges(':selected').unselect();
+  cy.edges(":selected").unselect();
   selectedEdges.select();
 
   metrologie();
 }
 
-
-export function selectSourceNodesFromSelectedEdges() {  
+export function selectSourceNodesFromSelectedEdges() {
   pushSnapshot();
   const cy = getCy();
   const srcNodes = cy
@@ -375,13 +372,6 @@ export function perimeterForEdgesAction() {
   return edges;
 }
 
-
-
-
-
-
-
-
 export function perimeterForEdgesSelection() {
   // if restrict take visible otherwise take whole graph
 
@@ -413,8 +403,8 @@ export function metrologie() {
   const selectedCountNodesHidden = cy.nodes(":selected:hidden").length;
   const labelNodes = document.querySelector("#NodesId");
 
-
   const wholeEdgesVisible = cy.edges(":visible").length;
+
   const selectedCountEdgesVisible = cy.edges(":selected:visible").length;
   const wholeEdgesHidden = cy.edges(":hidden").length;
   const selectedCountEdgesHidden = cy.edges(":selected:hidden").length;
@@ -455,7 +445,7 @@ export function metrologie() {
   } else {
     display += `${small}${selectedCountEdgesVisible}/</span> ${big}${wholeEdgesVisible}</span>`;
   }
-// hidden
+  // hidden
   dispHidden = `&nbsp;&nbsp; ${small}(${selectedCountEdgesHidden}/</span>${small}${wholeEdgesHidden})</span>`;
   if (!restrictToVisible()) {
     if (selectedCountEdgesHidden > 0) {

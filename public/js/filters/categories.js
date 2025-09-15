@@ -50,7 +50,7 @@ function getCustomModule(dbName) {
 
 export let standardCategories = new Set(['orphan', 'root', 'leaf', 'association', 'multiAssociation', 'hasTriggers']);
 //export let internalCategories = new Set(['fk_detailed', 'fk_synth', 'showLabel','showColumns'])
-export let internalCategories = new Set(); //PLA
+export let internalCategories = new Set(); 
 
 /*
  custom classes are stored with graph, but customNodesCatories has to be restored

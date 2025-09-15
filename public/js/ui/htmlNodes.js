@@ -219,7 +219,10 @@ export function listNodesToHtml() {
     tbody.appendChild(tr);
   }
     // set markdown
-    setEventMarkdown(doc,tableName);
+    const db = getLocalDBName();
+    let title = db? "nodes list extract from "+db:"nodes list extract"
+    
+    setEventMarkdown(doc,tableName,title);
 
 
   // ---- sort by a clic ----
@@ -412,7 +415,7 @@ actions.appendChild(imgMd);
   return header;
 }
 
-export function setEventMarkdown(doc,tableName){
+export function setEventMarkdown(doc,tableName,title){
 
   doc.getElementById("mdCopy")?.addEventListener("click", async () => {
      htmlTableToMarkdown(
@@ -421,7 +424,7 @@ export function setEventMarkdown(doc,tableName){
           download: false,
           copyToClipboard: true,
         },
-        tableName,
+        title,
         doc
       );
     });
@@ -434,7 +437,7 @@ export function setEventMarkdown(doc,tableName){
           copyToClipboard: false,
           filename: `columns_${tableName || "table"}.md`,
         },
-        tableName,
+        title,
         doc
       );
     });

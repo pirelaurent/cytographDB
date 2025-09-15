@@ -52,7 +52,7 @@ export function main() {
     autounselectify: false, // ✅ Permet sélection multiple
     wheelSensitivity: 0.5, // Valeur par défaut = 1
       minZoom: 0.2,
-  maxZoom: 1.4,  // avoid fit to go beyonsd
+      maxZoom: 1.2,  // avoid fit to go beyonsd
   })
 );
 

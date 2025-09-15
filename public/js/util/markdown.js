@@ -9,7 +9,7 @@ import { showError , showInfo} from "../ui/dialog.js";
 */
 
 // utils/tableExport.js
-export function htmlTableToMarkdown(tableId, opts = {}, title = 'no_title', root = document) {
+export function htmlTableToMarkdown(tableId, opts = {}, title, root = document) {
   const tableWin = root.defaultView || window;
 
   const el = root.getElementById(tableId);
@@ -48,7 +48,7 @@ export function htmlTableToMarkdown(tableId, opts = {}, title = 'no_title', root
     const cells = Array.from(tr.cells).map(c => escapeCell(c.innerText));
     return `| ${cells.join(" | ")} |`;
   });
-  const titleMd = `\n## ${title}\n\n`;
+  const titleMd = title?`\n## ${title}\n\n`:"";
   const markdownTable = titleMd+ [headerLine, separatorLine, ...bodyLines].join("\n");
 
   // output .md : file or clipboard

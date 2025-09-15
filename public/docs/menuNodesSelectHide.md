@@ -26,17 +26,18 @@ Selections can be made by:
 
 <img src ="./img/nodeSelect.png" width =150px >
 
+- **None**: clear any selection  (also any click on graph background)
 - **All**: select all visible nodes (also available with `Ctrl + A`)  
-- **None**: clear any selection  
 - **Swap selected**: invert the current selection (selected become unselected, and vice versa)  
 
 ### Hide ...
 
 <img src ="./img/nodeHide.png" width =150px >  
 
-- **None**: show all nodes  
-- **Not selected**: hide everything except selected nodes  
+
+- **Not selected**: hide everything except selected nodes  (most used option)
 - **Selected**: hide selected nodes  
+- **None**: show all nodes  
 - **Swap**: swap visible and hidden nodes  
 
 ### From Selected Edges ...
@@ -45,9 +46,10 @@ Selections can be made by:
 
 This menu works only with previously selected edges.  
 
-- **Both sides**: select all nodes connected in any manner to a selected edge  
-- **Source nodes**: select nodes that are the origin of a selected edge (FK owner)  
-- **Destination nodes**: select nodes that are the destination of a selected edge  
+- **select source nodes**: select nodes that are the origin of a selected directed edge (FK owner)  
+- **both sides**: select all nodes connected in any manner to a selected edge  
+
+- **select target nodes**: select nodes that are the destination of a selected directed edge  
 
 💡 **Tip:** Example use case — filter edges by native category such as `"triggers generated"`.  
 Then apply **From Selected Edges → Both Sides** to highlight a subgraph of source and impacted tables by triggers.  
@@ -178,7 +180,7 @@ Don’t assume your action failed — check your tab list first.
 
 These actions follow paths from current nodes visible perimeter and can bring hidden nodes back into view if they are linked.  
 
-- **Outgoing**, **Incoming**, **Both**:  
+- **outgoing**,  **both**, **incoming**:  
   Start from selected nodes and follow edges in the chosen direction(s). Linked nodes are selected.  
   The operation can be repeated to show successive dependencies.  
 
@@ -193,7 +195,7 @@ These actions follow paths from current nodes visible perimeter and can bring hi
   Follows successive incoming edges from a root node **and** checks that the referencing table’s foreign key **fully covers** all columns of the referenced table’s primary key.  
   The walk continues as long as this pattern is correct.  
 
-See more details at [Quick Tour → *Walk the model*](quickTour.md#walk-the-model).  
+ [more details : *Quick Tour* → *Walk the model*](quickTour.md#walk-the-model).  
 
 ---
 
@@ -202,7 +204,7 @@ See more details at [Quick Tour → *Walk the model*](quickTour.md#walk-the-mode
 Permanently removes *selected nodes* from the graph.   
 
 - If only one node is selected, deletion is immediate  
-  - This allows quick visual cleaning of a graph using **Backspace**  
+  - This allows quick visual cleaning of a graph using keyboard **Backspace**  or **delete**
 - If several nodes are selected, a confirmation is shown:      
 
 <img src = "./img/deleteNodes.png" width = 230px style="border: 2px solid grey;">   

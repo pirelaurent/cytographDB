@@ -43,7 +43,7 @@
             <ul class="menu">
               <li action="loadFromDb"><span class="label">create graph from db</span></li>
               <li action="connectToDb"><span class="label">connect to db only</span>
-              <span class = "comment-icon"  title ="help to connect a DB to use with an uploaded json graph"></span>
+                <span class="comment-icon" title="help to connect a DB to use with an uploaded json graph"></span>
               </li>
             </ul>
             <div class="db-box-container"></div>
@@ -58,7 +58,8 @@
           <ul class="menu">
             <li action="localDownload">Download</li>
             <li action="localUpload">Upload
-<span class = "comment-icon"  title ="Better to be connected to right DB before uploading a saved json graph"></span>
+              <span class="comment-icon"
+                title="Better to be connected to right DB before uploading a saved json graph"></span>
 
             </li>
 
@@ -136,7 +137,7 @@
                         <li aspectAction="V-">shorter</li>
                       </ul>
                     </li>
-                    
+
                   </ul>
                 </li>
                 <li data-category="align">align ...
@@ -234,7 +235,7 @@
                 <li action="noEdge" title="Select nodes without any edges">none</li>
                 <li data-category="looping" action="looping" title="Nodes with self-loops (self-reference)">looping
                 </li>
-                           <li class="separator"></li>
+                <li class="separator"></li>
                 <li data-category="outgoing" title="Filter nodes by number of outgoing edges">outgoing count...
                   <ul class="submenu">
                     <li data-skip-action>
@@ -324,7 +325,7 @@
                   title="Find nodes reachable by long forward paths (more than 2 hops)">
                   long paths
                 </li>
-                      <li class="separator"></li>
+                <li class="separator"></li>
                 <li action="findPkFkChains" title="Find chain of relations from a root">
                   pk &lt;- fk chains
                 </li>
@@ -509,9 +510,12 @@
       <li id="open-table">🔍table definition</li>
       <li id="open-trigger">⚡table triggers</li>
       <li>
-        <img id="arrowLeft" src="./img/arrowLeft.png" title="follow outgoing">
-        <img id="arrowMiddle" src="./img/arrowMiddle.png" title="follow both">
-        <img id="arrowRight" src="./img/arrowRight.png" title="follow incoming">
+        <div class="arrows">
+          <img id="arrowLeft" src="./img/arrowLeft.png" height="40" title="follow outgoing">
+          <img id="arrowMiddle" src="./img/arrowMiddle.png" height="40" title="follow both">
+          <img id="arrowRight" src="./img/arrowRight.png" height="40" title="follow incoming">
+        </div>
+
       </li>
     </ul>
 

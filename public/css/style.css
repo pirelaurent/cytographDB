@@ -480,19 +480,6 @@ html.busy, html.busy * { cursor: wait !important; }
   margin: 20px; /* ou autre mise en forme */
 }
 
-#arrowLeft, #arrowMiddle, #arrowRight {
-  cursor: pointer;
-    filter: brightness(0.85) saturate(1.25);
-/*  transition: filter .12s ease, transform .12s ease;  animé, optionnel */
-}
-
-/* effet au survol : plus “brillant” + léger lift (optionnel) */
-#arrowLeft:hover,
-#arrowMiddle:hover,
-#arrowRight:hover {
-  filter: brightness(1.25) saturate(1.05);
-  transform: translateY(-4px);
-}
 /* node list checkbox*/
 input.nodeChk {
   accent-color: #b11e1e;
@@ -550,3 +537,25 @@ th .sort-indicator {
  first-child { margin-left: 0; };
 
 }
+
+.arrows{
+  display:flex;
+  gap:0;              /* aucun espace */
+}
+.arrows img{
+  display:block;      /* supprime l’espace inline */
+  margin:0;
+  padding:0;
+}
+
+
+/* effet au survol : plus “brillant” + léger lift (optionnel) */
+#arrowLeft:hover,
+#arrowMiddle:hover,
+#arrowRight:hover {
+  cursor: pointer;
+  filter: brightness(1.8) saturate(1.5);
+
+/*  transform: translateY(-1px);*/
+}
+

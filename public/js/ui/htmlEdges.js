@@ -251,7 +251,10 @@ export function sendEdgeListToHtml() {
     }
   });
 
-  setEventMarkdown(doc, tableName);
+  const db = getLocalDBName();
+  let title = db?`list of FK from ${db}`:"list of FK" ;
+
+  setEventMarkdown(doc, tableName,title);
 
   // Sorting
   const sortableCols = [0, 1, 2];

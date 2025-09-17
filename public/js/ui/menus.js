@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 "use strict";
-// to have init of events
+
 
 import {
   loadInitialGraph,
@@ -631,9 +631,14 @@ export function menuNodes(option) {
       break;
 
     //------------
-    case "listNodes":
-      listNodesToHtml();
+    case "listNodesAll":
+      listNodesToHtml(true);
       break;
+
+    case "listNodesSelected":
+      listNodesToHtml(false);
+      break;
+
 
     //---------------- nodes connected to selected edges
     case "fromEdgesSelected":

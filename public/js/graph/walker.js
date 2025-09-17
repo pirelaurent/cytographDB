@@ -28,12 +28,13 @@ import {
   perimeterForNodesAction,
   hideNotSelectedThenDagre,
   perimeterForEdgesAction,
+  revealNeighbor,
 } from '../graph/cytoscapeCore.js';
 
 //------------------------
 
 /*
- factorisation . défault outgoing supports 'incoming' ou 'both'
+ factorisation . défault outgoing. supports 'incoming' ou 'both'
 */
 
 export function follow(direction = "outgoing") {
@@ -47,7 +48,7 @@ export function follow(direction = "outgoing") {
   let nodesMarked = new Set();
   let edgesToShow = new Set();
 
-  // allow everywhere
+  // allow to find nodes everywhere
   const allowedNodes = new Set(getCy().nodes().map((n) => n.id()));
 
   selectedNodes.forEach((node) => {
@@ -78,7 +79,7 @@ export function follow(direction = "outgoing") {
           }
         });
 
-      // simplifiés non-orientés
+      // simplified association edge : no functional direction 
       node
         .connectedEdges()
         .filter((e) => e.hasClass("simplified"))
@@ -93,20 +94,24 @@ export function follow(direction = "outgoing") {
     }
   });
 
-  // Cacher uniquement les arêtes non souhaitées NE MARCHE PAS en cas de nouvel essai
+  // propagation of edge selection 
   nodesMarked.forEach((id) => {
     const node = getCy().getElementById(id);
     node.connectedEdges().forEach((edge) => {
       if (edgesToShow.has(edge.id())) {
+revealNeighbor(edge);
         edge.select();
+      
+      
+      
       }
     });
   });
 
-  // Afficher les nœuds suivis et les sélectionner
+  // show new nodes and select them 
   nodesMarked.forEach((id) => {
     const node = getCy().getElementById(id);
-    node.show();
+    // already done by revealNeighbour node.show();
     node.select();
   });
 

@@ -243,10 +243,10 @@
                         <span class="label"> number of edges</span>
                         <select id="filter-op">
                           <option value=">">&gt;</option>
-                          <option value=">=">&ge;</option>
+                          <!--option value=">=">&ge;</option-->
                           <option value="=">=</option>
                           <option value="<">&lt;</option>
-                          <option value="<=">&le;</option>
+                          <!--option value="<=">&le;</option-->
                         </select>
                         <input type="number" id="filter-value" value="0" min="0" max="50">
                         <button id="btnSizeOutgoing">Go</button>
@@ -300,8 +300,15 @@
               </ul>
             </li>
 
-            <li action="listNodes" title="List currently visible nodes"> list
+            <li data-category="list"> list
 
+              <ul class="submenu">
+                <li action="listNodesAll" title="list all visible">
+                  all</li>
+
+                <li action="listNodesSelected" title="list selected">
+                  selected</li>
+              </ul>
             </li>
 
 
@@ -346,12 +353,12 @@
 
       <div data-menu-id="menu-edges">
         <div class="menu-wrapper">
-          <span id="EdgesId"  class="menu-trigger">Edges</span>
+          <span id="EdgesId" class="menu-trigger">Edges</span>
           <ul class="menu">
 
             <li data-category="selection">select ...
               <ul class="submenu">
-                <li action = "refreshEdges">test</li>
+                <li action="refreshEdges">test</li>
                 <li action="noEdges">none</li>
                 <li action="allEdges">all</li>
                 <li class="separator"></li>

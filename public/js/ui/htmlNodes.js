@@ -28,11 +28,13 @@ function createIconButton(
 /*
  generate a page with nodes list in a new tab
 */
-export function listNodesToHtml() {
+export function listNodesToHtml(all=true) {
   let nodes;
-  // permimeter
-  nodes = getCy().nodes(":selected:visible");
-  if (nodes.length === 0) nodes = getCy().nodes(":visible");
+  // perimeter
+
+  nodes = all? getCy().nodes(':visible'):getCy().nodes(":selected:visible");
+
+
   if (nodes.length == 0) {
     showAlert(
       "no nodes to list in current perimeter. <br/> Check your selection. "

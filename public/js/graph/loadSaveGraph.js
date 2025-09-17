@@ -264,8 +264,6 @@ function sendGraphState(filename) {
 */
 
 export function saveGraphToFile() {
-
-
   let filenameInput = document.getElementById("graphName");
   let filename = filenameInput.value.trim();
 
@@ -279,20 +277,19 @@ export function saveGraphToFile() {
     filename += ".json";
   }
 
-  getCy()
-    .elements()
-    .forEach((ele) => {
-      if (ele.style("display") === "none") {
-        ele.data("hidden", true);
-      } else {
-        ele.removeData("hidden");
-      }
+  let cy = getCy();
+  // cytoscape don't store visible/hide in json. Set an explicit data for further upload 
+  cy.batch(() => {
+    cy.elements().forEach((ele) => {
+      if (ele.hidden()) ele.data("hidden", true);
+      else ele.removeData("hidden");
     });
+  });
 
   /*
    temporarily switch to detail mode to save graph with full info
   */
-  //save current aspect as we save in details
+
   pushSnapshot();
 
   enterFkDetailedMode(true);
@@ -301,15 +298,11 @@ export function saveGraphToFile() {
     ...getCy().json(),
     originalDBName: getLocalDBName(),
   };
-  // // if detailed for change but not on screen, restore
-  // if (wasFkMode === "synthesis") {
-  //   enterFkSynthesisMode(true);
-  // }
+
 
   const blob = new Blob([JSON.stringify(json, null, 2)], {
     type: "application/json",
   });
-
 
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -319,12 +312,7 @@ export function saveGraphToFile() {
   a.click();
   document.body.removeChild(a);
 
-setTimeout(() => URL.revokeObjectURL(url), 1000);
-
-  //URL.revokeObjectURL(url);
-  // revision : keep graph name in box
-  //document.getElementById("current-graph").textContent = filename;
-  //filenameInput.value = "";
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 
   popSnapshot();
 }
@@ -382,7 +370,13 @@ export function loadGraphFromFile(event) {
     // affiche, utilise, etc.
     const cyData = { ...json };
     delete cyData.originalDBName;
-    getCy().json(cyData);
+    let cy = getCy();
+    cy.json(cyData);
+    cy.batch(() => {
+      cy.elements("[hidden]").hide(); // data(hidden)=true → hide()
+      cy.elements().not("[hidden]").show(); // le reste → show()
+    });
+
     restoreProportionalSize();
     resetPositionStackUndo();
     restoreCustomNodesCategories();

@@ -275,7 +275,7 @@ export function sendEdgeListToHtml() {
 */
 
 window.applySelectionFromPopup = function (ids) {
-  console.log("[parent] ids reçus du popup:", ids);
+  //console.log("[parent] ids reçus du popup:", ids);
 
   const cy = getCy();
   cy.batch(() => {

@@ -24,6 +24,19 @@ export function htmlTableToMarkdown(tableId, opts = {}, title, root = document) 
     return;
   }
 
+  // fonction utilitaire pour extraire le contenu d’une cellule
+  function getCellContent(cell) {
+    const checkboxes = cell.querySelectorAll('input[type="checkbox"]');
+    if (checkboxes.length > 0) {
+      // si plusieurs checkboxes, on concatène
+      return Array.from(checkboxes)
+        .map(cb => cb.checked ? "[x]" : "[ ]")
+        .join(" ");
+    }
+    // fallback sur le texte normal
+    return cell.innerText;
+  }
+
   const escapeCell = (txt) =>
     String(txt)
       .replace(/\r?\n+/g, " ")   // pas de retours ligne dans les cellules
@@ -39,40 +52,41 @@ export function htmlTableToMarkdown(tableId, opts = {}, title, root = document) 
     : Array.from(table.rows).slice(headRows.length); // fallback si pas de tbody
 
   // ligne d’en-tête
-  const headerCells = Array.from(headRows[0].cells).map(c => escapeCell(c.innerText));
+  const headerCells = Array.from(headRows[0].cells).map(c => escapeCell(getCellContent(c)));
   const headerLine = `| ${headerCells.join(" | ")} |`;
   const separatorLine = `| ${headerCells.map(() => "---").join(" | ")} |`;
 
   // lignes du corps
   const bodyLines = bodyRows.map(tr => {
-    const cells = Array.from(tr.cells).map(c => escapeCell(c.innerText));
+    const cells = Array.from(tr.cells).map(c => escapeCell(getCellContent(c)));
     return `| ${cells.join(" | ")} |`;
   });
-  const titleMd = title?`\n## ${title}\n\n`:"";
-  const markdownTable = titleMd+ [headerLine, separatorLine, ...bodyLines].join("\n");
+
+  const titleMd = title ? `\n## ${title}\n\n` : "";
+  const markdownTable = titleMd + [headerLine, separatorLine, ...bodyLines].join("\n");
 
   // output .md : file or clipboard
-
   const filename = opts.filename ?? `${tableId}.md`;
 
   if (opts.copyToClipboard) {
     tableWin.navigator.clipboard?.writeText(markdownTable).catch((err) => {
       console.error("Clipboard copy failed:", err);
     });
-    showInfo('table content (markdown) in clipboard !',root)
+    showInfo('table content (markdown) in clipboard !', root);
   }
 
- if (opts.download !== false) {
-  const blob = new Blob([markdownTable], { type: "text/markdown" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.style.display = "none";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000); // leave time to nav and release
+  if (opts.download !== false) {
+    const blob = new Blob([markdownTable], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000); // leave time to nav and release
+  }
 }
 
-}
+

@@ -811,3 +811,30 @@ export function selectEdgesBetweenSelectedNodes() {
     edge.select(); // ensuite sélectionné
   });
 }
+
+/*
+ avoid far node wheh unhidden by limiting distance 
+*/
+export function revealNeighbor(edge, maxDist = 500) {
+  const src = edge.source();
+  const tgt = edge.target();
+
+  // which one is hidden in the pair 
+  const hiddenNode = tgt.hidden() ? tgt : src.hidden() ? src : null;
+  const visibleNode = (hiddenNode === tgt) ? src : tgt;
+
+  // none : no matter 
+  if (hiddenNode) {
+    // base : the previously visible 
+    const pos = visibleNode.position();
+
+    // a small move to avoid superposition 
+    const angle = Math.random() * 2 * Math.PI;
+    const dx = maxDist * Math.cos(angle);
+    const dy = maxDist * Math.sin(angle);
+
+    //  show in new position 
+    hiddenNode.position({ x: pos.x + dx, y: pos.y + dy });
+    hiddenNode.show();
+  }
+}

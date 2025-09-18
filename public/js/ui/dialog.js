@@ -14,9 +14,12 @@ import {
 } from "../graph/cytoscapeCore.js";
 
 import { pushSnapshot } from "../graph/snapshots.js";
+/*
+ dynamic prompt used for info, alert, error. 
+
+*/
 
 export function showMultiChoiceDialog(title, message, choices, doc = document) {
-
   const overlay = doc.createElement("div");
   overlay.className = "overlay";
 
@@ -97,16 +100,19 @@ export function showAlert(textAlert) {
   ]);
 }
 
-export function showInfo(textInfo,doc = document) {
-  showMultiChoiceDialog("ℹ️  Information", textInfo, [
-    {
-      label: "OK",
-      onClick: () => {},
-      isDefault: true,
-
-    },
-  ],doc
-);
+export function showInfo(textInfo, doc = document) {
+  showMultiChoiceDialog(
+    "ℹ️  Information",
+    textInfo,
+    [
+      {
+        label: "OK",
+        onClick: () => {},
+        isDefault: true,
+      },
+    ],
+    doc
+  );
 }
 
 export function showError(textAlert) {
@@ -181,9 +187,9 @@ export function modalSelectByName() {
 export function selectByName(pattern, hiddenType) {
   let regex;
   try {
-    regex = new RegExp(pattern.trimEnd(),'i');
+    regex = new RegExp(pattern.trimEnd(), "i");
   } catch (e) {
-    showAlert("unvalid regex:",e.message);
+    showAlert("unvalid regex:", e.message);
     return false;
   }
 
@@ -244,6 +250,7 @@ export function selectByName(pattern, hiddenType) {
 
 export function promptDatabaseSelectionNear(targetElement) {
   //console.log("[prompt] started");
+
   return new Promise(async (resolve) => {
     // console.log("[prompt] inside Promise");
     document.querySelectorAll(".db-prompt-box").forEach((e) => e.remove());
@@ -385,10 +392,6 @@ export function menuSelectSizeIncoming() {
 export function deleteNodesSelected() {
   let nodesToKill = getCy().nodes(":selected:visible");
 
-
-
-  
-
   if (nodesToKill.length > 1) {
     // confirm title, messagge
     showMultiChoiceDialog(`delete ${nodesToKill.length} nodes`, `Confirm ?`, [
@@ -413,7 +416,6 @@ export function deleteNodesSelected() {
   }
 }
 
-
 export function showWaitCursor() {
   document.documentElement.classList.add("busy");
   // double rAF pour garantir un paint avant le calcul
@@ -426,18 +428,37 @@ export function hideWaitCursor() {
   document.documentElement.classList.remove("busy");
 }
 
-// use for manually written page 
+// use for manually written page
 
-export function  alertInDoc(doc, message) {
+export function alertInDoc(doc, message) {
   (doc?.defaultView || window).alert(message);
 }
 
-// comment-icon is in css . Create a span block ready to append. 
+// comment-icon is in css . Create a span block ready to append.
 
-export function getCommentIcon(doc,title){
+export function getCommentIcon(doc, title) {
   const icon = document.createElement("span");
-icon.className = "comment-icon";
-icon.style.cursor = "help";
-if (title) icon.title=title;
-return icon
+  icon.className = "comment-icon";
+  icon.style.cursor = "help";
+  if (title) icon.title = title;
+  return icon;
+}
+
+/*
+ normalize output button for generated html page 
+*/
+export function createIconButton(
+  doc,
+  { src, alt, title, width = 25, height = 25, onClick }
+) {
+  const img = doc.createElement("img");
+  img.src = new URL(src, location.href).href; // make sure the path works in the popup
+  img.alt = alt || "";
+  img.title = title || "";
+  img.style.cssText = `cursor:pointer; vertical-align:middle; width:${width}px; height:${height}px;`;
+
+  if (typeof onClick === "function") {
+    img.addEventListener("click", onClick);
+  }
+  return img;
 }

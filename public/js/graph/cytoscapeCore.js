@@ -84,6 +84,11 @@ export function showAll() {
   getCy().nodes().show();
   getCy().edges().show();
   document.getElementById("cy").style.backgroundColor = "white";
+
+  requestAnimationFrame(() => {
+    getCy().fit();
+  });
+
   metrologie();
 }
 
@@ -104,7 +109,7 @@ export function hideNotSelected() {
       return !node.selected();
     })
     .hide();
-  cy.fit(cy.nodes(":visible"), 30); // padding 30px
+  getCy().fit(); //cy.nodes(":visible"), 50); // padding 30px
   metrologie();
 }
 
@@ -228,6 +233,14 @@ export function setAndRunLayoutOptions(option) {
     );
     return;
   }
+  const maxCircle = 50;
+  if (selectedNodes.length > maxCircle && option === "circle") {
+    showAlert(
+      `too much nodes for a visible circle layout (<${maxCircle})<br/> Choose another layout`
+    );
+    return;
+  }
+
   // add edges to selection to see them after reord
   const connectedEdges = selectedNodes
     .connectedEdges()
@@ -281,11 +294,16 @@ export function setAndRunLayoutOptions(option) {
       break;
 
     case "circle":
-      Object.assign(layoutOptions, {
-        avoidOverlap: true,
-        padding: 30,
-        numIter: 1000,
-      });
+      selectedNodes
+        .layout({
+          name: "circle",
+          fit: false,
+        })
+        .run();
+
+      cy.fit(cy.elements(), 40);
+
+      return; //
       break;
 
     case "breadthfirst":
@@ -819,21 +837,21 @@ export function revealNeighbor(edge, maxDist = 500) {
   const src = edge.source();
   const tgt = edge.target();
 
-  // which one is hidden in the pair 
+  // which one is hidden in the pair
   const hiddenNode = tgt.hidden() ? tgt : src.hidden() ? src : null;
-  const visibleNode = (hiddenNode === tgt) ? src : tgt;
+  const visibleNode = hiddenNode === tgt ? src : tgt;
 
-  // none : no matter 
+  // none : no matter
   if (hiddenNode) {
-    // base : the previously visible 
+    // base : the previously visible
     const pos = visibleNode.position();
 
-    // a small move to avoid superposition 
+    // a small move to avoid superposition
     const angle = Math.random() * 2 * Math.PI;
     const dx = maxDist * Math.cos(angle);
     const dy = maxDist * Math.sin(angle);
 
-    //  show in new position 
+    //  show in new position
     hiddenNode.position({ x: pos.x + dx, y: pos.y + dy });
     hiddenNode.show();
   }

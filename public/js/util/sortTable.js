@@ -1,6 +1,6 @@
 // utils/tableSort.js
-export function enableTableSorting(tableId) {
-  const host = document.getElementById(tableId);
+export function enableTableSorting(tableId, doc = document) {
+  const host = doc.getElementById(tableId);
   if (!host) return;
 
   const table = host.tagName?.toLowerCase() === "table" ? host : host.closest("table");
@@ -25,7 +25,7 @@ export function enableTableSorting(tableId) {
     th.setAttribute("aria-sort", asc ? "ascending" : "descending");
     // supprime s'il y en a déjà un (sécurité)
     th.querySelector(".sort-indicator")?.remove();
-    const span = document.createElement("span");
+    const span = doc.createElement("span");
     span.className = "sort-indicator";
     span.textContent = asc ? "▲" : "▼";
     th.appendChild(span);

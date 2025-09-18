@@ -178,13 +178,13 @@
           <ul class="menu">
             <li data-category="selectNodes">select ...
               <ul class="submenu">
-
-                <li action="none" title="Clear the current selection">none</li>
-                <li action="all" title="Select all visible (ctrl a)">all</li>
-
+                <li action="none" title="Clear the current selection">none
+                </li>
+                <li action="all" title="Select all visible (ctrl a)">all
+                </li>
                 <li class="separator"></li>
-                <li action="invert" title="Invert the current selection">swap selected</li>
-
+                <li action="swapSelected" title="Invert the current selection">swap selected
+                </li>
               </ul>
             </li>
 
@@ -193,7 +193,7 @@
 
                 <li action="hideNotSelected" title="(ctrl h)">not selected</li>
                 <li action="hideSelected" title="Hide the selected nodes">selected</li>
-                <li action="hideNone" title="Show the entire graph">none</li>
+                <li action="showAll" title="Show the entire graph">none</li>
                 <li class="separator"></li>
                 <li action="swapHidden" title="Toggle visibility for selected and hidden elements">swap hidden</li>
               </ul>
@@ -517,14 +517,11 @@
     <ul id="clicNodeMenu" class="hidden">
       <li id="open-table">🔍table definition</li>
       <li id="open-trigger">⚡table triggers</li>
-      <li>
-        <div class="arrows">
-          <img id="arrowLeft" src="./img/arrowLeft.png" height="40" title="follow outgoing">
-          <img id="arrowMiddle" src="./img/arrowMiddle.png" height="40" title="follow both">
-          <img id="arrowRight" src="./img/arrowRight.png" height="40" title="follow incoming">
-        </div>
-
-      </li>
+      <div class="arrows">
+        <img id="arrowLeft" src="./img/arrowLeft.png" height="40" title="follow outgoing">
+        <img id="arrowMiddle" src="./img/arrowMiddle.png" height="40" title="follow both">
+        <img id="arrowRight" src="./img/arrowRight.png" height="40" title="follow incoming">
+      </div>
     </ul>
 
     <ul id="clicEdgeMenu" class="hidden">
@@ -532,6 +529,25 @@
       <li id="toggleEdgeLabel"><img src="./img/toggle.png"> label</li>
     </ul>
 
+    <!-- quick access menu -->
+
+    <div id="quickAccessMenu" class="hidden">
+      <span>
+        <div id="someSelect">
+          <img src="img/select/allSelected.png" height="30" id="icon-selectNone" title="unselect all">
+          <img src="img/select/noneSelected.png" height="30" id="icon-selectAll" title="select all">
+          <img src="img/select/selectSwap.png" height="30" id="icon-selectSwap" title="swap selection">
+        </div>
+        <div id="someHide">
+          <img src="img/select/hideSelectedSmall.png" height="30" id="icon-hideSelected" title="hide selected">
+          <img src="img/select/hideNotSelectedSmall.png" height="30" id="icon-hideNotSelected"
+            title="hide not selected">
+          <img src="img/select/swapHidden.png" height="30" id="icon-swapHidden" title="swap hidden">
+          <img src="img/select/eyeOpenSmall.png" width="30" id="icon-showAll" title="show all">
+
+        </div>
+      </span>
+    </div>
 
 
     <div id="toast" role="status" aria-live="polite"></div>
@@ -560,7 +576,6 @@
 
       <!-- champ caché pour retenir l'option -->
       <input type="hidden" id="modalNameFilterType" value="nodeOrEdge" />
-
       <input type="text" id="modalNameFilterInput" placeholder="searched name (regex)" class="modal-input" />
       <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
       <button id="modalNameFilterOk" class="modal-btn">OK</button>
@@ -570,6 +585,9 @@
 
     </div>
   </div>
+
+
+
 
 
 </body>

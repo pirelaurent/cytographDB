@@ -1,6 +1,66 @@
 // Export to Markdown
 
 import { showError , showInfo} from "../ui/dialog.js";
+
+
+export function bandeauMarkdown(doc){
+    
+  const actions = doc.createElement("div");
+  actions.className = "md-actions";
+  actions.setAttribute("role", "group");
+  actions.setAttribute("aria-label", "Actions Markdown");
+
+  // Download
+  const imgDl = doc.createElement("img");
+  imgDl.id = "mdDownload";
+  imgDl.src = new URL("./img/download.png", location.href).href;
+  imgDl.alt = "Download Markdown";
+  imgDl.title = "download Markdown";
+  imgDl.height = 25;
+  imgDl.setAttribute("aria-hidden", "true");
+  imgDl.style.cursor = "pointer";
+  actions.appendChild(imgDl);
+
+  // Copy
+  const imgCp = doc.createElement("img");
+  imgCp.id = "mdCopy";
+  imgCp.src = new URL("./img/clipboardCopy.png", location.href).href;
+  imgCp.alt = "Copy markdown to clipboard";
+  imgCp.title = "Copy markdown to clipboard";
+  imgCp.height = 22;
+  imgCp.setAttribute("aria-hidden", "true");
+  imgCp.style.cursor = "pointer";
+  actions.appendChild(imgCp);
+ return actions 
+}
+
+export function setEventMarkdown(doc,tableName,title){
+
+  doc.getElementById("mdCopy")?.addEventListener("click", async () => {
+     htmlTableToMarkdown(
+        tableName,
+        {
+          download: false,
+          copyToClipboard: true,
+        },
+        title,
+        doc
+      );
+    });
+
+    doc.getElementById("mdDownload")?.addEventListener("click", () => {
+      htmlTableToMarkdown(
+        tableName,
+        {
+          download: true,
+          copyToClipboard: false,
+          filename: `columns_${tableName || "table"}.md`,
+        },
+        title,
+        doc
+      );
+    });
+}
 /*
  general output  Html to markdown
 

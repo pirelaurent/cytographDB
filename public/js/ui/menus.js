@@ -16,7 +16,6 @@
 
 "use strict";
 
-
 import {
   loadInitialGraph,
   loadGraphState,
@@ -25,10 +24,10 @@ import {
   saveGraphToFile,
 } from "../graph/loadSaveGraph.js";
 
-import { connectToDb, generateTriggers } from "../dbFront/tables.js";
+import { connectToDb, generateTriggers, setLocalDBName } from "../dbFront/tables.js";
 
 import { listNodesToHtml } from "../ui/htmlNodes.js";
-import {  sendEdgeListToHtml } from "../ui/htmlEdges.js";
+import { sendEdgeListToHtml } from "../ui/htmlEdges.js";
 
 import {
   follow,
@@ -173,7 +172,11 @@ export function menuDisplay(option) {
         getCy()
           .edges()
           .forEach((edge) => edge.show());
+        requestAnimationFrame(() => {
+          getCy().fit();
+        });
       }
+
       break;
 
     /*
@@ -297,7 +300,7 @@ export function menuDisplay(option) {
   menu for db access and files 
 */
 export function menuDb(option, menuItemElement) {
-  //console.log("menuDb called with:"+ option+ menuItemElement);
+
   switch (option) {
     case "connectToDb":
       connectToDb(menuItemElement).catch((err) =>
@@ -306,10 +309,25 @@ export function menuDb(option, menuItemElement) {
       break;
 
     case "loadFromDb":
+      // avoid relaoding if already in place
+      let savedDBName= getLocalDBName();
+      setLocalDBName(null);
+
       connectToDb(menuItemElement)
         .then(() => {
+
+          // if loaded the api had loaded dbName
           let dbName = getLocalDBName();
-          if (dbName != null) loadInitialGraph();
+
+
+          if (dbName != null) {
+            loadInitialGraph();
+          } else {
+            // no choice restore same if any
+            setLocalDBName(savedDBName)
+          }
+
+
         })
         .catch((err) => showError("loadFromDB: " + err.message));
       break;
@@ -399,7 +417,7 @@ export function menuNodes(option) {
       }
       break;
 
-    case "invert":
+    case "swapSelected":
       {
         pushSnapshot();
         let nodes = restrictToVisible()
@@ -524,7 +542,7 @@ export function menuNodes(option) {
       hideNotSelected();
       break;
 
-    case "hideNone":
+    case "showAll":
       pushSnapshot();
       showAll();
       break;
@@ -548,21 +566,22 @@ export function menuNodes(option) {
     //----------- FOLLOW nodes -
 
     case "followOutgoing":
-      pushSnapshot();
+
       follow("outgoing");
       break;
+
     case "followIncoming":
-      pushSnapshot();
+
       follow("incoming");
       break;
 
     case "followBoth":
-      pushSnapshot();
+
       follow("both");
       break;
 
     case "followCrossAssociations":
-      pushSnapshot();
+
       followCrossAssociations();
       break;
 
@@ -639,7 +658,6 @@ export function menuNodes(option) {
       listNodesToHtml(false);
       break;
 
-
     //---------------- nodes connected to selected edges
     case "fromEdgesSelected":
       {
@@ -664,11 +682,12 @@ export function menuEdges(option) {
 
   // select edges
   switch (option) {
-
-case "refreshEdges":
-  { alert('pouet');
-    metrologie();
-  } break;
+    case "refreshEdges":
+      {
+        alert("pouet");
+        metrologie();
+      }
+      break;
 
     case "allEdges":
       pushSnapshot();
@@ -863,8 +882,7 @@ case "refreshEdges":
 
     case "generateTriggers":
       pushSnapshot();
-      generateTriggers(getCy().nodes())
-      .then (()=>metrologie()); 
+      generateTriggers(getCy().nodes()).then(() => metrologie());
       break;
 
     case "removeTriggers":
@@ -872,9 +890,6 @@ case "refreshEdges":
       getCy().edges(".trigger_impact").remove();
 
       break;
-
-
-
 
     case "deleteEdgesSelected":
       const edgesToKill = getCy().edges(":selected:visible");

@@ -9,23 +9,10 @@ import { getCy } from "../graph/cytoscapeCore.js";
 import { showAlert } from "./dialog.js";
 
 import { getLocalDBName } from "../dbFront/tables.js";
-import { createHeaderMarkdown, setEventMarkdown } from "../ui/htmlNodes.js";
+import { createHeaderMarkdown } from "../ui/htmlNodes.js";
+import { setEventMarkdown } from "../util/markdown.js";
 
-function createIconButton(
-  doc,
-  { src, alt, title, width = 25, height = 25, onClick }
-) {
-  const img = doc.createElement("img");
-  img.src = new URL(src, location.href).href; // make sure the path works in the popup
-  img.alt = alt || "";
-  img.title = title || "";
-  img.style.cssText = `cursor:pointer; vertical-align:middle; width:${width}px; height:${height}px;`;
-
-  if (typeof onClick === "function") {
-    img.addEventListener("click", onClick);
-  }
-  return img;
-}
+import {createIconButton} from "../ui/dialog.js";
 
 /*
  edges list 

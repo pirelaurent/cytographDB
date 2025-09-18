@@ -176,6 +176,19 @@
   color: white;
 }
 
+
+.submenu li img {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 20px;            /* optionnel : force une taille homogène */
+  width: 20px;             /* optionnel */
+  pointer-events: none;     /* clics passent sur le <li> */
+  /*background-color: yellow;*/
+}
+
+
 [data-menu-id="menu-nodes"] {
   --main-bg: #b11e1e;
   --trigger-color: white;

@@ -559,3 +559,46 @@ th .sort-indicator {
 /*  transform: translateY(-1px);*/
 }
 
+
+
+
+.has-icon {
+  position: relative;
+
+}
+
+#quickAccessMenu {
+  position: absolute;
+  z-index: 9999;
+  display: none;                /* caché par défaut */
+  min-width: 130px;
+  background: #fff;
+  border: 1px solid #333;
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.2);
+  padding: 6px;
+}
+
+
+/* Survol */
+#icon-selectAll:hover {
+  content: url("../img/select/selectAllBright.png");
+}
+#icon-selectNone:hover {
+  content: url("../img/select/selectNoneGrey.png");
+}
+#icon-selectSwap:hover {
+  content: url("../img/select/selectSwap2.png");
+}
+#icon-hideSelected:hover {
+  content: url("../img/select/hideSelected.png");
+}
+#icon-hideNotSelected:hover {
+  content: url("../img/select/hideNotSelected.png");
+}
+#icon-swapHidden:hover {
+  content: url("../img/select/swapHidden2.png");
+}
+#icon-showAll:hover {
+  content: url("../img/select/eyeOpen.png");
+}

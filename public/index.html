@@ -160,13 +160,6 @@
                 </li>
               </ul>
             </li>
-            <!-- not mature
-        <li data-category="style">style ...
-          <ul class="submenu">
-            <li aspectAction="applyStyle">apply current style</li>
-          </ul>
-        </li>
--->
           </ul>
         </div>
       </div>
@@ -215,6 +208,8 @@
             <li data-category="filterNodes">filter by ...
               <ul class="submenu">
                 <li data-category="nodesName" data-skip-action>name ...</li>
+                <li data-category="rev2.07" id="byFilterMenu" title="filter by counting edges in and out">
+                  degree...</li>
 
                 <li data-skip-action>native category ...
 
@@ -224,60 +219,15 @@
                     <li action="nodeIsLeaf">leaf</li>
                     <li action="nodeIsAssociation">dry association</li>
                     <li action="nodeIsMultiAssociation">all associations</li>
+                    <li action="looping">looping</li>
                     <li action="nodeHasTriggers">has triggers</li>
+        
                   </ul>
                 <li action="noCare" id="customList">custom category ...</li>
               </ul>
             </li>
-
-            <li data-category="followEdges" title="Filter nodes by edge count (degree)">with edges ...
-              <ul class="submenu">
-                <li action="noEdge" title="Select nodes without any edges">none</li>
-                <li data-category="looping" action="looping" title="Nodes with self-loops (self-reference)">looping
-                </li>
-                <li class="separator"></li>
-                <li data-category="outgoing" title="Filter nodes by number of outgoing edges">outgoing count...
-                  <ul class="submenu">
-                    <li data-skip-action>
-                      <div class="submenu-content">
-                        <span class="label"> number of edges</span>
-                        <select id="filter-op">
-                          <option value=">">&gt;</option>
-                          <!--option value=">=">&ge;</option-->
-                          <option value="=">=</option>
-                          <option value="<">&lt;</option>
-                          <!--option value="<=">&le;</option-->
-                        </select>
-                        <input type="number" id="filter-value" value="0" min="0" max="50">
-                        <button id="btnSizeOutgoing">Go</button>
-                      </div>
-                    </li>
-                  </ul>
-                </li>
-                <li data-category="incoming" title="Filter nodes by number of incoming edges">incoming count...
-                  <ul class="submenu">
-                    <li data-skip-action>
-                      <div class="submenu-content">
-                        <span class="label">number of edges</span>
-                        <select id="filter-op-in">
-                          <option value=">">&gt;</option>
-                          <option value=">=">&ge;</option>
-                          <option value="=">=</option>
-                          <option value="<">&lt;</option>
-                          <option value="<=">&le;</option>
-                        </select>
-                        <input type="number" id="filter-value-in" value="0" min="0" max="50">
-                        <button id="btnSizeIncoming">Go</button>
-                      </div>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-
-
+    
             <li class="separator"></li>
-
             <li data-category="size">label ...
 
               <ul class="submenu">
@@ -289,9 +239,9 @@
               </ul>
             </li>
            
-            <li data-category="labelNode">label ... -->
-                <li action="labelNodeFull">show</li>
-                <li action="labelNodeShort">hide</li>
+        -->
+                <li action="labelNodeShow">show</li>
+                <li action="labelNodeHide">hide</li>
                 <li class="separator"></li>
                 <li action="increase-font">font +</li>
                 <li action="decrease-font">font -</li>
@@ -300,7 +250,7 @@
               </ul>
             </li>
 
-            <li data-category="list"> list
+            <li data-category="list"> list...
 
               <ul class="submenu">
                 <li action="listNodesAll" title="list all visible">
@@ -339,9 +289,6 @@
               </ul>
             </li>
 
-
-
-
             <li class="separator"></li>
 
             <li action="deleteNodesSelected" title="Delete selected nodes (backspace)">delete</li>
@@ -358,7 +305,6 @@
 
             <li data-category="selection">select ...
               <ul class="submenu">
-                <li action="refreshEdges">test</li>
                 <li action="noEdges">none</li>
                 <li action="allEdges">all</li>
                 <li class="separator"></li>
@@ -556,8 +502,6 @@
 
   </div> <!-- from topbar-->
 
-
-
   <div id="overlay" class="overlayXX">
     <div id="file-list">
       <h3>Choose a saved graph:</h3>
@@ -570,26 +514,68 @@
   <!--------------------------------------->
 
   <!-- Modal for name filter -->
+
   <div id="nameFilterModal" class="modal-bg">
     <div class="modal-content">
       <h3 id="nameFilterTitle">Filter by name (regex)</h3>
+      <input type="checkbox" id="searchOnHidden" title="include hidden"> <!--checked-->
 
+      <small>include hidden</small><br />
       <!-- champ caché pour retenir l'option -->
       <input type="hidden" id="modalNameFilterType" value="nodeOrEdge" />
       <input type="text" id="modalNameFilterInput" placeholder="searched name (regex)" class="modal-input" />
-      <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
+      <br />
+
       <button id="modalNameFilterOk" class="modal-btn">OK</button>
-
-      <input type="checkbox" id="searchOnHidden" title="include hidden"> <!--checked-->
-      <small>include hidden</small>
-
+      <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
     </div>
   </div>
 
+  <!-----------------------  Modal for edge degree  filter ----->
 
+  <div id="degreeFilter" class="modal-bg" role="dialog" aria-modal="true" aria-labelledby="nameFilterTitle">
+    <div class="modal-content">
+      <h3 id="nameFilterTitle">Filter nodes by degree of edges</h3>
 
+      <fieldset>
+        <legend> <img src="./img/outgoing.png" width="60" alt="">outgoing</legend>
+        <label for="out-min">&nbsp;&gt;= &nbsp;</label>
+        <input type="number" id="degree-out-min" name="outMin" min="0" step="1" inputmode="numeric"
+          placeholder="no care">
 
+        <label for="out-max"> &nbsp;&lt; &nbsp;</label>
+        <input type="number" id="degree-out-max" name="outMax" min="0" step="1" inputmode="numeric"
+          placeholder="no care">
+      </fieldset>
+      <br />
+      <fieldset>
+        <input type="radio" id="degree-logic-and" name="logic" value="AND" checked>
+        <label for="logic-and">and</label>
+        <input type="radio" id="logic-or" name="logic" value="OR">
+        <label for="logic-or">or</label>
+      </fieldset>
 
+      <fieldset>
+        <legend> Incoming <img src="./img/incoming.png" width="60" alt=""></legend>
+        <label for="in-min">&nbsp;&gt;= &nbsp;</label>
+        <input type="number" id="degree-in-min" name="inMin" min="0" step="1" inputmode="numeric" placeholder="no care">
+
+        <label for="in-max"> &nbsp;&lt; &nbsp;</label>
+        <input type="number" id="degree-in-max" name="inMax" min="0" step="1" inputmode="numeric" placeholder="no care">
+      </fieldset>
+      <fieldset>
+
+        <input type="checkbox" id="degreeRestrictToVisible">
+        <label for="degreeRestrictToVisible" title ="restrict count to edges currently visible"><small>count only visible edges</small></label>
+      </fieldset>
+      <fieldset>
+        <div class="actions">
+          <button id="modalDegreeFilterOk" class="modal-btn">OK</button>
+          <button id="modalDegreeFilterCancel" class="modal-btn">Cancel</button>
+        </div>
+      </fieldset>
+    </div>
+  </div>
 </body>
 
 </html>

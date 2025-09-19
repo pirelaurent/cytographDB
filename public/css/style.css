@@ -383,7 +383,8 @@ button:hover {
 }
 
 /* Modal background */
-#nameFilterModal.modal-bg {
+
+#nameFilterModal.modal-bg,#degreeFilter.modal-bg  {
   display: none;
   position: fixed;
   left: 0;
@@ -396,21 +397,21 @@ button:hover {
   align-items: center;
 }
 
-/* Modal visible (optionnel si tu veux utiliser une classe "open" pour afficher) */
+/* Modal visible (optionnel class to open) */
 #nameFilterModal.open {
   display: flex;
 }
 
 /* Modal content box */
-#nameFilterModal .modal-content {
-  background: bisque;
+#nameFilterModal .modal-content,#degreeFilter .modal-content {
+  background:  rgb(247, 240, 233);
   padding: 24px 32px;
   border-radius: 12px;
   box-shadow: 0 4px 24px #0002;
-  min-width: 320px;
+  min-width: 260px;
 }
 
-#nameFilterModal .modal-content h3 {
+#nameFilterModal .modal-content h3 ,#degreeFilter .modal-content h3{
   margin-top: 0;
 }
 
@@ -450,6 +451,7 @@ button:hover {
 .path .prefix { color: #888; }  /* gris pour le début identique */
 .path .rest { color: #000; }    /* noir pour la suite différente */
 .path {font-size: 1em;}
+
 
 /* Force le curseur sur toute la page quand html a la classe 'busy' */
 html.busy, html.busy * { cursor: wait !important; }
@@ -601,4 +603,19 @@ th .sort-indicator {
 }
 #icon-showAll:hover {
   content: url("../img/select/eyeOpen.png");
+}
+
+legend {
+  width:35%;
+  display: flex;
+  justify-content: left;   /* centre horizontalement */
+  align-items: center;       /* aligne l'image et le texte */
+  gap: .5rem;                /* espace entre icône et texte */
+            /*padding:  .15rem; optionnel, pour l’esthétique */
+
+}
+
+legend img { display: block; } /* évite l’alignement sur la ligne de base */
+fieldset {
+  border: 1px solid rgb(105, 102, 99); /* ta couleur */
 }

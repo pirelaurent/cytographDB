@@ -24,7 +24,11 @@ import {
   saveGraphToFile,
 } from "../graph/loadSaveGraph.js";
 
-import { connectToDb, generateTriggers, setLocalDBName } from "../dbFront/tables.js";
+import {
+  connectToDb,
+  generateTriggers,
+  setLocalDBName,
+} from "../dbFront/tables.js";
 
 import { listNodesToHtml } from "../ui/htmlNodes.js";
 import { sendEdgeListToHtml } from "../ui/htmlEdges.js";
@@ -44,12 +48,12 @@ import {
   restrictToVisible,
   hideSelected,
   hideNotSelected,
+  labelNodeShow, labelNodeHide,
   swapHidden,
   setAndRunLayoutOptions,
   selectNodesFromSelectedEdges,
   selectTargetNodesFromSelectedEdges,
   selectSourceNodesFromSelectedEdges,
-  perimeterForNodesAction,
   perimeterForEdgesAction,
   perimeterForNodesSelection,
   metrologie,
@@ -61,12 +65,12 @@ import {
   bringSelectedToFront,
   bringSelectedToBack,
   rotateGraphByDegrees,
-  selectInputBetween,
   noProportionalSize,
   increaseFontSizeEdge,
   increaseFontSize,
   selectEdgesBetweenSelectedNodes,
   proportionalSizeNodeSizeByLinks,
+
 } from "../graph/cytoscapeCore.js";
 
 import {
@@ -86,9 +90,8 @@ import {
   showMultiChoiceDialog,
   showAlert,
   showError,
-  modalSelectByName,
-  closeNameFilterModal,
   deleteNodesSelected,
+
 } from "./dialog.js";
 
 import { getLocalDBName } from "../dbFront/tables.js";
@@ -157,43 +160,45 @@ function setupMenuClickAction() {
 }
 
 /*
- main menu on display actions 
+  ----------------------------------menu for db access and files 
+*/
+export function menuDb(option, menuItemElement) {
+  switch (option) {
+    case "connectToDb":
+      connectToDb(menuItemElement).catch((err) =>
+        showError("connection failed: " + err.message)
+      );
+      break;
+
+    case "loadFromDb":
+      // avoid relaoding if already in place
+      let savedDBName = getLocalDBName();
+      setLocalDBName(null);
+
+      connectToDb(menuItemElement)
+        .then(() => {
+          // if loaded the api had loaded dbName
+          let dbName = getLocalDBName();
+
+          if (dbName != null) {
+            loadInitialGraph();
+          } else {
+            // no choice restore same if any
+            setLocalDBName(savedDBName);
+          }
+        })
+        .catch((err) => showError("loadFromDB: " + err.message));
+      break;
+  }
+}
+
+/*
+ ----------------------------------  main menu on display actions 
 */
 export function menuDisplay(option) {
   if (!cy) return;
-
   switch (option) {
-    case "showall":
-      pushSnapshot();
-      {
-        getCy()
-          .nodes()
-          .forEach((node) => node.show());
-        getCy()
-          .edges()
-          .forEach((edge) => edge.show());
-        requestAnimationFrame(() => {
-          getCy().fit();
-        });
-      }
-
-      break;
-
-    /*
- layout options 
-*/
-
-    case "cose":
-    case "cose-bilkent":
-    case "grid":
-    case "circle":
-    case "breadthfirst":
-    case "concentric":
-    case "dagre":
-    case "elk":
-      pushSnapshot();
-      setAndRunLayoutOptions(option);
-      break;
+    // -------------------------- fitscreen / selected
 
     case "fitScreen":
       getCy().fit();
@@ -208,6 +213,24 @@ export function menuDisplay(option) {
       );
       break;
 
+    /*
+  -------------------------- layout options 
+*/
+
+    case "cose":
+    case "cose-bilkent":
+    case "grid":
+    case "circle":
+    case "breadthfirst":
+    case "concentric":
+    case "dagre":
+    case "elk":
+      pushSnapshot();
+      setAndRunLayoutOptions(option);
+      break;
+    /*
+  -------------------------- move resize 
+*/
     case "H+":
       horizMore();
       break;
@@ -233,28 +256,27 @@ export function menuDisplay(option) {
       horizLess();
       vertiLess();
       break;
-
+    /*
+  -------------------------- move distribute & align
+*/
     case "distH":
       pushSnapshot();
       distributeNodesHorizontally();
-
       break;
+
     case "distV":
       pushSnapshot();
       distributeNodesVertically();
-
       break;
 
     case "alignH":
       pushSnapshot();
       alignNodesHorizontally();
-
       break;
 
     case "alignV":
       pushSnapshot();
       alignNodesVertically();
-
       break;
 
     case "rotateL":
@@ -263,25 +285,6 @@ export function menuDisplay(option) {
 
     case "rotateR":
       rotateGraphByDegrees(7.5);
-      break;
-
-    case "applyStyle":
-      // ele.removeClass('*'); // enlève toutes les classes (comme .highlighted, .faded, etc.)
-      getCy()
-        .elements()
-        .forEach((ele) => {
-          const classesToKeep = ["hidden"];
-          const currentClasses = ele.classes();
-
-          // Filtrer les classes à retirer
-          const toRemove = currentClasses.filter(
-            (c) => !classesToKeep.includes(c)
-          );
-          // apply
-          ele.removeClass(toRemove.join(" ")); // retire uniquement les classes non protégées
-        });
-
-      getCy().style(mergedStyles);
       break;
 
     // not linked to menu.
@@ -297,44 +300,7 @@ export function menuDisplay(option) {
 }
 
 /*
-  menu for db access and files 
-*/
-export function menuDb(option, menuItemElement) {
-
-  switch (option) {
-    case "connectToDb":
-      connectToDb(menuItemElement).catch((err) =>
-        showError("connection failed: " + err.message)
-      );
-      break;
-
-    case "loadFromDb":
-      // avoid relaoding if already in place
-      let savedDBName= getLocalDBName();
-      setLocalDBName(null);
-
-      connectToDb(menuItemElement)
-        .then(() => {
-
-          // if loaded the api had loaded dbName
-          let dbName = getLocalDBName();
-
-
-          if (dbName != null) {
-            loadInitialGraph();
-          } else {
-            // no choice restore same if any
-            setLocalDBName(savedDBName)
-          }
-
-
-        })
-        .catch((err) => showError("loadFromDB: " + err.message));
-      break;
-  }
-}
-/*
-  top line menus under access 
+  ---------------------------------- Files menu on top line 
 */
 export function menuGraph(option) {
   switch (option) {
@@ -384,14 +350,13 @@ export function menuGraph(option) {
 }
 
 /*
-  all menus for nodes 
+  ------------------------------------- Nodes 
 
 */
 export function menuNodes(option) {
-  // set global before calling action
-
   switch (option) {
-    //-------- Select nodes
+    //-------- Nodes Select
+
     case "all":
       {
         pushSnapshot();
@@ -402,7 +367,6 @@ export function menuNodes(option) {
           node.select();
         });
       }
-
       break;
 
     case "none":
@@ -429,71 +393,46 @@ export function menuNodes(option) {
       }
       break;
 
-    //-------- select by edges
-    case "noEdge":
-      {
-        let nodes = perimeterForNodesSelection();
-        if (nodes == null) return;
-        pushSnapshot();
-        nodes.forEach((node) => {
-          if (
-            node.outgoers("edge").length === 0 &&
-            node.incomers("edge").length === 0
-          )
-            node.select();
-          else {
-            if (modeSelect() == AND_SELECTED) node.unselect();
-          }
-        });
-      }
+    /*
+      -------------------------------------Nodes  hide 
+    */
+    case "hideSelected":
+      pushSnapshot();
+      hideSelected();
       break;
 
-    case "looping":
-      {
-        let nodes = perimeterForNodesSelection();
-
-        if (nodes == null) return;
-        pushSnapshot();
-        const nodesWithSelfLoop = nodes.filter((node) => {
-          return node.connectedEdges().some((edge) => {
-            return edge.source().id() === edge.target().id();
-          });
-        });
-        //console.log(`Found ${nodesWithSelfLoop.length} nodes with self-loops.`);
-        if (modeSelect() == AND_SELECTED) nodes.unselect();
-        nodesWithSelfLoop.select();
-        //nodesWithSelfLoop.forEach((node)=>console.log(node.id()+node.data("label")));
-      }
+    case "hideNotSelected":
+      pushSnapshot();
+      hideNotSelected();
       break;
 
-    case "outgoing_none":
-      selectOutputBetween(0, 0);
-      break;
-    // ---- see also menuSelectSizeOutgoing
-    // old entry to catch directly association of 2 tables
-    case "outgoing_two":
-      selectOutputBetween(1, 3);
+    case "showAll":
+      pushSnapshot();
+      showAll();
       break;
 
-    case "noIncoming":
-      selectInputBetween(0, 0);
+    case "swapHidden":
+      pushSnapshot();
+      swapHidden();
       break;
 
-    case "nodeHasTriggers":
-      {
-        let nodes = perimeterForNodesSelection();
-        if (nodes.length === 0) return;
-        nodes.filter(".hasTriggers").select();
-      }
+    //------------------------------------- nodes from selected  edges
+
+    case "selectSourceNodes":
+      selectSourceNodesFromSelectedEdges();
+      break;
+    case "selectNodesFromSelectedEdges":
+      selectNodesFromSelectedEdges();
+      break;
+    case "selectDestNodes":
+      selectTargetNodesFromSelectedEdges();
       break;
 
-    case "nodeIsAssociation":
-      {
-        let nodes = perimeterForNodesSelection();
-        if (nodes.length === 0) return;
-        nodes.filter(".association").select();
-      }
-      break;
+    // -----------------------------------------Nodes filter by
+
+    // *** by Name *** is under clic event -> openNameFilterModal
+
+    // --------------- native categories
 
     case "nodeIsOrphan":
       {
@@ -519,6 +458,14 @@ export function menuNodes(option) {
       }
       break;
 
+    case "nodeIsAssociation":
+      {
+        let nodes = perimeterForNodesSelection();
+        if (nodes.length === 0) return;
+        nodes.filter(".association").select();
+      }
+      break;
+
     case "nodeIsMultiAssociation":
       {
         let nodes = perimeterForNodesSelection();
@@ -526,62 +473,123 @@ export function menuNodes(option) {
         nodes.filter(".multiAssociation").select();
         nodes.filter(".association").select();
       }
+      break;
+
+    case "nodeHasTriggers":
+      {
+        let nodes = perimeterForNodesSelection();
+        if (nodes.length === 0) return;
+        nodes.filter(".hasTriggers").select();
+      }
+      break;
+
+ case "looping":
+      {
+        let nodes = perimeterForNodesSelection();
+
+        if (nodes == null) return;
+        pushSnapshot();
+        const nodesWithSelfLoop = nodes.filter((node) => {
+          return node.connectedEdges().some((edge) => {
+            return edge.source().id() === edge.target().id();
+          });
+        });
+        //console.log(`Found ${nodesWithSelfLoop.length} nodes with self-loops.`);
+        if (modeSelect() == AND_SELECTED) nodes.unselect();
+        nodesWithSelfLoop.select();
+      }
+      break;
 
       break;
 
-    //---------- hide nodes -
 
-    /*
-     hidden nodes are automatically unselected 
-    */
-    case "hideSelected":
-      hideSelected();
+
+/*
+    ------------------------------------------------ custom list 
+    no event . The list had been extended by fillInGuiNodesCustomCategories
+    on each custom entry a click event goes to 
+
+    selectNodesByCustomcategories(key); 
+
+*/
+
+
+
+    // ------------------------------------------- Nodes select with edges 
+
+/*    
+ case "noEdge":
+      {
+        let nodes = perimeterForNodesSelection();
+        if (nodes == null) return;
+        pushSnapshot();
+        nodes.forEach((node) => {
+          if (
+            node.outgoers("edge").length === 0 &&
+            node.incomers("edge").length === 0
+          )
+            node.select();
+          else {
+            if (modeSelect() == AND_SELECTED) node.unselect();
+          }
+        });
+      }
+      break;
+ */
+   
+
+/*
+    -----------------------   filter by degrees incoming and outgoing 
+      is started by event on the menu item by  byFilterMenu that starts openDegreeFilter()
+
+*/
+
+ 
+//-------------------------------------------------------- Label
+
+
+    case "labelNodeShow": 
+       labelNodeShow();
       break;
 
-    case "hideNotSelected":
-      hideNotSelected();
+    case "labelNodeHide":
+       labelNodeHide();
       break;
 
-    case "showAll":
-      pushSnapshot();
-      showAll();
+    case "increase-font":
+      increaseFontSize(3);
+      break;
+    case "decrease-font":
+      increaseFontSize(-1);
       break;
 
-    case "swapHidden":
-      swapHidden();
+    //------------------------------------------------ Nodes List
+
+
+    case "listNodesAll":
+      listNodesToHtml(true);
       break;
 
-    case "selectNodesFromSelectedEdges":
-      selectNodesFromSelectedEdges();
+    case "listNodesSelected":
+      listNodesToHtml(false);
       break;
 
-    case "selectSourceNodes":
-      selectSourceNodesFromSelectedEdges();
-      break;
 
-    case "selectDestNodes":
-      selectTargetNodesFromSelectedEdges();
-      break;
-
-    //----------- FOLLOW nodes -
+      //------------------------------------------------ Nodes  Follow
 
     case "followOutgoing":
-
       follow("outgoing");
       break;
 
     case "followIncoming":
-
       follow("incoming");
       break;
 
     case "followBoth":
-
       follow("both");
       break;
 
     case "followCrossAssociations":
-
       followCrossAssociations();
       break;
 
@@ -604,67 +612,8 @@ export function menuNodes(option) {
     case "noProportionalSize":
       noProportionalSize();
       break;
-    case "increase-font":
-      increaseFontSize(3);
-      break;
-    case "decrease-font":
-      increaseFontSize(-1);
-      break;
 
-    case "labelNodeFull":
-      //------------------
-      perimeterForNodesAction().forEach((node) => {
-        const originalSize = node.data("originalSize");
-
-        if (originalSize) {
-          node.data("label", node.data("originalLabel"));
-          node.style({
-            width: originalSize,
-            height: originalSize,
-          });
-          // caution : removeData don't remove the key. The key stays as undefined.
-          node.removeData("originalSize");
-          node.removeData("originalLabel");
-        }
-      });
-
-      break;
-
-    /*
-     reduce the size of node 
-    */
-    case "labelNodeShort":
-      perimeterForNodesAction().forEach((node) => {
-        // detect if already done
-        if (node.data("originalLabel") === undefined) {
-          const currentSize = node.style("width");
-          node.data("originalSize", currentSize);
-          node.data("originalLabel", node.data("label"));
-          node.data("label", ".");
-          node.style({
-            width: "6px",
-            height: "6px",
-          });
-        }
-      });
-      break;
-
-    //------------
-    case "listNodesAll":
-      listNodesToHtml(true);
-      break;
-
-    case "listNodesSelected":
-      listNodesToHtml(false);
-      break;
-
-    //---------------- nodes connected to selected edges
-    case "fromEdgesSelected":
-      {
-        pushSnapshot();
-        getCy().edges(":selected").connectedNodes().select();
-      }
-      break;
+//----------------------------------  nodes Delete
 
     case "deleteNodesSelected":
       deleteNodesSelected();
@@ -674,21 +623,14 @@ export function menuNodes(option) {
 }
 
 /*
-  menu edges relays 
-
+  //------------------------------------------------------------------menu edges relays 
 */
+
 export function menuEdges(option) {
   // if we enter an option, we flag the graph as 'changed'
 
   // select edges
   switch (option) {
-    case "refreshEdges":
-      {
-        alert("pouet");
-        metrologie();
-      }
-      break;
-
     case "allEdges":
       pushSnapshot();
       getCy().edges().select();
@@ -709,8 +651,8 @@ export function menuEdges(option) {
           edge.select();
         }
       });
-
       break;
+
     /*
     select edges that rely selected nodes 
 */
@@ -818,7 +760,6 @@ export function menuEdges(option) {
     case "labelHide":
       let edgesToHide = perimeterForEdgesAction();
       edgesToHide.removeClass("showLabel showColumns");
-
       break;
 
     case "increase-font-edge":
@@ -949,29 +890,6 @@ export function visibility(option) {
   }
 }
 
-// Boutons modaux
-document
-  .getElementById("modalNameFilterOk")
-  .addEventListener("click", modalSelectByName);
-document
-  .getElementById("modalNameFilterCancel")
-  .addEventListener("click", closeNameFilterModal);
-
-/*
-document.getElementById('modalNameFilterInput').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault(); 
-    modalSelectByName();
-  }
-  if (e.key === 'Escape') closeNameFilterModal();
-});
-*/
-// close when a click outside
-document
-  .getElementById("nameFilterModal")
-  .addEventListener("click", function (e) {
-    if (e.target === this) closeNameFilterModal();
-  });
 
 /*
  used to resize node layout in any way horizontal or vertical or both 

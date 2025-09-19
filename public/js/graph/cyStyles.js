@@ -150,7 +150,7 @@ const cyStyles = [
   {
     selector: "edge.internal",
     style: {
-      "line-color": "gold",
+      "line-color": "#9A7B4F",
       "line-style": "dotted",
     },
   },

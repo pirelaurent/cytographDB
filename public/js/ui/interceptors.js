@@ -16,8 +16,8 @@ import {
   showAlert,
   menuSelectSizeOutgoing,
   menuSelectSizeIncoming,
-  openNameFilterModal,
   deleteNodesSelected,
+
 } from "./dialog.js";
 
 import { openTable, openTriggerPage } from "../dbFront/tables.js";
@@ -28,8 +28,10 @@ import {
   enterFkDetailedModeForEdges,
   enterFkSynthesisModeForEdges,
 } from "../graph/detailedEdges.js";
+
 import { follow } from "../graph/walker.js";
 import { menuNodes } from "./menus.js";
+import {setModalInterceptors} from "./modal.js";
 
 /*
  all the events set in gui are defined here 
@@ -37,6 +39,8 @@ import { menuNodes } from "./menus.js";
 
 export function setInterceptors() {
   //--------- set events'trap for cy
+
+  setModalInterceptors(); // isolated in module modal.js
 
   getCy().on("mouseover", "node", (evt) => evt.target.addClass("hovered"));
   getCy().on("mouseout", "node", (evt) => evt.target.removeClass("hovered"));
@@ -158,7 +162,7 @@ export function setInterceptors() {
   getCy().on("mouseover", "node", function (evt) {
     const node = evt.target;
     // Réinitialise les styles
-    getCy().edges().removeClass("incoming outgoing faded ");
+    getCy().edges().removeClass("incoming outgoing faded internal");
 
     getCy().nodes().addClass("faded");
     node.removeClass("faded");
@@ -540,13 +544,6 @@ export function setInterceptors() {
     btnIn.addEventListener("click", menuSelectSizeIncoming);
   }
 
-  document.querySelectorAll('li[data-category="nodesName"]').forEach((li) => {
-    li.addEventListener("click", (e) => openNameFilterModal(e, "node"));
-  });
-
-  document.querySelectorAll('li[data-category="edgesName"]').forEach((li) => {
-    li.addEventListener("click", (e) => openNameFilterModal(e, "edge"));
-  });
 
   document.getElementById("arrowLeft").addEventListener("click", () => {
     commonArrow("outgoing");
@@ -559,6 +556,7 @@ export function setInterceptors() {
   document.getElementById("arrowMiddle").addEventListener("click", () => {
     commonArrow("both");
   });
+
 
   function commonArrow(direction) {
     // store current selected

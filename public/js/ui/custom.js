@@ -4,7 +4,8 @@ import {perimeterForNodesSelection, perimeterForEdgesSelection} from "../graph/c
 
 import { getCustomNodesCategories }
   from "../filters/categories.js"
-/*
+
+  /*
  find all data types in nodes that we leave to user choice 
 */
 

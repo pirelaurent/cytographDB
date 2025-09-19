@@ -856,3 +856,38 @@ export function revealNeighbor(edge, maxDist = 500) {
     hiddenNode.show();
   }
 }
+
+
+      //------------------
+      export function labelNodeShow() {
+      perimeterForNodesAction().forEach((node) => {
+        const originalSize = node.data("originalSize");
+
+        if (originalSize) {
+          node.data("label", node.data("originalLabel"));
+          node.style({
+            width: originalSize,
+            height: originalSize,
+          });
+          // caution : removeData don't remove the key. The key stays as undefined.
+          node.removeData("originalSize");
+          node.removeData("originalLabel");
+        }
+      });
+    }
+
+    export function labelNodeHide(){
+          perimeterForNodesAction().forEach((node) => {
+            // detect if already done
+            if (node.data("originalLabel") === undefined) {
+              const currentSize = node.style("width");
+              node.data("originalSize", currentSize);
+              node.data("originalLabel", node.data("label"));
+              node.data("label", " ");
+              node.style({
+                width: "6px",
+                height: "6px",
+              });
+            }
+          });
+        }

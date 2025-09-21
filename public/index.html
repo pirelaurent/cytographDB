@@ -198,9 +198,9 @@
               <span class="label" title="Select nodes connected by the selected edges">from selected edges... </span>
               <ul class="submenu">
 
-                <li action="selectSourceNodes">select source nodes</li>
-                <li action="selectNodesFromSelectedEdges">both sides</li>
-                <li action="selectDestNodes">select target nodes</li>
+                <li action="selectSourceNodes">select source</li>
+                <li action="selectNodesFromSelectedEdges">select both</li>
+                <li action="selectDestNodes">select target</li>
               </ul>
             </li>
 
@@ -221,12 +221,12 @@
                     <li action="nodeIsMultiAssociation">all associations</li>
                     <li action="looping">looping</li>
                     <li action="nodeHasTriggers">has triggers</li>
-        
+
                   </ul>
                 <li action="noCare" id="customList">custom category ...</li>
               </ul>
             </li>
-    
+
             <li class="separator"></li>
             <li data-category="size">label ...
 
@@ -517,16 +517,15 @@
 
   <div id="nameFilterModal" class="modal-bg">
     <div class="modal-content">
-      <h3 id="nameFilterTitle">Filter by name (regex)</h3>
-      <input type="checkbox" id="searchOnHidden" title="include hidden"> <!--checked-->
+      <h3 id="nameFilterTitle">Filter by name -- replaced by code for nodes/edges</h3>
 
-      <small>include hidden</small><br />
       <!-- champ caché pour retenir l'option -->
       <input type="hidden" id="modalNameFilterType" value="nodeOrEdge" />
-      <input type="text" id="modalNameFilterInput" placeholder="searched name (regex)" class="modal-input" />
+      <input type="text" id="modalNameFilterInput" placeholder="pattern" class="modal-input" title ="text or regex"/>
       <br />
-
-      <button id="modalNameFilterOk" class="modal-btn">OK</button>
+      <input type="checkbox" id="searchOnHidden" title="search hidden nodes too"> <!--checked-->
+            <small>search in hidden elements too</small><br /><br/>
+      <button id="modalNameFilterOk" class="modal-btn">Search & Select</button>
       <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
     </div>
   </div>
@@ -537,15 +536,15 @@
     <div class="modal-content">
       <h3 id="nameFilterTitle">Filter nodes by degree of edges</h3>
 
-      <fieldset>
-        <legend> <img src="./img/outgoing.png" width="60" alt="">outgoing</legend>
+      <fieldset class="filter">
+        <legend> <img src="./img/outgoing.png" width="30" alt="">outgoing</legend>
         <label for="out-min">&nbsp;&gt;= &nbsp;</label>
-        <input type="number" id="degree-out-min" name="outMin" min="0" step="1" inputmode="numeric"
-          placeholder="no care">
+        <input type="number" class="short" id="degree-out-min" name="outMin" min="0" step="1" inputmode="numeric"
+          placeholder="no minimum">
 
         <label for="out-max"> &nbsp;&lt; &nbsp;</label>
-        <input type="number" id="degree-out-max" name="outMax" min="0" step="1" inputmode="numeric"
-          placeholder="no care">
+        <input type="number" class="short" id="degree-out-max" name="outMax" min="0" step="1" inputmode="numeric"
+          placeholder="no maximum">
       </fieldset>
       <br />
       <fieldset>
@@ -555,22 +554,25 @@
         <label for="logic-or">or</label>
       </fieldset>
 
-      <fieldset>
+      <fieldset class="filter">
         <legend> Incoming <img src="./img/incoming.png" width="60" alt=""></legend>
         <label for="in-min">&nbsp;&gt;= &nbsp;</label>
-        <input type="number" id="degree-in-min" name="inMin" min="0" step="1" inputmode="numeric" placeholder="no care">
+        <input type="number" class="short" id="degree-in-min" name="inMin" min="0" step="1" inputmode="numeric"
+          placeholder="no minimum">
 
         <label for="in-max"> &nbsp;&lt; &nbsp;</label>
-        <input type="number" id="degree-in-max" name="inMax" min="0" step="1" inputmode="numeric" placeholder="no care">
+        <input type="number" class="short" id="degree-in-max" name="inMax" min="0" step="1" inputmode="numeric"
+          placeholder="no maximum">
       </fieldset>
       <fieldset>
 
         <input type="checkbox" id="degreeRestrictToVisible">
-        <label for="degreeRestrictToVisible" title ="restrict count to edges currently visible"><small>count only visible edges</small></label>
+        <label for="degreeRestrictToVisible" title="restrict count to elements currently visible"><small>work only on visible
+            nodes and visible edges</small></label>
       </fieldset>
       <fieldset>
         <div class="actions">
-          <button id="modalDegreeFilterOk" class="modal-btn">OK</button>
+          <button id="modalDegreeFilterOk" class="modal-btn">Search & Select</button>
           <button id="modalDegreeFilterCancel" class="modal-btn">Cancel</button>
         </div>
       </fieldset>

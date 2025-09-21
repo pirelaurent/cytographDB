@@ -3,7 +3,7 @@
 import { showError , showInfo} from "../ui/dialog.js";
 
 
-export function bandeauMarkdown(doc){
+/* export function bandeauMarkdown(doc){
     
   const actions = doc.createElement("div");
   actions.className = "md-actions";
@@ -33,6 +33,43 @@ export function bandeauMarkdown(doc){
   actions.appendChild(imgCp);
  return actions 
 }
+ */
+
+
+export function bandeauMarkdown(doc){
+  const base = doc.baseURI;               // base de la nouvelle fenêtre
+  const url = (p) => new URL(p, base).href;
+
+  const actions = doc.createElement("div");
+  actions.className = "md-actions";
+  actions.setAttribute("role", "group");
+  actions.setAttribute("aria-label", "Actions Markdown");
+
+  // Download
+  const imgDl = doc.createElement("img");
+  imgDl.id = "mdDownload";
+  imgDl.src = url("./img/download.png");
+  imgDl.alt = "Download Markdown";
+  imgDl.title = "download Markdown";
+  imgDl.height = 25;
+  imgDl.setAttribute("aria-hidden", "true");
+  imgDl.style.cursor = "pointer";
+  actions.appendChild(imgDl);
+
+  // Copy
+  const imgCp = doc.createElement("img");
+  imgCp.id = "mdCopy";
+  imgCp.src = url("./img/clipboardCopy.png");
+  imgCp.alt = "Copy markdown to clipboard";
+  imgCp.title = "Copy markdown to clipboard";
+  imgCp.height = 22;
+  imgCp.setAttribute("aria-hidden", "true");
+  imgCp.style.cursor = "pointer";
+  actions.appendChild(imgCp);
+
+  return actions;
+}
+
 
 export function setEventMarkdown(doc,tableName,title){
 

@@ -165,6 +165,14 @@ button:hover {
   font-size: 0.9rem;
 }
 
+/* separator in table rows */
+tr.group-start > td, tr.group-start > th {
+  border-top: 2px solid grey;
+  padding-top: .25rem;
+}
+
+
+
 #spacingControls {
   display: flex;
   gap: 2rem;
@@ -525,6 +533,16 @@ th .sort-indicator {
   max-width: 400px;   /* <— clé */
 }
 
+.md-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+}
+.md-actions { justify-content: flex-end; gap: 12px; }
+
 
 .section-title {
   margin: 0; /* avoid vertical jump*/
@@ -618,4 +636,11 @@ legend {
 legend img { display: block; } /* évite l’alignement sur la ligne de base */
 fieldset {
   border: 1px solid rgb(105, 102, 99); /* ta couleur */
+}
+
+.filter .short {
+ min-width: 8ch;
+ max-width:12.5ch;
+width:100%
+
 }

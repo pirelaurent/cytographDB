@@ -107,7 +107,8 @@ const cyStyles = [
     style: {
       //'line-style': 'dotted',
       'line-color': "#77B5FE",// bleu ciel
-      //'target-arrow-color': 'brown',
+      //
+      'target-arrow-color': '#77B5FE',
       'width': 2
     }
   },
@@ -253,8 +254,8 @@ const cyStyles = [
 {
   selector: "edge.fk_detailed.nullable",
   style: {
-    'line-color': "#77B5FE",// bleu ciel
-    'target-arrow-color': '#77B5FE',
+    'line-color': "#c770e9",// bleu ciel
+    'target-arrow-color': '#c770e9',
   },
 },
 

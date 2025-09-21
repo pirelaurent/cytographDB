@@ -14,7 +14,9 @@ The perimeter of actions applies to selected nodes if any, or to all nodes if no
 
 ---
 
-## 🔍 Selection on Screen
+## 🔍 Selection 
+
+### on Screen
 
 Selections can be made by:  
 - Clicking nodes individually  
@@ -22,7 +24,7 @@ Selections can be made by:
 - **Shift + Click** for multi-selection  
 - Drawing a rectangle over nodes  
 
-### Select ...
+### menu Select 
 
 <img src ="./img/nodeSelect.png" width =150px >
 
@@ -30,7 +32,7 @@ Selections can be made by:
 - **All**: select all visible nodes (also available with `Ctrl + A`)  
 - **Swap selected**: invert the current selection (selected become unselected, and vice versa)  
 
-### Hide ...
+### menu Hide 
 
 <img src ="./img/nodeHide.png" width =150px >  
 
@@ -40,19 +42,33 @@ Selections can be made by:
 - **None**: show all nodes  
 - **Swap**: swap visible and hidden nodes  
 
+💡 **Quick menu Select/Hide** ( right click on background)
+
+<img src ="./img/quickSelectHide.png" width =150px >  
+
+| unselect all nodes | select all nodes | swap selection |  
+| hide selected | hide not selected | swap hidden | show all |
+
+--- 
+
 ### From Selected Edges ...
+
+If edges were directly selected, may be the associated nodes are not.  
 
 <img src ="./img/nodeFromEdge.png" width =150px>
 
 This menu works only with previously selected edges.  
 
-- **select source nodes**: select nodes that are the origin of a selected directed edge (FK owner)  
+- **select source**: select nodes that are the origin of a selected directed edge (FK owner)  
 - **both sides**: select all nodes connected in any manner to a selected edge  
 
-- **select target nodes**: select nodes that are the destination of a selected directed edge  
+- **select target**: select nodes that are the destination of a selected directed edge  
 
-💡 **Tip:** Example use case — filter edges by native category such as `"triggers generated"`.  
-Then apply **From Selected Edges → Both Sides** to highlight a subgraph of source and impacted tables by triggers.  
+💡 **use case example** 
+- filter edges by *native category* such as `"triggers generated"`.  
+- apply **From Selected Edges → Both Sides** this highlight a subgraph of source and impacted tables by triggers.  
+
+---
 
 ### Filter By ...
 
@@ -66,6 +82,19 @@ Applies a **regex-based filter** on node labels (e.g., table names). Matching no
 
 ⚠️ **Caution:** Some browsers may show text with autofill but not pass it to the regex.  
 Enter manually or copy/paste your filter.  
+
+#### By degree 
+
+Degree is the number of edges belonging to a node. 
+
+<img src ='./img/filterByDegree.png' width= "300px" >
+
+By default, the count take care of the reality of a node structure, even if some edges are hidden on screen. 
+
+*count only visible edges* modify this behavior by restricting search to visible edges.    
+This helps to find temporary orphans, leaf, root but only on current screen 
+
+
 
 #### By Native Category 
 
@@ -103,26 +132,6 @@ Native and custom categories are displayed while hovering over the node (with *h
 
 ---
 
-### Select ... With Edges 
-
-Select nodes based on their edge characteristics.  
-<img src = "./img/nodeByEdges.png" width ="150px">  
-
-- **None**: no edges on node (same as *filter by...native category... orphan*)  
-- **Looping**: node has a self-referencing edge (hierarchical references)  
-- **Outgoing**: condition on number of outgoing (FK) links  
-- **Incoming**: condition on number of incoming links  
-
-<img src = "./img/nodeByEdgesCount.png" width ="250px">  
-
-💡 **Tip:** Combine **AND/OR** selections to find specific structures.  
-
-<img src = "./img/and-or.png" width ="180px">  
-
-Example: select *first nodes with 2 outgoing* → set **AND** → select *no incoming edges*.  
-(This detects the same as the *Dry Association* category.)  
-
----
 
 ### Label 
 
@@ -147,8 +156,8 @@ Below, only *associations* were selected (*Filter by native category → All ass
 
 ### List 
 
-Generates an HTML file with all tables, sorted alphabetically.  
-This applies to the current perimeter (selected nodes if any, all nodes otherwise).  
+
+Generates an HTML file with *all or selected* tables, sorted alphabetically.  
 
 **All headers are sortable** by clicking on the header.  
 
@@ -166,10 +175,11 @@ Clicking on a trigger number opens its trigger definition.
 
 <img src = "./img/closeButton.png" width ="50px" >
 
-Closes the current browser tab : that will return to main graph.  
+Closes the current browser tab : that will return to main graph. 
+**If selected option had been changed in the list, changes will apply to graph  **
 
 💡 **Tip: don't forget to close tab**  
->If you don’t, a later call to the same named tab will update it as expected, it blinks BUT it will not come to front (standard security reasons).  
+>If you don’t, a later call to the same named tab will update it as expected, it blinks **BUT** it will not come to front (standard security reasons).  
 Don’t assume your action failed — check your tab list first. 
 
 ---

@@ -19,23 +19,24 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
 
 ### table shapes
 
-- **orphan** : no links
+
+-
+<img src = "./img/shapeOrphan.png" height="20"> **orphan** : no links
   -  pentagon ( *parameters* )
-- **root** : no outgoing link. 
+- <img src = "./img/shapeRoot.png" height="20"> **root** : no outgoing link. 
   - triangle (*product, company*).
-- **leaf** : no incoming, one outgoing 
+- <img src = "./img/shapeLeaf.png" height="20"> **leaf** : no incoming, one outgoing 
   - rounded triangle (*skills*)
-- **(dry) association** :  no incomings, 2 outgoings, strict list of columns from FK in table
-  - ellipse (*authorization*) 
-- **multi-association** : no incomings, >2 outgoings, or: 2 outgoings with extra column in table
+-  <img src = "./img/shapeDry.png" height="20">**(dry) association** :  no incomings, 2 outgoings, strict list of columns from FK in table   
+     - ellipse (*authorization*) 
+- <img src = "./img/shapeMulti.png" height="20"> **multi-association** : no incomings, >2 outgoings, or: 2 outgoings with extra column in table
   - ellipse with double border (*intervention*)
-- default table 
+- <img src = "./img/shapeDefault.png" height="20"> **other tables** 
   - round rectangle (*production line, factory, employee*)
   
 #### standard alteration 
 
-- table  **'has triggers'**
-  -  label of node is followed by ***stars \****, 1 per trigger (*intervention\*\**)
+- table  **'has triggers'** : label is followed by ***stars \**** ( 1 per trigger. see *intervention\*\**)
 
 
 ### hover on node
@@ -62,19 +63,20 @@ These pop up show :
 ## Edge = FK representation
 
 - FK    
-  - straight line with destination arrow as triangle     
+  - straight line with destination arrow as triangle      
  <img src ="./img/edgeSimple.png" width = "200px">.  
 
 - FK '**on delete cascade**' 
-  - standard FK but a circle as source-arrow
+  - standard FK but a circle as source-arrow   
  <img src ="./img/edgeCascade.png" width = "200px">.  
+
 - FK '**nullable**'
-  - special line color ( default blue sky )
+  - special line color ( default blue sky )   
  <img src ="./img/edgeNullable.png" width = "100px">. 
 
 ### edge info popup 
 
-with hover "on" in main menu bar, a popup is added when mouse is over an edge
+with hover "on" in main menu bar, a popup is added when mouse is over an edge.   
 
 
 -**source table -> destination table** 
@@ -199,10 +201,10 @@ This kind of directed graph allows to walk through ***table dependencies***.
 From some selected points, allow to 
 - navigate in any directions
 - select neighbours 
-- bring them back from hidden to visible if necessary. 
+- **bring them back from hidden to visible if necessary**. 
 
 
-#### *outgoing / incoming / both* 
+#### follow *outgoing / incoming / both* 
 
 Starting from *current nodes perimeter*, select next ones in the chosen direction.  
 
@@ -219,22 +221,21 @@ With same starting point: *production-line* but with ***follow incoming***
 involved dry associations cannot be crossed by *incoming*. 
 If we use *outgoing* to take the other sides, it will bring also *factory* which is not wanted 
 
-#### follow & show... association
+#### follow  *association*
 
 This continue the walk on the other side of (dry) associations: 
 <img src ="./img/associationProduction-line.png" width = "500px" style="border: 1px solid grey;">
 
 #### Individual follow actions on a chosen node 
-The colored direction arrows allow to walk from the current node by : 
-green left : select outgoing 
-yellow center : select both 
-red right : select incoming 
+The direction arrows allow to follow edges only for the current node :   
+<img src = "./img/contextualFollow.png" width ="100" style="border: 1px solid grey;">   
+**outgoing |  both |  incoming** 
 
-<img src = "./img/contextualNodeMenu.png" width ="160px" style="border: 1px solid grey;">
+
 
 ---
 
-### follow & show... long path dependencies
+### follow  *long path dependencies*
 
  This walk follow outgoing edges from table to table to find all the outgoing long paths, avoiding loops.   
  💡 start with few nodes, mainly from ***leaf node***.
@@ -249,20 +250,21 @@ To facilitate reading, common path parts are greyed. Below we started with all n
 
 <img src ="./img/longPathGrahList3.png" width = "400px" style="border: 1px solid grey;">. 
 
-## follow & show... pk <- fk chains
+## follow *pk <- fk chains*
 
-This walk followw inconmint. It must start from a ***root***.   
+This walk follow inconming. It must start from a ***root***.   
 If search backward where FK uses exactly all the columns of the PK's source and propagate the same search. 
 
 In democytodb, starting from the root *company* : 
 
-<img src ="./img/longPathNto1.png" width = "500px" style="border: 1px solid grey;">.  
+<img src ="./img/longPathNto1.png" width = "400px" style="border: 1px solid grey;">.  
 And the associated list :   
-<img src ="./img/longPathNto1List.png" width = "300px" style="border: 1px solid grey;">
+<img src ="./img/longPathNto1List.png" width = "400px" style="border: 1px solid grey;">
 ---
 
 This ends the quick tour.
-See other menus for more options. 
+See detailed menus for more options. 
+
 
 
 ---

@@ -75,12 +75,12 @@ Illustration of *between* below (three nodes were previously selected):
 
 #### By Name
 
-<img src ='./img/edgeFilterByName.png' width= "300px" >
+<img src ='./img/filterByEdgeName.png' width= "300px" >
 
 Applies a **regex-based filter** on edge labels (e.g., FK names). Matching edges are selected.  
 
-⚠️ **Caution:** Some browsers may display text with autofill but not pass it to the regex.  
-Enter manually or copy/paste your filter.  
+⚠️ **Caution:** Autofill with some browsers may display text with no effect.  
+Enter manually or copy/paste your filter or add a space after autofill.
 
 #### By Native Category 
 

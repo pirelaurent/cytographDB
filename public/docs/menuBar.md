@@ -23,7 +23,7 @@ You can also use the keyboard shortcut **Ctrl + G** — useful for taking a snap
 ---
 
 ## 🔎 Select Mode: OR / AND  
-<img src ="./img/and-or.png" height =60px/>
+<img src ="./img/and-or.png" height =40px/>
 
 - **OR (default):** Adds new elements to the current selection.
 - **AND:** Applies the selection **only to already selected elements**, resulting in an AND operation.
@@ -77,12 +77,14 @@ When reloading such a JSON file, CytographDB checks if the currently connected d
 
   ***Yes***: application options will come from the accepted database, under the user's responsibility.    
   ***No***: some application options may not return any results.  
-  <img src= "./img/NoDetailsAvailable.png" width ="300px" style ="border:1px solid #888">  
+ 
 
 - If there is **no database connection at all**:  
 <img src= "./img/NoDetailsNoDB.png" width ="300px" style ="border:1px solid #888">  
 
 ### Options Requiring a Database 
+
+If no DB connected, somme action will have errors or no effects: 
 
 ***Triggers list and code details***  
 <img src = './img/DBErrorOnTriggers.png' width ="200px" style="border: 1px solid grey;">

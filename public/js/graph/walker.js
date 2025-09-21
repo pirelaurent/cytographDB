@@ -28,7 +28,7 @@ import {
 
 import { setEventMarkdown, bandeauMarkdown } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
-import {createIconButton} from "../ui/dialog.js";
+import { createIconButton } from "../ui/dialog.js";
 
 //------------------------
 
@@ -248,19 +248,21 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
     });
   }
 
-  // limit exploration 
+  // limit exploration
 
   let startNodes = getCy().nodes(":visible:selected");
- // no selected : is subgraph small ? 
+  // no selected : is subgraph small ?
   if (startNodes.length === 0) {
     startNodes = getCy().nodes(":visible");
 
-    if (startNodes.length ===0){
+    if (startNodes.length === 0) {
       showAlert("no nodes to explore");
       return;
     }
-    if (startNodes.length> 30){
-      showAlert(`Many nodes (${startNodes.length}) as starting points. Think about to reduce perimeter by selection next time `);
+    if (startNodes.length > 30) {
+      showAlert(
+        `Many nodes (${startNodes.length}) as starting points. Think about to reduce perimeter by selection next time `
+      );
     }
   }
   let msgIteration = "";
@@ -339,7 +341,6 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
   });
 }
 
-
 /*
  dynamic html to restitute long path 
 */
@@ -378,9 +379,8 @@ function showLongPathList(limit, paths) {
   h2.appendChild(doc.createTextNode(" Long path list"));
   body.appendChild(h2);
 
-
-    const band = bandeauMarkdown(doc);
-    body.appendChild(band);
+  const band = bandeauMarkdown(doc);
+  body.appendChild(band);
   // --- Table
   const table = doc.createElement("table");
   table.id = "longPathTable";
@@ -446,10 +446,9 @@ function showLongPathList(limit, paths) {
   body.appendChild(table);
 
   // --- events Markdown
-   setEventMarkdown(doc, "longPathTable", "Long path list");
-     enableTableSorting("longPathTable",doc);
+  setEventMarkdown(doc, "longPathTable", "Long path list");
+  enableTableSorting("longPathTable", doc);
 }
-
 
 /*
  remove (dry) associations (2) nodes and create new direct links 
@@ -533,7 +532,7 @@ export function restoreAssociations() {
 
 /*
  partial save for list of chains
-*/
+
 export function downloadJson(jsonObject, filename = "trace.json") {
   const jsonStr = JSON.stringify(jsonObject, null, 2); // indentation
   const blob = new Blob([jsonStr], { type: "application/json" });
@@ -548,26 +547,62 @@ export function downloadJson(jsonObject, filename = "trace.json") {
   document.body.removeChild(a);
   URL.revokeObjectURL(url); // nettoyage
 }
+*/
 
 /*
- used by long path 
+ used by long path longPathNto1List
 */
 
 function openJsonInNewTab(jsonArray, aTitle) {
-  function toSimplifiedText(arr) {
-    return arr
-      .map((obj) => {
-        const lines = [];
-        lines.push(` <b>${obj.to}</b> <--  <b>${obj.from}</b>`);
-        for (const col of obj.columns) {
-          lines.push(`  ${col.target_column} <-- ${col.source_column}`);
-        }
-        return lines.join("\n");
-      })
-      .join("\n\n");
-  }
+  function toPkfkTable(arr) {
+    let htmlPart = `
+    <table id ='table-pk-fk'> 
+    <thead>
+      <tr>
+        <th>To &lt;--</th>
+        <th> &lt;-- pk col</th>
+        <th> &lt;-- fk col </th>
+        <th>&lt;-- From</th>
+      </tr>
+     </thead>
+      <tbody>`;
+    let lastObjTo;
+    let lastObjFrom;
 
-  const simplifiedText = toSimplifiedText(jsonArray);
+    for (const obj of arr) {
+      for (const col of obj.columns) {
+        let newRoot = obj.to;
+        let newFollower = obj.from;
+        let separator = "";
+
+        if (obj.to != lastObjTo || obj.from != lastObjFrom) {
+          newRoot = `<b>${newRoot}</b>`;
+          newFollower = `<b>${newFollower}</b>`;
+          separator = "class = 'group-start'";
+        } else {
+          newRoot = "";
+          newFollower = "";
+        }
+
+        htmlPart += `
+        <tr ${separator}>
+         <td>${newRoot}</td> 
+         <td>  ${col.target_column} </td>
+         <td> ${col.source_column}</td>
+         <td>${newFollower}</td>
+        </tr>
+
+        `;
+        lastObjTo = obj.to;
+        lastObjFrom = obj.from;
+      }
+    }
+    htmlPart += `</tbody> </table>`;
+
+    console.log(htmlPart); //PLA
+    return htmlPart;
+  }
+  const pkfkTable = toPkfkTable(jsonArray);
 
   // chemin absolu (important si la nouvelle page est "vierge")
   const imgSrc = `${location.origin}/img/closePage.png`;
@@ -579,34 +614,36 @@ function openJsonInNewTab(jsonArray, aTitle) {
   <meta charset="utf-8">
   <title>${aTitle}</title>
   <link rel="stylesheet" href="${location.origin}/css/style.css">
-  <style>
-    body { font-family: system-ui, sans-serif; margin: 1rem 1.25rem; }
-    h1 { margin: 0 0 0.5rem; font-size: 1.4rem; }
-    h2 { margin: 0 0 1rem; font-size: 1.1rem; display:flex; align-items:center; gap:0.5rem; }
-    pre { white-space: pre-wrap; word-break: break-word; }
-  </style>
+
  </head>
-      <body>
+      <body class ="alt-body">
         <h1>
         <button class="close-btn" title="close" onclick="window.close()">
             <img src="${imgSrc}" alt="close">
           </button>
         
         from ${aTitle}</h1>
-        <h2>
-          
+        <h2> 
           chains of PK matched exactly by FK
         </h2>
-        <pre>${simplifiedText}</pre>
+
+        <div id="md-actions-anchor"> </div> <!-- to inject later markdown output -->
+
+        ${pkfkTable}
       </body>
   </html>
   `;
 
-  // ouvre un onglet "standard"
   const win = window.open("", "longPath");
 
-  // injecte le HTML complet
+
   win.document.documentElement.innerHTML = html;
+  const toolbar = bandeauMarkdown(win.document);
+  const anchor = win.document.getElementById("md-actions-anchor");
+  if (anchor) {
+    anchor.appendChild(toolbar);
+  }
+  setEventMarkdown(win.document, "table-pk-fk", "pk-fk-chains");
 }
 
 /*
@@ -659,38 +696,10 @@ export function findPkFkChains() {
 
     // nothing to show if no follower
     if (getCy().nodes(":selected:visible").length > 1) {
-      setTimeout(() => {
-        showMultiChoiceDialog("Details of PK propagation", "(experimental)", [
-          {
-            label: "✅ graph only",
-            onClick: () => {
-              hideNotSelectedThenDagre();
-            },
-          },
-
-          {
-            label: "📥 graph + download chains in JSON ",
-            onClick: () => {
-              hideNotSelectedThenDagre();
-              downloadJson(trace, `trace_follow_${root.id()}.json`);
-            },
-          },
-          {
-            label: "👁️ graph + display PK chains",
-            onClick: () => {
-              hideNotSelectedThenDagre();
-              openJsonInNewTab(trace, `${root.id()}`);
-            },
-          },
-          {
-            label: "❌ cancel",
-            onClick: () => {
-              groupNodes.unselect();
-              root.select();
-            },
-          },
-        ]);
-      }, 100); // 100 ms enough
+      //auto display
+      hideNotSelectedThenDagre();
+      openJsonInNewTab(trace, `${root.id()}`);
+      //console.log(trace);
     }
   });
 }
@@ -700,77 +709,7 @@ export function findPkFkChains() {
  * @param {Cytoscape.NodeSingular} rootNode - nœud racine (sans FK entrante)
  * @returns {Set<string>} - Ensemble des IDs des nœuds descendants fonctionnels (y compris root)
  */
-//V0 uses only PK column of root
-export function V0_findFunctionalDescendantsCytoscape(rootNode) {
-  const visited = new Set();
-  const trace = [];
-  const rootPK = new Set(rootNode.data("primaryKey")?.columns || []);
-  // internal recursive
-  function dfs(node, pkToMatch) {
-    const nodeId = node.id();
-    if (visited.has(nodeId)) return;
-    visited.add(nodeId);
 
-    const incoming = node.incomers("edge");
-    // loop on incoming edges
-    for (const edge of incoming) {
-      const source = edge.source();
-      const sourceId = source.id();
-      if (visited.has(sourceId)) continue;
-
-      const sourceCols = new Set(source.data("columns") || []);
-      const foreignKeys = source.data("foreignKeys") || [];
-
-      let match = false;
-
-      for (const fk of foreignKeys) {
-        // the linked table can have other FK than the one going to the current root
-        if (fk.target_table !== nodeId) continue;
-        const mappings = fk.column_mappings || [];
-        /*
-        source is the table that owns the FK
-        [
-        source_column:"product_id"
-        source_not_null: true
-        target_column:"id"
-        ,]
-      */
-        const targetCols = mappings.map((m) => m.target_column);
-        const sourceColsMapped = mappings.map((m) => m.source_column);
-        // does this FK include all elements of PK ?
-        const pkMatches = [...pkToMatch].every((col) =>
-          targetCols.includes(col)
-        );
-        // security: following test is useful only if mapping doesn't come directly from a db retroanalysis
-        const sourceContainsAllMapped = sourceColsMapped.every((col) =>
-          sourceCols.has(col)
-        );
-
-        if (pkMatches && sourceContainsAllMapped) {
-          trace.push({
-            from: sourceId,
-            to: nodeId,
-            fkName: fk.constraint_name || null,
-            columns: mappings.map(({ source_column, target_column }) => ({
-              source_column,
-              target_column,
-            })),
-          });
-          match = true;
-          continue; //not break
-        } else {
-          //console.log("Fk not on PK :"+fk.constraint_name);
-        }
-      }
-      if (match) {
-        dfs(source, pkToMatch);
-      }
-    }
-  }
-
-  dfs(rootNode, rootPK);
-  return { visited, trace };
-}
 //this version follows links FK->PK with columns of each step
 export function findFunctionalDescendantsCytoscape(rootNode) {
   const visited = new Set();
@@ -838,6 +777,5 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
   // Lancement avec la PK du nœud racine
   const rootPK = new Set(rootNode.data("primaryKey")?.columns || []);
   dfs(rootNode, rootPK);
-
   return { visited, trace };
 }

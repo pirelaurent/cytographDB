@@ -83,7 +83,7 @@ function openDegreeFilter() {
 }
 
 function closeDegreeFilter() {
-    console.log("closeDegreeFilter")
+    //console.log("closeDegreeFilter")
   document.getElementById("degreeFilter").style.display = "none";
 }
 
@@ -112,7 +112,7 @@ function modalDegreeFilter() {
 
   // calculation loop
   let cy = getCy();
-  let nodes = cy.nodes(":visible");
+  let nodes = degreeRestrictToVisible?cy.nodes(":visible"):cy.nodes();
 
   // if at least one input go on
   if (minOut != null || maxOut != null || minIn != null || maxIn != null) {
@@ -149,6 +149,7 @@ function modalDegreeFilter() {
       if (allOk) {
         //console.log(n.id() + " ok "); //PLA
         n.select();
+        if (!degreeRestrictToVisible) n.show();
       }
     });
   }
@@ -178,7 +179,7 @@ function openNameFilterModal(event, type) {
 
   const isNode =
     type === "node" || event?.currentTarget?.dataset.category === "nodesName";
-  title.textContent = `Filter ${isNode ? "nodes" : "edges"} by name (regex)`;
+  title.textContent = `Filter ${isNode ? "nodes" : "edges"} by name`;
   hiddenType.value = isNode ? "nodes" : "edges";
 
   document.getElementById("modalNameFilterInput").focus();

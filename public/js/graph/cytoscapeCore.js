@@ -264,11 +264,18 @@ export function setAndRunLayoutOptions(option) {
   switch (layoutName) {
     case "dagre":
       Object.assign(layoutOptions, {
-        rankDir: "LR", // Left to Right
-        nodeSep: 50,
-        edgeSep: 10,
-        rankSep: 100,
-        numIter: 1000,
+        name: "dagre",
+        rankDir: "LR", // 'TB' (haut→bas), 'LR' (gauche→droite)
+        nodeSep: 50, // espace entre nœuds d’un même rang
+        edgeSep: 10, // espace entre arêtes d’un même rang
+        rankSep: 80, // espace entre rangs
+        //align: "DL", // alignement dans un rang: 'UL', 'UR', 'DL', 'DR'
+        //acyclicer: "greedy", // casse les cycles par heuristique si ton graphe n’est pas DAG
+        ranker: "tight-tree",//"network-simplex", // (ou 'tight-tree', 'longest-path')
+        //nodeDimensionsIncludeLabels: true,
+        //fit: true,
+        padding: 30,
+        numIter: 1100,
       });
       break;
 
@@ -857,37 +864,36 @@ export function revealNeighbor(edge, maxDist = 500) {
   }
 }
 
+//------------------
+export function labelNodeShow() {
+  perimeterForNodesAction().forEach((node) => {
+    const originalSize = node.data("originalSize");
 
-      //------------------
-      export function labelNodeShow() {
-      perimeterForNodesAction().forEach((node) => {
-        const originalSize = node.data("originalSize");
+    if (originalSize) {
+      node.data("label", node.data("originalLabel"));
+      node.style({
+        width: originalSize,
+        height: originalSize,
+      });
+      // caution : removeData don't remove the key. The key stays as undefined.
+      node.removeData("originalSize");
+      node.removeData("originalLabel");
+    }
+  });
+}
 
-        if (originalSize) {
-          node.data("label", node.data("originalLabel"));
-          node.style({
-            width: originalSize,
-            height: originalSize,
-          });
-          // caution : removeData don't remove the key. The key stays as undefined.
-          node.removeData("originalSize");
-          node.removeData("originalLabel");
-        }
+export function labelNodeHide() {
+  perimeterForNodesAction().forEach((node) => {
+    // detect if already done
+    if (node.data("originalLabel") === undefined) {
+      const currentSize = node.style("width");
+      node.data("originalSize", currentSize);
+      node.data("originalLabel", node.data("label"));
+      node.data("label", " ");
+      node.style({
+        width: "6px",
+        height: "6px",
       });
     }
-
-    export function labelNodeHide(){
-          perimeterForNodesAction().forEach((node) => {
-            // detect if already done
-            if (node.data("originalLabel") === undefined) {
-              const currentSize = node.style("width");
-              node.data("originalSize", currentSize);
-              node.data("originalLabel", node.data("label"));
-              node.data("label", " ");
-              node.style({
-                width: "6px",
-                height: "6px",
-              });
-            }
-          });
-        }
+  });
+}

@@ -10,14 +10,13 @@ import {
   selectAllVisibleNodes,
 } from "../graph/cytoscapeCore.js";
 
-import { pushSnapshot, popSnapshot } from "../graph/snapshots.js";
+import { pushSnapshot, popSnapshot, reDoSnapshot } from "../graph/snapshots.js";
 
 import {
   showAlert,
   menuSelectSizeOutgoing,
   menuSelectSizeIncoming,
   deleteNodesSelected,
-
 } from "./dialog.js";
 
 import { openTable, openTriggerPage } from "../dbFront/tables.js";
@@ -31,7 +30,7 @@ import {
 
 import { follow } from "../graph/walker.js";
 import { menuNodes } from "./menus.js";
-import {setModalInterceptors} from "./modal.js";
+import { setModalInterceptors } from "./modal.js";
 
 /*
  all the events set in gui are defined here 
@@ -219,6 +218,7 @@ export function setInterceptors() {
     a: selectAllVisibleNodes,
     g: captureGraphAsPng,
     h: hideNotSelected,
+    y: reDoSnapshot,
     z: popSnapshot, //undo
 
     // Ajoute d'autres raccourcis ici
@@ -482,9 +482,9 @@ export function setInterceptors() {
       getCy().elements().removeClass("faded start-node");
       getCy().edges(":selected").removeClass("internal outgoing incoming");
     } else if (event.target.isNode && event.target.isNode()) {
-      pushSnapshot();
+      // pushSnapshot('tapNode');
     } else if (event.target.isEdge && event.target.isEdge()) {
-      pushSnapshot();
+      // pushSnapshot('tapEdge');
     }
   });
 
@@ -494,7 +494,7 @@ export function setInterceptors() {
   let previousSelection = null;
 
   getCy().on("boxstart", () => {
-    pushSnapshot();
+    //pushSnapshot('boxStart');
     if (ctrlPressed) {
       previousSelection = getCy().elements(":selected"); // snapshot AVANT
       //console.log('boxstart '+previousSelection.length)
@@ -544,7 +544,6 @@ export function setInterceptors() {
     btnIn.addEventListener("click", menuSelectSizeIncoming);
   }
 
-
   document.getElementById("arrowLeft").addEventListener("click", () => {
     commonArrow("outgoing");
   });
@@ -556,7 +555,6 @@ export function setInterceptors() {
   document.getElementById("arrowMiddle").addEventListener("click", () => {
     commonArrow("both");
   });
-
 
   function commonArrow(direction) {
     // store current selected
@@ -578,7 +576,7 @@ export function setInterceptors() {
     menuNodes("all");
   });
   document.getElementById("icon-selectNone").addEventListener("click", () => {
-  menuNodes("none")
+    menuNodes("none");
   });
   document.getElementById("icon-selectSwap").addEventListener("click", () => {
     menuNodes("swapSelected");
@@ -588,9 +586,11 @@ export function setInterceptors() {
     menuNodes("hideSelected");
   });
 
-  document.getElementById("icon-hideNotSelected").addEventListener("click", () => {
-    menuNodes("hideNotSelected");
-  });
+  document
+    .getElementById("icon-hideNotSelected")
+    .addEventListener("click", () => {
+      menuNodes("hideNotSelected");
+    });
 
   document.getElementById("icon-swapHidden").addEventListener("click", () => {
     menuNodes("swapHidden");
@@ -599,7 +599,4 @@ export function setInterceptors() {
   document.getElementById("icon-showAll").addEventListener("click", () => {
     menuNodes("showAll");
   });
-
-
-
 } // setInterceptor

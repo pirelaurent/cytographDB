@@ -38,11 +38,16 @@ import { createIconButton } from "../ui/dialog.js";
 
 export function follow(direction = "outgoing") {
   // not perimeterForNodesAction to avoid full nodes.
-  let selectedNodes = getCy().nodes(":visible:selected");
+  let cy = getCy();
+
+  let selectedNodes = cy.nodes(":visible:selected");
   if (selectedNodes.length === 0) {
-    showAlert("no selected nodes to follow.");
-    return;
+    selectedNodes = cy.nodes(":visible");
+    //showAlert("no selected nodes to follow.");
+    //return;
   }
+
+  showWaitCursor();
 
   pushSnapshot();
 
@@ -101,7 +106,7 @@ export function follow(direction = "outgoing") {
 
   // propagation of edge selection
   nodesMarked.forEach((id) => {
-    const node = getCy().getElementById(id);
+    const node = cy.getElementById(id);
     node.connectedEdges().forEach((edge) => {
       if (edgesToShow.has(edge.id())) {
         revealNeighbor(edge);
@@ -112,22 +117,24 @@ export function follow(direction = "outgoing") {
 
   // show new nodes and select them
   nodesMarked.forEach((id) => {
-    const node = getCy().getElementById(id);
+    const node = cy.getElementById(id);
     // already done by revealNeighbour node.show();
     node.select();
   });
 
   // Réaffichage des arêtes souhaitées
-  getCy().edges().unselect();
+  cy.edges().unselect();
   edgesToShow.forEach((id) => {
-    const edge = getCy().getElementById(id);
+    const edge = cy.getElementById(id);
     edge.show();
     edge.select();
   });
 
   // Z-index pour bien mettre en avant la sélection
-  getCy().nodes(":selected").css("z-index", 100);
-  getCy().nodes(":unselected").css("z-index", 10);
+  cy.nodes(":selected").css("z-index", 100);
+  cy.nodes(":unselected").css("z-index", 10);
+
+  hideWaitCursor();
 }
 
 /*
@@ -635,7 +642,6 @@ function openJsonInNewTab(jsonArray, aTitle) {
   `;
 
   const win = window.open("", "longPath");
-
 
   win.document.documentElement.innerHTML = html;
   const toolbar = bandeauMarkdown(win.document);

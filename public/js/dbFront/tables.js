@@ -1,18 +1,16 @@
-"uses strict"
+"uses strict";
 
-import {
-  getCy,
-}
-  from "../graph/cytoscapeCore.js";
+import { getCy } from "../graph/cytoscapeCore.js";
 
 import {
   promptDatabaseSelectionNear,
-  showError,showInfo,showAlert,
-}
-  from "../ui/dialog.js"
-
+  showError,
+  showInfo,
+  showAlert,
+} from "../ui/dialog.js";
 
 import { getCustomNodesCategories } from "../filters/categories.js";
+import { resetSnapshot } from "../graph/snapshots.js";
 
 /*
  as in a new page (and no session) dbname cannot be shared with main
@@ -48,7 +46,6 @@ export function openTriggerPage(node) {
   }
 }
 
-
 /*
  connect to db with graph or only db 
 */
@@ -56,7 +53,6 @@ export function connectToDb(menuItemElement) {
 
   return promptDatabaseSelectionNear(menuItemElement).then((dbName) => {
     if (!dbName) {
-
       // no selection of db , not an error
       //return Promise.reject(new Error("No database selected"));
       return;
@@ -80,11 +76,13 @@ export function connectToDb(menuItemElement) {
 
       document.getElementById(
         "current-db"
-      ).innerHTML = `<small>&nbsp;connected to: </small> ${dbName}`;
+      ).innerHTML = `<small>&nbsp;connected to: </small><b> ${dbName}</b>`;
 
       // clean current graph
-      if (typeof getCy() !== 'undefined' && getCy()) {
+      if (typeof getCy() !== "undefined" && getCy()) {
         getCy().elements().remove();
+        resetSnapshot();
+        document.getElementById('graphName').value="";
       } else {
         showError("Graph not initialized");
       }
@@ -94,8 +92,34 @@ export function connectToDb(menuItemElement) {
   });
 }
 
+/*
+ used to try to reopen under the hood the stored DB name used by a saved Json 
+
+*/
+
+export async function connectToDbByNameWithoutLoading(dbName) {
+  try {
+    const res = await fetch("/connect-db", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dbName }),
+    });
+
+    const body = await res.text(); 
+    if (!res.ok) throw new Error(body || `HTTP ${res.status}`);
+          document.getElementById(
+        "current-db"
+      ).innerHTML = `<small>&nbsp;connected to: </small> <b>${dbName}</b>`;
+
+    return { ok: true, message: body };
+  } catch (err) {
+    return { ok: false, message: err.message || String(err) };
+  }
+}
+
 // about DB through postgres
 let postgresConnected = false;
+// to set from several places
 export function setPostgresConnected() {
   postgresConnected = true;
 }
@@ -122,8 +146,6 @@ call script analysis to get impacted tables
 */
 
 export async function generateTriggers(nodes) {
-
-
   const nodesWithTriggers = nodes.filter((node) => {
     const trigs = node.data("triggers");
 

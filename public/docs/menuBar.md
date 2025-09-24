@@ -10,7 +10,8 @@ Menus and submenus appear on hover and disappear when the cursor leaves.
 ## <img src ="../img/rollback2.png" height =20px/> Undo
 
 The **counterclockwise arrow** restores the previous state of the graph after an action.  
-You can also use the keyboard shortcut **Ctrl + Z**.
+You can also use the keyboard shortcut **Ctrl Z**.
+Notice shortcut **Ctrl Y** can restore backward. 
 
 ---
 
@@ -18,7 +19,7 @@ You can also use the keyboard shortcut **Ctrl + Z**.
 
 This button captures the current view and prompts you to download it as a PNG image.   
 The edges are temporarily enhanced in the graph image so they are more visible when printing.   
-You can also use the keyboard shortcut **Ctrl + G** — useful for taking a snapshot without moving the mouse outside the graph. 
+You can also use the keyboard shortcut **Ctrl G** — useful for taking a snapshot without moving the mouse outside the graph. 
 
 ---
 
@@ -67,56 +68,56 @@ The main purpose of **CytographDB** is to create a graph from an available Postg
 
 ####  <img src="./img/connectToDBMenu.png"> 
 
-At any time, the full graph or a simplified view can be saved as a JSON file.  
-When reloading such a JSON file, CytographDB checks if the currently connected database is the same one used for that extract.   
 
-- **Same database**: the application continues directly.  
-- **Different database**: the application asks the user to check compatibility:
-
-  <img src= "./img/compatibility.png" width ="300px" style ="border:1px solid #888">   
-
-  ***Yes***: application options will come from the accepted database, under the user's responsibility.    
-  ***No***: some application options may not return any results.  
- 
-
-- If there is **no database connection at all**:  
-<img src= "./img/NoDetailsNoDB.png" width ="300px" style ="border:1px solid #888">  
-
-### Options Requiring a Database 
-
-If no DB connected, somme action will have errors or no effects: 
-
-***Triggers list and code details***  
-<img src = './img/DBErrorOnTriggers.png' width ="200px" style="border: 1px solid grey;">
-
-***Table details***  
-<img src = './img/DBNoTabeDefinition.png' width ="500px" style="border: 1px solid grey;">
-
-💡 **Tip:** Use *Connect to DB only* ***before*** reloading a stored JSON file.
-  
 ---
 
 # File Access 
 
 ## <img src="./img/filesMenu.png"> 
 
-Used to save and load graph data in JSON format.
+
+ 
+
+
 
 ### Download 
 
-Save the graph to your local disk using the browser. 
+At any time, a graph can be saved (download) in its current state as a JSON file. 
 
-#### Graph Name Input
+It save the graph to your ***local disk*** using the browser. 
 
-You can assign a name to your graph before downloading.  
-In any case, the browser allows you to change it. 
+#### Graph Name in main bar
 
 <img src="./img/drafInput.png"> 
 
+
 ### Upload 
 
-Load a JSON file previously saved via download.  
-The database check is performed as explained above in **Database Access**.  
+By default an upload will try to find and connect automatically the original DB used when dowloaded. 
+
+#### compatible DB 
+
+If this very DB is no more available, you can connect  a compatible one first:    
+####  <img src="./img/connectToDBMenu.png" width="120"> 
+
+Reloading your json, you will be prompted for a confirmation: 
+  <img src= "./img/compatibility.png" width ="260px" style ="border:1px solid #888">     
+
+
+**no database connection at all**:   
+  
+<img src= "./img/NoDetailsNoDB.png" width ="260px" style ="border:1px solid #888">  
+
+### Default if no Database 
+
+If no DB connected, somme actions will have errors or no effects: 
+
+***Triggers list and code details***  
+<img src = './img/DBErrorOnTriggers.png' width ="160" style="border: 1px solid grey;">
+
+***Table details***  
+<img src = './img/DBNoTabeDefinition.png' width ="400px" style="border: 1px solid grey;">
+
 
 --- 
 
@@ -147,7 +148,7 @@ Several algorithms are available.
 Some may spread nodes outside the screen: use **Fit Screen** or try a different layout.  
 Layout calculations include a random component and may vary with each execution.
 
-💡 **Tip:** Use **Undo (Ctrl + Z)** to restore the previous layout.
+💡 **Tip:** Use **Undo (Ctrl Z)** to restore the previous layout.
 
 ---
 
@@ -183,6 +184,16 @@ Rotate the nodes in the current perimeter in **15°** increments, either left (c
 Node labels remain **horizontally aligned**.
 
 💡 **Tip:** Mainly used to avoid overlapping labels. 
+
+--- 
+## keyboard shortcuts   
+
+- ctrl a: select All 
+- ctrl g: capture graph in a .png file
+- ctrl h: hide not selected
+- ctrl y: redo 
+- ctrl z: undo
+
 
 ---
 

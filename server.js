@@ -32,7 +32,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import pkg from "pg";
 const { Pool } = pkg;
 
-import { getPoolFor, getCurrentPool, getCurrentDBName, resetPool } from "./db.js";
+import { getPoolFor, getCurrentPool, getCurrentDBName, setCurrentDBName, resetPool } from "./db.js";
 import {
   collectFunctionBodies,
   extractImpactedTables,
@@ -389,10 +389,12 @@ app.post("/connect-db", async (req, res) => {
 
     // 🔍 Test réel de connexion
     await pool.query("SELECT 1");
+    res.send(`connected to <b>${dbName}</b>`);
+    //console.log(`connected to '${dbName}'`)//PLA
+    setCurrentDBName(dbName);
 
-    res.send(`connected to '${dbName}'`);
   } catch (err) {
-    console.error("Erreur de connexion :", err);
+    console.error("connection error :", err);
     res.status(500).send("connection failed");
   }
 });

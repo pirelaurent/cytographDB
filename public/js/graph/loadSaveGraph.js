@@ -13,6 +13,7 @@ import {
   restoreProportionalSize,
   proportionalSizeNodeSizeByLinks,
 } from "./cytoscapeCore.js";
+
 import {
   enterFkSynthesisMode,
   saveDetailedEdges,
@@ -21,13 +22,16 @@ import {
 
 import { showAlert, showError, showMultiChoiceDialog } from "../ui/dialog.js";
 
-import { getLocalDBName, setLocalDBName } from "../dbFront/tables.js";
+import { trace } from "../util/tracer.js";
 
 import {
-  popSnapshot,
-  pushSnapshot,
-  resetPositionStackUndo,
-} from "./snapshots.js";
+  getLocalDBName,
+  setLocalDBName,
+  connectToDbByNameWithoutLoading,
+  setPostgresConnected,
+} from "../dbFront/tables.js";
+
+import { popSnapshot, pushSnapshot, resetSnapshot } from "./snapshots.js";
 
 import {
   createNativeNodesCategories,
@@ -36,6 +40,7 @@ import {
 } from "../filters/categories.js";
 
 //---------------------
+
 export function loadInitialGraph() {
   let dbName = getLocalDBName();
   if (!dbName) {
@@ -62,7 +67,7 @@ export function loadInitialGraph() {
   })
     .then((res) => res.json())
     .then((data) => {
-      resetPositionStackUndo();
+      resetSnapshot();
       initializeGraph(data);
       // store details at load time /now generated with details
       saveDetailedEdges();
@@ -93,13 +98,13 @@ export function loadGraphState() {
     showAlert("Please enter a filename in the 'Graph name' box.");
     return;
   }
-  loadGraphNamed(filename);
+  loadGraphNamedFromServer(filename);
 }
 
 /*
  load from a stored file on server (not yet used)
 */
-function loadGraphNamed(filename) {
+function loadGraphNamedFromServer(filename) {
   if (typeof cy !== "undefined" && cy) {
     getCy().elements().remove();
   }
@@ -143,7 +148,7 @@ function loadGraphNamed(filename) {
       //document.getElementById("current-graph").textContent = filename;
       document.getElementById("graphName").value = filename;
       restoreProportionalSize();
-      resetPositionStackUndo();
+      resetSnapshot();
 
       restoreCustomNodesCategories();
 
@@ -171,7 +176,7 @@ export function showOverlayWithFiles() {
         a.textContent = file;
         a.onclick = () => {
           document.getElementById("overlay").style.display = "none";
-          loadGraphNamed(file);
+          loadGraphNamedFromServer(file);
         };
         li.appendChild(a);
         list.appendChild(li);
@@ -259,7 +264,7 @@ function sendGraphState(filename) {
 */
 
 /*
- download and upload from local disk 
+ download and upload JSON from local disk 
 
 */
 
@@ -272,13 +277,13 @@ export function saveGraphToFile() {
     return;
   }
 
-  // Ajoute .json si manquant
+  // add extension .json if none
   if (!filename.toLowerCase().endsWith(".json")) {
     filename += ".json";
   }
 
   let cy = getCy();
-  // cytoscape don't store visible/hide in json. Set an explicit data for further upload 
+  // cytoscape don't store visible/hide in json. Set an explicit data for further upload
   cy.batch(() => {
     cy.elements().forEach((ele) => {
       if (ele.hidden()) ele.data("hidden", true);
@@ -299,7 +304,6 @@ export function saveGraphToFile() {
     originalDBName: getLocalDBName(),
   };
 
-
   const blob = new Blob([JSON.stringify(json, null, 2)], {
     type: "application/json",
   });
@@ -318,78 +322,125 @@ export function saveGraphToFile() {
 }
 
 /*
- load file when user had choosen 
+
+ load file when user had choosen an element from navigator to upload 
 */
 
 export function loadGraphFromFile(event) {
   const file = event.target.files[0];
   if (!file) return;
-
-  //document.getElementById("current-graph").textContent = file.name;
+  trace?.(`loadGraphFromFile: ${file.name}`);
+  // GUI position show asked graphname
   document.getElementById("graphName").value = file.name;
 
   const reader = new FileReader();
+  let json;
+
   reader.onload = function (e) {
-    const json = JSON.parse(e.target.result);
+    json = JSON.parse(e.target.result);
     const originalDBName = json.originalDBName || null;
+    let currentDBName = getLocalDBName();
 
-    const currentDBName = getLocalDBName();
-    const message = `All details would not be available<br/> 
-    <br/> if compatible DB is accessible:<br/> Use <i> connect to DB only</i> then reload the json file`;
+    trace?.(`original: ${originalDBName} current: ${currentDBName}`);
 
-    // if no db connected accept upload without question
-    //if ((currentDBName != null) && (currentDBName != originalDBName)) {
-    if (currentDBName != null && currentDBName != originalDBName) {
-      {
-        let original = originalDBName == null ? " not defined" : originalDBName;
-        let current = currentDBName;
+    // same DB as the current one : ok continue
 
-        showMultiChoiceDialog(
-          ` <i>${file.name}</i> was created from <i>${original}</i>`,
-          `is current <b>${current}</b> compatible ?`,
-          [
-            {
-              label: "✅ Yes",
-              onClick: () => {},
-            },
-            {
-              label: "❌ No",
-              onClick: () => {
-                resetPoolFromFront();
-                showAlert(`${message}`);
-              },
-            },
-          ]
-        );
-      }
-    }
-    if (currentDBName === null) {
-      showAlert(`no DB connected. ${message}`);
+    if (originalDBName && originalDBName === currentDBName) {
+      trace?.(`case same DB: ${currentDBName}`);
+      createGraphFromJson(json);
+      return;
     }
 
-    // affiche, utilise, etc.
-    const cyData = { ...json };
-    delete cyData.originalDBName;
-    let cy = getCy();
-    cy.json(cyData);
-    cy.batch(() => {
-      cy.elements("[hidden]").hide(); // data(hidden)=true → hide()
-      cy.elements().not("[hidden]").show(); // le reste → show()
-    });
+    // not the same , try to open the right one from json
 
-    restoreProportionalSize();
-    resetPositionStackUndo();
-    restoreCustomNodesCategories();
+    if (originalDBName) {
+      connectToDbByNameWithoutLoading(originalDBName).then((result) => {
+        // ok to connect right DB
+        if (result.ok) {
+          trace?.(`DB found and connected : ${originalDBName}`);
+          setPostgresConnected();
+          setLocalDBName(originalDBName);
+          createGraphFromJson(json);
+          return;
+        }
+        // either no original db name, either cannot be able to connect to original
+        // try compatible
+        else {
+          // try to connect had failed
+          if (currentDBName != null) {
+            {
+              let original =
+                originalDBName == null ? " not defined" : originalDBName;
+              let current = currentDBName;
 
-    // show in synthetic after saving details
-    saveDetailedEdges();
-
-    enterFkSynthesisMode(true);
-    metrologie();
-    //getCy().layout({ name: 'cose'}).run();
+              showMultiChoiceDialog(
+                ` <i>${file.name}</i> was created from <i>${original}</i>`,
+                `is current <b>${current}</b> compatible ?`,
+                [
+                  {
+                    label: "✅ Yes",
+                    onClick: () => {
+                      // must reconnect as try to connect had failed
+                      connectToDbByNameWithoutLoading(currentDBName).then(
+                        (result) => {
+                          if (result.ok) {
+                            trace?.(`DB not found: ${originalDBName} Current reconnected : ${currentDBName}`);
+                            setPostgresConnected();
+                            setLocalDBName(currentDBName);
+                            createGraphFromJson(json);
+                          }
+                        }
+                      );
+                    },
+                  },
+                  {
+                    label: "❌ No",
+                    onClick: () => {
+                      resetPoolFromFront();
+                      trace?.("not compatible. refused  ")
+                      showAlert(
+                        `All details would not be available as no DB is connected<br/>`
+                      );
+                      createGraphFromJson(json);
+                    },
+                  },
+                ]
+              );
+            }
+          }
+        }
+      });
+    } else {
+      showAlert("The json has no information on its original DB");
+      createGraphFromJson(json);
+    }
   };
   reader.readAsText(file);
 }
+
+function createGraphFromJson(json) {
+  // affiche, utilise, etc.
+  const cyData = { ...json };
+  delete cyData.originalDBName;
+  let cy = getCy();
+  cy.json(cyData);
+  cy.batch(() => {
+    cy.elements("[hidden]").hide(); // data(hidden)=true → hide()
+    cy.elements().not("[hidden]").show(); // le reste → show()
+  });
+
+  restoreProportionalSize();
+  resetSnapshot();
+  restoreCustomNodesCategories();
+
+  // show in synthetic after saving details
+  saveDetailedEdges();
+
+  enterFkSynthesisMode(true);
+  metrologie();
+  //getCy().layout({ name: 'cose'}).run();
+}
+
 /*
 link to gui
 */
@@ -412,7 +463,7 @@ function hideWaitLoading() {
 }
 
 /*
- as originalDB was saved in downlod, must reset connection if wrong db in place 
+ as originalDB was saved in download, must reset connection if wrong db in place 
 */
 
 export async function resetPoolFromFront() {

@@ -10,9 +10,11 @@ let currentDBName = null;
 export function setCurrentDBName(aName) {
   currentDBName = aName;
 }
+
 export function getCurrentDBName() {
   return currentDBName;
 }
+
 /**
  * Crée ou réutilise un pool PostgreSQL pour une base donnée.
  * @param {string} dbName - Nom de la base de données PostgreSQL à utiliser.
@@ -20,7 +22,7 @@ export function getCurrentDBName() {
  */
 export function getPoolFor(dbName) {
   if (!dbName) {
-    throw new Error("Le nom de la base est requis.");
+    throw new Error("Must give a DB name");
   }
 
   if (getCurrentDBName() === dbName && currentPool) {

@@ -29,7 +29,7 @@ Selections can be made by:
 <img src ="./img/nodeSelect.png" width =150px >
 
 - **None**: clear any selection  (also any click on graph background)
-- **All**: select all visible nodes (also available with `Ctrl + A`)  
+- **All**: select all visible nodes (also available with `Ctrl A`)  
 - **Swap selected**: invert the current selection (selected become unselected, and vice versa)  
 
 ### menu Hide 

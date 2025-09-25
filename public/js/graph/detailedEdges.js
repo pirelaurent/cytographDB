@@ -154,7 +154,7 @@ export function cleanDetailedEdgesArray()
 
 /*
  swap the edges detailed with synthetic
-global: false when coming from menu , true for load/save
+ global: false when coming from menu , true for load/save
 */
 
 export function enterFkSynthesisMode(global = true) {
@@ -205,6 +205,7 @@ export function enterFkSynthesisModeForEdges(edges) {
     const onDelete = first.data("onDelete");
     const onUpdate = first.data("onUpdate");
 
+    // synthétique FK nullable if at leeast one element is nullable
     const nullable = edgeGroup.some((e) => e.data("nullable"));
     const labeled = edgeGroup.some((e) => e.hasClass("showColumns"));
 

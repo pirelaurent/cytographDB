@@ -15,15 +15,23 @@ No need to connect first before an upload :
  If, after a dialog, the DB Named in Json is given as compatible with current DB. 
 
 
-### SImple trace 
+### Simple trace 
  add simple trace in trace.js for debug
 
 ### follow & show 
- starts with selected. If not starts for visible.
+ starts with selected. If none starts for visible.
+
+
+# 2.07c
+
+Align table for index and fk 
+
+
+
+
+
 
 ## TODO 
-
-
    backward orientation for nodes/follow / long path
 
 

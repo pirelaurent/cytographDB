@@ -26,10 +26,14 @@
       style="cursor: pointer; vertical-align: middle; width: 25px; height: 25px;" onclick="window.tryClose()" />
     <h1 id="whereTitle"></h1>
   </div>
-  <div id="tableInfo">
+
+  <div id="tableInfo"> 
+
+    <div id="tableColumnsGlobal">
+
     <div class="half">
       <div class="section-header">
-        <h2 id="columnNumber" class="section-title">Columns</h2>
+        <h3 id="columnNumber" class="section-title">Columns</h3>
         <div class="md-actions" role="group" aria-label="Actions Markdown">
           <!--<img src="./img/markdown.png" alt="Markdown" title="Format Markdown" height="16" aria-hidden="true" />: -->
           <img id="mdDownload" src="./img/download.png" alt="Markdown" title="download Markdown" height="22"
@@ -50,14 +54,45 @@
         <tbody id="columnsTable"></tbody>
       </table>
     </div>
+</div>
 
+    <div id ='tablePkFK'>
     <div class="half">
-      <h2>Primary Key</h2>
-      <div id="primaryKeyContainer" class="pkContainer"></div>
+      <div class="section-header">
+        <h3 id="primaryKey" class="section-title">Primary&nbsp;key</h3>
+        
+
+        <div class="md-actions" role="group" aria-label="Actions Markdown">
+          <!--<img src="./img/markdown.png" alt="Markdown" title="Format Markdown" height="16" aria-hidden="true" />: -->
+          <img id="mdDownload" src="./img/download.png" alt="Markdown" title="download Markdown" height="22"
+            aria-hidden="true" />
+          <img id="mdCopy" src="./img/clipboardCopy.png" alt="Markdown" title="Copy Markdown to clipboard" height="22"
+            aria-hidden="true" />
+        </div>
+      </div>
+      
+      <table id='tableOfPK'>
+        <thead>
+          <tr>
+            <th>name</th>
+            <th>columns</th>
+          </tr>
+        </thead>
+        <tbody id="columnsOfPk"></tbody>
+      </table>
+    </div>
+    <div>
+
+
+
 
       <h2 id="fkNumber">Foreign Keys</h2>
       <div id="foreignKeysContainer" class="fkContainer"></div>
     </div>
+
+</div>
+
+
     <div class="third">
       <h2 id="indexNumber">Indexes</h2>
       <div id="indexesContainer" class="indexContainer"></div>

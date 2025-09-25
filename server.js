@@ -390,7 +390,6 @@ app.post("/connect-db", async (req, res) => {
     // 🔍 Test réel de connexion
     await pool.query("SELECT 1");
     res.send(`connected to <b>${dbName}</b>`);
-    //console.log(`connected to '${dbName}'`)//PLA
     setCurrentDBName(dbName);
 
   } catch (err) {

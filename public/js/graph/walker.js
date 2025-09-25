@@ -606,7 +606,6 @@ function openJsonInNewTab(jsonArray, aTitle) {
     }
     htmlPart += `</tbody> </table>`;
 
-    console.log(htmlPart); //PLA
     return htmlPart;
   }
   const pkfkTable = toPkfkTable(jsonArray);

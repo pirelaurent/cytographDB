@@ -1,0 +1,908 @@
+{
+    "nodes": [
+        {
+            "data": {
+                "id": "company",
+                "label": "company",
+                "columns": [
+                    "id",
+                    "name"
+                ],
+                "foreignKeys": [],
+                "comment": "Represents a company, the top-level entity in the industrial model.",
+                "primaryKey": {
+                    "name": "company_pkey",
+                    "columns": [
+                        "id"
+                    ],
+                    "comment": null
+                },
+                "indexes": [
+                    {
+                        "name": "company_pkey",
+                        "definition": "CREATE UNIQUE INDEX company_pkey ON public.company USING btree (id)",
+                        "comment": null,
+                        "constraint_type": "PRIMARY KEY"
+                    }
+                ],
+                "triggers": []
+            }
+        },
+        {
+            "data": {
+                "id": "factory",
+                "label": "factory",
+                "columns": [
+                    "company_id",
+                    "id",
+                    "name"
+                ],
+                "foreignKeys": [
+                    {
+                        "constraint_name": "factory_company_id_fkey",
+                        "source_table": "factory",
+                        "target_table": "company",
+                        "comment": null,
+                        "column_mappings": [
+                            {
+                                "source_column": "company_id",
+                                "source_not_null": true,
+                                "target_column": "id"
+                            }
+                        ],
+                        "all_source_not_null": true,
+                        "is_target_unique": true,
+                        "on_delete": "c",
+                        "on_update": "a"
+                    }
+                ],
+                "comment": "A factory owned by a company.",
+                "primaryKey": {
+                    "name": "factory_pkey",
+                    "columns": [
+                        "company_id",
+                        "id"
+                    ],
+                    "comment": null
+                },
+                "indexes": [
+                    {
+                        "name": "factory_pkey",
+                        "definition": "CREATE UNIQUE INDEX factory_pkey ON public.factory USING btree (company_id, id)",
+                        "comment": null,
+                        "constraint_type": "PRIMARY KEY"
+                    }
+                ],
+                "triggers": []
+            }
+        },
+        {
+            "data": {
+                "id": "production_line",
+                "label": "production_line",
+                "columns": [
+                    "company_id",
+                    "factory_id",
+                    "id",
+                    "name"
+                ],
+                "foreignKeys": [
+                    {
+                        "constraint_name": "production_line_company_id_factory_id_fkey",
+                        "source_table": "production_line",
+                        "target_table": "factory",
+                        "comment": null,
+                        "column_mappings": [
+                            {
+                                "source_column": "company_id",
+                                "source_not_null": true,
+                                "target_column": "company_id"
+                            },
+                            {
+                                "source_column": "factory_id",
+                                "source_not_null": true,
+                                "target_column": "id"
+                            }
+                        ],
+                        "all_source_not_null": true,
+                        "is_target_unique": true,
+                        "on_delete": "a",
+                        "on_update": "a"
+                    }
+                ],
+                "comment": "A line in a factory producing products.",
+                "primaryKey": {
+                    "name": "production_line_pkey",
+                    "columns": [
+                        "company_id",
+                        "factory_id",
+                        "id"
+                    ],
+                    "comment": null
+                },
+                "indexes": [
+                    {
+                        "name": "production_line_pkey",
+                        "definition": "CREATE UNIQUE INDEX production_line_pkey ON public.production_line USING btree (company_id, factory_id, id)",
+                        "comment": null,
+                        "constraint_type": "PRIMARY KEY"
+                    }
+                ],
+                "triggers": []
+            }
+        },
+        {
+            "data": {
+                "id": "line_product",
+                "label": "line_product",
+                "columns": [
+                    "company_id",
+                    "factory_id",
+                    "production_line_id",
+                    "product_id"
+                ],
+                "foreignKeys": [
+                    {
+                        "constraint_name": "line_product_company_id_factory_id_production_line_id_fkey",
+                        "source_table": "line_product",
+                        "target_table": "production_line",
+                        "comment": null,
+                        "column_mappings": [
+                            {
+                                "source_column": "company_id",
+                                "source_not_null": true,
+                                "target_column": "company_id"
+                            },
+                            {
+                                "source_column": "factory_id",
+                                "source_not_null": true,
+                                "target_column": "factory_id"
+                            },
+                            {
+                                "source_column": "production_line_id",
+                                "source_not_null": true,
+                                "target_column": "id"
+                            }
+                        ],
+                        "all_source_not_null": true,
+                        "is_target_unique": true,
+                        "on_delete": "c",
+                        "on_update": "a"
+                    },
+                    {
+                        "constraint_name": "line_product_product_id_fkey",
+                        "source_table": "line_product",
+                        "target_table": "product",
+                        "comment": null,
+                        "column_mappings": [
+                            {
+                                "source_column": "product_id",
+                                "source_not_null": true,
+                                "target_column": "id"
+                            }
+                        ],
+                        "all_source_not_null": true,
+                        "is_target_unique": true,
+                        "on_delete": "c",
+                        "on_update": "a"
+                    }
+                ],
+                "comment": "Mapping of lines to products.",
+                "primaryKey": {
+                    "name": "line_product_pkey",
+                    "columns": [
+                        "company_id",
+                        "factory_id",
+                        "production_line_id",
+                        "product_id"
+                    ],
+                    "comment": null
+                },
+                "indexes": [
+                    {
+                        "name": "line_product_pkey",
+                        "definition": "CREATE UNIQUE INDEX line_product_pkey ON public.line_product USING btree (company_id, factory_id, production_line_id, product_id)",
+                        "comment": null,
+                        "constraint_type": "PRIMARY KEY"
+                    }
+                ],
+                "triggers": []
+            }
+        },
+        {
+            "data": {
+                "id": "product",
+                "label": "product",
+                "columns": [
+                    "id",
+                    "name"
+                ],
+                "foreignKeys": [],
+                "comment": "A manufactured product.",
+                "primaryKey": {
+                    "name": "product_pkey",
+                    "columns": [
+                        "id"
+                    ],
+                    "comment": null
+                },
+                "indexes": [
+                    {
+                        "name": "product_pkey",
+                        "definition": "CREATE UNIQUE INDEX product_pkey ON public.product USING btree (id)",
+                        "comment": null,
+                        "constraint_type": "PRIMARY KEY"
+                    }
+                ],
+                "triggers": []
+            }
+        },
+        {
+            "data": {
+                "id": "employee",
+                "label": "employee",
+                "columns": [
+                    "company_id",
+                    "id",
+                    "first_name",
+                    "name",
+                    "factory_id",
+                    "activity_points",
+                    "works_with_company_id",
+                    "works_with_id",
+                    "chief_company_id",
+                    "chief_id"
+                ],
+                "foreignKeys": [
+                    {
+                        "constraint_name": "employee_company_id_factory_id_fkey",
+                        "source_table": "employee",
+                        "target_table": "factory",
+                        "comment": null,
+                        "column_mappings": [
+                            {
+                                "source_column": "company_id",
+                                "source_not_null": true,
+                                "target_column": "company_id"
+                            },
+                            {
+                                "source_column": "factory_id",
+                                "source_not_null": true,
+                                "target_column": "id"
+                            }
+                        ],
+                        "all_source_not_null": true,
+                        "is_target_unique": true,
+                        "on_delete": "a",
+                        "on_update": "a"
+                    },
+                    {
+                        "constraint_name": "employee_works_with_fk",
+                        "source_table": "employee",
+                        "target_table": "employee",
+                        "comment": "Reflexive FK: employee works with another.",
+                        "column_mappings": [
+                            {
+                                "source_column": "works_with_company_id",
+                                "source_not_null": false,
+                                "target_column": "company_id"
+                            },
+                            {
+                                "source_column": "works_with_id",
+                                "source_not_null": false,
+                                "target_column": "id"
+                            }
+                        ],
+                        "all_source_not_null": false,
+                        "is_target_unique": true,
+                        "on_delete": "n",
+                        "on_update": "a"
+                    },
+                    {
+                        "constraint_name": "employee_chief_fk",
+                        "source_table": "employee",
+                        "target_table": "employee",
+                        "comment": "Reflexive FK: employee's chief.",
+                        "column_mappings": [
+                            {
+                                "source_column": "chief_company_id",
+                                "source_not_null": false,
+                                "target_column": "company_id"
+                            },
+                            {
+                                "source_column": "chief_id",
+                                "source_not_null": false,
+                                "target_column": "id"
+                            }
+                        ],
+                        "all_source_not_null": false,
+                        "is_target_unique": true,
+                        "on_delete": "n",
+                        "on_update": "a"
+                    }
+                ],
+                "comment": "Employee working in a factory.",
+                "primaryKey": {
+                    "name": "employee_pkey",
+                    "columns": [
+                        "company_id",
+                        "id"
+                    ],
+                    "comment": "Composite PK on (company_id, id)."
+                },
+                "indexes": [
+                    {
+                        "name": "employee_pkey",
+                        "definition": "CREATE UNIQUE INDEX employee_pkey ON public.employee USING btree (company_id, id)",
+                        "comment": null,
+                        "constraint_type": "PRIMARY KEY"
+                    }
+                ],
+                "triggers": []
+            }
+        },
+        {
+            "data": {
+                "id": "skills",
+                "label": "skills",
+                "columns": [
+                    "company_id",
+                    "employee_id",
+                    "skill_name"
+                ],
+                "foreignKeys": [
+                    {
+                        "constraint_name": "skills_company_id_employee_id_fkey",
+                        "source_table": "skills",
+                        "target_table": "employee",
+                        "comment": null,
+                        "column_mappings": [
+                            {
+                                "source_column": "company_id",
+                                "source_not_null": true,
+                                "target_column": "company_id"
+                            },
+                            {
+                                "source_column": "employee_id",
+                                "source_not_null": true,
+                                "target_column": "id"
+                            }
+                        ],
+                        "all_source_not_null": true,
+                        "is_target_unique": true,
+                        "on_delete": "a",
+                        "on_update": "a"
+                    }
+                ],
+                "comment": null,
+                "primaryKey": {
+                    "name": "skills_pkey",
+                    "columns": [
+                        "company_id",
+                        "employee_id",
+                        "skill_name"
+                    ],
+                    "comment": null
+                },
+                "indexes": [
+                    {
+                        "name": "skills_pkey",
+                        "definition": "CREATE UNIQUE INDEX skills_pkey ON public.skills USING btree (company_id, employee_id, skill_name)",
+                        "comment": null,
+                        "constraint_type": "PRIMARY KEY"
+                    }
+                ],
+                "triggers": []
+            }
+        },
+        {
+            "data": {
+                "id": "authorization",
+                "label": "authorization",
+                "columns": [
+                    "company_id",
+                    "employee_id",
+                    "factory_id",
+                    "production_line_id"
+                ],
+                "foreignKeys": [
+                    {
+                        "constraint_name": "authorization_company_id_employee_id_fkey",
+                        "source_table": "authorization",
+                        "target_table": "employee",
+                        "comment": null,
+                        "column_mappings": [
+                            {
+                                "source_column": "company_id",
+                                "source_not_null": true,
+                                "target_column": "company_id"
+                            },
+                            {
+                                "source_column": "employee_id",
+                                "source_not_null": true,
+                                "target_column": "id"
+                            }
+                        ],
+                        "all_source_not_null": true,
+                        "is_target_unique": true,
+                        "on_delete": "c",
+                        "on_update": "a"
+                    },
+                    {
+                        "constraint_name": "authorization_company_id_factory_id_production_line_id_fkey",
+                        "source_table": "authorization",
+                        "target_table": "production_line",
+                        "comment": null,
+                        "column_mappings": [
+                            {
+                                "source_column": "company_id",
+                                "source_not_null": true,
+                                "target_column": "company_id"
+                            },
+                            {
+                                "source_column": "factory_id",
+                                "source_not_null": true,
+                                "target_column": "factory_id"
+                            },
+                            {
+                                "source_column": "production_line_id",
+                                "source_not_null": true,
+                                "target_column": "id"
+                            }
+                        ],
+                        "all_source_not_null": true,
+                        "is_target_unique": true,
+                        "on_delete": "c",
+                        "on_update": "a"
+                    }
+                ],
+                "comment": "Authorization of employee per production line.",
+                "primaryKey": {
+                    "name": "authorization_pkey",
+                    "columns": [
+                        "company_id",
+                        "employee_id",
+                        "factory_id",
+                        "production_line_id"
+                    ],
+                    "comment": null
+                },
+                "indexes": [
+                    {
+                        "name": "authorization_pkey",
+                        "definition": "CREATE UNIQUE INDEX authorization_pkey ON public.\"authorization\" USING btree (company_id, employee_id, factory_id, production_line_id)",
+                        "comment": null,
+                        "constraint_type": "PRIMARY KEY"
+                    }
+                ],
+                "triggers": []
+            }
+        },
+        {
+            "data": {
+                "id": "intervention",
+                "label": "intervention\n**",
+                "columns": [
+                    "id",
+                    "company_id",
+                    "employee_id",
+                    "factory_id",
+                    "production_line_id",
+                    "date"
+                ],
+                "foreignKeys": [
+                    {
+                        "constraint_name": "intervention_company_id_employee_id_fkey",
+                        "source_table": "intervention",
+                        "target_table": "employee",
+                        "comment": null,
+                        "column_mappings": [
+                            {
+                                "source_column": "company_id",
+                                "source_not_null": true,
+                                "target_column": "company_id"
+                            },
+                            {
+                                "source_column": "employee_id",
+                                "source_not_null": true,
+                                "target_column": "id"
+                            }
+                        ],
+                        "all_source_not_null": true,
+                        "is_target_unique": true,
+                        "on_delete": "c",
+                        "on_update": "a"
+                    },
+                    {
+                        "constraint_name": "intervention_company_id_factory_id_production_line_id_fkey",
+                        "source_table": "intervention",
+                        "target_table": "production_line",
+                        "comment": null,
+                        "column_mappings": [
+                            {
+                                "source_column": "company_id",
+                                "source_not_null": true,
+                                "target_column": "company_id"
+                            },
+                            {
+                                "source_column": "factory_id",
+                                "source_not_null": true,
+                                "target_column": "factory_id"
+                            },
+                            {
+                                "source_column": "production_line_id",
+                                "source_not_null": true,
+                                "target_column": "id"
+                            }
+                        ],
+                        "all_source_not_null": true,
+                        "is_target_unique": true,
+                        "on_delete": "c",
+                        "on_update": "a"
+                    }
+                ],
+                "comment": "Interventions performed by employees.",
+                "primaryKey": {
+                    "name": "intervention_pkey",
+                    "columns": [
+                        "id"
+                    ],
+                    "comment": null
+                },
+                "indexes": [
+                    {
+                        "name": "intervention_pkey",
+                        "definition": "CREATE UNIQUE INDEX intervention_pkey ON public.intervention USING btree (id)",
+                        "comment": null,
+                        "constraint_type": "PRIMARY KEY"
+                    }
+                ],
+                "triggers": [
+                    {
+                        "name": "trg_check_authorization",
+                        "on": "INSERT",
+                        "timing": "BEFORE",
+                        "definition": "EXECUTE FUNCTION check_authorization_before_intervention()"
+                    },
+                    {
+                        "name": "trg_increment_points",
+                        "on": "INSERT",
+                        "timing": "AFTER",
+                        "definition": "EXECUTE FUNCTION increment_activity_points()"
+                    }
+                ]
+            }
+        },
+        {
+            "data": {
+                "id": "parameters",
+                "label": "parameters",
+                "columns": [
+                    "id",
+                    "name",
+                    "value"
+                ],
+                "foreignKeys": [],
+                "comment": "Generic app parameters.",
+                "primaryKey": {
+                    "name": "parameters_pkey",
+                    "columns": [
+                        "id"
+                    ],
+                    "comment": null
+                },
+                "indexes": [
+                    {
+                        "name": "parameters_pkey",
+                        "definition": "CREATE UNIQUE INDEX parameters_pkey ON public.parameters USING btree (id)",
+                        "comment": null,
+                        "constraint_type": "PRIMARY KEY"
+                    }
+                ],
+                "triggers": []
+            }
+        }
+    ],
+    "edges": [
+        {
+            "data": {
+                "source": "factory",
+                "target": "company",
+                "label": "factory_company_id_fkey",
+                "columnsLabel": "company_id --> id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "production_line",
+                "target": "factory",
+                "label": "production_line_company_id_factory_id_fkey",
+                "columnsLabel": "company_id --> company_id",
+                "onDelete": "a",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed"
+        },
+        {
+            "data": {
+                "source": "production_line",
+                "target": "factory",
+                "label": "production_line_company_id_factory_id_fkey",
+                "columnsLabel": "factory_id --> id",
+                "onDelete": "a",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed"
+        },
+        {
+            "data": {
+                "source": "line_product",
+                "target": "production_line",
+                "label": "line_product_company_id_factory_id_production_line_id_fkey",
+                "columnsLabel": "company_id --> company_id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "line_product",
+                "target": "production_line",
+                "label": "line_product_company_id_factory_id_production_line_id_fkey",
+                "columnsLabel": "factory_id --> factory_id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "line_product",
+                "target": "production_line",
+                "label": "line_product_company_id_factory_id_production_line_id_fkey",
+                "columnsLabel": "production_line_id --> id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "line_product",
+                "target": "product",
+                "label": "line_product_product_id_fkey",
+                "columnsLabel": "product_id --> id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "employee",
+                "target": "factory",
+                "label": "employee_company_id_factory_id_fkey",
+                "columnsLabel": "company_id --> company_id",
+                "onDelete": "a",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed"
+        },
+        {
+            "data": {
+                "source": "employee",
+                "target": "factory",
+                "label": "employee_company_id_factory_id_fkey",
+                "columnsLabel": "factory_id --> id",
+                "onDelete": "a",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed"
+        },
+        {
+            "data": {
+                "source": "employee",
+                "target": "employee",
+                "label": "employee_works_with_fk",
+                "columnsLabel": "works_with_company_id --> company_id",
+                "onDelete": "n",
+                "onUpdate": "a",
+                "nullable": true
+            },
+            "classes": "fk_detailed nullable"
+        },
+        {
+            "data": {
+                "source": "employee",
+                "target": "employee",
+                "label": "employee_works_with_fk",
+                "columnsLabel": "works_with_id --> id",
+                "onDelete": "n",
+                "onUpdate": "a",
+                "nullable": true
+            },
+            "classes": "fk_detailed nullable"
+        },
+        {
+            "data": {
+                "source": "employee",
+                "target": "employee",
+                "label": "employee_chief_fk",
+                "columnsLabel": "chief_company_id --> company_id",
+                "onDelete": "n",
+                "onUpdate": "a",
+                "nullable": true
+            },
+            "classes": "fk_detailed nullable"
+        },
+        {
+            "data": {
+                "source": "employee",
+                "target": "employee",
+                "label": "employee_chief_fk",
+                "columnsLabel": "chief_id --> id",
+                "onDelete": "n",
+                "onUpdate": "a",
+                "nullable": true
+            },
+            "classes": "fk_detailed nullable"
+        },
+        {
+            "data": {
+                "source": "skills",
+                "target": "employee",
+                "label": "skills_company_id_employee_id_fkey",
+                "columnsLabel": "company_id --> company_id",
+                "onDelete": "a",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed"
+        },
+        {
+            "data": {
+                "source": "skills",
+                "target": "employee",
+                "label": "skills_company_id_employee_id_fkey",
+                "columnsLabel": "employee_id --> id",
+                "onDelete": "a",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed"
+        },
+        {
+            "data": {
+                "source": "authorization",
+                "target": "employee",
+                "label": "authorization_company_id_employee_id_fkey",
+                "columnsLabel": "company_id --> company_id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "authorization",
+                "target": "employee",
+                "label": "authorization_company_id_employee_id_fkey",
+                "columnsLabel": "employee_id --> id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "authorization",
+                "target": "production_line",
+                "label": "authorization_company_id_factory_id_production_line_id_fkey",
+                "columnsLabel": "company_id --> company_id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "authorization",
+                "target": "production_line",
+                "label": "authorization_company_id_factory_id_production_line_id_fkey",
+                "columnsLabel": "factory_id --> factory_id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "authorization",
+                "target": "production_line",
+                "label": "authorization_company_id_factory_id_production_line_id_fkey",
+                "columnsLabel": "production_line_id --> id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "intervention",
+                "target": "employee",
+                "label": "intervention_company_id_employee_id_fkey",
+                "columnsLabel": "company_id --> company_id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "intervention",
+                "target": "employee",
+                "label": "intervention_company_id_employee_id_fkey",
+                "columnsLabel": "employee_id --> id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "intervention",
+                "target": "production_line",
+                "label": "intervention_company_id_factory_id_production_line_id_fkey",
+                "columnsLabel": "company_id --> company_id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "intervention",
+                "target": "production_line",
+                "label": "intervention_company_id_factory_id_production_line_id_fkey",
+                "columnsLabel": "factory_id --> factory_id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        },
+        {
+            "data": {
+                "source": "intervention",
+                "target": "production_line",
+                "label": "intervention_company_id_factory_id_production_line_id_fkey",
+                "columnsLabel": "production_line_id --> id",
+                "onDelete": "c",
+                "onUpdate": "a",
+                "nullable": false
+            },
+            "classes": "fk_detailed delete_cascade"
+        }
+    ]
+}

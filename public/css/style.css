@@ -30,7 +30,6 @@ button {
   transition: transform 0.2s, background-color 0.2s;
 }
 
-
 button:active {
   transform: scale(0.95);
   /* effet "enfoncé" */
@@ -82,7 +81,6 @@ button:hover {
   background-color: cornsilk;
 }
 
-
 .metrologie {
   background-color: rosybrown;
   color: white;
@@ -91,12 +89,10 @@ button:hover {
   width: 400px;
 }
 
-
 .stretch button {
   width: 40px;
   margin: 3px;
 }
-
 
 #filters {
   padding: 0.5rem;
@@ -113,7 +109,6 @@ button:hover {
   width: 00px;
 }
 
-
 #filters select,
 #filters input[type="checkbox"] {
   font-size: 0.9rem;
@@ -125,9 +120,7 @@ button:hover {
   width: 100%;
   height: 30px;
   align-items: center;
-
 }
-
 
 #waitLoading {
   position: absolute;
@@ -141,17 +134,21 @@ button:hover {
   z-index: 999;
 }
 
-
-
-#tableInfo {
+#tableInfo, tablePkFK {
   display: flex;
   gap: 2rem;
   margin-top: 1rem;
 }
 
-#tableInfo .half {
+#tableInfo, .half {
   flex: 1;
+/*         border: 1px solid #333; */
 }
+
+#tablePkFK, #tableColumnsGlobal {
+  border: 1px solid #e8e1e1;
+}
+
 
 #tableInfo table {
   width: 100%;
@@ -166,12 +163,11 @@ button:hover {
 }
 
 /* separator in table rows */
-tr.group-start > td, tr.group-start > th {
+tr.group-start > td,
+tr.group-start > th {
   border-top: 2px solid grey;
-  padding-top: .25rem;
+  padding-top: 0.25rem;
 }
-
-
 
 #spacingControls {
   display: flex;
@@ -179,7 +175,8 @@ tr.group-start > td, tr.group-start > th {
   padding: 0.5rem 1rem;
 }
 
-#clicNodeMenu, #clicEdgeMenu {
+#clicNodeMenu,
+#clicEdgeMenu {
   position: absolute;
   background: #ffff;
   border: 1px solid #ccc;
@@ -193,12 +190,14 @@ tr.group-start > td, tr.group-start > th {
   display: none;
 }
 
-#clicNodeMenu li , #clicEdgeMenu li{
+#clicNodeMenu li,
+#clicEdgeMenu li {
   padding: 6px 12px;
   cursor: pointer;
 }
 
-#clicNodeMenu li:hover , #clicEdgeMenu li:hover{
+#clicNodeMenu li:hover,
+#clicEdgeMenu li:hover {
   background-color: #f1e9e9;
 }
 
@@ -206,13 +205,11 @@ tr.group-start > td, tr.group-start > th {
   display: none;
 }
 
-
 .spacingControls {
   background-color: chocolate;
   color: #fff;
   display: inline-block;
 }
-
 
 .info-panel {
   position: absolute;
@@ -228,8 +225,6 @@ tr.group-start > td, tr.group-start > th {
   pointer-events: none;
   /* ne gêne pas les clics */
 }
-
-
 
 /* 
 
@@ -276,7 +271,6 @@ tr.group-start > td, tr.group-start > th {
   transform: translateY(0);
 }
 
-
 .overlayXX {
   display: none;
   position: fixed;
@@ -298,7 +292,6 @@ tr.group-start > td, tr.group-start > th {
 
 #hoverInfoToggle:checked {
   accent-color: red;
-
 }
 
 #graphUpload {
@@ -326,9 +319,7 @@ tr.group-start > td, tr.group-start > th {
   text-decoration: none;
   margin-left: auto;
   padding-right: 15px;
-
 }
-
 
 .doc-link:hover {
   color: red;
@@ -342,7 +333,6 @@ tr.group-start > td, tr.group-start > th {
   height: 25px;
 }
 
-
 .label {
   margin-right: 10px;
   margin-left: 15px;
@@ -352,7 +342,6 @@ tr.group-start > td, tr.group-start > th {
   margin-right: 4px;
   margin-left: 15px;
 }
-
 
 .bigPerim {
   font-size: 1.5em;
@@ -364,7 +353,6 @@ tr.group-start > td, tr.group-start > th {
   font-size: 1em;
   color: cornsilk;
 }
-
 
 .test {
   background-color: rgb(66, 128, 5);
@@ -392,7 +380,8 @@ tr.group-start > td, tr.group-start > th {
 
 /* Modal background */
 
-#nameFilterModal.modal-bg,#degreeFilter.modal-bg  {
+#nameFilterModal.modal-bg,
+#degreeFilter.modal-bg {
   display: none;
   position: fixed;
   left: 0;
@@ -411,15 +400,17 @@ tr.group-start > td, tr.group-start > th {
 }
 
 /* Modal content box */
-#nameFilterModal .modal-content,#degreeFilter .modal-content {
-  background:  rgb(247, 240, 233);
+#nameFilterModal .modal-content,
+#degreeFilter .modal-content {
+  background: rgb(247, 240, 233);
   padding: 24px 32px;
   border-radius: 12px;
   box-shadow: 0 4px 24px #0002;
   min-width: 260px;
 }
 
-#nameFilterModal .modal-content h3 ,#degreeFilter .modal-content h3{
+#nameFilterModal .modal-content h3,
+#degreeFilter .modal-content h3 {
   margin-top: 0;
 }
 
@@ -455,37 +446,89 @@ tr.group-start > td, tr.group-start > th {
   height: 25px;
   display: block;
 }
-.path { color: #000; }
-.path .prefix { color: #888; }  /* gris pour le début identique */
-.path .rest { color: #000; }    /* noir pour la suite différente */
-.path {font-size: 1em;}
-
+.path {
+  color: #000;
+}
+.path .prefix {
+  color: #888;
+} /* gris pour le début identique */
+.path .rest {
+  color: #000;
+} /* noir pour la suite différente */
+.path {
+  font-size: 1em;
+}
 
 /* Force le curseur sur toute la page quand html a la classe 'busy' */
-html.busy, html.busy * { cursor: wait !important; }
-
+html.busy,
+html.busy * {
+  cursor: wait !important;
+}
 
 /*
  css for the list 
 */
 
-  table { border-collapse: collapse; cursor: pointer; }
-  th { padding: 5px 10px; border: 1px solid #ccc; color:grey;}
-  td { padding: 5px 10px; border: 1px solid #ccc; color:grey;}
-  th {background-color: #8e2e2e; color: white}
+table {
+  border-collapse: collapse;
+  cursor: pointer;
+}
+th {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  color: grey;
+}
+td {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  color: grey;
+}
+th {
+  background-color: #8e2e2e;
+  color: white;
+}
 
-  td.num { text-align: left; padding-left:30px; }
-  td.asc { text-align: center;color:black; font-weight: bold;}
-  th.sort-asc::after { content: " ▲"; }
-  th.sort-desc::after { content: " ▼"; }
-  tr.one { background-color: #efefef;}
-  tr.one td { color:black}
-  tr.two {background-color:white }
-  tr.two td { color :rgb(42, 37, 37)}
+td.num {
+  text-align: left;
+  padding-left: 30px;
+}
+td.asc {
+  text-align: center;
+  color: black;
+  font-weight: bold;
+}
+th.sort-asc::after {
+  content: " ▲";
+}
+th.sort-desc::after {
+  content: " ▼";
+}
+tr.one {
+  background-color: #efefef;
+}
+tr.one td {
+  color: black;
+}
+tr.two {
+  background-color: white;
+}
+tr.two td {
+  color: rgb(42, 37, 37);
+}
+
+td.nullable {
+  text-align: center;
+}
+
+#tableOfPK th[scope="rowgroup"] {
+  vertical-align: top;
+  background-color: #f2f2f2;
+}
+
 /*
  body for generated pages
 */
-  body.alt-body {
+body.alt-body {
   font-family: system-ui, sans-serif;
   margin: 20px; /* ou autre mise en forme */
 }
@@ -493,10 +536,11 @@ html.busy, html.busy * { cursor: wait !important; }
 /* node list checkbox*/
 input.nodeChk {
   accent-color: #b11e1e;
-  width: 16px; height: 16px;         
+  width: 16px;
+  height: 16px;
 }
-input.nodeChk:hover{
-  accent-color: rgb(222, 82, 82)
+input.nodeChk:hover {
+  accent-color: rgb(222, 82, 82);
 }
 
 /* style.css */
@@ -513,24 +557,22 @@ th .sort-indicator {
   opacity: 0.8;
 }
 
-
 .md-actions {
   display: inline-flex;
   align-items: center;
   gap: 10px;
 }
 
-.section-headerXX {
+.section-header {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* actions à droite du titre */
+  justify-content: space-between;
   gap: 12px;
   margin: 6px 0 10px;
-}
-.section-header {
-  display:flex; align-items:center; justify-content:space-between; gap:12px;
-  margin:6px 0 10px;
-  max-width: 400px;   /* <— clé */
+  max-width: 400px; /* <— clé */
+
+
+
 }
 
 .md-actions {
@@ -540,34 +582,39 @@ th .sort-indicator {
   gap: 12px;
   width: 100%;
   max-width: 400px;
-}
-.md-actions { justify-content: flex-end; gap: 12px; }
 
+}
+.md-actions {
+  justify-content: flex-end;
+  gap: 12px;
+}
 
 .section-title {
   margin: 0; /* avoid vertical jump*/
+  margin-left: 10px;
 }
 
 .comment-icon {
-  display:inline-block;
-  width:1.1em; height:1.1em;
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
   background: url("../img/commentIcon.png") no-repeat center/contain;
   vertical-align: text-bottom;
   margin-left: 0.33em; /* space  */
- first-child { margin-left: 0; };
-
+  first-child {
+    margin-left: 0;
+  }
 }
 
-.arrows{
-  display:flex;
-  gap:0;              /* aucun espace */
+.arrows {
+  display: flex;
+  gap: 0; /* aucun espace */
 }
-.arrows img{
-  display:block;      /* supprime l’espace inline */
-  margin:0;
-  padding:0;
+.arrows img {
+  display: block; /* supprime l’espace inline */
+  margin: 0;
+  padding: 0;
 }
-
 
 /* effet au survol : plus “brillant” + léger lift (optionnel) */
 #arrowLeft:hover,
@@ -576,29 +623,24 @@ th .sort-indicator {
   cursor: pointer;
   filter: brightness(1.8) saturate(1.5);
 
-/*  transform: translateY(-1px);*/
+  /*  transform: translateY(-1px);*/
 }
-
-
-
 
 .has-icon {
   position: relative;
-
 }
 
 #quickAccessMenu {
   position: absolute;
   z-index: 9999;
-  display: none;                /* caché par défaut */
+  display: none; /* caché par défaut */
   min-width: 130px;
   background: #fff;
   border: 1px solid #333;
   border-radius: 6px;
-  box-shadow: 0 8px 20px rgba(0,0,0,.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   padding: 6px;
 }
-
 
 /* Survol */
 #icon-selectAll:hover {
@@ -624,23 +666,23 @@ th .sort-indicator {
 }
 
 legend {
-  width:35%;
+  width: 35%;
   display: flex;
-  justify-content: left;   /* centre horizontalement */
-  align-items: center;       /* aligne l'image et le texte */
-  gap: .5rem;                /* espace entre icône et texte */
-            /*padding:  .15rem; optionnel, pour l’esthétique */
-
+  justify-content: left; /* centre horizontalement */
+  align-items: center; /* aligne l'image et le texte */
+  gap: 0.5rem; /* espace entre icône et texte */
+  /*padding:  .15rem; optionnel, pour l’esthétique */
 }
 
-legend img { display: block; } /* évite l’alignement sur la ligne de base */
+legend img {
+  display: block;
+} /* évite l’alignement sur la ligne de base */
 fieldset {
   border: 1px solid rgb(105, 102, 99); /* ta couleur */
 }
 
 .filter .short {
- min-width: 8ch;
- max-width:12.5ch;
-width:100%
-
+  min-width: 8ch;
+  max-width: 12.5ch;
+  width: 100%;
 }

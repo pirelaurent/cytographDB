@@ -3,6 +3,7 @@
 
 import { showError, getCommentIcon } from "../ui/dialog.js";
 import { htmlTableToMarkdown } from "../util/markdown.js";
+import {bandeauMarkdown } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
 
 /*
@@ -42,14 +43,13 @@ document.title = `table ${tableName}`;
 getTableData(tableName).then((result) => {
   if (result.success) {
     const data = result.data;
-    if (data.comment){
-    const icon = getCommentIcon(document, data.comment);
-    whereTitle.appendChild(icon);
+    if (data.comment) {
+      const icon = getCommentIcon(document, data.comment);
+      whereTitle.appendChild(icon);
     }
+
     /*
-
     list of columns 
-
 */
     const colBody = document.getElementById("columnsTable");
     colBody.innerHTML = "";
@@ -65,14 +65,14 @@ getTableData(tableName).then((result) => {
 
       // Créer manuellement le contenu de la cellule pour insérer l’icône
       const columnCell = document.createElement("td");
-//see line product
+      //see line product
 
-        columnCell.textContent = col.column;
+      columnCell.textContent = col.column;
       if (hasComment) {
         // Icône
-        const icon = getCommentIcon(document,col.comment);
-        columnCell.appendChild(icon)
-      } 
+        const icon = getCommentIcon(document, col.comment);
+        columnCell.appendChild(icon);
+      }
 
       // Créer les autres cellules
       const typeCell = document.createElement("td");
@@ -133,42 +133,41 @@ Primary key
 
 */
 
-    const pkContainer = document.getElementById("primaryKeyContainer");
+    const tableOfPk = document.getElementById("tableOfPK");
 
-    pkContainer.innerHTML = "";
-    if (data.primaryKey.name && data.primaryKey.columns.length > 0) {
-      const pkDiv = document.createElement("div");
-      pkDiv.className = "pk-block";
+    if (
+      data?.primaryKey?.name &&
+      Array.isArray(data.primaryKey.columns) &&
+      data.primaryKey.columns.length > 0
+    ) {
+      const { name, comment, columns } = data.primaryKey;
 
-      // Crée dynamiquement le titre avec ou sans commentaire
-      const titleDiv = document.createElement("div");
-      titleDiv.className = "pk-title";
+      // Première ligne
+      const tr0 = document.createElement("tr");
+      tableOfPk.appendChild(tr0);
 
-      if (data.primaryKey.comment) {
-        titleDiv.title = data.primaryKey.comment;
+      // Nom de la PK en tête de groupe de lignes
+      const thName = document.createElement("th");
+      thName.textContent = name;
+      if (comment) thName.title = comment;
+      if (columns.length > 1) thName.rowSpan = columns.length;
+      thName.style.verticalAlign = "top"; // <-- met le nom "en haut"
+      thName.setAttribute("scope", "rowgroup"); // accessibilité
+      tr0.appendChild(thName);
 
-        // Ajout du texte et de l'icône
-        titleDiv.replaceChildren();
-        titleDiv.append(document.createTextNode(data.primaryKey.name));
-        const icon = getCommentIcon(document);
-        if (data.primaryKey?.comment) icon.title = data.primaryKey.comment;
-        titleDiv.append(icon);
-      } else {
-        titleDiv.textContent = data.primaryKey.name;
+      // Première colonne
+      const tdCol0 = document.createElement("td");
+      tdCol0.textContent = columns[0];
+      tr0.appendChild(tdCol0);
+
+      // Colonnes suivantes
+      for (let i = 1; i < columns.length; i++) {
+        const tr = document.createElement("tr");
+        const tdCol = document.createElement("td");
+        tdCol.textContent = columns[i];
+        tr.appendChild(tdCol);
+        tableOfPk.appendChild(tr);
       }
-
-      pkDiv.appendChild(titleDiv);
-
-      data.primaryKey.columns.forEach((column, i) => {
-        let oneCol = document.createTextNode(column);
-        pkDiv.appendChild(oneCol);
-        if (i < data.primaryKey.columns.length - 1) {
-          pkDiv.append(document.createElement("br"));
-        }
-      });
-      pkContainer.appendChild(pkDiv);
-    } else {
-      pkContainer.innerHTML = "<p>No primary key defined.</p>";
     }
 
     /*
@@ -244,9 +243,9 @@ foreign keys
       body.append(strongSrc);
 
       const smallSrc = document.createElement("small");
-      smallSrc.textContent = ` (${
-        fk.all_source_not_null ? "NOT NULL" : "NULLABLE"
-      })`;
+      smallSrc.textContent =
+        fk.all_source_not_null ? "" :  ` (${"NULLABLE"  })`;  // 
+    
       body.append(smallSrc);
 
       body.append(document.createTextNode(" → "));
@@ -362,7 +361,8 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
         indexContainer.appendChild(block);
       });
     } else {
-      indexContainer.textContent = "No indexes found (out of PK or constraints).";
+      indexContainer.textContent =
+        "No indexes found (out of PK or constraints).";
     }
 
     if (uniqueOrExclude.length) {
@@ -424,5 +424,3 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
   // après que le tableau soit rempli :
   enableTableSorting("tableOfTableColumns");
 });
-
-

@@ -31,7 +31,6 @@ export function pushSnapshot(trace = "") {
     positionStackUndo.length = cursorStack + 1; // tronque en place
   }
   // add on top
-  //console.log(`push ${trace} ${cursorStack}`); //PLA
   positionStackUndo.push(snapshot);
 
   // limite de taille
@@ -69,8 +68,6 @@ export function popSnapshot() {
     }
     lastStackOperation = "popSnapshot";
 
-
-    //console.log("pop at" + cursorStack); //PLA
     cursorStack -= 1;
     setCurrentState();
   }

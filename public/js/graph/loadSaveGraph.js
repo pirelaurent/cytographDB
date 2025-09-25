@@ -39,8 +39,9 @@ import {
   restoreCustomNodesCategories,
 } from "../filters/categories.js";
 
-//---------------------
-
+/*
+    Once connected to a DB, analyse model and create graph    
+*/
 export function loadInitialGraph() {
   let dbName = getLocalDBName();
   if (!dbName) {
@@ -48,11 +49,12 @@ export function loadInitialGraph() {
     return;
   }
 
+  // reset existing
   if (typeof cy !== "undefined" && cy) {
     getCy().elements().remove();
   }
-
   getCustomNodesCategories().clear();
+  resetSnapshot();
   waitLoading("⏳ Analyzing DB --> create graph...");
 
   //document.getElementById("current-graph").textContent = "new graph from db ";
@@ -67,7 +69,7 @@ export function loadInitialGraph() {
   })
     .then((res) => res.json())
     .then((data) => {
-      resetSnapshot();
+      //console.log(JSON.stringify(data));//PLA
       initializeGraph(data);
       // store details at load time /now generated with details
       saveDetailedEdges();
@@ -384,7 +386,9 @@ export function loadGraphFromFile(event) {
                       connectToDbByNameWithoutLoading(currentDBName).then(
                         (result) => {
                           if (result.ok) {
-                            trace?.(`DB not found: ${originalDBName} Current reconnected : ${currentDBName}`);
+                            trace?.(
+                              `DB not found: ${originalDBName} Current reconnected : ${currentDBName}`
+                            );
                             setPostgresConnected();
                             setLocalDBName(currentDBName);
                             createGraphFromJson(json);
@@ -397,7 +401,7 @@ export function loadGraphFromFile(event) {
                     label: "❌ No",
                     onClick: () => {
                       resetPoolFromFront();
-                      trace?.("not compatible. refused  ")
+                      trace?.("not compatible. refused  ");
                       showAlert(
                         `All details would not be available as no DB is connected<br/>`
                       );

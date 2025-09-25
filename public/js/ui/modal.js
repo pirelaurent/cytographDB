@@ -147,7 +147,6 @@ function modalDegreeFilter() {
       if (logicAnd === "AND") allOk = outOk && inOk;
       else allOk = outOk || inOk;
       if (allOk) {
-        //console.log(n.id() + " ok "); //PLA
         n.select();
         if (!degreeRestrictToVisible) n.show();
       }

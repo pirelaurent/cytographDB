@@ -126,7 +126,7 @@ app.post("/load-from-db", async (req, res) => {
 
     fkResult.rows.forEach(({ source, source_column, source_not_null }) => {
       if (!fkColumnMap[source]) fkColumnMap[source] = [];
-
+// here true or false on source_not_null
       fkColumnMap[source].push({
         column: source_column,
         nullable: !source_not_null,
@@ -192,7 +192,6 @@ app.post("/load-from-db", async (req, res) => {
           onDelete: e.on_delete, // raw code: 'a', 'c', etc.
           onUpdate: e.on_update,  // raw code
           nullable: !e.source_not_null
-
         },
         // a no action c: cascade. 
         classes: [
@@ -204,7 +203,7 @@ app.post("/load-from-db", async (req, res) => {
           .join(' ')
 
       }));
-
+//console.log(JSON.stringify({ nodes, edges: filteredEdges }))//PLA
     res.json({ nodes, edges: filteredEdges });
   } catch (error) {
     console.error("error loading graph :", error);
@@ -241,6 +240,7 @@ app.get("/table/:name", async (req, res) => {
     }
 
     const details = await getTableDetails(client, table);
+    //console.log(JSON.stringify(details));//PLA
     res.json(details);
   } catch (error) {
     console.error("Erreur dans /table/:name :", error);

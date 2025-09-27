@@ -3,51 +3,26 @@
 import { showError , showInfo} from "../ui/dialog.js";
 
 
-/* export function bandeauMarkdown(doc){
-    
-  const actions = doc.createElement("div");
-  actions.className = "md-actions";
-  actions.setAttribute("role", "group");
-  actions.setAttribute("aria-label", "Actions Markdown");
 
-  // Download
-  const imgDl = doc.createElement("img");
-  imgDl.id = "mdDownload";
-  imgDl.src = new URL("./img/download.png", location.href).href;
-  imgDl.alt = "Download Markdown";
-  imgDl.title = "download Markdown";
-  imgDl.height = 25;
-  imgDl.setAttribute("aria-hidden", "true");
-  imgDl.style.cursor = "pointer";
-  actions.appendChild(imgDl);
+/*
+ create a document part to set in place the icons for download and copy/paste in markdown
+ The result must be appended in place by the caller 
 
-  // Copy
-  const imgCp = doc.createElement("img");
-  imgCp.id = "mdCopy";
-  imgCp.src = new URL("./img/clipboardCopy.png", location.href).href;
-  imgCp.alt = "Copy markdown to clipboard";
-  imgCp.title = "Copy markdown to clipboard";
-  imgCp.height = 22;
-  imgCp.setAttribute("aria-hidden", "true");
-  imgCp.style.cursor = "pointer";
-  actions.appendChild(imgCp);
- return actions 
-}
+ RootMd is used when several Md Icons are on the same page 
  */
 
-
-export function bandeauMarkdown(doc){
+export function bandeauMarkdown(doc, rootMd=""){
   const base = doc.baseURI;               // base de la nouvelle fenêtre
   const url = (p) => new URL(p, base).href;
 
-  const actions = doc.createElement("div");
+  const actions = doc.createElement("span");
   actions.className = "md-actions";
   actions.setAttribute("role", "group");
   actions.setAttribute("aria-label", "Actions Markdown");
 
   // Download
   const imgDl = doc.createElement("img");
-  imgDl.id = "mdDownload";
+  imgDl.id = rootMd+"mdDownload";
   imgDl.src = url("./img/download.png");
   imgDl.alt = "Download Markdown";
   imgDl.title = "download Markdown";
@@ -58,7 +33,7 @@ export function bandeauMarkdown(doc){
 
   // Copy
   const imgCp = doc.createElement("img");
-  imgCp.id = "mdCopy";
+  imgCp.id = rootMd+"mdCopy";
   imgCp.src = url("./img/clipboardCopy.png");
   imgCp.alt = "Copy markdown to clipboard";
   imgCp.title = "Copy markdown to clipboard";
@@ -70,10 +45,18 @@ export function bandeauMarkdown(doc){
   return actions;
 }
 
+/*
+  weave the event with markdown icons for any named table .
+  Use same rootMd as the one used in bandeau
 
-export function setEventMarkdown(doc,tableName,title){
+*/
 
-  doc.getElementById("mdCopy")?.addEventListener("click", async () => {
+export function setEventMarkdown(doc,tableName,title, rootMd=""){
+
+  //console.log(` setEventMarkdown ${tableName} ${title} ${rootMd}`)
+  //console.log(doc.getElementById(rootMd+"mdCopy"));
+
+  doc.getElementById(rootMd+"mdCopy")?.addEventListener("click", async () => {
      htmlTableToMarkdown(
         tableName,
         {
@@ -85,7 +68,7 @@ export function setEventMarkdown(doc,tableName,title){
       );
     });
 
-    doc.getElementById("mdDownload")?.addEventListener("click", () => {
+    doc.getElementById(rootMd+"mdDownload")?.addEventListener("click", () => {
       htmlTableToMarkdown(
         tableName,
         {
@@ -105,10 +88,9 @@ export function setEventMarkdown(doc,tableName,title){
  tableId : a tag in the html <table id = 'my Id'>
 */
 
-// utils/tableExport.js
+
 export function htmlTableToMarkdown(tableId, opts = {}, title, root = document) {
   const tableWin = root.defaultView || window;
-
   const el = root.getElementById(tableId);
   if (!el) {
     showError(`Table with id="${tableId}" not found`);
@@ -142,17 +124,20 @@ export function htmlTableToMarkdown(tableId, opts = {}, title, root = document) 
 
   const headRows = table.tHead
     ? Array.from(table.tHead.rows)
-    : [table.rows[0]]; // fallback si pas de thead
+    : [table.rows[0]]; // fallback if no thead
+
+
 
   const bodyRows = table.tBodies?.length
     ? Array.from(table.tBodies).flatMap(tb => Array.from(tb.rows))
-    : Array.from(table.rows).slice(headRows.length); // fallback si pas de tbody
+    : Array.from(table.rows).slice(headRows.length); // fallback if no tbody
 
   // ligne d’en-tête
   const headerCells = Array.from(headRows[0].cells).map(c => escapeCell(getCellContent(c)));
   const headerLine = `| ${headerCells.join(" | ")} |`;
   const separatorLine = `| ${headerCells.map(() => "---").join(" | ")} |`;
 
+console.log(bodyRows.length);//PLA
   // lignes du corps
   const bodyLines = bodyRows.map(tr => {
     const cells = Array.from(tr.cells).map(c => escapeCell(getCellContent(c)));
@@ -161,6 +146,9 @@ export function htmlTableToMarkdown(tableId, opts = {}, title, root = document) 
 
   const titleMd = title ? `\n## ${title}\n\n` : "";
   const markdownTable = titleMd + [headerLine, separatorLine, ...bodyLines].join("\n");
+
+
+
 
   // output .md : file or clipboard
   const filename = opts.filename ?? `${tableId}.md`;

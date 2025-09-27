@@ -79,7 +79,7 @@ export function sendEdgeListToHtml() {
       ? { label: e.data("columnsLabel") || "", nullable: e.data("nullable") }
       : "";
 
-    const fkNullable = e.data("nullable"); //PLA
+    const fkNullable = e.data("nullable"); //PLA true/false
 
     return { sourceName, targetName, fkLabel, fkNullable, columns };
   });
@@ -110,7 +110,7 @@ export function sendEdgeListToHtml() {
   doc.head.appendChild(link);
   // BODY
   const body = doc.body;
-  body.className = "alt-body";
+  //body.className = "alt-body";
   body.textContent = "";
 
   // Title + close button
@@ -157,15 +157,16 @@ export function sendEdgeListToHtml() {
 
   {
     const th = doc.createElement("th");
-    th.textContent = "Nullable";
-    th.title = "indicates if at least one element in FK is nullable";
+    th.textContent = "●/○";
+
+    th.title = "not null / nullable";
     thr.appendChild(th);
   }
 
   {
     const th = doc.createElement("th");
-    th.textContent = "Columns";
-    th.title = "columns are detailed in mode FK 1/col";
+    th.innerHTML = "Cols -> Cols";
+    th.title = "columns are detailed only in mode FK 1/col";
     thr.appendChild(th);
   }
 
@@ -197,7 +198,6 @@ export function sendEdgeListToHtml() {
       }
 
       // --- Source with links---
-
       const tdSource = doc.createElement("td");
       tdSource.className = "link";
       tdSource.dataset.value = sourceName;
@@ -253,6 +253,8 @@ export function sendEdgeListToHtml() {
       } else {
         tdFk.textContent = fkLabel || "-";
       }
+
+      if (fkNullable) tdFk.classList.add("nullable");
       tr.appendChild(tdFk);
 
       // --- nullable ---
@@ -260,11 +262,13 @@ export function sendEdgeListToHtml() {
       const tdNullable = doc.createElement("td");
       tdNullable.className = "text";
       if (columns != "") {
-        tdNullable.textContent = columns.nullable?"X":"";
+        tdNullable.textContent = columns.nullable ? "○" : "●"; // /○<here true/false changed
+        tdNullable.title = columns.nullable ? "nullable" : "not null";
       } else {
-        tdNullable.textContent = fkNullable ? "X" : "";
+        tdNullable.textContent = fkNullable ? "○" : "●";
+        tdNullable.title = fkNullable ? "nullable" : "not null";
       }
-      tdNullable.classList.add("nullable");
+
       tr.appendChild(tdNullable);
 
       // --- Columns ---
@@ -273,9 +277,13 @@ export function sendEdgeListToHtml() {
       tdCols.className = "text";
       if (columns != "") {
         tdCols.textContent = columns.label;
+        if (columns.nullable) tdCols.classList.add("nullable");
       } else {
-        const symbol = `<img src ="./img/onePerFk.png" width="40px" title="1 edge per fk">`;
-        tdCols.innerHTML = symbol;
+        //const symbol = `<img src ="./img/onePerFk.png" width="40px" title="1 edge per fk">`;
+        //tdCols.innerHTML = symbol;
+        tdCols.innerHTML = "-";
+        tdCols.classList.add("notDetailed");
+        tdCols.title = "detailed cols with mode 1/Col on edges";
       }
 
       tr.appendChild(tdCols);

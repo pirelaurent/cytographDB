@@ -15,7 +15,6 @@
     border-collapse: collapse;
     width: 100%;
     margin-top: 1rem;
-
   }
 
   th,
@@ -87,22 +86,13 @@
 
   #tableInfo h2 {
     margin-top: 0.3em;
-    /* petit espace */
     margin-bottom: 0.3em;
   }
 
-  .half,
   .third {
     flex: 0 0 auto;
     /* largeur = contenu, pas d'étirement */
-    min-width: 400px;
-  }
-
-  /* la colonne FK peut grandir */
-  .half.fk-fluid {
-    flex: 1 1 auto;
     min-width: 300px;
-    
   }
 
   .index-block,
@@ -118,7 +108,7 @@
   .fk-title,
   .pk-title {
     font-weight: bold; 
-    font-size: 16px;
+    font-size: 14px;
     /* color:red; */
     margin-bottom: 0.3em;
   }

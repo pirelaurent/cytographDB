@@ -5,16 +5,16 @@ import  { tableColumnsQuery,reqFkWithColsOnTable,indexQuery,tableCommentQuery,pk
 
 
 export async function getTableDetails(client, tableName) {
+
   const columnResult = await client.query(tableColumnsQuery, [tableName]);
   const columns = columnResult.rows.map((col) => {
     const type = col.character_maximum_length
       ? `${col.data_type}(${col.character_maximum_length})`
       : col.data_type;
-
     return {
       column: col.column_name,
       type,
-      nullable: col.is_nullable === "YES" ? "Yes" : "No",
+      nullable: col.is_nullable, //Postgres returns YES or NO in uppercase
       comment: col.comment || null,
     };
   });

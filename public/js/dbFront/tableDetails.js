@@ -1,9 +1,9 @@
 "use strict";
+
 // cannot share data with main, so dbName is in the params
 
 import { showError, getCommentIcon } from "../ui/dialog.js";
-import { htmlTableToMarkdown } from "../util/markdown.js";
-import {bandeauMarkdown } from "../util/markdown.js";
+import { bandeauMarkdown, setEventMarkdown } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
 
 /*
@@ -23,12 +23,17 @@ async function getTableData(tableName) {
 }
 
 /*
+Start of specific <script src =  from table.html.
  in line code at page loading 
  use url to give table name in html created
 */
 
 const params = new URLSearchParams(window.location.search);
 const tableName = params.get("name");
+
+//reused var for markdown
+
+let colBody,markdown, sectionHeader;
 
 const currentDBName = params.get("currentDBName");
 let infoWarning = "";
@@ -39,25 +44,28 @@ let whereTitle = document.getElementById("whereTitle");
 whereTitle.innerHTML = `${tableName} ${infoWarning}`;
 document.title = `table ${tableName}`;
 
-// call full info from DB
+// call full info from DB and work once loaded
 getTableData(tableName).then((result) => {
   if (result.success) {
     const data = result.data;
+    //console.log(JSON.stringify(data));//PLA
     if (data.comment) {
       const icon = getCommentIcon(document, data.comment);
       whereTitle.appendChild(icon);
     }
 
-    /*
-    list of columns 
+/*
+    list of columns of table
 */
-    const colBody = document.getElementById("columnsTable");
+    colBody = document.getElementById("columnsTable");
     colBody.innerHTML = "";
+
     const columnNumber = document.getElementById("columnNumber");
-
-    //columnNumber.innerText+=`(${data.columns.length})`;
-
     columnNumber.innerHTML += `<small>(${data.columns.length})</small>`;
+    // add markdown in same div
+    sectionHeader = columnNumber.closest(".section-header");
+    markdown = bandeauMarkdown(document, "forColTable");
+    sectionHeader.appendChild(markdown);
 
     data.columns.forEach((col) => {
       const tr = document.createElement("tr");
@@ -79,62 +87,40 @@ getTableData(tableName).then((result) => {
       typeCell.textContent = col.type;
 
       const nullableCell = document.createElement("td");
-      nullableCell.textContent = col.nullable;
+
+      
+      nullableCell.textContent = col.nullable==="NO"?"●":"○"; // from DB YES/NO
+
 
       // Ajouter toutes les cellules à la ligne
       tr.appendChild(columnCell);
       tr.appendChild(typeCell);
       tr.appendChild(nullableCell);
+      if (col.nullable==="YES") tr.classList.add("nullable");
 
       // Ajouter la ligne au tableau
       colBody.appendChild(tr);
     });
 
-    // Télécharger .md
-    document.getElementById("mdDownload")?.addEventListener("click", () => {
-      htmlTableToMarkdown(
-        "tableOfTableColumns",
-        {
-          download: true,
-          copyToClipboard: false,
-          filename: `columns_${tableName || "table"}.md`,
-        },
-        tableName
-      );
-    });
+    setEventMarkdown(document, "tableOfTableColumns", tableName, "forColTable");
 
-    // Copier dans le presse-papiers
-
-    document.getElementById("mdCopy")?.addEventListener("click", async () => {
-      htmlTableToMarkdown(
-        "tableOfTableColumns",
-        {
-          download: false,
-          copyToClipboard: true,
-        },
-        tableName
-      );
-
-      // petit feedback visuel (optionnel)
-      const btn = document.getElementById("mdCopy");
-      if (!btn) return;
-      const oldTitle = btn.title;
-      btn.title = "Copié !";
-      btn.style.outline = "2px solid #7dbb7d";
-      setTimeout(() => {
-        btn.title = oldTitle;
-        btn.style.outline = "none";
-      }, 900);
-    });
-
-    /*
+/*
 
 Primary key 
 
 */
+    colBody = document.getElementById("columnsOfPk");
+    colBody.innerHTML = "";
 
-    const tableOfPk = document.getElementById("tableOfPK");
+    
+    const tableOfPk = document.getElementById("tableOfPk");
 
+    const pkh3 = document.getElementById("primaryKey");
+    // add markdown in same div
+    sectionHeader = pkh3.closest(".section-header");
+    markdown = bandeauMarkdown(document, "forPk");
+    sectionHeader.appendChild(markdown);
+    setEventMarkdown(document, "tableOfPk", "pk of "+tableName, "forPk");
     if (
       data?.primaryKey?.name &&
       Array.isArray(data.primaryKey.columns) &&
@@ -144,16 +130,13 @@ Primary key
 
       // Première ligne
       const tr0 = document.createElement("tr");
-      tableOfPk.appendChild(tr0);
+      colBody.appendChild(tr0);
 
       // Nom de la PK en tête de groupe de lignes
-      const thName = document.createElement("th");
-      thName.textContent = name;
-      if (comment) thName.title = comment;
-      if (columns.length > 1) thName.rowSpan = columns.length;
-      thName.style.verticalAlign = "top"; // <-- met le nom "en haut"
-      thName.setAttribute("scope", "rowgroup"); // accessibilité
-      tr0.appendChild(thName);
+      const tdName = document.createElement("td");
+      tdName.textContent = name;
+      if (comment) tdName.title = comment;
+      tr0.appendChild(tdName);
 
       // Première colonne
       const tdCol0 = document.createElement("td");
@@ -163,10 +146,13 @@ Primary key
       // Colonnes suivantes
       for (let i = 1; i < columns.length; i++) {
         const tr = document.createElement("tr");
+        // don't repeat the pk name
+         const tdName = document.createElement("td");
+          tr.appendChild(tdName);
         const tdCol = document.createElement("td");
         tdCol.textContent = columns[i];
         tr.appendChild(tdCol);
-        tableOfPk.appendChild(tr);
+        colBody.appendChild(tr);
       }
     }
 
@@ -243,11 +229,10 @@ foreign keys
       body.append(strongSrc);
 
       const smallSrc = document.createElement("small");
-      smallSrc.textContent =
-        fk.all_source_not_null ? "" :  ` (${"NULLABLE"  })`;  // 
-    
-      body.append(smallSrc);
+      smallSrc.textContent = fk.all_source_not_null ? "●":"○";// ` (${"NULLABLE"})`; // "●" : "○"; on FK list
 
+      body.append(smallSrc);
+      body.append(strongSrc);
       body.append(document.createTextNode(" → "));
 
       const strongTgt = document.createElement("strong");
@@ -421,6 +406,6 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
     showError("Error on loading. Details unavailable.Check your DB connection");
   }
 
-  // après que le tableau soit rempli :
+  // allow sort
   enableTableSorting("tableOfTableColumns");
 });

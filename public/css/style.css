@@ -1,6 +1,8 @@
 body {
   margin: 0;
-  font-family: sans-serif;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  padding: 1rem;
 }
 
 #topbar {
@@ -134,21 +136,22 @@ button:hover {
   z-index: 999;
 }
 
-#tableInfo, tablePkFK {
+#tableInfo,
+tablePkFKForStyle {
   display: flex;
   gap: 2rem;
   margin-top: 1rem;
 }
 
-#tableInfo, .half {
+#tableInfo,
+.third {
   flex: 1;
-/*         border: 1px solid #333; */
 }
 
-#tablePkFK, #tableColumnsGlobal {
+#tablePkFKForStyle,
+#tableColumnsGlobalForStyle {
   border: 1px solid #e8e1e1;
 }
-
 
 #tableInfo table {
   width: 100%;
@@ -226,14 +229,6 @@ tr.group-start > th {
   /* ne gêne pas les clics */
 }
 
-/* 
-
-.fk-title {
-  font-weight: bold;
-  font-size: 1.2em;
-  margin-bottom: 0.5em;
-}
- */
 /* 
 #foreignKeysContainer {
   font-family: Arial, sans-serif;
@@ -503,6 +498,11 @@ th.sort-asc::after {
 th.sort-desc::after {
   content: " ▼";
 }
+
+
+
+
+/* change background one lien / two */
 tr.one {
   background-color: #efefef;
 }
@@ -516,11 +516,26 @@ tr.two td {
   color: rgb(42, 37, 37);
 }
 
-td.nullable {
-  text-align: center;
+tr td.nullable {
+  text-align: left;
+  color: #3b5f8b;
+  font-size: 14px;
+    font-style: italic;
 }
 
-#tableOfPK th[scope="rowgroup"] {
+tr.nullable td {
+  color: #3b5f8b;
+  font-style: italic;
+}
+
+td.notDetailed {
+  text-align:center;
+  color:#8e2e2e;
+}
+
+
+
+#tableOfPk th[scope="rowgroup"] {
   vertical-align: top;
   background-color: #f2f2f2;
 }
@@ -570,9 +585,6 @@ th .sort-indicator {
   gap: 12px;
   margin: 6px 0 10px;
   max-width: 400px; /* <— clé */
-
-
-
 }
 
 .md-actions {
@@ -582,7 +594,6 @@ th .sort-indicator {
   gap: 12px;
   width: 100%;
   max-width: 400px;
-
 }
 .md-actions {
   justify-content: flex-end;

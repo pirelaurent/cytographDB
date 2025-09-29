@@ -9,25 +9,48 @@ export function getCyStyles() {
   return cyStyles;
 }
 
-
 const cyStyles = [
+  // ------------ global helper
+  {
+    selector: ".hidden",
+    style: {
+      display: "none",
+    },
+  },
+
+  /*
+  -------------------- nodes 
+*/
   {
     selector: "node",
     style: {
       shape: "roundrectangle",
       label: "data(label)",
-      "text-wrap": "wrap",
-      "text-valign": "center",
-      "text-halign": "center",
-      "font-size": "18px",
-      padding: "5px",
+
+      // Position du texte
+      "text-halign": "center", // centré horizontalement
+      "text-valign": "center", // bottom aligné en bas du nœud
+
+      // Décalage vers l’extérieur (positif = plus bas quand 'bottom')
+      //x'text-margin-y': 20,
 
       "text-wrap": "wrap",
+      /* to have back white under label 
+    'text-background-color': '#fff',
+    'text-background-opacity': 0.5,
+    'text-background-shape': 'roundrectangle',
+    'text-background-padding': 0,
+*/
+
+      "font-size": "24px",
+      padding: "2px",
       "text-max-width": 200,
-      height: "16px",
       width: "label",
+      /* overwritten into proportionalSizeNodeSizeByLinks 
       "min-width": 40,
       "min-height": 20,
+   */
+      "border-color": "#111111",
       "background-color": "#A6D8FF",
       color: "black",
       "border-width": 1,
@@ -48,6 +71,88 @@ const cyStyles = [
       "overlay-opacity": 0.3,
     },
   },
+
+  {
+    selector: "node.no-links-hidden",
+    style: {
+      display: "none",
+    },
+  },
+
+  {
+    selector: "node.start-node",
+    style: {
+      "border-width": "10px",
+      "border-color": "chartreuse",
+      "border-style": "solid",
+    },
+  },
+  {
+    selector: "node.root",
+    style: {
+      shape: "triangle",
+      color: "#222",
+      width: 40,
+      height: 34, // equilateral (Math.sqrt(3) / 2) * L;
+      "background-color": "lime",
+    },
+  },
+  {
+    selector: "node.leaf",
+    style: {
+      shape: "round-triangle",
+      color: "#000000",
+      width: 15,
+      height: 40,
+      //"border-color": "DarkTurquoise",
+      "background-color": "aqua",
+    },
+  },
+  {
+    selector: "node.association",
+    style: {
+      shape: "ellipse",
+      color: "#222",
+            "border-color": "#8a615a",
+      "background-color": "#FFB3A7",
+      // "border-style": "dotted",
+    },
+  },
+  {
+    selector: "node.multiAssociation",
+    style: {
+      shape: "ellipse",
+      "border-color": "#8a615a",
+      "background-color": "#ffb3a7",
+      "border-width": 6,
+      "border-style": "double",
+    },
+  },
+  {
+    selector: "node:selected",
+    style: {
+      "border-width": 10,
+      "border-color": "chartreuse",
+      "border-style": "dashed",
+      "border-width": 20,
+    },
+  },
+
+  {
+    selector: "node.orphan",
+    style: {
+      shape: "pentagon",
+      color: "#222",
+      "background-color": "#bbca9a", // ou une couleur par défaut
+      "border-style": "solid", // pour éviter l'écrasement du style sélectionné
+      "border-width": 1,
+    },
+  },
+
+  /*
+  --------------- edges
+*/
+
   {
     selector: "edge",
     style: {
@@ -58,7 +163,7 @@ const cyStyles = [
       "arrow-scale": 1.2,
       "curve-style": "straight",
       label: "",
-      "font-size": "14px",
+      "font-size": "18px",
       "text-rotation": "autorotate",
       "target-arrow-shape": "triangle",
     },
@@ -103,14 +208,14 @@ const cyStyles = [
   },
 
   {
-    selector: 'edge.nullable',
+    selector: "edge.nullable",
     style: {
       //'line-style': 'dotted',
-      'line-color': "#77B5FE",// bleu ciel
+      "line-color": "#77B5FE", // bleu ciel
       //
-      'target-arrow-color': '#77B5FE',
-      'width': 2
-    }
+      "target-arrow-color": "#77B5FE",
+      width: 2,
+    },
   },
 
   {
@@ -156,15 +261,15 @@ const cyStyles = [
     },
   },
 
-// surlignage sélection (pas de couleur ici)
-{ selector: 'edge:selected',
-  style: {
-    'line-style': 'dashed',
-    'z-index': 1002,
-    'width': 4
-  }
-},
-
+  // surlignage sélection (pas de couleur ici)
+  {
+    selector: "edge:selected",
+    style: {
+      "line-style": "dashed",
+      "z-index": 1002,
+      width: 4,
+    },
+  },
 
   {
     selector: "edge.trigger_impact",
@@ -223,131 +328,50 @@ const cyStyles = [
     },
   },
 
-{
-  selector: "edge.outgoing:selected",
-  style: {
-    "line-color": "green",
-    "target-arrow-color": "rgb(66, 128, 5)",
+  {
+    selector: "edge.outgoing:selected",
+    style: {
+      "line-color": "green",
+      "target-arrow-color": "rgb(66, 128, 5)",
+    },
   },
-},
-{
-  selector: "edge.incoming:selected",
-  style: {
-    "line-color": "red",
-    "target-arrow-color": "red",
+  {
+    selector: "edge.incoming:selected",
+    style: {
+      "line-color": "red",
+      "target-arrow-color": "red",
+    },
   },
-},
-
 
   {
     selector: "edge.fk_detailed",
     style: {
-      'line-color': '#9683EC',
-      'target-arrow-shape': "triangle",
-      'target-arrow-color': '#6952cf',
-      'source-arrow-color': '#6952cf',
-      'color': '#3317ad',
+      "line-color": "#9683EC",
+      "target-arrow-shape": "triangle",
+      "target-arrow-color": "#6952cf",
+      "source-arrow-color": "#6952cf",
+      color: "#3317ad",
     },
   },
 
-// Variante quand l’edge est aussi "nullable"
-{
-  selector: "edge.fk_detailed.nullable",
-  style: {
-    'line-color': "#c770e9",// bleu ciel
-    'target-arrow-color': '#c770e9',
+  // Variante quand l’edge est aussi "nullable"
+  {
+    selector: "edge.fk_detailed.nullable",
+    style: {
+      "line-color": "#c770e9", // bleu ciel
+      "target-arrow-color": "#c770e9",
+    },
   },
-},
 
   // must enforce the color otherwise cytoscape don't fade colored edges
   {
     selector: "edge.faded",
     style: {
-      opacity: 0.40,
+      opacity: 0.4,
       "line-color": "#ccc",
       "target-arrow-color": "#ccc",
       "source-arrow-color": "#ccc",
       "text-opacity": 0.1,
-    },
-  },
-
-  {
-    selector: "node:selected",
-    style: {
-      "border-width": 10,
-      "border-color": "chartreuse",
-      "border-style": "dashed",
-      "border-width": 20
-    },
-  },
-
-  {
-    selector: ".hidden",
-    style: {
-      display: "none",
-    },
-  },
-
-  {
-    selector: "node.no-links-hidden",
-    style: {
-      display: "none",
-    },
-  },
-
-  {
-    selector: "node.start-node",
-    style: {
-      "border-width": "10px",
-      "border-color": "chartreuse",
-      "border-style": "solid",
-    },
-  },
-  {
-    selector: "node.root",
-    style: {
-      shape: "triangle",
-      color: "#222",
-      "background-color": "lime",
-    },
-  },
-  {
-    selector: "node.leaf",
-    style: {
-      shape: "round-triangle",
-      color: "#000000",
-
-      //"border-color": "DarkTurquoise", 
-      "background-color": "aqua",
-    },
-  },
-  {
-    selector: "node.association",
-    style: {
-      shape: "ellipse",
-      color: "#222",
-      "background-color": "#FFB3A7",
-      "border-style": "dotted",
-    },
-  },
-  {
-    selector: "node.multiAssociation",
-    style: {
-      shape: "ellipse",
-      color: "#222",
-      "background-color": "#FFB3A7",
-      "border-width": 6,
-      "border-style": "double",
-    },
-  },
-  {
-    selector: "node.orphan",
-    style: {
-      shape: "pentagon",
-      color: "#222",
-      "background-color": "#bbca9a", // ou une couleur par défaut
-      "border-style": "solid", // pour éviter l'écrasement du style sélectionné
-      "border-width": 1
     },
   },
 ];

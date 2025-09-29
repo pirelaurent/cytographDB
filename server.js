@@ -49,7 +49,7 @@ import {
   tableCommentQuery,
 } from "./dbreq.js";
 
-
+import {encodeCol2Col} from "./public/js/util/common.js";
 
 console.log('init env');
 // Chargement des variables d'environnement
@@ -188,7 +188,7 @@ app.post("/load-from-db", async (req, res) => {
           source: e.source,
           target: e.target,
           label: e.constraint_name,
-          columnsLabel: `${e.source_column} --> ${e.target_column}`, 
+          columnsLabel: encodeCol2Col(e.source_column, e.target_column),//`${e.source_column} --> ${e.target_column}`, 
           onDelete: e.on_delete, // raw code: 'a', 'c', etc.
           onUpdate: e.on_update,  // raw code
           nullable: !e.source_not_null

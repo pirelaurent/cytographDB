@@ -165,7 +165,7 @@ export function sendEdgeListToHtml() {
 
   {
     const th = doc.createElement("th");
-    th.innerHTML = "Cols -> Cols";
+    th.innerHTML = "Col -> Col";
     th.title = "columns are detailed only in mode FK 1/col";
     thr.appendChild(th);
   }

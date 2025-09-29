@@ -584,7 +584,7 @@ export function selectInputBetween(min, max) {
   });
 }
 
-export function increaseFontSize(delta) {
+export function changeFontSizeNode(delta) {
   let selectedNodes = perimeterForNodesAction();
 
   // getCy().style().selector("node").style("font-size", newSize).update();
@@ -596,7 +596,7 @@ export function increaseFontSize(delta) {
   });
 }
 
-export function increaseFontSizeEdge(delta) {
+export function changeFontSizeEdge(delta) {
   let selectedEdges = getCy().edges(":visible:selected");
 
   // S'il n'y a pas d'arêtes sélectionnées visibles, on prend toutes les visibles
@@ -625,11 +625,17 @@ export function proportionalSizeNodeSizeByLinks() {
 
   // 2.apply style
   selectedNodes.forEach((node) => {
+    // leave as is in cyStyles
+  if (node.hasClass('root')) return;
+  if (node.hasClass('leaf')) return;
+
+
+
     let degree = node.data("degree");
     if (degree == 0) degree = 1;
 
     // bornes : min 1 → max 10 liens → taille entre
-    const size = mapValue(degree, 1, 40, 20, 80);
+    const size = mapValue(degree, 1, 40, 30, 90);
 
     node.style({
       width: size,

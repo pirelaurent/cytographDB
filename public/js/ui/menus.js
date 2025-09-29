@@ -66,8 +66,8 @@ import {
   bringSelectedToBack,
   rotateGraphByDegrees,
   noProportionalSize,
-  increaseFontSizeEdge,
-  increaseFontSize,
+  changeFontSizeEdge,
+  changeFontSizeNode,
   selectEdgesBetweenSelectedNodes,
   proportionalSizeNodeSizeByLinks,
 
@@ -557,10 +557,10 @@ export function menuNodes(option) {
       break;
 
     case "increase-font":
-      increaseFontSize(3);
+      changeFontSizeNode(3);
       break;
     case "decrease-font":
-      increaseFontSize(-1);
+      changeFontSizeNode(-1);
       break;
 
     //------------------------------------------------ Nodes List
@@ -763,10 +763,10 @@ export function menuEdges(option) {
       break;
 
     case "increase-font-edge":
-      increaseFontSizeEdge(3);
+      changeFontSizeEdge(3);
       break;
     case "decrease-font-edge":
-      increaseFontSizeEdge(-1);
+      changeFontSizeEdge(-1);
       break;
 
     case "hideEdgeSelected":

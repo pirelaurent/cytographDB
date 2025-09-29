@@ -3,7 +3,11 @@
 // cannot share data with main, so dbName is in the params
 
 import { showError, getCommentIcon } from "../ui/dialog.js";
-import { bandeauMarkdown, setEventMarkdown } from "../util/markdown.js";
+import {
+  bandeauMarkdown,
+  setEventMarkdown,
+  outputMarkdown,
+} from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
 
 /*
@@ -33,7 +37,7 @@ const tableName = params.get("name");
 
 //reused var for markdown
 
-let colBody,markdown, sectionHeader;
+let colBody, markdown, sectionHeader;
 
 const currentDBName = params.get("currentDBName");
 let infoWarning = "";
@@ -54,7 +58,7 @@ getTableData(tableName).then((result) => {
       whereTitle.appendChild(icon);
     }
 
-/*
+    /*
     list of columns of table
 */
     colBody = document.getElementById("columnsTable");
@@ -88,23 +92,22 @@ getTableData(tableName).then((result) => {
 
       const nullableCell = document.createElement("td");
 
-      
-      nullableCell.textContent = col.nullable==="NO"?"●":"○"; // from DB YES/NO
-
+      nullableCell.textContent = col.nullable === "NO" ? "●" : "○"; // from DB YES/NO
 
       // Ajouter toutes les cellules à la ligne
       tr.appendChild(columnCell);
       tr.appendChild(typeCell);
       tr.appendChild(nullableCell);
-      if (col.nullable==="YES") tr.classList.add("nullable");
+      if (col.nullable === "YES") tr.classList.add("nullable");
 
       // Ajouter la ligne au tableau
       colBody.appendChild(tr);
     });
 
     setEventMarkdown(document, "tableOfTableColumns", tableName, "forColTable");
-
-/*
+  // allow sort
+  enableTableSorting("tableOfTableColumns");
+    /*
 
 Primary key 
 
@@ -112,7 +115,6 @@ Primary key
     colBody = document.getElementById("columnsOfPk");
     colBody.innerHTML = "";
 
-    
     const tableOfPk = document.getElementById("tableOfPk");
 
     const pkh3 = document.getElementById("primaryKey");
@@ -120,7 +122,7 @@ Primary key
     sectionHeader = pkh3.closest(".section-header");
     markdown = bandeauMarkdown(document, "forPk");
     sectionHeader.appendChild(markdown);
-    setEventMarkdown(document, "tableOfPk", "pk of "+tableName, "forPk");
+    setEventMarkdown(document, "tableOfPk", "pk of " + tableName, "forPk");
     if (
       data?.primaryKey?.name &&
       Array.isArray(data.primaryKey.columns) &&
@@ -147,8 +149,8 @@ Primary key
       for (let i = 1; i < columns.length; i++) {
         const tr = document.createElement("tr");
         // don't repeat the pk name
-         const tdName = document.createElement("td");
-          tr.appendChild(tdName);
+        const tdName = document.createElement("td");
+        tr.appendChild(tdName);
         const tdCol = document.createElement("td");
         tdCol.textContent = columns[i];
         tr.appendChild(tdCol);
@@ -179,6 +181,35 @@ foreign keys
     if (Array.isArray(data.foreignKeys) && data.foreignKeys.length > 0) {
       const frag = document.createDocumentFragment();
 
+      sectionHeader = fkNumber.closest(".section-header");
+      markdown = bandeauMarkdown(document, "forFK");
+      sectionHeader.appendChild(markdown);
+
+      //specific event for FK in markdown
+      document
+        .getElementById("forFKmdCopy")
+        ?.addEventListener("click", async () =>
+          outputMarkdown(
+            {
+              download: false,
+              copyToClipboard: true,
+            },
+            fkToMd(tableName, data.foreignKeys)
+          )
+        );
+
+      document
+        .getElementById("forFKmdDownload")
+        ?.addEventListener("click", async () =>
+          outputMarkdown(
+            {
+              download: true,
+              copyToClipboard: false,
+            },
+            fkToMd(tableName, data.foreignKeys)
+          )
+        );
+
       data.foreignKeys.forEach((fk) => {
         // if no action, no output
         // const actionMap = { a: "NO ACTION", r: "RESTRICT", c: "CASCADE", n: "SET NULL", d: "SET DEFAULT" };
@@ -203,7 +234,7 @@ foreign keys
 
       fkDiv.appendChild(frag);
     } else {
-      fkDiv.textContent = "No foreign keys found.";
+      fkDiv.textContent = "No foreign keys.";
     }
 
     /*
@@ -229,10 +260,10 @@ foreign keys
       body.append(strongSrc);
 
       const smallSrc = document.createElement("small");
-      smallSrc.textContent = fk.all_source_not_null ? "●":"○";// ` (${"NULLABLE"})`; // "●" : "○"; on FK list
+      smallSrc.textContent = fk.all_source_not_null ? " ●" : " ○"; // ` (${"NULLABLE"})`; // "●" : "○"; on FK list
 
-      body.append(smallSrc);
       body.append(strongSrc);
+      body.append(smallSrc);
       body.append(document.createTextNode(" → "));
 
       const strongTgt = document.createElement("strong");
@@ -240,15 +271,15 @@ foreign keys
       body.append(strongTgt);
 
       const smallTgt = document.createElement("small");
-      smallTgt.textContent = ` (${
-        fk.is_target_unique ? "UNIQUE/PK" : "NOT UNIQUE"
-      })`;
+      smallTgt.innerHTML = ` <code>(${
+        fk.is_target_unique ? "PK" : "NOT UNIQUE"
+      })</code>`;
       body.append(smallTgt);
 
       // Infos ON UPDATE/DELETE (si c’est déjà du HTML sûr)
       if (allUpDelInfo) {
-        const updel = document.createElement("div");
-        updel.innerHTML = allUpDelInfo; // attention : uniquement si la string est de confiance
+        const updel = document.createElement("small");
+        updel.innerHTML = `<code> ${allUpDelInfo}</code>`;
         body.append(updel);
       }
 
@@ -263,10 +294,6 @@ foreign keys
       return block;
     }
 
-    // ---- Utilisation ----
-    // const block = makeFkBlock(fk, allUpDelInfo);
-    // parent.append(block);
-
     /*
    🔍 Indexes 
    Avoid to repeat PK in index 
@@ -278,25 +305,20 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
     */
 
     const indexContainer = document.getElementById("indexesContainer");
+
     indexContainer.innerHTML = ""; // nettoie
 
-    const raw = Array.isArray(data.indexes) ? data.indexes : [];
-
-    // (optionnel) dédoublonnage par nom d'index
-    const seen = new Set();
-    const indexes = raw.filter((i) => {
-      const k = i.name || i.indexname;
-      if (seen.has(k)) return false;
-      seen.add(k);
-      return true;
-    });
+    const indexNumber = document.getElementById("indexNumber");
+    sectionHeader = indexNumber.closest(".section-header");
+    markdown = bandeauMarkdown(document, "forIndex");
+    sectionHeader.appendChild(markdown);
 
     // Partitionning
     const primary = [];
     const uniqueOrExclude = [];
     const pure = [];
 
-    for (const idx of indexes) {
+    for (const idx of data.indexes) {
       const t = idx.constraint_type?.toUpperCase?.() || null;
       if (t === "PRIMARY KEY" || idx.is_primary === true) {
         primary.push(idx);
@@ -307,6 +329,31 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
         pure.push(idx);
       }
     }
+
+    //specific event for FK in markdown
+    document
+      .getElementById("forIndexmdCopy")
+      ?.addEventListener("click", async () =>
+        outputMarkdown(
+          {
+            download: false,
+            copyToClipboard: true,
+          },
+          indexToMd(tableName, primary, uniqueOrExclude, pure)
+        )
+      );
+
+    document
+      .getElementById("forIndexmdDownload")
+      ?.addEventListener("click", async () =>
+        outputMarkdown(
+          {
+            download: true,
+            copyToClipboard: false,
+          },
+          indexToMd(tableName, primary, uniqueOrExclude, pure)
+        )
+      );
 
     // (optionnel) sort elements before output
     const byName = (arr) =>
@@ -346,8 +393,7 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
         indexContainer.appendChild(block);
       });
     } else {
-      indexContainer.textContent =
-        "No indexes found (out of PK or constraints).";
+      indexContainer.textContent = "No indexes (out of PK or constraints).";
     }
 
     if (uniqueOrExclude.length) {
@@ -394,18 +440,102 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
     } else {
       uniqueContainer.textContent = "No other constraints";
     }
-
-    // 🔧 Helper pour extraire les colonnes de l'index
-    function extractIndexColumns(def) {
-      const match = def.match(/\(([^)]+)\)/);
-      const cols = match ? match[1].split(",").map((c) => c.trim()) : [];
-      return `${cols.map((col) => `${col}`).join("<br/>")}`;
-    }
   } else {
     console.error("Error on load :", result.error);
     showError("Error on loading. Details unavailable.Check your DB connection");
   }
-
-  // allow sort
-  enableTableSorting("tableOfTableColumns");
 });
+
+/*
+ helper
+ As FK are too large to be put in an MD table , we usesimple md text to output 
+*/
+
+function fkToMd(tableName, fkArray) {
+  let parts = [];
+  parts.push(`# foreign keys of ${tableName}\n`);
+
+  fkArray.forEach((fk) => {
+    parts.push(`\n## ${fk.constraint_name}\n`);
+    if (fk.comment) parts.push(`(*${fk.comment}*)`);
+    let smallSrc = fk.all_source_not_null ? "●" : "○"; // ` (${"NULLABLE"})`; // "●" : "○"; on FK list
+    let infoUnique = fk.is_target_unique ? "(PK)" : "(NOT UNIQUE)";
+    parts.push(
+      `**${fk.source_table}** ${smallSrc}  →  **${fk.target_table}** ${infoUnique}  `
+    );
+
+    const actionMap = {
+      r: "RESTRICT",
+      c: "CASCADE",
+      n: "SET NULL",
+      d: "SET DEFAULT",
+    };
+    const upd = actionMap[fk.on_update] || "";
+    const del = actionMap[fk.on_delete] || "";
+
+    if (upd) parts.push(`*on update ${upd}*`);
+    if (del) parts.push(`*on delete ${del}*`);
+
+    fk.column_mappings.forEach((col) => {
+      parts.push(`${col.source_column} → ${col.target_column}`);
+    });
+  });
+
+  return parts.join("\n");
+}
+
+// 🔧 Helper pour extraire les colonnes de l'index
+function extractIndexColumns(def) {
+  const match = def.match(/\(([^)]+)\)/);
+  const cols = match ? match[1].split(",").map((c) => c.trim()) : [];
+  return `${cols.map((col) => `${col}`).join("<br/>")}`;
+}
+
+/*
+ helper to create MD equivalent fod index 
+*/
+
+function indexToMd(tableName, primary, uniqueOrExclude, pure) {
+  let parts = [];
+  parts.push(`# ${tableName}`);
+  parts.push("## foreign keys");
+
+  if (pure.length) {
+    pure.forEach((idx) => {
+      // prepare
+      let indicator = "";
+      if (idx.constraint_type == "UNIQUE") {
+        indicator = "(uniq constraint)";
+      }
+      parts.push(""); //empty line
+      parts.push(`**${idx.name}** ${indicator ?? ""}`);
+      if (idx.comment) {
+        parts.push(`(*${idx.comment}*)`);
+      }
+      parts.push(extractIndexColumns(idx.definition));
+    });
+  } else {
+    parts.push("No indexes (out of PK or constraints).");
+  }
+  /*  
+ other catégories
+*/
+
+  parts.push("## constraints");
+  if (uniqueOrExclude.length) {
+    uniqueOrExclude.forEach((idx) => {
+      parts.push(""); //empty line
+      parts.push(`
+    **${esc(idx.name)}** (${idx.constraint_type})`);
+
+      if (idx.comment) {
+        parts.push(`(*${idx.comment}*)`);
+      }
+      parts.push(`${extractIndexColumns(idx.definition)}`);
+    });
+  } else {
+    parts.push();
+    parts.push("*No other constraints*");
+  }
+  return parts.join("\n");
+}

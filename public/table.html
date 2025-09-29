@@ -26,7 +26,7 @@
     <h1 id="whereTitle"></h1>
   </div>
 
-  <div id="tableInfo">
+  <div id="tableForThree">
     <div id="tableColumnsGlobalForStyle">
       <div class="third">
         <div class="section-header">
@@ -38,7 +38,7 @@
             <tr>
               <th>Name</th>
               <th>Type</th>
-              <th title ='not null / nullable'>●/○</th>
+              <th title='not null / nullable'>●/○</th>
             </tr>
           </thead>
           <tbody id="columnsTable"></tbody>
@@ -61,21 +61,32 @@
           </thead>
           <tbody id="columnsOfPk"></tbody>
         </table>
+
+
+
       </div>
       <div>
-
-        <h2 id="fkNumber">Foreign Keys</h2>
+        <div class="section-header">
+          <h3 id="fkNumber">Foreign Keys</h3>
+        </div>
         <div id="foreignKeysContainer" class="fkContainer"></div>
       </div>
     </div>
 
-    <div class="third">
-      <h2 id="indexNumber">Indexes</h2>
-      <div id="indexesContainer" class="indexContainer"></div>
-      <h2 id="uniqueNumber">constraints</h2>
-      <div id="uniqueContainer" class="indexContainer"></div>
+
+    <div id="indexForStyle">
+
+      <div class="third">
+        <div class="section-header">
+          <h3 id="indexNumber" class="section-title">Indexes</h3>
+        </div>
+        <div id="indexesContainer" class="indexContainer"></div>
+        <h2 id="uniqueNumber">constraints</h2>
+        <div id="uniqueContainer" class="indexContainer"></div>
+      </div>
     </div>
   </div>
+
   <script type="module" src="./js/dbFront/tableDetails.js"></script>
 </body>
 

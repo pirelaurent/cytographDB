@@ -136,22 +136,7 @@ button:hover {
   z-index: 999;
 }
 
-#tableInfo,
-tablePkFKForStyle {
-  display: flex;
-  gap: 2rem;
-  margin-top: 1rem;
-}
 
-#tableInfo,
-.third {
-  flex: 1;
-}
-
-#tablePkFKForStyle,
-#tableColumnsGlobalForStyle {
-  border: 1px solid #e8e1e1;
-}
 
 #tableInfo table {
   width: 100%;
@@ -229,15 +214,7 @@ tr.group-start > th {
   /* ne gêne pas les clics */
 }
 
-/* 
-#foreignKeysContainer {
-  font-family: Arial, sans-serif;
-  padding: 1em;
-}
 
-#foreignKeysContainer ul {
-  padding-left: 1.2em;
-} */
 
 #spacingControls span {
   display: flex;
@@ -592,7 +569,7 @@ th .sort-indicator {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  width: 100%;
+  width: 30%;
   max-width: 400px;
 }
 .md-actions {

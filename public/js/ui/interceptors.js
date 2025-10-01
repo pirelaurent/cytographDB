@@ -73,9 +73,20 @@ export function setInterceptors() {
         (cls) => !internalCategories.has(cls)
       );
 
-      let classInfo = "";
+      let allInfos = [];
+      let classInfo='';
       if (filteredClasses.length > 0) {
-        classInfo = `<small>[${filteredClasses.join(", ")}]</small>`;
+    
+        filteredClasses.forEach((cls) => {
+          switch (cls) {
+            case "hasTriggers":
+              allInfos.push(`${cls}(${node.data().triggers.length})`);
+              break;
+            default:
+               allInfos.push( `${cls}`);
+          }
+        });
+        classInfo = `<small>[${allInfos.join(' ')} ]</small>`;
       }
 
       const data = node.data();
@@ -130,9 +141,24 @@ export function setInterceptors() {
       let classInfo;
 
       if (filteredClasses.length > 0) {
-        classInfo = `<small>[${filteredClasses.join(", ")}]</small>`;
+        let allInfos=[];
+        filteredClasses.forEach((cls) => {
+          switch (cls) {
+            case "fk_detailed":
+              allInfos.push(`1/Col`);
+              break;
+            case "fk_synth":
+              allInfos.push(`1/FK`);
+              break;
+            default:
+              allInfos.push(cls);
+          }
+        });
+        classInfo = `<small>[${allInfos.join(' ')}]</small>`;
+
       }
-      output = ` 
+
+      output = `
           ${edge.source().id()} --> 
           ${edge.target().id()}
           <br/><small>

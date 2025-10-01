@@ -70,6 +70,8 @@
     <h1 id="title">⚡ get triggers</h1>
   </div>
   <div id="content">Loading...</div>
+
+
   <script>
     async function main() {
 
@@ -107,6 +109,7 @@
       }
 
       const rows = data.triggers.map(t => {
+
 // where we prepare links to trigger code 
         const fnLink = (t.functionNames && t.functionNames.length > 0)
           ? t.functionNames.map(fn =>
@@ -117,6 +120,8 @@
         const impacted = (t.impactedTables || []).map(tab => `<code>${tab}</code>`).join(", ") || "-";
         const calls = (t.calledFunctions || []).map(fn =>
           `<a href="/function.html?table=${table}&triggerName=${t.name}&name=${encodeURIComponent(fn)}" target="functionPage">${fn}</a>`).join(", ") || "-";
+
+        if (t.warnings.length>0) alert(t.warnings.join('\n'));
 
         return `
           <tr>

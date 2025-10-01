@@ -335,7 +335,14 @@ export function setAndRunLayoutOptions(option) {
       break;
   }
 
+try {
   selection.layout(layoutOptions).run();
+}
+ catch(error)  {
+  showAlert('unable to apply this layout:'+ error.message)
+ }
+  
+  
   cy.fit();
 }
 
@@ -619,31 +626,43 @@ export function proportionalSizeNodeSizeByLinks() {
 
   // 1. Calculer le nombre de liens pour chaque nœud
   selectedNodes.forEach((node) => {
-    const degree = node.connectedEdges().length;
-    node.data("degree", degree);
+        setProportionalSize(node);
   });
+}
 
-  // 2.apply style
-  selectedNodes.forEach((node) => {
-    // leave as is in cyStyles
-  if (node.hasClass('root')) return;
-  if (node.hasClass('leaf')) return;
-
-
-
-    let degree = node.data("degree");
+function setProportionalSize(node){
+   let degree = node.connectedEdges().length;
+    node.data("degree", degree);
     if (degree == 0) degree = 1;
 
-    // bornes : min 1 → max 10 liens → taille entre
-    const size = mapValue(degree, 1, 40, 30, 90);
+    // min max links, min size maxsize 
+    const size = mapValue(degree, 1, 40, 40, 100);
+
+    // leave as is in cyStyles
+  if (node.hasClass('root')) {
+    node.style({
+      width: size,
+      height: size*0.866, // equilateral (Math.sqrt(3) / 2) * L;
+    })
+    return;
+  }
+ 
+  if (node.hasClass('leaf')) {
+    node.style({
+      width: size/4,
+      height: size, // equilateral (Math.sqrt(3) / 2) * L;
+    })
+    return;
+  }
 
     node.style({
       width: size,
       height: size,
     });
     //document.getElementById("cy").style.backgroundColor = "lightgray";
-  });
 }
+
+
 
 export function noProportionalSize() {
   getCy()
@@ -662,11 +681,7 @@ export function noProportionalSize() {
 export function restoreProportionalSize() {
   //console.log("restore  size");
   cy.nodes().forEach((node) => {
-    const degree = node.data("degree");
-    if (degree >= 0) {
-      const size = mapValue(degree, 1, 40, 20, 100);
-      node.style({ width: size, height: size });
-    }
+    setProportionalSize(node);
   });
 }
 // Helper pour interpoler une valeur entre deux bornes
@@ -873,16 +888,15 @@ export function revealNeighbor(edge, maxDist = 500) {
 //------------------
 export function labelNodeShow() {
   perimeterForNodesAction().forEach((node) => {
-    const originalSize = node.data("originalSize");
-
-    if (originalSize) {
+    if (node.data("originalSizeW")) {
       node.data("label", node.data("originalLabel"));
       node.style({
-        width: originalSize,
-        height: originalSize,
+        width: node.data("originalSizeW"),
+        height:node.data("originalSizeH"),
       });
       // caution : removeData don't remove the key. The key stays as undefined.
-      node.removeData("originalSize");
+      node.removeData("originalSizeH");
+      node.removeData("originalSizeW");
       node.removeData("originalLabel");
     }
   });
@@ -892,8 +906,9 @@ export function labelNodeHide() {
   perimeterForNodesAction().forEach((node) => {
     // detect if already done
     if (node.data("originalLabel") === undefined) {
-      const currentSize = node.style("width");
-      node.data("originalSize", currentSize);
+
+      node.data("originalSizeH", node.style("height"));
+      node.data("originalSizeW", node.style("width"));
       node.data("originalLabel", node.data("label"));
       node.data("label", " ");
       node.style({

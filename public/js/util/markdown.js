@@ -151,18 +151,18 @@ export function htmlTableToMarkdown(
   const titleMd = title ? `\n## ${title}\n\n` : "";
   const markdownTable =
     titleMd + [headerLine, separatorLine, ...bodyLines].join("\n");
-  outputMarkdown(opts, markdownTable);
+  outputMarkdown(opts, markdownTable,root);
 }
 
 /*
 more general output for markdown
 */ 
-export function outputMarkdown(opts={}, markdownText) {
+export function outputMarkdown(opts={}, markdownText,root) {
   // output .md : file or clipboard
   const filename = opts.filename ?? `default.md`;
 
   if (opts.copyToClipboard) {
-    let root = document;
+  
       const tableWin = root.defaultView || window;
     tableWin.navigator.clipboard?.writeText(markdownText).catch((err) => {
       console.error("Clipboard copy failed:", err);
@@ -183,3 +183,4 @@ export function outputMarkdown(opts={}, markdownText) {
     setTimeout(() => URL.revokeObjectURL(url), 1000); // leave time to nav and release
   }
 }
+

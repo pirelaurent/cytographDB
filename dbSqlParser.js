@@ -58,6 +58,7 @@ export function extractImpactedTables(text) {
   const raw = [
     ...text.matchAll(/\b(INSERT\s+INTO|UPDATE|DELETE\s+FROM)\s+(\w+)/gi),
   ].map((m) => m[2]);
+  
   // avoid select 1 or non alphanum function
   return raw.filter(
     (fn) =>

@@ -1,7 +1,5 @@
 # 2.07b
 
-## Done 
-
 ### ReDo command (ctrl y ) 
 
 Allow to move backward from deeper undo (ctrl z)  up to last screen (if no change while )
@@ -14,18 +12,36 @@ No need to connect first before an upload :
  if the DB named in the json uploaded is still available on the Postres instance. 
  If, after a dialog, the DB Named in Json is given as compatible with current DB. 
 
-
 ### Simple trace 
  add simple trace in trace.js for debug
 
 ### follow & show 
- starts with selected. If none starts for visible.
+ starts with selected. If none starts for visibles.
 
+--- 
 
 # 2.07c
 
-Align table for index and fk 
+## GUI
 
+Align table output for index and fk
+Add markdown export for PK, FK , Index & constraints 
+Change leaf and root shape for better distinction 
+Symbols for nullable/not null to reduce place in display
+Remove *** from table for triggers. Replaced by a symbol. 
+Larger font and sizes by default. 
+
+
+
+## internal
+
+Change custom load in async to be sure of order (edge vs chrome difference)
+Add trap in upload if no db at all. 
+Add trap for breadfirst layout to prevent rare case
+Add fit screen after upload
+
+
+# 2.07d prevision 
 
 
 

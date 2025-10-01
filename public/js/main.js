@@ -16,7 +16,7 @@
 
 "use strict";
 
-import "./customModulesIndex.js";
+import { loadCustomModules } from "./customModulesIndex.js";
 
 import {linkToUi} from "./graph/loadSaveGraph.js";
 import { addCustomDocLink} from "./ui/custom.js"
@@ -24,6 +24,7 @@ import { setInterceptors } from "./ui/interceptors.js";
 import {initMenus} from "./ui/menus.js"
 import { 
   cytogaphdb_version,
+  showAlert,
 } from "./ui/dialog.js"
 
 import { setCy } from "./graph/cytoscapeCore.js";
@@ -66,11 +67,14 @@ export function main() {
 /*
  run main once dom is loaded 
 */
-document.addEventListener("DOMContentLoaded", () => {
+
+  document.addEventListener("DOMContentLoaded", async () => {
+  await loadCustomModules();  // on attend avant d'appeler main
+  await addCustomDocLink();
   main();
-  // check custom docs to add in menu 
-  addCustomDocLink();
 });
+ 
+
 
 
 

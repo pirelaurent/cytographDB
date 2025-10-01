@@ -52,7 +52,7 @@ export function listNodesToHtml(all=true) {
     });
 
     return [
-      // remove the stars from label
+      // remove the stars from label . leaved * test for old json reloaded 
       node.data("label").replace(/\*/g, "") || "",
       zeroBlank(node.data("columns")?.length || 0),
       zeroBlank(realIndexes?.length || 0),

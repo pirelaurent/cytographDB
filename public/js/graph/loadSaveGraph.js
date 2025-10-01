@@ -69,14 +69,13 @@ export function loadInitialGraph() {
   })
     .then((res) => res.json())
     .then((data) => {
-      //console.log(JSON.stringify(data));//PLA
+//console.log(JSON.stringify(data));//PLA
       initializeGraph(data);
       // store details at load time /now generated with details
       saveDetailedEdges();
       enterFkSynthesisMode(true);
       // moved after reduction to 1 edge per fk
       createNativeNodesCategories();
-
       hideWaitLoading();
       proportionalSizeNodeSizeByLinks();
       setAndRunLayoutOptions();
@@ -368,6 +367,10 @@ export function loadGraphFromFile(event) {
         // either no original db name, either cannot be able to connect to original
         // try compatible
         else {
+          showAlert(
+            `unable to connect <b>${originalDBName}</b><br/>` +
+              `Details: ${result.message}`
+          );
           // try to connect had failed
           if (currentDBName != null) {
             {
@@ -392,6 +395,11 @@ export function loadGraphFromFile(event) {
                             setPostgresConnected();
                             setLocalDBName(currentDBName);
                             createGraphFromJson(json);
+                          } else {
+                            showAlert(
+                              `unable to connect <b>${currentDBName}</b><br/>` +
+                                `Details: ${result.message}`
+                            );
                           }
                         }
                       );
@@ -442,6 +450,7 @@ function createGraphFromJson(json) {
 
   enterFkSynthesisMode(true);
   metrologie();
+  cy.fit();
   //getCy().layout({ name: 'cose'}).run();
 }
 

@@ -5,35 +5,30 @@
 */
 
 
-(async () => {
+export async function loadCustomModules() {
   let modules = [];
   try {
     const res = await fetch('/api/custom-modules', { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    modules = await res.json(); // ex: ['/custom/a.js', '/custom/b.js', ...]
+    modules = await res.json();
   } catch (e) {
     console.error('[custom] impossible de récupérer la liste', e);
     return;
   }
 
-  // Fire-and-forget //
-  modules.forEach(spec => {
-    // (optionnel) bust cache si tu changes souvent les fichiers
+  await Promise.allSettled(modules.map(async spec => {
     const url = `${spec}?v=${Date.now()}`;
+    try {
+      const mod = await import(url); // @vite-ignore inutile en natif
+      console.info('[custom] loaded :', spec);
+      if (typeof mod?.init === 'function') mod.init();
+      if (typeof mod?.default === 'function') mod.default();
+    } catch (err) {
+      console.debug('[custom] ignored :', spec, err?.message || err);
+    }
+  }));
+}
 
-    import(/* @vite-ignore */ url)
-      .then(mod => {
-        console.info('[custom] loaded :', spec);
-        // Si un module exporte une init() par convention :
-        if (typeof mod?.init === 'function') mod.init();
-        // ou si default est une fonction :
-        if (typeof mod?.default === 'function') mod.default();
-      })
-      .catch(err => {
-        console.debug('[custom] ignored :', spec, err?.message || err);
-      });
-  });
-})();
 
 
 /*

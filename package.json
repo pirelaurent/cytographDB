@@ -1,6 +1,6 @@
 {
   "name": "cytographdb",
-  "version": "2.0.7b",
+  "version": "2.0.7c",
   "type": "module",
   "main": "server.js",
   "scripts": {

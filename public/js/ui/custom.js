@@ -91,7 +91,7 @@ export async function addCustomDocLink() {
     if (docLink) {
       const customLink = document.createElement("a");
       customLink.href = `/custom/docs/${firstFile}`;
-      customLink.textContent = "Custom";
+      customLink.textContent = "Custom doc.";
       customLink.className = "doc-link";
       customLink.style.cursor = "pointer";
 

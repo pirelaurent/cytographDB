@@ -1,4 +1,5 @@
 "use strict";
+
 /*
   basic style for the graph 
   extended specifically later
@@ -148,6 +149,26 @@ const cyStyles = [
       "border-width": 1,
     },
   },
+
+{
+    selector: 'node.hasTriggers',
+    style: {
+     
+      'background-image': '/img/trigger2.png', // center is anchor
+      'background-width': '22px',
+      'background-height': '22px',
+      'background-position-x': '50%', // anchor x relative to horizontal x of node
+      'background-position-y': '96%',// anchor y relative to vertical y of node
+      //'background-offset-x': '-7px',     
+      //'background-offset-y': '+3px',
+      'background-repeat': 'no-repeat',
+    }
+  },
+
+
+
+
+
 
   /*
   --------------- edges

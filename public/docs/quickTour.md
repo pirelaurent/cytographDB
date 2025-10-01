@@ -25,8 +25,8 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
   -  pentagon ( *parameters* )
 - <img src = "./img/shapeRoot.png" height="20"> **root** : no outgoing link. 
   - triangle (*product, company*).
-- <img src = "./img/shapeLeaf.png" height="20"> **leaf** : no incoming, one outgoing 
-  - rounded triangle (*skills*)
+- <img src = "./img/shapeLeaf.png" height="25" width="10"> **leaf** : no incoming, one outgoing 
+  - high rounded triangle (*skills*)
 -  <img src = "./img/shapeDry.png" height="20">**(dry) association** :  no incomings, 2 outgoings, strict list of columns from FK in table   
      - ellipse (*authorization*) 
 - <img src = "./img/shapeMulti.png" height="20"> **multi-association** : no incomings, >2 outgoings, or: 2 outgoings with extra column in table
@@ -34,9 +34,11 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
 - <img src = "./img/shapeDefault.png" height="20"> **other tables** 
   - round rectangle (*production line, factory, employee*)
   
-#### standard alteration 
+#### tag trigger detected 
 
-- table  **'has triggers'** : label is followed by ***stars \**** ( 1 per trigger. see *intervention\*\**)
+  
+
+<img src = '/img/trigger2.png' width=20>   this symbol appears under the label when a table **has triggers** (*replacing previously used stars\** )
 
 
 ### hover on node
@@ -45,16 +47,16 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
 When mouse cursor is over a node, direct neighbours are highlighted:
 - **outgoings edges** (foreign keys) are green 
 - **incomings edges** (referenced by other tables) are red 
-- ***More***: with hover "on" in main menu bar, a detail popup is added:  
-  
-<img src = "./img/basicInformationNode.png" height = "200px" style="border: 1px solid grey;">
+- ***More***: with hover "on" in main menu bar, a detail popup is added on the node:  
 
-
-These pop up show :
-- number of edges **<-out & <-in** 
-- ***[standard & custom categories ]*** if any
+With number of edges **<-out & <-in** :
   
-<img src = "./img/hoverInfo.png"  width = "250px" style="border: 1px solid grey;">
+<img src = "./img/hoverBasicInformationNode.png" height = "200px" style="border: 1px solid grey;">
+
+With number of triggers and other categories if any :
+    
+<img src = "./img/hoverInfo.png"  width = "300px" style="border: 1px solid grey;">   
+
 
 💡 at any time 'ctrl g' or *photo icon clic* create a png snapshot of current screen
 
@@ -85,7 +87,7 @@ with hover "on" in main menu bar, a popup is added when mouse is over an edge.
 
 <img src = "./img/hoverEdgeInfo.png"  width = "450px" style="border: 1px solid grey;">
 
-note: *fk_synth* rely to*1 edge per FK* mode. See Edge menu.  
+ *1/FK (or 1/Col)* designate current display of edge (global or detailed). See Edge menu.  
 
 ---
 # more informations

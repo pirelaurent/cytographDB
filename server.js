@@ -1,44 +1,46 @@
 // Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
-// 
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
-
 
 "use strict";
 import express from "express";
 import dotenv from "dotenv";
 import fs from "fs";
 
-import { readFile, readdir } from 'fs/promises';
+import { readFile, readdir } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
-import { getTableDetails } from "./dbUtils.js"
+import { getTableDetails } from "./dbUtils.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import pkg from "pg";
 const { Pool } = pkg;
 
-import { getPoolFor, getCurrentPool, getCurrentDBName, setCurrentDBName, resetPool } from "./db.js";
+import {
+  getPoolFor,
+  getCurrentPool,
+  getCurrentDBName,
+  setCurrentDBName,
+  resetPool,
+} from "./db.js";
 import {
   collectFunctionBodies,
   extractImpactedTables,
   extractCalledFunctions,
   stripSqlComments,
-
 } from "./dbSqlParser.js";
 
 import {
@@ -49,9 +51,9 @@ import {
   tableCommentQuery,
 } from "./dbreq.js";
 
-import {encodeCol2Col} from "./public/js/util/common.js";
+import { encodeCol2Col } from "./public/js/util/common.js";
 
-console.log('init env');
+console.log("init env");
 // Chargement des variables d'environnement
 dotenv.config();
 
@@ -70,13 +72,11 @@ if (!fs.existsSync(GRAPH_DIR)) {
   fs.mkdirSync(GRAPH_DIR);
 }
 
-const pkgPath = path.join(__dirname, 'package.json');
+const pkgPath = path.join(__dirname, "package.json");
 
 //console.log(pkgPath)
-const pkgRaw = await readFile(pkgPath, 'utf-8');
+const pkgRaw = await readFile(pkgPath, "utf-8");
 const appPkg = JSON.parse(pkgRaw);
-
-
 
 app.use(express.static("public"));
 
@@ -126,7 +126,7 @@ app.post("/load-from-db", async (req, res) => {
 
     fkResult.rows.forEach(({ source, source_column, source_not_null }) => {
       if (!fkColumnMap[source]) fkColumnMap[source] = [];
-// here true or false on source_not_null
+      // here true or false on source_not_null
       fkColumnMap[source].push({
         column: source_column,
         nullable: !source_not_null,
@@ -158,18 +158,17 @@ app.post("/load-from-db", async (req, res) => {
     const nodes = [];
 
     for (const name of tableNames) {
-
       const details = await getTableDetails(client, name);
       const trigs = triggersByTable.get(name) || [];
       const data = {
         id: name,
-        label: name + (trigs.length > 0 ? "\n" + "*".repeat(trigs.length) : ""),
-        columns: details.columns.map(c => c.column),
-        foreignKeys: details.foreignKeys || [],// ex .map(fk => fk.column),
+        label: name, //+ (trigs.length > 0 ? "\n" + "*".repeat(trigs.length) : ""), replaced by icon + data.triggers.length
+        columns: details.columns.map((c) => c.column),
+        foreignKeys: details.foreignKeys || [], // ex .map(fk => fk.column),
         comment: details.comment,
         primaryKey: details.primaryKey,
         indexes: details.indexes,
-        triggers: trigs
+        triggers: trigs,
       };
       // nodes new fk with all_source_not_null
       nodes.push({ data });
@@ -188,22 +187,21 @@ app.post("/load-from-db", async (req, res) => {
           source: e.source,
           target: e.target,
           label: e.constraint_name,
-          columnsLabel: encodeCol2Col(e.source_column, e.target_column),//`${e.source_column} --> ${e.target_column}`, 
+          columnsLabel: encodeCol2Col(e.source_column, e.target_column), //`${e.source_column} --> ${e.target_column}`,
           onDelete: e.on_delete, // raw code: 'a', 'c', etc.
-          onUpdate: e.on_update,  // raw code
-          nullable: !e.source_not_null
+          onUpdate: e.on_update, // raw code
+          nullable: !e.source_not_null,
         },
-        // a no action c: cascade. 
+        // a no action c: cascade.
         classes: [
-          'fk_detailed', // one edge per column fk
-          e.on_delete === 'c' ? 'delete_cascade' : '',
-          !e.source_not_null ? 'nullable' : ''
+          "fk_detailed", // one edge per column fk
+          e.on_delete === "c" ? "delete_cascade" : "",
+          !e.source_not_null ? "nullable" : "",
         ]
           .filter(Boolean) // supprime les chaînes vides
-          .join(' ')
-
+          .join(" "),
       }));
-//console.log(JSON.stringify({ nodes, edges: filteredEdges }))//PLA
+    //console.log(JSON.stringify({ nodes, edges: filteredEdges }))//PLA
     res.json({ nodes, edges: filteredEdges });
   } catch (error) {
     console.error("error loading graph :", error);
@@ -236,7 +234,9 @@ app.get("/table/:name", async (req, res) => {
     try {
       await client.query(`SELECT 1 FROM "${table}" LIMIT 1`);
     } catch {
-      return res.status(404).json({ error: `Table '${table}' does not exist.` });
+      return res
+        .status(404)
+        .json({ error: `Table '${table}' does not exist.` });
     }
 
     const details = await getTableDetails(client, table);
@@ -249,7 +249,6 @@ app.get("/table/:name", async (req, res) => {
     if (client) client.release();
   }
 });
-
 
 /*
  comment of one table 
@@ -266,8 +265,7 @@ app.get("/table_comment/:name", async (req, res) => {
 
     const comment = result.rows[0]?.comment || null;
 
-    res.json({ comment });  // Renvoie toujours { comment: string | null }
-
+    res.json({ comment }); // Renvoie toujours { comment: string | null }
   } catch (error) {
     console.error("Erreur dans /table_comment/:name :", error);
     res.status(500).json({ error: "Error accessing database." });
@@ -275,8 +273,6 @@ app.get("/table_comment/:name", async (req, res) => {
     if (client) client.release();
   }
 });
-
-
 
 /*
  Database list from postgres
@@ -391,7 +387,6 @@ app.post("/connect-db", async (req, res) => {
     await pool.query("SELECT 1");
     res.send(`connected to <b>${dbName}</b>`);
     setCurrentDBName(dbName);
-
   } catch (err) {
     console.error("connection error :", err);
     res.status(500).send("connection failed");
@@ -439,7 +434,6 @@ app.get("/api/function", async (req, res) => {
   }
 });
 
-
 /*
  fetch one triggers by table name. 
  called from triggers.html page that called it directly
@@ -447,6 +441,7 @@ app.get("/api/function", async (req, res) => {
 */
 
 app.get("/triggers", async (req, res) => {
+
   res.setHeader("Cache-Control", "no-store");
   const pool = getCurrentPool();
   if (!pool) {
@@ -463,7 +458,7 @@ app.get("/triggers", async (req, res) => {
     return res.status(400).json({ error: "Missing table parameter" });
   }
 
-  // search keywords in source code 
+  // search keywords in source code
 
   try {
     //const { rows } = await client.query(triggerQuery);
@@ -472,10 +467,9 @@ app.get("/triggers", async (req, res) => {
     const { rows } = await client.query(triggerQueryOneTable, [table]);
     const filteredTriggers = rows;
 
-
     const enriched = await Promise.all(
       filteredTriggers.map(async (row) => {
-
+        let warnings =[];
         try {
           const matches = [
             ...row.definition.matchAll(
@@ -484,10 +478,36 @@ app.get("/triggers", async (req, res) => {
           ];
           const functionNames = matches.map((m) => m[3]);
 
+          //  
           let fullText = row.definition + "\n";
+          
+          // collect all function codes and add it to main source 
 
           for (const functionName of functionNames) {
-            const body = await collectFunctionBodies(client,table, functionName);
+            const body = await collectFunctionBodies(
+              client,
+              table,
+              functionName
+            );
+
+         // Cas 2 : EXECUTE dynamique in function ? 
+            
+ 
+
+         const execMatches = [
+            ...body.matchAll(   // iterator 
+              /\bEXECUTE\s+(?!FUNCTION|PROCEDURE)([^;]+)/gi
+            ),
+          ];
+          if (execMatches.length>0){
+            warnings.push(`found EXECUTE someString in ${functionName}`)
+            warnings.push('pouet');
+            
+            console.log(`*** Warning : found EXECUTE someString in ${functionName} (see server console)`);
+            const dynamicExec = execMatches.map((m) => m[1].trim());
+            console.log(dynamicExec);
+          }
+          // append 
             fullText += body + "\n";
           }
 
@@ -498,7 +518,6 @@ app.get("/triggers", async (req, res) => {
               extractImpactedTables(cleanedText).filter((t) => t !== table)
             ),
           ];
-
 
           const calledFunctions = [
             ...new Set(extractCalledFunctions(fullText)),
@@ -512,6 +531,7 @@ app.get("/triggers", async (req, res) => {
             functionNames,
             impactedTables,
             calledFunctions,
+            warnings,
           };
         } catch (err) {
           console.error(`Error processing trigger ${row.trigger_name}:`, err);
@@ -566,7 +586,6 @@ app.post("/api/reset-pool", async (req, res) => {
   }
 });
 
-
 /*
  app version 
 */
@@ -583,16 +602,15 @@ app.get("/api/version", (req, res) => {
 
 */
 
-
-app.get('/api/custom-docs-check', (req, res) => {
-  const docsDir = path.join(__dirname, 'public', 'custom', 'docs');
+app.get("/api/custom-docs-check", (req, res) => {
+  const docsDir = path.join(__dirname, "public", "custom", "docs");
 
   fs.readdir(docsDir, (err, files) => {
     if (err) {
       return res.json({ available: false });
     }
 
-    const matchingFiles = files.filter(name => /^index.*\.md$/i.test(name));
+    const matchingFiles = files.filter((name) => /^index.*\.md$/i.test(name));
 
     if (matchingFiles.length > 0) {
       res.json({ available: true, files: matchingFiles });
@@ -605,27 +623,30 @@ app.get('/api/custom-docs-check', (req, res) => {
 /*
  scan directory custom to get modules list 
 */
-app.get('/api/custom-modules', async (_req, res) => {
-    const customDir = path.join(__dirname, 'public', 'custom');
+app.get("/api/custom-modules", async (_req, res) => {
+  const customDir = path.join(__dirname, "public", "custom");
   try {
     const entries = await readdir(customDir, { withFileTypes: true });
     const jsFiles = entries
-      .filter(d => d.isFile() && d.name.endsWith('.js'))
-      .map(d => `/custom/${d.name}`);
+      .filter((d) => d.isFile() && d.name.endsWith(".js"))
+      .map((d) => `/custom/${d.name}`);
     res.json(jsFiles);
   } catch (err) {
-    console.error('Listing error:', err);
-    res.status(500).json({ error: 'Cannot list custom modules' });
+    console.error("Listing error:", err);
+    res.status(500).json({ error: "Cannot list custom modules" });
   }
 });
 
+/*
+ to know if server is running 
+*/
 
-
+app.get("/healthz", (req, res) => {
+  res.json("server is on");
+});
 
 // Start the server
 
 app.listen(PORT, () => {
   console.log(`Server started.App now available on http://localhost:${PORT}`);
 });
-
-

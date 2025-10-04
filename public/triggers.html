@@ -5,35 +5,15 @@
 <head>
   <meta charset="UTF-8" />
   <title>Triggers for table</title>
+  <!-- SQL syntaxic colors -->
   <link href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
   <style>
-    body {
-      font-family: sans-serif;
-      padding: 1em;
-    }
 
     table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 1em;
+      width:100%
     }
-
-    th,
-    td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f4f4f4;
-    }
-
-    pre {
-      background: #f8f8f8;
-      padding: 1em;
-      overflow-x: auto;
-    }
+   
 
     a {
       color: #0077cc;
@@ -72,87 +52,8 @@
   <div id="content">Loading...</div>
 
 
-  <script>
-    async function main() {
 
-      const params = new URLSearchParams(window.location.search);
-      const table = params.get("table");
-      if (!table) {
-        document.getElementById("content").textContent = "Missing table parameter.";
-        return;
-      }
-
-      document.getElementById("title").innerHTML = `<img
-        src="img/closePage.png"
-        alt="Return"
-        title="Close"
-          style="cursor: pointer; vertical-align: middle; width: 25px; height: 25px;"
-        onclick="window.tryClose()"
-      />
- ${table} ⚡  `;
-
-
-      document.title = `${table} ⚡ `
-// PLA where we get the triggers list 
-      const response = await fetch(`/triggers?table=${table}`);
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        document.getElementById("content").innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
-        return;
-      }
-
-      if (!data || data.triggers.length === 0) {
-        document.getElementById("content").innerHTML = "<p>No triggers defined.</p>";
-        return;
-      }
-
-      const rows = data.triggers.map(t => {
-
-// where we prepare links to trigger code 
-        const fnLink = (t.functionNames && t.functionNames.length > 0)
-          ? t.functionNames.map(fn =>
-            `<a href="/function.html?table=${encodeURIComponent(table)}&triggerName=${encodeURIComponent(t.name)}&name=${encodeURIComponent(fn)}" target="functionPage">${fn}</a>`
-          ).join(", ")
-          : `<code>${t.definition}</code>`;
-
-        const impacted = (t.impactedTables || []).map(tab => `<code>${tab}</code>`).join(", ") || "-";
-        const calls = (t.calledFunctions || []).map(fn =>
-          `<a href="/function.html?table=${table}&triggerName=${t.name}&name=${encodeURIComponent(fn)}" target="functionPage">${fn}</a>`).join(", ") || "-";
-
-        if (t.warnings.length>0) alert(t.warnings.join('\n'));
-
-        return `
-          <tr>
-            <td>${t.name}</td>
-            <td>${t.timing}</td>
-            <td>${t.on}</td>
-            <td>${fnLink}</td>
-            <td>${impacted}</td>
-            <td>${calls}</td>
-          </tr>`;
-      }).join("");
-
-      document.getElementById("content").innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Timing</th>
-              <th>Event(s)</th>
-              <th>Definition</th>
-              <th>Impacted Tables 
-            </th>
-              <th>Called Functions</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
-    }
-    main();
-  </script>
+  <script type="module" src="./js/dbFront/tableTriggers.js"></script>
 </body>
 
 </html>

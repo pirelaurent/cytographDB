@@ -68,6 +68,10 @@ This menu works only with previously selected edges.
 - filter edges by *native category* such as `"triggers generated"`.  
 - apply **From Selected Edges → Both Sides** this highlight a subgraph of source and impacted tables by triggers.  
 
+
+
+
+
 ---
 
 ### Filter By ...

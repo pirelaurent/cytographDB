@@ -6,7 +6,6 @@
 import { functionBodyQuery } from "./dbreq.js";
 
 export async function getFunctionBody(client, routineName) {
-  
   const { rows } = await client.query(functionBodyQuery, [routineName]);
   const r = rows[0];
   if (!r) {
@@ -58,7 +57,7 @@ export function extractImpactedTables(text) {
   const raw = [
     ...text.matchAll(/\b(INSERT\s+INTO|UPDATE|DELETE\s+FROM)\s+(\w+)/gi),
   ].map((m) => m[2]);
-  
+
   // avoid select 1 or non alphanum function
   return raw.filter(
     (fn) =>
@@ -85,44 +84,85 @@ export function extractCalledFunctions(text) {
     (fn) =>
       /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(fn) && // identifiant SQL valid
       isNaN(Number(fn)) && // exclude numbers
-      !["true", "false", "null", "concat", "length","min","max","array","coalesce"].includes(fn.toLowerCase()) // avoid PLA
+      ![
+        "true",
+        "false",
+        "null",
+        "concat",
+        "length",
+        "min",
+        "max",
+        "array",
+        "coalesce",
+      ].includes(fn.toLowerCase()) // avoid PLA
   );
 }
 
 /*
  recursive call to analyse triggers and recurse limit
 */
+
 export async function collectFunctionBodies(
   client,
   table,
   functionName,
   seen = new Set(),
-  depth = 0,
+  depth = 0
 ) {
-  if (seen.has(functionName) || depth > 15) return "";
+  if (seen.has(functionName) || depth > 15) {
+    return { allCodeResult: "", warnings: [] };
+  }
   seen.add(functionName);
+
+  let warnings = [];
+
   const fullResult = await getFunctionBody(client, functionName);
-  // missing function definition 
- if (fullResult.kind === 'not_found')
- {
-  console.log(`*** WARNING from ${table} : found  ${fullResult.name} as  '${fullResult.kind}'`); 
-  return;
- } 
+
+  // missing function definition
+  if (fullResult.kind === "not_found") {
+    let aWarning = {
+      table: table,
+      function: functionName,
+      warn: `"${fullResult.name}" : ${fullResult.kind}`,
+    };
+
+    warnings.push(aWarning);
+    console.log(JSON.stringify(aWarning));
+    return { allCodeResult: "", warnings };
+  }
 
   if (fullResult.kind === "function" || fullResult.kind === "procedure") {
     let body = fullResult.body;
     let allCode = body + "\n";
+
     const subCalls = extractCalledFunctions(body);
     for (const subFn of subCalls) {
       // recurse with collected calls
-      allCode += await collectFunctionBodies(client, table, subFn, seen, depth + 1);
+      const subResult = await collectFunctionBodies(
+        client,
+        table,
+        subFn,
+        seen,
+        depth + 1
+      );
+      allCode += subResult.allCodeResult;
+      warnings.push(...subResult.warnings);
     }
-    return allCode;
+
+    return { allCodeResult: allCode, warnings };
   } else {
-    // on server console 
-    console.log(`*** WARNING from ${table} : found ${fullResult.name} as  '${fullResult.kind}'`); 
+    // not 'not found' , not a function, not a procedure
+   
+    let aWarning = {
+      table: table,
+      function: functionName,
+      warn: `"${fullResult.name}" : ${fullResult.kind}`,
+    };
+     // mainly aggregate. Just on the console. 
+    if(fullResult.kind !="aggregate") warnings.push(aWarning);
+    console.log(JSON.stringify(aWarning));
+    return { allCodeResult: "", warnings };
   }
-  // test with bidt_stock_mvt
 }
 
 /*

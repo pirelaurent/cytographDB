@@ -149,6 +149,8 @@ export function createNativeNodesCategories() {
       console.log('nbout:' + nbOut + " outdegree:" + node.outdegree());
       console.log('nbIn:' + nbIn)
     }
+
+    
     if (nbOut >= 2 && nbIn === 0) {
       if (nbOut === 2) {
         const allCols = node.data("columns") || [];
@@ -168,11 +170,15 @@ export function createNativeNodesCategories() {
       node.addClass("orphan");
     }
 
-    if (nbOut === 0 && nbIn > 0) {
+    // rectified to join internal cytoscapes definition 
+
+    if (nbIn === 0 && nbOut > 0) {
       node.addClass("root");
     }
 
-    if (nbOut === 1 && nbIn === 0) {
+    // we leave 1 out for leaf 
+
+    if (nbIn > 0 && nbOut === 0)  {
       node.addClass("leaf");
     }
   });

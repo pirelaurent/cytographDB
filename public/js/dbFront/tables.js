@@ -12,6 +12,8 @@ import {
 import { getCustomNodesCategories } from "../filters/categories.js";
 import { resetSnapshot } from "../graph/snapshots.js";
 
+import { warningOutputHtml } from "../util/common.js";
+
 /*
  as in a new page (and no session) dbname cannot be shared with main
  This info is furnished into the url 
@@ -50,7 +52,6 @@ export function openTriggerPage(node) {
  connect to db with graph or only db 
 */
 export function connectToDb(menuItemElement) {
-
   return promptDatabaseSelectionNear(menuItemElement).then((dbName) => {
     if (!dbName) {
       // no selection of db , not an error
@@ -82,7 +83,7 @@ export function connectToDb(menuItemElement) {
       if (typeof getCy() !== "undefined" && getCy()) {
         getCy().elements().remove();
         resetSnapshot();
-        document.getElementById('graphName').value="";
+        document.getElementById("graphName").value = "";
       } else {
         showError("Graph not initialized");
       }
@@ -105,11 +106,11 @@ export async function connectToDbByNameWithoutLoading(dbName) {
       body: JSON.stringify({ dbName }),
     });
 
-    const body = await res.text(); 
+    const body = await res.text();
     if (!res.ok) throw new Error(body || `HTTP ${res.status}`);
-          document.getElementById(
-        "current-db"
-      ).innerHTML = `<small>&nbsp;connected to: </small> <b>${dbName}</b>`;
+    document.getElementById(
+      "current-db"
+    ).innerHTML = `<small>&nbsp;connected to: </small> <b>${dbName}</b>`;
 
     return { ok: true, message: body };
   } catch (err) {
@@ -140,23 +141,36 @@ export function getLocalDBName() {
 }
 
 /*
+ clean generated triggers impact edges 
+*/
+export function removeTriggers() {
+  getCy().edges(".trigger_impact").remove();
+}
+
+/*
 create special links from triggers .
 Use recorded triggs into a node
 call script analysis to get impacted tables 
+Clean previous if any
 */
 
 export async function generateTriggers(nodes) {
   const nodesWithTriggers = nodes.filter((node) => {
     const trigs = node.data("triggers");
-
     return Array.isArray(trigs) && trigs.length > 0;
   });
+
   if (nodesWithTriggers.length == 0) {
     showAlert("no table with triggers in selection.");
     return;
   }
+  // clean if any
+
+  removeTriggers();
+
   //------------- get
 
+  let allWarnings = [];
   for (const aNode of nodesWithTriggers) {
     let table = aNode.id();
     let data;
@@ -173,11 +187,16 @@ export async function generateTriggers(nodes) {
       break; // on peut arrêter la boucle ici si ça ne sert à rien de continuer
     }
     if (!data || data.triggers.length === 0) {
-      showAlert(`no trigger for table ${node.id()}.`);
+      showAlert(`no trigger for table ${aNode.id()}.`);
       return;
     }
 
     data.triggers.forEach((t) => {
+      // bring back internal errors on parsing sql
+      if (t.warnings.length > 0) {
+        // console.log(JSON.stringify(t.warnings));//PLA
+        allWarnings.push(...t.warnings);
+      }
       const triggerName = t.name;
       const source = t.sourceTable || table; // à adapter si "table" est ailleurs
       const impactedTables = t.impactedTables || [];
@@ -209,6 +228,11 @@ export async function generateTriggers(nodes) {
             targetNode.show();
           }
         } else {
+          allWarnings.push({
+            table: ` ${source}`,
+            function: "trigger impact",
+            warn: `missing impact destination :  --> ${target}`,
+          });
           console.warn(
             `missing impact destination : '${source}' --> '${target}'`
           );
@@ -218,5 +242,10 @@ export async function generateTriggers(nodes) {
 
     getCy().style().update(); // forcer le style
   }
+
+  if (allWarnings.length > 0) {
+    showAlert(warningOutputHtml(allWarnings));
+  }
+
   return true;
 }

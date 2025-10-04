@@ -1,7 +1,7 @@
 "use strict";
 
 import { getCyStyles } from "./cyStyles.js";
-import { showAlert } from "../ui/dialog.js";
+import { showAlert, showInfo } from "../ui/dialog.js";
 import { modeSelect, AND_SELECTED } from "../ui/dialog.js";
 import { getLocalDBName } from "../dbFront/tables.js";
 import {
@@ -227,12 +227,14 @@ export function setAndRunLayoutOptions(option) {
   // choix du périmètre
 
   let selectedNodes = perimeterForNodesAction();
-  if (selectedNodes.length < 3) {
+  /*   if (selectedNodes.length < 3) {
     showAlert(
       "not enough nodes to calculate layout (>3).<br/> Check your selection"
     );
     return;
-  }
+  } 
+*/
+
   const maxCircle = 50;
   if (selectedNodes.length > maxCircle && option === "circle") {
     showAlert(
@@ -241,7 +243,7 @@ export function setAndRunLayoutOptions(option) {
     return;
   }
 
-  // add edges to selection to see them after reord
+  // add edges to selection to see them after reorg
   const connectedEdges = selectedNodes
     .connectedEdges()
     .filter(
@@ -271,7 +273,7 @@ export function setAndRunLayoutOptions(option) {
         rankSep: 80, // espace entre rangs
         //align: "DL", // alignement dans un rang: 'UL', 'UR', 'DL', 'DR'
         //acyclicer: "greedy", // casse les cycles par heuristique si ton graphe n’est pas DAG
-        ranker: "tight-tree",//"network-simplex", // (ou 'tight-tree', 'longest-path')
+        ranker: "tight-tree", //"network-simplex", // (ou 'tight-tree', 'longest-path')
         //nodeDimensionsIncludeLabels: true,
         //fit: true,
         padding: 30,
@@ -313,16 +315,33 @@ export function setAndRunLayoutOptions(option) {
       return; //
       break;
 
+    /*
+        take all visible 
+      */
     case "breadthfirst":
+      /* this takes orphan and root 
       const roots = selectedNodes.filter(
-        (n) => n.incomers("edge").length === 0
+        (n) => n.outgoers("edge").length === 0
       );
+*/
+      const rootNodes = selectedNodes.filter(".root"); 
+
       Object.assign(layoutOptions, {
-        orientation: "horizontal",
-        directed: true,
-        spacingFactor: 0.7,
-        roots: roots,
+        direction: "upward",
+        //orientation: "vertical",
+        circle: true,
+        //grid: true,
+        avoidOverlap: true,
+        directed: false,
+        spacingFactor: 1.2,
+        roots: rootNodes,
       });
+      // if user had selected only roots enlarge to all nodes , otherwise apply to selection
+      if (rootNodes.length == selectedNodes.length)
+        selectedNodes = getCy().nodes(":visible");
+      selectedNodes.layout(layoutOptions).run();
+      return; //
+
       break;
 
     case "elk":
@@ -335,14 +354,12 @@ export function setAndRunLayoutOptions(option) {
       break;
   }
 
-try {
-  selection.layout(layoutOptions).run();
-}
- catch(error)  {
-  showAlert('unable to apply this layout:'+ error.message)
- }
-  
-  
+  try {
+    selection.layout(layoutOptions).run();
+  } catch (error) {
+    showAlert("unable to apply this layout:" + error.message);
+  }
+
   cy.fit();
 }
 
@@ -350,6 +367,7 @@ try {
  fix the perimer of actions
  if selection : acts on selection
  otherwise acts on all nodes eventually visible only 
+
 */
 export function perimeterForNodesAction() {
   let nodes;
@@ -626,43 +644,41 @@ export function proportionalSizeNodeSizeByLinks() {
 
   // 1. Calculer le nombre de liens pour chaque nœud
   selectedNodes.forEach((node) => {
-        setProportionalSize(node);
+    setProportionalSize(node);
   });
 }
 
-function setProportionalSize(node){
-   let degree = node.connectedEdges().length;
-    node.data("degree", degree);
-    if (degree == 0) degree = 1;
+function setProportionalSize(node) {
+  let degree = node.connectedEdges().length;
+  node.data("degree", degree);
+  if (degree == 0) degree = 1;
 
-    // min max links, min size maxsize 
-    const size = mapValue(degree, 1, 40, 40, 100);
+  // min max links, min size maxsize
+  const size = mapValue(degree, 1, 40, 40, 100);
 
-    // leave as is in cyStyles
-  if (node.hasClass('root')) {
+  // leave as is in cyStyles
+  if (node.hasClass("leaf")) {
     node.style({
       width: size,
-      height: size*0.866, // equilateral (Math.sqrt(3) / 2) * L;
-    })
-    return;
-  }
- 
-  if (node.hasClass('leaf')) {
-    node.style({
-      width: size/4,
-      height: size, // equilateral (Math.sqrt(3) / 2) * L;
-    })
-    return;
-  }
-
-    node.style({
-      width: size,
-      height: size,
+      height: size * 0.866, // equilateral (Math.sqrt(3) / 2) * L;
     });
-    //document.getElementById("cy").style.backgroundColor = "lightgray";
+    return;
+  }
+
+   if (node.is('.root:not(.association):not(.multiAssociation)')) {
+    node.style({
+      width: size / 4,
+      height: size, // equilateral (Math.sqrt(3) / 2) * L;
+    });
+    return;
+  }
+
+  node.style({
+    width: size,
+    height: size,
+  });
+  //document.getElementById("cy").style.backgroundColor = "lightgray";
 }
-
-
 
 export function noProportionalSize() {
   getCy()
@@ -892,7 +908,7 @@ export function labelNodeShow() {
       node.data("label", node.data("originalLabel"));
       node.style({
         width: node.data("originalSizeW"),
-        height:node.data("originalSizeH"),
+        height: node.data("originalSizeH"),
       });
       // caution : removeData don't remove the key. The key stays as undefined.
       node.removeData("originalSizeH");
@@ -906,7 +922,6 @@ export function labelNodeHide() {
   perimeterForNodesAction().forEach((node) => {
     // detect if already done
     if (node.data("originalLabel") === undefined) {
-
       node.data("originalSizeH", node.style("height"));
       node.data("originalSizeW", node.style("width"));
       node.data("originalLabel", node.data("label"));

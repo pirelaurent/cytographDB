@@ -26,6 +26,7 @@ import {
 
 import {
   connectToDb,
+  removeTriggers,
   generateTriggers,
   setLocalDBName,
 } from "../dbFront/tables.js";
@@ -48,7 +49,8 @@ import {
   restrictToVisible,
   hideSelected,
   hideNotSelected,
-  labelNodeShow, labelNodeHide,
+  labelNodeShow,
+  labelNodeHide,
   swapHidden,
   setAndRunLayoutOptions,
   selectNodesFromSelectedEdges,
@@ -70,7 +72,6 @@ import {
   changeFontSizeNode,
   selectEdgesBetweenSelectedNodes,
   proportionalSizeNodeSizeByLinks,
-
 } from "../graph/cytoscapeCore.js";
 
 import {
@@ -91,7 +92,6 @@ import {
   showAlert,
   showError,
   deleteNodesSelected,
-
 } from "./dialog.js";
 
 import { getLocalDBName } from "../dbFront/tables.js";
@@ -116,7 +116,7 @@ export function initMenus() {
  prepare click events on menus 
 */
 
-function setupMenuActions(menuId, actionAttribute, callbackFn) {
+function OLDsetupMenuActions(menuId, actionAttribute, callbackFn) {
   const menu = document.querySelector(`[data-menu-id="${menuId}"] .menu`);
   if (!menu) return;
 
@@ -139,9 +139,56 @@ function setupMenuActions(menuId, actionAttribute, callbackFn) {
         const choice = item.getAttribute(actionAttribute);
         if (choice) callbackFn(choice, item);
       });
+
+      item.addEventListener("contextmenu", (e) => {
+        const choice = item.getAttribute(actionAttribute);
+        console.log(choice)
+        e.preventDefault(); // bloque le menu natif (optionnel)
+        someCodeRight(e);
+      });
     }
   });
 }
+
+function setupMenuActions(menuId, actionAttribute, callbackFn) {
+  const menu = document.querySelector(`[data-menu-id="${menuId}"] .menu`);
+  if (!menu) return;
+
+  // Items finaux dans les sous-menus
+  menu.querySelectorAll(".submenu li:not([data-skip-action])").forEach((item) => {
+    item.addEventListener("click", (e) => {
+      // e.stopPropagation(); // plus nécessaire si tu passes en délégation, mais ok ici
+      const choice = item.getAttribute(actionAttribute);
+      if (choice) callbackFn(choice, item,"left");
+    });
+
+    item.addEventListener("contextmenu", (e) => {
+      e.preventDefault();               // bloque le menu natif
+      const choice = item.getAttribute(actionAttribute);
+      if (choice) callbackFn(choice, item,  "right");
+    }, { capture: true }); // capture pour éviter un stopPropagation éventuel
+  });
+
+  // Items de premier niveau SANS sous-menu
+  // ⬇️ important : utiliser :scope > li (pas ".menu > li")
+  menu.querySelectorAll(":scope > li").forEach((item) => {
+    const hasSubmenu = item.querySelector(":scope > .submenu") !== null;
+    if (!hasSubmenu) {
+      item.addEventListener("click", () => {
+        const choice = item.getAttribute(actionAttribute);
+        if (choice) callbackFn(choice, item,"left");
+      });
+
+      item.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        const choice = item.getAttribute(actionAttribute);
+        if (choice) callbackFn(choice, item, "right");
+      }, { capture: true });
+    }
+  });
+}
+
+
 
 /*
 change color temporarly on click
@@ -162,7 +209,8 @@ function setupMenuClickAction() {
 /*
   ----------------------------------menu for db access and files 
 */
-export function menuDb(option, menuItemElement) {
+export function menuDb(option, menuItemElement, whichClic='left') {
+  if (whichClic=="right") return;
   switch (option) {
     case "connectToDb":
       connectToDb(menuItemElement).catch((err) =>
@@ -195,7 +243,8 @@ export function menuDb(option, menuItemElement) {
 /*
  ----------------------------------  main menu on display actions 
 */
-export function menuDisplay(option) {
+export function menuDisplay(option, item, whichClic='left') {
+    if (whichClic=="right") return;
   if (!cy) return;
   switch (option) {
     // -------------------------- fitscreen / selected
@@ -302,7 +351,8 @@ export function menuDisplay(option) {
 /*
   ---------------------------------- Files menu on top line 
 */
-export function menuGraph(option) {
+export function menuGraph(option, item, whichClic='left') {
+    if (whichClic=="right") return;
   switch (option) {
     case "localUpload":
       {
@@ -353,7 +403,8 @@ export function menuGraph(option) {
   ------------------------------------- Nodes 
 
 */
-export function menuNodes(option) {
+export function menuNodes(option, item, whichClic='left') {
+    if (whichClic=="right") return;
   switch (option) {
     //-------- Nodes Select
 
@@ -453,6 +504,7 @@ export function menuNodes(option) {
     case "nodeIsLeaf":
       {
         let nodes = perimeterForNodesSelection();
+        if (nodes == null) return;
         if (nodes.length === 0) return;
         nodes.filter(".leaf").select();
       }
@@ -483,7 +535,7 @@ export function menuNodes(option) {
       }
       break;
 
- case "looping":
+    case "looping":
       {
         let nodes = perimeterForNodesSelection();
 
@@ -502,9 +554,7 @@ export function menuNodes(option) {
 
       break;
 
-
-
-/*
+    /*
     ------------------------------------------------ custom list 
     no event . The list had been extended by fillInGuiNodesCustomCategories
     on each custom entry a click event goes to 
@@ -513,11 +563,9 @@ export function menuNodes(option) {
 
 */
 
+    // ------------------------------------------- Nodes select with edges
 
-
-    // ------------------------------------------- Nodes select with edges 
-
-/*    
+    /*    
  case "noEdge":
       {
         let nodes = perimeterForNodesSelection();
@@ -536,24 +584,21 @@ export function menuNodes(option) {
       }
       break;
  */
-   
 
-/*
+    /*
     -----------------------   filter by degrees incoming and outgoing 
       is started by event on the menu item by  byFilterMenu that starts openDegreeFilter()
 
 */
 
- 
-//-------------------------------------------------------- Label
+    //-------------------------------------------------------- Label
 
-
-    case "labelNodeShow": 
-       labelNodeShow();
+    case "labelNodeShow":
+      labelNodeShow();
       break;
 
     case "labelNodeHide":
-       labelNodeHide();
+      labelNodeHide();
       break;
 
     case "increase-font":
@@ -565,7 +610,6 @@ export function menuNodes(option) {
 
     //------------------------------------------------ Nodes List
 
-
     case "listNodesAll":
       listNodesToHtml(true);
       break;
@@ -574,8 +618,7 @@ export function menuNodes(option) {
       listNodesToHtml(false);
       break;
 
-
-      //------------------------------------------------ Nodes  Follow
+    //------------------------------------------------ Nodes  Follow
 
     case "followOutgoing":
       follow("outgoing");
@@ -613,7 +656,7 @@ export function menuNodes(option) {
       noProportionalSize();
       break;
 
-//----------------------------------  nodes Delete
+    //----------------------------------  nodes Delete
 
     case "deleteNodesSelected":
       deleteNodesSelected();
@@ -626,9 +669,9 @@ export function menuNodes(option) {
   //------------------------------------------------------------------menu edges relays 
 */
 
-export function menuEdges(option) {
+export function menuEdges(option, item, whichClic='left') {
   // if we enter an option, we flag the graph as 'changed'
-
+  if (whichClic=="right") return;
   // select edges
   switch (option) {
     case "allEdges":
@@ -828,8 +871,7 @@ export function menuEdges(option) {
 
     case "removeTriggers":
       pushSnapshot();
-      getCy().edges(".trigger_impact").remove();
-
+      removeTriggers();
       break;
 
     case "deleteEdgesSelected":
@@ -889,7 +931,6 @@ export function visibility(option) {
       break;
   }
 }
-
 
 /*
  used to resize node layout in any way horizontal or vertical or both 

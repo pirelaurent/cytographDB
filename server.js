@@ -125,6 +125,9 @@ app.post("/load-from-db", async (req, res) => {
     const fkColumnMap = {}; // tableName -> Set of FK column names
 
     fkResult.rows.forEach(({ source, source_column, source_not_null }) => {
+
+
+
       if (!fkColumnMap[source]) fkColumnMap[source] = [];
       // here true or false on source_not_null
       fkColumnMap[source].push({
@@ -160,16 +163,21 @@ app.post("/load-from-db", async (req, res) => {
     for (const name of tableNames) {
       const details = await getTableDetails(client, name);
       const trigs = triggersByTable.get(name) || [];
+
       const data = {
         id: name,
         label: name, //+ (trigs.length > 0 ? "\n" + "*".repeat(trigs.length) : ""), replaced by icon + data.triggers.length
-        columns: details.columns.map((c) => c.column),
+        // change : now bring back all infos on columns 
+        //columns: details.columns.map((c) => c.column),
+        columns:details.columns,
         foreignKeys: details.foreignKeys || [], // ex .map(fk => fk.column),
         comment: details.comment,
         primaryKey: details.primaryKey,
         indexes: details.indexes,
         triggers: trigs,
       };
+
+      // data.columns is an array of json  { column: 'id', type: 'integer', nullable: 'NO', comment: null }
       // nodes new fk with all_source_not_null
       nodes.push({ data });
     }
@@ -438,10 +446,21 @@ app.get("/api/function", async (req, res) => {
  fetch one triggers by table name. 
  called from triggers.html page that called it directly
  this also parse content through collectFunctionBodies
+
+ return a composite structure 
+ {
+            name: row.trigger_name,
+            on: row.triggered_on,
+            timing: row.timing,
+            definition: row.definition,
+            functionNames,
+            impactedTables,
+            calledFunctions,
+            warnings,
+          }
 */
 
 app.get("/triggers", async (req, res) => {
-
   res.setHeader("Cache-Control", "no-store");
   const pool = getCurrentPool();
   if (!pool) {
@@ -469,7 +488,7 @@ app.get("/triggers", async (req, res) => {
 
     const enriched = await Promise.all(
       filteredTriggers.map(async (row) => {
-        let warnings =[];
+        let warnings = [];
         try {
           const matches = [
             ...row.definition.matchAll(
@@ -478,36 +497,41 @@ app.get("/triggers", async (req, res) => {
           ];
           const functionNames = matches.map((m) => m[3]);
 
-          //  
+          //
           let fullText = row.definition + "\n";
-          
-          // collect all function codes and add it to main source 
+
+          // collect all function codes and add it to main source
 
           for (const functionName of functionNames) {
-            const body = await collectFunctionBodies(
-              client,
-              table,
-              functionName
-            );
+            const { allCodeResult, warnings: fnWarnings } =
+              await collectFunctionBodies(client, table, functionName);
 
-         // Cas 2 : EXECUTE dynamique in function ? 
-            
- 
+            const body = allCodeResult;
+            if (fnWarnings?.length) warnings.push(...fnWarnings);
 
-         const execMatches = [
-            ...body.matchAll(   // iterator 
-              /\bEXECUTE\s+(?!FUNCTION|PROCEDURE)([^;]+)/gi
-            ),
-          ];
-          if (execMatches.length>0){
-            warnings.push(`found EXECUTE someString in ${functionName}`)
-            warnings.push('pouet');
-            
-            console.log(`*** Warning : found EXECUTE someString in ${functionName} (see server console)`);
-            const dynamicExec = execMatches.map((m) => m[1].trim());
-            console.log(dynamicExec);
-          }
-          // append 
+            // search for bad practice EXECUTE inline string
+            const execMatches = [
+              ...body.matchAll(
+                // iterator
+                /\bEXECUTE\s+(?!FUNCTION|PROCEDURE)([^;]+)/gi
+              ),
+            ];
+
+            if (execMatches.length > 0) {
+              let aWarning = {
+                table: table,
+                function: functionName,
+                warn:` code with "EXECUTE 'someString'" is not sure and was not parsed.  `,
+              };
+              warnings.push(aWarning);
+
+              console.log( JSON.stringify(aWarning));
+              
+
+              const dynamicExec = execMatches.map((m) => m[1].trim());
+              console.log(dynamicExec);
+            }
+            // append
             fullText += body + "\n";
           }
 
@@ -543,6 +567,7 @@ app.get("/triggers", async (req, res) => {
             functionName: null,
             impactedTables: [],
             calledFunctions: [],
+            warnings, //PLA
             error: err.message,
           };
         }

@@ -148,10 +148,29 @@ An automatic code analysis search for `UPDATE`, `DELETE`, or `CREATE` operations
 
 In the upper sample, the `employee` table appears in *Impacted Tables* because an *UPDATE employee* has been found in the triggers code: 
 
+### recursive analysis 
 
-#### code details
+If a trigger code calls a function, the code of this function is also parsed.    
+If a function calls another function, the code of this called function is also parsed. 
+If a function has already been analysed previously, it is not parsed again.   
+The deep of nested calls is limited to 16 to avoid loops errors.
+
+#### Warnings in analysis 
+
+Some named function can be missing. 
+If a sql source uses a interpreted operation with 'EXECUTE someString' it is not analyzed as the content is not sure. 
+
+<img src="./img/warningTriggers.png" width = "500px" style="border: 1px solid grey;">
+
+#### code details view
 
 <img src ="./img/function-intervention-code.png" width = "500px" style="border: 1px solid grey;">
+
+
+
+
+
+
 
 ---
 
@@ -172,21 +191,31 @@ These edges can be easily selected later through
 Or removed directly by : 
 **Edges → Data Model → Triggers  → remove  impacts**
 
-## show detailed columns of foreign keys 
+##  foreign keys details: *1/FK* *1/Col* :   
 
 ### 1 edge per FK 
 
-This is the default FK presentation in the graph.   
+This is the default FK presentation in the graph where the edge is unique par FK and hold the name of the FK. 
 
 ### 1 edge per column 
 
-A previous FK edge is splitted in an edge per matching columns.  
+A FK edge is splitted as one or several edges : one edge per matching columns. 
+
 Clic on ***Edges-label-show***  to see **all** matching column names:
  
 <img src ="./img/edgePerColumn.png" width = "700px" style="border: 1px solid grey;">   
 
-💡 You can switch FK mode and label on an **edge basis with right click submenu**:    
+💡 You can switch FK mode and label individually **with right click submenu**:    
 <img src ="./img/edgeFlipFlop.png" width = "200px">
+
+You can also flip/flob label view on an individual edge. 
+
+#### Edge list output will show column details for edge in the 1/Col mode
+
+<img src ="./img/edgeList1perCol.png" width = "500px">
+
+
+
 
 --- 
 

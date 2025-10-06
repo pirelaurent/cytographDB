@@ -75,7 +75,7 @@ export function sendEdgeListToHtml() {
     const fkLabel = e.data("label") || "";
     // current state of edge : global or detailed
 
-    const columns = e.hasClass("fk_detailed")
+    const columns = e.hasClass(`${ConstantClass.FK_DETAILED}`)
       ? { label: e.data("columnsLabel") || "", nullable: e.data("nullable") }
       : "";
 

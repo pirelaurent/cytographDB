@@ -17,6 +17,7 @@ let lastStackOperation;
   save current graph in stack 
 */
 export function pushSnapshot(trace = "") {
+
   const cy = getCy();
   if (!cy) return;
 
@@ -41,6 +42,8 @@ export function pushSnapshot(trace = "") {
 
   cursorStack = positionStackUndo.length - 1; // pointeur sur le dernier
   lastStackOperation = "pushSnapshot";
+
+  //console.log(trace+" "+cursorStack);//PLA
 }
 
 /*
@@ -59,17 +62,20 @@ export function resetSnapshot() {
   The lastStackOperation remember the action   
 */
 
-export function popSnapshot() {
+export function popSnapshot(trace ="") {
   // undo
-  if (cursorStack > 0) {
+  if (cursorStack >= 0) {
     // allow redo on current screen if regret
     if (lastStackOperation === "pushSnapShot") {
       pushSnapshot("[auto-before-undo]");
     }
     lastStackOperation = "popSnapshot";
 
-    cursorStack -= 1;
+
+  //console.log(trace+" "+cursorStack);//PLA
     setCurrentState();
+      cursorStack -= 1;
+
   }
 }
 
@@ -87,7 +93,9 @@ export function reDoSnapshot() {
 */
 function setCurrentState() {
   const cy = getCy();
+
   const snapshot = positionStackUndo[cursorStack];
+  
   if (!cy || !snapshot) return;
 
   cy.elements().remove(); // optionnel : cy.json(snapshot.json) réécrit déjà

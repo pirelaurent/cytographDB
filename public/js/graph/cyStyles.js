@@ -46,6 +46,8 @@ const cyStyles = [
       "font-size": "24px",
       padding: "2px",
       "text-max-width": 200,
+      width:"40px", //PLA ne change rien 
+      height:"40px",
       width: "label",
       /* overwritten into proportionalSizeNodeSizeByLinks 
       "min-width": 40,
@@ -89,6 +91,7 @@ const cyStyles = [
     },
   },
   {
+    // leaf is modified in setProportionalSize
     selector: "node.leaf",
     style: {
       shape: "triangle",
@@ -99,14 +102,15 @@ const cyStyles = [
     },
   },
   {
+    // root is modified in setProportionalSize
     selector: "node.root",
     style: {
       shape: "round-triangle",
       color: "#000000",
-      width: 15,
-      height: 40,
+      width: 20,
+      height: 45,
       //"border-color": "DarkTurquoise",
-      "background-color": "aqua",
+      "background-color": "red",
     },
   },
   {
@@ -131,15 +135,6 @@ const cyStyles = [
       "border-style": "double",
     },
   },
-  {
-    selector: "node:selected",
-    style: {
-      "border-width": 10,
-      "border-color": "chartreuse",
-      "border-style": "dashed",
-      "border-width": 20,
-    },
-  },
 
   {
     selector: "node.orphan",
@@ -151,6 +146,18 @@ const cyStyles = [
       "border-width": 1,
     },
   },
+
+  {
+    selector: "node:selected",
+    style: {
+      "border-width": 10,
+      "border-color": "chartreuse",
+      "border-style": "dashed",
+      "border-width": 20,
+    },
+  },
+
+
 
   {
     selector: "node.hasTriggers",

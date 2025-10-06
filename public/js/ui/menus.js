@@ -99,6 +99,8 @@ import { getLocalDBName } from "../dbFront/tables.js";
 import { createCustomCategories } from "../filters/categories.js";
 
 import { selectEdgesByNativeCategories } from "./custom.js";
+import { NativeCategories, ConstantClass } from "../util/common.js";
+
 
 /*
  connect an html menu object to a treatment function with action selected
@@ -250,10 +252,12 @@ export function menuDisplay(option, item, whichClic='left') {
     // -------------------------- fitscreen / selected
 
     case "fitScreen":
+           pushSnapshot();
       getCy().fit();
       break;
 
     case "fitSelected":
+           pushSnapshot();
       getCy().fit(
         getCy()
           .nodes(":selected")
@@ -489,7 +493,7 @@ export function menuNodes(option, item, whichClic='left') {
       {
         let nodes = perimeterForNodesSelection();
         if (nodes.length === 0) return;
-        nodes.filter(".orphan").select();
+        nodes.filter(`.${NativeCategories.ORPHAN}`).select();
       }
       break;
 
@@ -497,7 +501,14 @@ export function menuNodes(option, item, whichClic='left') {
       {
         let nodes = perimeterForNodesSelection();
         if (nodes.length === 0) return;
-        nodes.filter(".root").select();
+        // due to previously save json 
+        nodes.forEach((n)=>{
+          if (n.hasClass(NativeCategories.ROOT) && !n.hasClass(NativeCategories.ASSOCIATION) && !n.hasClass(NativeCategories.MULTI_ASSOCIATION))
+            n.select();
+        })
+
+     
+     
       }
       break;
 
@@ -506,7 +517,7 @@ export function menuNodes(option, item, whichClic='left') {
         let nodes = perimeterForNodesSelection();
         if (nodes == null) return;
         if (nodes.length === 0) return;
-        nodes.filter(".leaf").select();
+        nodes.filter(`.${NativeCategories.LEAF}`).select();
       }
       break;
 
@@ -514,7 +525,7 @@ export function menuNodes(option, item, whichClic='left') {
       {
         let nodes = perimeterForNodesSelection();
         if (nodes.length === 0) return;
-        nodes.filter(".association").select();
+        nodes.filter(`.${NativeCategories.ASSOCIATION}`).select();
       }
       break;
 
@@ -522,8 +533,8 @@ export function menuNodes(option, item, whichClic='left') {
       {
         let nodes = perimeterForNodesSelection();
         if (nodes.length === 0) return;
-        nodes.filter(".multiAssociation").select();
-        nodes.filter(".association").select();
+         nodes.filter(`.${NativeCategories.MULTI_ASSOCIATION}`).select();
+        nodes.filter(`.${NativeCategories.ASSOCIATION}`).select();
       }
       break;
 
@@ -531,7 +542,7 @@ export function menuNodes(option, item, whichClic='left') {
       {
         let nodes = perimeterForNodesSelection();
         if (nodes.length === 0) return;
-        nodes.filter(".hasTriggers").select();
+        nodes.filter(`.${NativeCategories.HAS_TRIGGERS}`).select();
       }
       break;
 
@@ -793,16 +804,16 @@ export function menuEdges(option, item, whichClic='left') {
       let edgesToShow = perimeterForEdgesAction();
 
       for (let edge of edgesToShow) {
-        if (edge.hasClass("fk_detailed")) {
-          edge.addClass("showColumns");
+        if (edge.hasClass(ConstantClass.FK)) {
+          edge.addClass(`${ConstantClass.SHOW_COLUMNS}`);
           //labelToShow = ele.data('columnsLabel').replace('\n', "<BR/>");
-        } else edge.addClass("showLabel");
+        } else edge.addClass(`${ConstantClass.SHOW_LABEL}`);
       }
       break;
 
     case "labelHide":
       let edgesToHide = perimeterForEdgesAction();
-      edgesToHide.removeClass("showLabel showColumns");
+      edgesToHide.removeClass(`${ConstantClass.SHOW_COLUMNS} ${ConstantClass.SHOW_LABEL}`);
       break;
 
     case "increase-font-edge":

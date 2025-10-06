@@ -31,6 +31,7 @@ import {
 import { follow } from "../graph/walker.js";
 import { menuNodes } from "./menus.js";
 import { setModalInterceptors } from "./modal.js";
+import { NativeCategories, ConstantClass } from "../util/common.js";
 
 /*
  all the events set in gui are defined here 
@@ -79,7 +80,7 @@ export function setInterceptors() {
     
         filteredClasses.forEach((cls) => {
           switch (cls) {
-            case "hasTriggers":
+            case  NativeCategories.HAS_TRIGGERS:
               allInfos.push(`${cls}(${node.data().triggers.length})`);
               break;
             default:
@@ -123,7 +124,7 @@ export function setInterceptors() {
       let edge = ele;
       let labelToShow = ele.data("label");
 
-      if (edge.hasClass("fk_detailed")) {
+      if (edge.hasClass(`${ConstantClass.FK_DETAILED}`)) {
         labelToShow += "<BR/>" + ele.data("columnsLabel");
       }
 
@@ -147,7 +148,7 @@ export function setInterceptors() {
             case "fk_detailed":
               allInfos.push(`1/Col`);
               break;
-            case "fk_synth":
+            case `${ConstantClass.FK_SYNTH}`:
               allInfos.push(`1/FK`);
               break;
             default:
@@ -293,7 +294,7 @@ export function setInterceptors() {
 
   // button undo
   document.getElementById("undo-btn").addEventListener("click", () => {
-    popSnapshot();
+    popSnapshot("undo button");
   });
 
   document.addEventListener("keyup", (e) => {
@@ -343,7 +344,7 @@ export function setInterceptors() {
     const { x, y } = whereClicInContainer(evt.renderedPosition)
     clicNodeMenu.style.left = `${x + 5}px`;
     clicNodeMenu.style.top = `${y - 5}px`;
-    document.getElementById("open-trigger").style.display = nodeForInfo.hasClass("hasTriggers") ? "list-item" : "none"
+    document.getElementById("open-trigger").style.display = nodeForInfo.hasClass(NativeCategories.HAS_TRIGGERS) ? "list-item" : "none"
     clicNodeMenu.style.display = "block";
   });
  */
@@ -368,7 +369,7 @@ export function setInterceptors() {
 
     // Ton affichage conditionnel
     document.getElementById("open-trigger").style.display =
-      nodeForInfo.hasClass("hasTriggers") ? "list-item" : "none";
+      nodeForInfo.hasClass(NativeCategories.HAS_TRIGGERS) ? "list-item" : "none";
 
     clicNodeMenu.style.display = "block";
   });
@@ -450,7 +451,7 @@ export function setInterceptors() {
     edgeForInfo = evt.target;
     const option = document.getElementById("toggleEdgeDetails");
     option.classList.remove("hidden");
-    if (edgeForInfo.hasClass("trigger_impact")) {
+    if (edgeForInfo.hasClass(NativeCategories.TRIGGER_IMPACT)) {
       option.classList.add("hidden");
     }
 
@@ -465,9 +466,9 @@ export function setInterceptors() {
   */
 
   document.getElementById("toggleEdgeDetails").addEventListener("click", () => {
-    if (edgeForInfo.hasClass("trigger_impact")) return;
+    if (edgeForInfo.hasClass(NativeCategories.TRIGGER_IMPACT)) return;
     let synthEdges = getCy().collection([edgeForInfo]);
-    if (edgeForInfo.hasClass("fk_synth")) {
+    if (edgeForInfo.hasClass(`${ConstantClass.FK_SYNTH}`)) {
       enterFkDetailedModeForEdges(synthEdges);
     } else {
       // find all others from same label , ie details of a unique synth
@@ -482,13 +483,13 @@ export function setInterceptors() {
 
   document.getElementById("toggleEdgeLabel").addEventListener("click", () => {
     if (
-      edgeForInfo.hasClass("trigger_impact") ||
-      edgeForInfo.hasClass("fk_synth") ||
-      edgeForInfo.hasClass("simplified")
+      edgeForInfo.hasClass(NativeCategories.TRIGGER_IMPACT) ||
+      edgeForInfo.hasClass(ConstantClass.FK_SYNTH) ||
+      edgeForInfo.hasClass(NativeCategories.SIMPLIFIED)
     ) {
-      edgeForInfo.toggleClass("showLabel");
-    } else if (edgeForInfo.hasClass("fk_detailed")) {
-      edgeForInfo.toggleClass("showColumns");
+      edgeForInfo.toggleClass(`${ConstantClass.SHOW_LABEL}`);
+    } else if (edgeForInfo.hasClass(ConstantClass.FK_DETAILED)) {
+      edgeForInfo.toggleClass(ConstantClass.SHOW_COLUMNS);
     }
   });
 

@@ -28,7 +28,7 @@ Align table output for index and fk
 Add markdown export for PK, FK , Index & constraints 
 Change leaf and root shape for better distinction 
 Symbols for nullable/not null to reduce place in display
-Remove *** from table for triggers. Replaced by a symbol. 
+Remove *** from table label to identify triggers. Replaced by a symbol. 
 Larger font and sizes by default. 
 
 
@@ -37,11 +37,17 @@ Larger font and sizes by default.
 
 Change custom load in async to be sure of order (edge vs chrome difference)
 Add trap in upload if no db at all. 
-Add trap for breadfirst layout to prevent rare case
+Add trap for breadthfirst layout to prevent rare case
 Add fit screen after upload
 
 
-# 2.07d prevision 
+# 2.07d 
+
+Switch root & leaf to be as internal cytoscape definition, no more as FK thinking
+Triggers code analysis enhanced ( Execute (some string), missing functions, ...) diplayed as warnings to user 
+BreadthFirst parameters changed (one reason about root/leaf redefinition).
+doc reviews
+
 
 
 

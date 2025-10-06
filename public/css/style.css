@@ -423,6 +423,7 @@ tr.group-start > th {
 }
 .path .prefix {
   color: #888;
+  font-style: italic;
 } /* gris pour le début identique */
 .path .rest {
   color: #000;

@@ -29,6 +29,7 @@ import {
 import { setEventMarkdown, bandeauMarkdown } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
 import { createIconButton } from "../ui/dialog.js";
+import { NativeCategories,ConstantClass } from "../util/common.js";
 
 //------------------------
 
@@ -42,9 +43,9 @@ export function follow(direction = "outgoing") {
 
   let selectedNodes = cy.nodes(":visible:selected");
   if (selectedNodes.length === 0) {
-    selectedNodes = cy.nodes(":visible");
-    //showAlert("no selected nodes to follow.");
-    //return;
+    //selectedNodes = cy.nodes(":visible");
+    showAlert("no starting nodes to follow.");
+    return;
   }
 
   showWaitCursor();
@@ -67,7 +68,7 @@ export function follow(direction = "outgoing") {
     if (direction === "outgoing" || direction === "both") {
       node
         .outgoers("edge")
-        .filter((e) => !e.hasClass("simplified"))
+        .filter((e) => !e.hasClass(NativeCategories.SIMPLIFIED))
         .forEach((edge) => {
           const target = edge.target();
           if (allowedNodes.has(target.id())) {
@@ -80,7 +81,7 @@ export function follow(direction = "outgoing") {
     if (direction === "incoming" || direction === "both") {
       node
         .incomers("edge")
-        .filter((e) => !e.hasClass("simplified"))
+        .filter((e) => !e.hasClass(NativeCategories.SIMPLIFIED))
         .forEach((edge) => {
           const source = edge.source();
           if (allowedNodes.has(source.id())) {
@@ -92,7 +93,7 @@ export function follow(direction = "outgoing") {
       // simplified association edge : no functional direction
       node
         .connectedEdges()
-        .filter((e) => e.hasClass("simplified"))
+        .filter((e) => e.hasClass(NativeCategories.SIMPLIFIED))
         .forEach((edge) => {
           const other =
             edge.source().id() === nodeId ? edge.target() : edge.source();
@@ -429,7 +430,7 @@ function showLongPathList(limit, paths) {
     tr.appendChild(tdIdx);
 
     const tdPath = doc.createElement("td");
-
+    tdPath.className = "path";
     ids.forEach((id, i) => {
       if (i > 0) {
         const arrow = doc.createElement("span");
@@ -502,7 +503,7 @@ export function simplifyAssociations() {
           backup: nodeBackup,
           simplified_association: true,
         },
-        classes: "simplified",
+        classes: NativeCategories.SIMPLIFIED,
       });
 
       // remove old node and links
@@ -521,7 +522,7 @@ export function simplifyAssociations() {
 export function restoreAssociations() {
   const visibleEdges = perimeterForEdgesAction();
   const simplifiedEdges = visibleEdges.filter((edge) =>
-    edge.hasClass("simplified")
+    edge.hasClass(NativeCategories.SIMPLIFIED)
   );
   if (simplifiedEdges.length === 0) return;
 
@@ -566,10 +567,10 @@ function openJsonInNewTab(jsonArray, aTitle) {
     <table id ='table-pk-fk'> 
     <thead>
       <tr>
-        <th>To &lt;--</th>
-        <th> &lt;-- pk col</th>
-        <th> &lt;-- fk col </th>
-        <th>&lt;-- From</th>
+        <th>target node</th>
+        <th> target PK</th>
+        <th> matching fk  </th>
+        <th> from node</th>
       </tr>
      </thead>
       <tbody>`;
@@ -663,10 +664,11 @@ export function findPkFkChains() {
 
   if (roots.length === 0 || roots.length != 1) {
     showAlert(
-      " must start from a unique node of category root (no foreignKey)."
+      " must start from a unique node of category leaf (no foreignKey)."
     );
     return;
   }
+
   pushSnapshot();
   // can have selected several, loop on these nodes one per one
   roots.forEach((root) => {
@@ -704,7 +706,6 @@ export function findPkFkChains() {
       //auto display
       hideNotSelectedThenDagre();
       openJsonInNewTab(trace, `${root.id()}`);
-      //console.log(trace);
     }
   });
 }
@@ -716,40 +717,61 @@ export function findPkFkChains() {
  */
 
 //this version follows links FK->PK with columns of each step
+
 export function findFunctionalDescendantsCytoscape(rootNode) {
   const visited = new Set();
   const trace = [];
 
   // --- Fonction récursive ---
+
   function dfs(node, pkToMatch) {
     const nodeId = node.id();
+
+
+    // already seen
     if (visited.has(nodeId)) return;
+    // note we visit it
     visited.add(nodeId);
-
+    // what are incomers to node in exam
     const incoming = node.incomers("edge");
-
+    // can have several
     for (const edge of incoming) {
+      // identify the node at other side
       const source = edge.source();
       const sourceId = source.id();
+      // same thing if already seem (can have several way to reach a node)
       if (visited.has(sourceId)) continue;
-
+      // check all columns of this node
       const sourceCols = new Set(source.data("columns") || []);
+      // Build a Set of source column NAMES either direct either in a 'column' entry
+      const sourceColNames = new Set(
+        Array.from(sourceCols, (v) => (typeof v === "string" ? v : v.column))
+      );
+
+      // check all its FK
       const foreignKeys = source.data("foreignKeys") || [];
 
+      //verify we are on the right FK between all possible
       for (const fk of foreignKeys) {
         if (fk.target_table !== nodeId) continue;
-
+        // now chek mapping
         const mappings = fk.column_mappings || [];
-        const targetCols = mappings.map((m) => m.target_column);
         const sourceColsMapped = mappings.map((m) => m.source_column);
+        const targetCols = mappings.map((m) => m.target_column);
 
         // Vérifie si la FK couvre toute la PK du noeud cible
         const pkMatches = [...pkToMatch].every((col) =>
           targetCols.includes(col)
         );
-        const sourceContainsAllMapped = sourceColsMapped.every((col) =>
-          sourceCols.has(col)
-        );
+
+
+
+        const sourceContainsAllMapped = sourceColsMapped.every((col) => {
+          //console.log("search:"+col);
+          //console.log("sourceColNames:", [...sourceColNames]);
+          return sourceColNames.has(col);
+        });
+
 
         if (pkMatches && sourceContainsAllMapped) {
           trace.push({
@@ -773,7 +795,7 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
             newPkToMatch.size > 0 ? newPkToMatch : new Set(sourceColsMapped)
           );
         } else {
-          console.log("FK non basée sur PK :", fk.constraint_name); // Debug
+          console.log("FK not based on a PK :", fk.constraint_name); // Debug
         }
       }
     }

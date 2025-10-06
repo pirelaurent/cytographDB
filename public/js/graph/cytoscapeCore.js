@@ -8,7 +8,8 @@ import {
   createCustomCategories,
   getCustomStyles,
 } from "../filters/categories.js";
-import { fillInGuiNodesCustomCategories } from "../ui/custom.js";
+import { fillInGuiNodesCustomCategories} from "../ui/custom.js";
+import { NativeCategories,ConstantClass} from "../util/common.js"
 import { pushSnapshot } from "./snapshots.js";
 
 //-------------------
@@ -58,11 +59,11 @@ export function initializeGraph(data, fromDisk = false) {
   let current_db = getLocalDBName();
 
   // customize nodes**to be moved after reduction
-  //createNativeNodesCategories();
+  //setNativeNodesCategories();
 
   createCustomCategories(current_db);
-  let moreStyles = getCustomStyles(current_db);
 
+  let moreStyles = getCustomStyles(current_db);
   let mergedStyles = getCyStyles().concat(moreStyles);
   cy.style(mergedStyles).update();
 
@@ -93,7 +94,7 @@ export function showAll() {
 }
 
 export function hideSelected() {
-  pushSnapshot();
+  pushSnapshot("hideSelected");
   let nodesToHide = getCy().nodes(":selected");
   nodesToHide.hide();
   nodesToHide.unselect();
@@ -102,7 +103,7 @@ export function hideSelected() {
 }
 
 export function hideNotSelected() {
-  pushSnapshot();
+  pushSnapshot("hideNotSelected");
   getCy()
     .nodes(":visible")
     .filter(function (node) {
@@ -126,7 +127,7 @@ export function hideNotSelectedThenDagre() {
 
 export function selectAllVisibleNodes() {
   if (cy) {
-    pushSnapshot();
+    pushSnapshot("selectAllVisibleNodes");
     let nodes = restrictToVisible()
       ? getCy().nodes(":visible")
       : getCy().nodes();
@@ -136,8 +137,8 @@ export function selectAllVisibleNodes() {
 }
 
 export function swapHidden() {
-  pushSnapshot();
-  pushSnapshot();
+  pushSnapshot("swapHidden");
+  pushSnapshot("swapHidden2");
   const cy = getCy();
 
   // 1) calcul de l’état final des nœuds
@@ -173,7 +174,7 @@ export function swapHidden() {
 */
 
 export function selectNodesFromSelectedEdges() {
-  pushSnapshot();
+  pushSnapshot("selectNodesFromSelectedEdges");
   const cy = getCy();
 
   const selectedEdges = cy.edges(":selected:visible");
@@ -189,7 +190,7 @@ export function selectNodesFromSelectedEdges() {
 }
 
 export function selectSourceNodesFromSelectedEdges() {
-  pushSnapshot();
+  pushSnapshot("selectSourceNodesFromSelectedEdges");
   const cy = getCy();
   const srcNodes = cy
     .edges(":selected:visible")
@@ -201,7 +202,7 @@ export function selectSourceNodesFromSelectedEdges() {
 }
 
 export function selectTargetNodesFromSelectedEdges() {
-  pushSnapshot();
+  pushSnapshot("selectTargetNodesFromSelectedEdges");
   const cy = getCy();
 
   const tgtNodes = cy
@@ -319,12 +320,8 @@ export function setAndRunLayoutOptions(option) {
         take all visible 
       */
     case "breadthfirst":
-      /* this takes orphan and root 
-      const roots = selectedNodes.filter(
-        (n) => n.outgoers("edge").length === 0
-      );
-*/
-      const rootNodes = selectedNodes.filter(".root"); 
+
+      const rootNodes = selectedNodes.filter(`.${NativeCategories.ROOT}`); 
 
       Object.assign(layoutOptions, {
         direction: "upward",
@@ -332,7 +329,7 @@ export function setAndRunLayoutOptions(option) {
         circle: true,
         //grid: true,
         avoidOverlap: true,
-        directed: false,
+        directed: true,
         spacingFactor: 1.2,
         roots: rootNodes,
       });
@@ -556,7 +553,7 @@ export function changePosRelative(xFactor, yFactor) {
 export function selectOutputBetween(min, max) {
   let nodes = perimeterForNodesSelection();
   if (nodes == null) return;
-  pushSnapshot();
+  pushSnapshot("selectOutputBetween");
   nodes.forEach((node) => {
     // Tous les outgoers sortants
     let outgoingEdges = node.outgoers("edge:visible");
@@ -657,7 +654,7 @@ function setProportionalSize(node) {
   const size = mapValue(degree, 1, 40, 40, 100);
 
   // leave as is in cyStyles
-  if (node.hasClass("leaf")) {
+  if (node.hasClass(NativeCategories.LEAF)) {
     node.style({
       width: size,
       height: size * 0.866, // equilateral (Math.sqrt(3) / 2) * L;
@@ -665,10 +662,13 @@ function setProportionalSize(node) {
     return;
   }
 
-   if (node.is('.root:not(.association):not(.multiAssociation)')) {
+  // muliple check for compatibility with stored json 
+ if (node.hasClass(NativeCategories.ROOT) &&
+    !node.hasClass(NativeCategories.ASSOCIATION) &&
+    !node.hasClass(NativeCategories.MULTI_ASSOCIATION)) {
     node.style({
-      width: size / 4,
-      height: size, // equilateral (Math.sqrt(3) / 2) * L;
+       width: 20,
+      height: 45, 
     });
     return;
   }
@@ -877,7 +877,7 @@ export function selectEdgesBetweenSelectedNodes() {
 /*
  avoid far node wheh unhidden by limiting distance 
 */
-export function revealNeighbor(edge, maxDist = 500) {
+export function revealNeighbor(edge, maxDist = 1000) {
   const src = edge.source();
   const tgt = edge.target();
 

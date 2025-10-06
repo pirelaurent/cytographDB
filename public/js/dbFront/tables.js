@@ -12,7 +12,8 @@ import {
 import { getCustomNodesCategories } from "../filters/categories.js";
 import { resetSnapshot } from "../graph/snapshots.js";
 
-import { warningOutputHtml } from "../util/common.js";
+import { warningOutputHtml,NativeCategories } from "../util/common.js";
+
 
 /*
  as in a new page (and no session) dbname cannot be shared with main
@@ -39,7 +40,7 @@ export function openTable(tableId) {
 */
 
 export function openTriggerPage(node) {
-  if (node.hasClass("hasTriggers")) {
+  if (node.hasClass(NativeCategories.HAS_TRIGGERS)) {
     const table = node.id();
     const url = `/triggers.html?table=${encodeURIComponent(table)}`;
     window.open(url, "triggers");
@@ -221,7 +222,7 @@ export async function generateTriggers(nodes) {
               },
             });
 
-            edge.addClass("trigger_impact");
+            edge.addClass(NativeCategories.TRIGGER_IMPACT);
 
             edge.show();
             sourceNode.show();

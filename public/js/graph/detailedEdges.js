@@ -49,6 +49,7 @@ new created edges are added with the class 'fk_synth'
 
 import { getCy, perimeterForEdgesAction } from "../graph/cytoscapeCore.js";
 import { showInfo } from "../ui/dialog.js";
+import { NativeCategories,ConstantClass } from "../util/common.js";
 
 
 let detailedEdgesArray; // to be able to reverse, store details here
@@ -76,11 +77,11 @@ export function enterFkDetailedModeForEdges(synthEdges) {
     detailedEdgesArray
       .filter((e) => e.data("label") === synth.data("label"))
       .forEach((e) => {
-        if (synth.hasClass("trigger_impact")) return;
+        if (synth.hasClass(NativeCategories.TRIGGER_IMPACT)) return;
         if (synth.selected()) e.select();
         else e.unselect();
-        if (synth.hasClass("showLabel")) e.addClass("showColumns");
-        else e.removeClass("showColumns");
+        if (synth.hasClass("showLabel")) e.addClass(`${ConstantClass.SHOW_COLUMNS}`);
+        else e.removeClass(`${ConstantClass.SHOW_COLUMNS}`);
         originalArray.push(e);
       });
   });
@@ -160,9 +161,9 @@ export function cleanDetailedEdgesArray()
 export function enterFkSynthesisMode(global = true) {
   let edges;
   if (global) {
-    edges = getCy().edges(".fk_detailed");
+    edges = getCy().edges(`.${ConstantClass.FK_DETAILED}` );
   } else {
-    edges = perimeterForEdgesAction().filter(".fk_detailed");
+    edges = perimeterForEdgesAction().filter(`.${ConstantClass.FK_DETAILED}`);
   }
 
   // stored graph could be synthetic only
@@ -207,7 +208,7 @@ export function enterFkSynthesisModeForEdges(edges) {
 
     // synthétique FK nullable if at leeast one element is nullable
     const nullable = edgeGroup.some((e) => e.data("nullable"));
-    const labeled = edgeGroup.some((e) => e.hasClass("showColumns"));
+    const labeled = edgeGroup.some((e) => e.hasClass(`${ConstantClass.SHOW_COLUMNS}`));
 
     getCy().add({
       group: "edges",

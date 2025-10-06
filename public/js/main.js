@@ -30,16 +30,8 @@ import {
 import { setCy } from "./graph/cytoscapeCore.js";
 
 /*
-  class members of standard product to proposed in Gui filter
+ start of app once index.html is loaded 
 */
-export let nativeNodesCategories = [
-  "association",
-  "multiAssociation",
-  "hasTriggers",
-  "orphan",
-  "root"
-];
-
 
 export function main() {
   console.log("start of application cytographDB");

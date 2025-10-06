@@ -22,7 +22,15 @@ export function showMultiChoiceDialog(title, message, choices, doc = document) {
   const overlay = doc.createElement("div");
   overlay.className = "overlay";
 
+
   const dialog = doc.createElement("div");
+
+dialog.style.position = "fixed"; // fixe par rapport à la fenêtre
+dialog.style.top = "20%";        // 20% depuis le haut, donc environ premier tiers
+dialog.style.left = "30%";       // 10% depuis la gauche
+dialog.style.zIndex = 1000;      // au-dessus du contenu
+
+
   dialog.style.background = "white";
   dialog.style.padding = "20px";
   dialog.style.borderRadius = "8px";
@@ -315,7 +323,7 @@ export function deleteNodesSelected() {
       {
         label: "✅ Yes",
         onClick: () => {
-          pushSnapshot();
+          pushSnapshot("deleteNodesSelected Yes");
           nodesToKill.remove();
           metrologie();
         },
@@ -327,7 +335,7 @@ export function deleteNodesSelected() {
       },
     ]);
   } else {
-    pushSnapshot();
+    pushSnapshot("deleteNodesSelected 1 direct");
     nodesToKill.remove();
     metrologie();
   }

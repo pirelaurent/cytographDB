@@ -34,10 +34,14 @@ import {
 import { popSnapshot, pushSnapshot, resetSnapshot } from "./snapshots.js";
 
 import {
-  createNativeNodesCategories,
+  setNativeNodesCategories,
   getCustomNodesCategories,
   restoreCustomNodesCategories,
+  getCustomStyles,
 } from "../filters/categories.js";
+
+
+import {getCyStyles} from "../graph/cyStyles.js";
 
 /*
     Once connected to a DB, analyse model and create graph    
@@ -75,7 +79,7 @@ export function loadInitialGraph() {
       saveDetailedEdges();
       enterFkSynthesisMode(true);
       // moved after reduction to 1 edge per fk
-      createNativeNodesCategories();
+      setNativeNodesCategories();
       hideWaitLoading();
       proportionalSizeNodeSizeByLinks();
       setAndRunLayoutOptions();
@@ -296,10 +300,10 @@ export function saveGraphToFile() {
    temporarily switch to detail mode to save graph with full info
   */
 
-  pushSnapshot();
+  pushSnapshot("saveGraphToFile");
 
   enterFkDetailedMode(true);
-  // then save graph
+  // then save graph on file
   const json = {
     ...getCy().json(),
     originalDBName: getLocalDBName(),
@@ -308,7 +312,9 @@ export function saveGraphToFile() {
   const blob = new Blob([JSON.stringify(json, null, 2)], {
     type: "application/json",
   });
-
+  
+  popSnapshot("saveGraphToFile-exit");
+  
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -319,12 +325,14 @@ export function saveGraphToFile() {
 
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-  popSnapshot();
+// restore 
+//enterFkSynthesisMode(true);
+
 }
 
 /*
 
- load file when user had choosen an element from navigator to upload 
+ load file when user had chosen an element from navigator to upload 
 */
 
 export function loadGraphFromFile(event) {
@@ -431,11 +439,15 @@ export function loadGraphFromFile(event) {
 }
 
 function createGraphFromJson(json) {
-  // affiche, utilise, etc.
+  
   const cyData = { ...json };
   delete cyData.originalDBName;
   let cy = getCy();
+
+
+  
   cy.json(cyData);
+
   cy.batch(() => {
     cy.elements("[hidden]").hide(); // data(hidden)=true → hide()
     cy.elements().not("[hidden]").show(); // le reste → show()
@@ -444,11 +456,28 @@ function createGraphFromJson(json) {
   restoreProportionalSize();
   resetSnapshot();
   restoreCustomNodesCategories();
+  setNativeNodesCategories(); // redo categories due to leaf/root change
+
+//PLA TEST
+
+
 
   // show in synthetic after saving details
   saveDetailedEdges();
-
   enterFkSynthesisMode(true);
+/*
+
+ne change pas les roots et leaf malgré le change dans les classes
+
+cy.style().clear();
+  let moreStyles = getCustomStyles(getLocalDBName());
+  cy.style().fromJson(getCyStyles());
+cy.nodes().forEach(node => {
+  node.style(); // forces style recalculation on that node
+});
+*/
+
+
   metrologie();
   cy.fit();
   //getCy().layout({ name: 'cose'}).run();

@@ -1,11 +1,12 @@
 // Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
-// 
-
+//
 
 import { getCy } from "../graph/cytoscapeCore.js";
 
 import { fillInGuiNodesCustomCategories } from "../ui/custom.js";
+
+import { NativeCategories, ConstantClass } from "../util/common.js";
 
 /*
  adaptation to specific database 
@@ -30,9 +31,7 @@ export function setCustomNodesCategories(someSet) {
 */
 export function registerCustomModule(dbPattern, moduleObject) {
   const pattern =
-    dbPattern instanceof RegExp
-      ? dbPattern
-      : new RegExp(`^${dbPattern}$`); // string exacte par défaut
+    dbPattern instanceof RegExp ? dbPattern : new RegExp(`^${dbPattern}$`); // string exacte par défaut
   customModules.push({ pattern, module: moduleObject });
 }
 
@@ -41,16 +40,24 @@ export function registerCustomModule(dbPattern, moduleObject) {
 */
 
 function getCustomModule(dbName) {
-
   // ⚠️ Avoid regex with  flag "g"
-  const entry = customModules.find(e => e.pattern.test(dbName));
+  const entry = customModules.find((e) => e.pattern.test(dbName));
   return entry?.module;
 }
 
+let standardCategories = new Set([
+  NativeCategories.ORPHAN,
+  NativeCategories.ROOT,
+  NativeCategories.LEAF,
+  NativeCategories.ASSOCIATION,
+  NativeCategories.MULTI_ASSOCIATION,
+  NativeCategories.HAS_TRIGGERS,
+]);
 
-export let standardCategories = new Set(['orphan', 'root', 'leaf', 'association', 'multiAssociation', 'hasTriggers']);
+// if we don't want to sse these class in hover , fill in internalCategories
 //export let internalCategories = new Set(['fk_detailed', 'fk_synth', 'showLabel','showColumns'])
-export let internalCategories = new Set(); 
+
+export let internalCategories = new Set();
 
 /*
  custom classes are stored with graph, but customNodesCatories has to be restored
@@ -61,12 +68,14 @@ export let internalCategories = new Set();
 export function restoreCustomNodesCategories() {
   let allClasses = new Set();
 
-  getCy().nodes().forEach(node => {
-    node.classes().forEach(cls => allClasses.add(cls));
-  });
+  getCy()
+    .nodes()
+    .forEach((node) => {
+      node.classes().forEach((cls) => allClasses.add(cls));
+    });
   let filtered = new Set(
     [...allClasses].filter(
-      cls => !standardCategories.has(cls) && !internalCategories.has(cls)
+      (cls) => !standardCategories.has(cls) && !internalCategories.has(cls)
     )
   );
   setCustomNodesCategories(filtered);
@@ -81,20 +90,17 @@ export function restoreCustomNodesCategories() {
 export function createCustomCategories(myCurrentDB) {
   //console.log("createCustomCategories in customCategorie for "+myCurrentDB)
 
-const mod = getCustomModule(myCurrentDB);
-if (mod?.createCustomCategories) {
-  mod.createCustomCategories();
-} else {
-  console.log(`No customCategories registered for ${myCurrentDB}`);
-}
+  const mod = getCustomModule(myCurrentDB);
+  if (mod?.createCustomCategories) {
+    mod.createCustomCategories();
+  } else {
+    console.log(`No customCategories registered for ${myCurrentDB}`);
+  }
 }
 /*
  associated styles . 
  will be added to standard style to create mergedStyles
 */
-
-
-
 
 export function getCustomStyles(myCurrentDB) {
   const mod = getCustomModule(myCurrentDB);
@@ -106,80 +112,92 @@ export function getCustomStyles(myCurrentDB) {
   }
 }
 
-
 /*
  standard categories created before custom using classes 
 */
 
-function countFKSourceColumns(node) {
+function allColumnsAreFK(node) {
   const fkGroups = node.data("foreignKeys") || [];
+  const fkSourceCols = new Set();
 
-  const sourceCols = new Set();
-
-  fkGroups.forEach(fk => {
-    (fk.column_mappings || []).forEach(mapping => {
+  // Récupérer toutes les colonnes sources des FK
+  fkGroups.forEach((fk) => {
+    (fk.column_mappings || []).forEach((mapping) => {
       if (mapping.source_column) {
-        sourceCols.add(mapping.source_column);
+        fkSourceCols.add(mapping.source_column);
       }
     });
   });
 
-  return sourceCols.size;
-}
+  // Récupérer toutes les colonnes du node
+  const allColumns = (node.data("columns") || []).map((col) => col.column);
 
+  // Vérifier s'il existe une colonne qui n'est pas dans fkSourceCols
+  const hasNonFK = allColumns.some((col) => !fkSourceCols.has(col));
+
+  return !hasNonFK; // true si toutes les colonnes sont des FK
+}
 
 /*
  Native categories based on number and type of edges 
 */
 
-export function createNativeNodesCategories() {
-  getCy().nodes().forEach((node) => {
+export function setNativeNodesCategories() {
+  // due to relaod of previously misannotated node in stored json
+  const classesToRemove = [
+    NativeCategories.LEAF,
+    NativeCategories.ROOT,
+    NativeCategories.ASSOCIATION,
+    NativeCategories.MULTI_ASSOCIATION,
+  ];
+  getCy()
+    .nodes()
+    .forEach((node) => {
+      node.removeClass(classesToRemove.join(" "));
 
-    let debug;
-    //debug = (node.id() === 'xxxxx');
+      if (node.data("triggers")?.length > 0)
+        node.addClass(NativeCategories.HAS_TRIGGERS);
 
-    if (node.data("triggers")?.length > 0) node.addClass("hasTriggers");
+      const nbOut = node.outdegree();
+      const nbIn = node.indegree();
 
-    const nbOut = node.outdegree();
+      /*
+      On a standard graph all nodes without incoming are root. 
+      By default, functional root and association come into standard 'root' category.
+      
 
-
-    const nbIn = node.indegree();
-    if (debug) {
-      console.log(node.id());
-      console.log('nbout:' + nbOut + " outdegree:" + node.outdegree());
-      console.log('nbIn:' + nbIn)
-    }
-
-    
-    if (nbOut >= 2 && nbIn === 0) {
-      if (nbOut === 2) {
-        const allCols = node.data("columns") || [];
-        const nbFKColumns = countFKSourceColumns(node);
-        const hasOnlyColsForFK = (allCols.length === nbFKColumns);
-
-        if (hasOnlyColsForFK) {
-          node.addClass("association");
-        }
-        else {
-          node.addClass("multiAssociation");
-        }
+    */
+      if (nbIn === 0 && nbOut === 0) {
+        // strict definition of a root in a directed graph
+        // we prefer to distinguish orphan individually
+        node.addClass(NativeCategories.ORPHAN);
+        return;
       }
-    }
 
-    if (nbOut === 0 && nbIn === 0) {
-      node.addClass("orphan");
-    }
+      if (nbOut === 0) {
+        node.addClass(NativeCategories.LEAF);
+        return;
+      }
 
-    // rectified to join internal cytoscapes definition 
+      /* 
+  An association is identified if : 
+      - it has a minimum of 2 FK
+      - it has no other columns than those involved in these FK 
+ */
 
-    if (nbIn === 0 && nbOut > 0) {
-      node.addClass("root");
-    }
+      if (nbIn === 0 && nbOut === 2 && allColumnsAreFK(node)) {
+        node.addClass(NativeCategories.ASSOCIATION);
+        return;
+      }
 
-    // we leave 1 out for leaf 
+      // either more than 2 branches , either Two with extra column
 
-    if (nbIn > 0 && nbOut === 0)  {
-      node.addClass("leaf");
-    }
-  });
+      if (nbIn === 0 && nbOut >= 2) {
+        node.addClass(NativeCategories.MULTI_ASSOCIATION);
+        return;
+      }
+
+      // other case already done
+      if (nbIn === 0) node.addClass(NativeCategories.ROOT);
+    });
 }

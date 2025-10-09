@@ -24,7 +24,6 @@ import { setInterceptors } from "./ui/interceptors.js";
 import {initMenus} from "./ui/menus.js"
 import { 
   cytogaphdb_version,
-  showAlert,
 } from "./ui/dialog.js"
 
 import { setCy } from "./graph/cytoscapeCore.js";

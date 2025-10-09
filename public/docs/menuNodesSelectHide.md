@@ -228,8 +228,4 @@ Permanently removes *selected nodes* from the graph.
 
 ---
 
-- ⚪️ [Main](./main.md)  
-- 🟩 [Quick Tour](./quickTour.md)  
-- 🟨 [Main Menu Bar](./menuBar.md)  
-- 🟦 [*Node Menu*](./menuNodesSelectHide.md)  
-- 🟥 [Edge Menu](./menuEdgesSelectHide.md)  
+⚪️ [Main](./main.md)  

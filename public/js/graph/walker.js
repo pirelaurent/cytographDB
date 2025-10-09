@@ -29,7 +29,7 @@ import {
 import { setEventMarkdown, bandeauMarkdown } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
 import { createIconButton } from "../ui/dialog.js";
-import { NativeCategories,ConstantClass } from "../util/common.js";
+import { NativeCategories } from "../util/common.js";
 
 //------------------------
 

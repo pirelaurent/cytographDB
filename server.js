@@ -210,7 +210,7 @@ app.post("/load-from-db", async (req, res) => {
           .filter(Boolean) // supprime les chaînes vides
           .join(" "),
       }));
-    //console.log(JSON.stringify({ nodes, edges: filteredEdges }))//PLA
+ 
     res.json({ nodes, edges: filteredEdges });
   } catch (error) {
     console.error("error loading graph :", error);
@@ -567,7 +567,7 @@ app.get("/triggers", async (req, res) => {
             functionName: null,
             impactedTables: [],
             calledFunctions: [],
-            warnings, //PLA
+            warnings, 
             error: err.message,
           };
         }
@@ -674,10 +674,10 @@ app.get("/healthz", (req, res) => {
  essai basique
 
  On doit stocker le résultat du graphe de dépendance dans un json et le rappeler ici
- A câbler plus tard. 
+ A câbler plus tard.
  /exportAll?dbName=abcdef&, jsonName 
 
-
+http://localhost:3000/exportALL?dbName=perfo7.8.20&jsonName=tables.json
 */
 
 app.get("/exportAll", async (req, res) => {
@@ -756,3 +756,8 @@ app.get("/searchColumn", async (req, res) => {
   }
 });
 
+// Start the server
+
+app.listen(PORT, () => {
+  console.log(`Server started.App now available on http://localhost:${PORT}`);
+});

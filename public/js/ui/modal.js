@@ -2,12 +2,14 @@
 // Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
 
-import {
-  getCy,
-  perimeterForNodesSelection,
-} from "../graph/cytoscapeCore.js";
+import { getCy, perimeterForNodesSelection } from "../graph/cytoscapeCore.js";
 
-import { modeSelect, AND_SELECTED } from "../ui/dialog.js";
+import {
+  modeSelect,
+  AND_SELECTED,
+  showAlert,
+  showToast,
+} from "../ui/dialog.js";
 
 /*
  modal screens 
@@ -29,15 +31,15 @@ export function setModalInterceptors() {
     .getElementById("byFilterMenu")
     .addEventListener("click", () => openDegreeFilter());
 
-  // leave modal if clic on background 
-  
-     document
+  // leave modal if clic on background
+
+  document
     .getElementById("degreeFilter")
     .addEventListener("click", function (e) {
       if (e.target === this) closeDegreeFilter();
-    }); 
+    });
 
-    //close on any clic on background 
+  //close on any clic on background
   document
     .getElementById("modalDegreeFilterCancel")
     .addEventListener("click", function (e) {
@@ -55,6 +57,10 @@ export function setModalInterceptors() {
     li.addEventListener("click", (e) => openNameFilterModal(e, "edge"));
   });
 
+  document.querySelectorAll('li[data-category="columnsName"]').forEach((li) => {
+    li.addEventListener("click", (e) => openNameFilterModal(e, "column"));
+  });
+
   document
     .getElementById("modalNameFilterOk")
     .addEventListener("click", modalSelectByName);
@@ -65,13 +71,11 @@ export function setModalInterceptors() {
       if (e.target === this) closeNameFilterModal();
     });
 
-  
-     document
+  document
     .getElementById("nameFilterModal")
     .addEventListener("click", function (e) {
       if (e.target === this) closeNameFilterModal();
-    }); 
-    
+    });
 } // setModalInterceptors
 
 /*
@@ -83,7 +87,7 @@ function openDegreeFilter() {
 }
 
 function closeDegreeFilter() {
-    //console.log("closeDegreeFilter")
+  //console.log("closeDegreeFilter")
   document.getElementById("degreeFilter").style.display = "none";
 }
 
@@ -101,7 +105,7 @@ function modalDegreeFilter() {
   v = document.getElementById("degree-out-max").valueAsNumber;
   const maxOut = Number.isFinite(v) ? Math.trunc(v) : null;
 
-// AND OR
+  // AND OR
   let logicAnd = document.getElementById("degree-logic-and").value;
 
   v = document.getElementById("degree-in-min").valueAsNumber;
@@ -115,15 +119,10 @@ function modalDegreeFilter() {
   let nodes;
   nodes = perimeterForNodesSelection();
   if (!degreeRestrictToVisible) nodes = cy.nodes();
- // nodes = degreeRestrictToVisible?cy.nodes(":visible"):cy.nodes();
-
-
+  // nodes = degreeRestrictToVisible?cy.nodes(":visible"):cy.nodes();
 
   // if at least one input go on
   if (minOut != null || maxOut != null || minIn != null || maxIn != null) {
-
-// console.log("bornes: minout:"+minOut+" maxout:"+maxOut+" minIN:"+minIn+" maxIn:"+maxIn) //PLA
-
     nodes.forEach((n) => {
       const n_in = degreeRestrictToVisible
         ? n.incomers("edge:visible").length
@@ -133,20 +132,14 @@ function modalDegreeFilter() {
         ? n.outgoers("edge:visible").length
         : n.outgoers("edge").length;
 
-
-
       let outOk = true;
 
       if (minOut != null && !(n_out >= minOut)) outOk = false;
       if (maxOut != null && !(n_out < maxOut)) outOk = false;
 
-
-
       let inOk = true;
       if (minIn != null && !(n_in >= minIn)) inOk = false;
       if (maxIn != null && !(n_in < maxIn)) inOk = false;
-
-
 
       let allOk = true;
       if (logicAnd === "AND") allOk = outOk && inOk;
@@ -157,8 +150,8 @@ function modalDegreeFilter() {
       }
     });
   }
-      // exit
-    closeDegreeFilter();
+  // exit
+  closeDegreeFilter();
 }
 
 /*
@@ -174,21 +167,35 @@ function closeNameFilterModal() {
  hiddenType store 'nodes' or 'edges' for further filter. 
 */
 function openNameFilterModal(event, type) {
+  //event?.currentTarget?.dataset.category === "nodesName";
+
   document.getElementById("nameFilterModal").style.display = "flex";
   const title = document.getElementById("nameFilterTitle");
   document.getElementById("modalNameFilterInput").value = "";
   const hiddenType = document.getElementById("modalNameFilterType");
 
   // adjust title to nodes or edges
+  //|| event?.currentTarget?.dataset.category === "nodesName";
 
-  const isNode =
-    type === "node" || event?.currentTarget?.dataset.category === "nodesName";
-  title.textContent = `Filter ${isNode ? "nodes" : "edges"} by name`;
-  hiddenType.value = isNode ? "nodes" : "edges";
+  if (type === "node") {
+    title.textContent = "Filter nodes by name";
+    hiddenType.value = "nodes";
+  }
+  if (type === "edge") {
+    title.textContent = "Filter edges by name";
+    hiddenType.value = "edges";
+  }
+
+  if (type === "column") {
+    title.textContent = "Search tables with column name";
+    hiddenType.value = "columns";
+  }
 
   document.getElementById("modalNameFilterInput").focus();
 }
-
+/*
+ common get field after validation.
+*/
 function modalSelectByName() {
   const val = document.getElementById("modalNameFilterInput").value;
   const hiddenType = document.getElementById("modalNameFilterType").value;
@@ -196,7 +203,11 @@ function modalSelectByName() {
   if (ok) closeNameFilterModal();
 }
 
-// hiddentType is node or edges
+/*
+ grouped event and function to share the modal for input 
+ nodes, edges, columns
+
+*/
 export function selectByName(pattern, hiddenType) {
   let regex;
   try {
@@ -253,6 +264,34 @@ export function selectByName(pattern, hiddenType) {
       }
     });
   }
+  if (hiddenType === "columns") {
+    const withHidden = document.getElementById("searchOnHidden").checked;
+    let nodes = withHidden ? getCy().nodes() : perimeterForNodesSelection();
+    if (nodes == null) return;
+
+    // un select residual hidden selecteed nodes if any
+    if (withHidden) getCy().$("node:hidden").unselect();
+    let count = 0;
+    nodes.forEach((node) => {
+      let okNode = false;
+      node.data().columns.forEach((col) => {
+        if (regex.test(col.column)) {
+          okNode = true;
+        }
+      });
+      if (okNode) {
+        count+=1;
+        node.select();
+      } else {
+        if (modeSelect() == AND_SELECTED) node.unselect();
+      }
+    });
+
+    getCy().$("node:selected").show();
+    showToast(`${count} found`)
+    return true;
+  }
+
   getCy().$("edge:selected").show(); //$ for elements( )
   return true;
 }

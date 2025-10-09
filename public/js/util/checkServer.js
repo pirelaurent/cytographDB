@@ -1,4 +1,4 @@
-// Vérifie rapidement qu'un serveur répond, avec timeout court
+/*  prepared to be used if necessary
 async function isServerUp(url = '/healthz', timeoutMs = 1500) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -11,7 +11,7 @@ async function isServerUp(url = '/healthz', timeoutMs = 1500) {
     clearTimeout(t);
   }
 }
-
+*:
 /* Exemple 
 document.addEventListener('DOMContentLoaded', async () => {
   const up = await isServerUp('/healthz');

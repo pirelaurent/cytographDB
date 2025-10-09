@@ -81,7 +81,7 @@ export function sendEdgeListToHtml() {
       ? { label: e.data("columnsLabel") || "", nullable: e.data("nullable") }
       : "";
 
-    const fkNullable = e.data("nullable"); //PLA true/false
+    const fkNullable = e.data("nullable"); // true/false
 
     return { sourceName, targetName, fkLabel, fkNullable, columns };
   });

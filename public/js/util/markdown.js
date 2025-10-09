@@ -1,6 +1,6 @@
 // Export to Markdown
 
-import { showError, showInfo,showToast } from "../ui/dialog.js";
+import { showError,showToast } from "../ui/dialog.js";
 
 /*
  create a document part to set in place the icons for download and copy/paste in markdown
@@ -138,8 +138,7 @@ export function htmlTableToMarkdown(
   const headerLine = `| ${headerCells.join(" | ")} |`;
   const separatorLine = `| ${headerCells.map(() => "---").join(" | ")} |`;
 
-  //console.log(bodyRows.length);//PLA
-  // lignes du corps
+  // lines corps
   const bodyLines = bodyRows.map((tr) => {
     const cells = Array.from(tr.cells).map((c) =>
       escapeCell(getCellContent(c))

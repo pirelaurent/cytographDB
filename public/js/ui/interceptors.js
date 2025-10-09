@@ -10,7 +10,7 @@ import {
   selectAllVisibleNodes,
 } from "../graph/cytoscapeCore.js";
 
-import { pushSnapshot, popSnapshot, reDoSnapshot } from "../graph/snapshots.js";
+import { popSnapshot, reDoSnapshot } from "../graph/snapshots.js";
 
 import {
   showAlert,
@@ -75,19 +75,18 @@ export function setInterceptors() {
       );
 
       let allInfos = [];
-      let classInfo='';
+      let classInfo = "";
       if (filteredClasses.length > 0) {
-    
         filteredClasses.forEach((cls) => {
           switch (cls) {
-            case  NativeCategories.HAS_TRIGGERS:
+            case NativeCategories.HAS_TRIGGERS:
               allInfos.push(`${cls}(${node.data().triggers.length})`);
               break;
             default:
-               allInfos.push( `${cls}`);
+              allInfos.push(`${cls}`);
           }
         });
-        classInfo = `<small>[${allInfos.join(' ')} ]</small>`;
+        classInfo = `<small>[${allInfos.join(" ")} ]</small>`;
       }
 
       const data = node.data();
@@ -114,7 +113,7 @@ export function setInterceptors() {
       else outgoers = outgoers + " <- ";
 
       output = `${data.id} <br\>`;
-      if( node.selected()) output+='    '; // trick to verify selected 
+      if (node.selected()) output += "    "; // trick to verify selected
       output += `<small>${outgoers} □ ${incomers} </small><br\>`;
 
       if (classInfo) output += ` ${classInfo}<br/> `;
@@ -143,7 +142,7 @@ export function setInterceptors() {
       let classInfo;
 
       if (filteredClasses.length > 0) {
-        let allInfos=[];
+        let allInfos = [];
         filteredClasses.forEach((cls) => {
           switch (cls) {
             case "fk_detailed":
@@ -156,8 +155,7 @@ export function setInterceptors() {
               allInfos.push(cls);
           }
         });
-        classInfo = `<small>[${allInfos.join(' ')}]</small>`;
-
+        classInfo = `<small>[${allInfos.join(" ")}]</small>`;
       }
 
       output = `
@@ -370,7 +368,9 @@ export function setInterceptors() {
 
     // Ton affichage conditionnel
     document.getElementById("open-trigger").style.display =
-      nodeForInfo.hasClass(NativeCategories.HAS_TRIGGERS) ? "list-item" : "none";
+      nodeForInfo.hasClass(NativeCategories.HAS_TRIGGERS)
+        ? "list-item"
+        : "none";
 
     clicNodeMenu.style.display = "block";
   });

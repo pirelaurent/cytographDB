@@ -82,20 +82,6 @@ Applies a **regex-based filter** on edge labels (e.g., FK names). Matching edges
 ⚠️ **Caution:** Autofill with some browsers may display text with no effect.  
 Enter manually or copy/paste your filter or add a space after autofill.
 
-#### By Native Category 
-
-<img src ='./img/edgeNativeCategories.png' width= "150px" >  
-
-- ***Nullable, On Delete Cascade*** are automatically calculated at FK load time.  
-- ***Trigger_impact*** is available only when *Generate trigger impacts* has been applied through the *Data model...* menu.  
-- ***Simplified associations*** are available only when *Simplify associations* has been applied through the *Data model...* menu.  
-
-#### Example
-
-*Filter by → Native category → On delete cascade → Hide not selected*  
-
-<img src="./img/onDeleteCascadeEdge.png" width="250px" />
-
 ---
 
 ## Edge Details...
@@ -186,28 +172,6 @@ Trigger impact edges:
 
 <img src="./img/triggerHover.png" width="250px" style="border: 1px solid grey;"/>  
 
-### Simplify Associations
-
-**Goal : reduce from the graph less significant informations** 
-
-For **dry association tables** (2 foreign keys, no other links, no extra columns):  
-
-- Removes the association node  
-- Creates a **direct edge** between the linked tables (A → C)  
-- Edge label records table names: ***source – (association) – destination***  
-- Edge is visually **non-oriented** (two circles as endpoints, not arrows)  
-
-⚠️ **Caution:** Random internal orientation still exists for compatibility with Cytograph. Do not rely on simplified associations for source/destination accuracy.  
-
-<img src="./img/collapseAssociations.png" width="400px" />
-
-In the upper image, *intervention*, is no longer a *dry association* because of the new generated edge for a trigger.  
-
-### Restore Association
-
-Restores the original association nodes between tables (for the edges in the current perimeter).  
-
-💡 **Tip:** The restored node appears in the middle; previous positions are lost.  
 
 ---
 
@@ -226,8 +190,5 @@ Permanently removes selected edges from the graph.
 
 ---
 
-- ⚪️ [Main](./main.md)  
-- 🟩 [Quick Tour](./quickTour.md)  
-- 🟨 [Main Menu Bar](./menuBar.md)  
-- 🟦 [Node Menu](./menuNodesSelectHide.md)  
-- 🟥 [*Edge Menu*](./menuEdgesSelectHide.md)  
+⚪️ [Main](./main.md)  
+

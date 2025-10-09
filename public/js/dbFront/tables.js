@@ -195,7 +195,6 @@ export async function generateTriggers(nodes) {
     data.triggers.forEach((t) => {
       // bring back internal errors on parsing sql
       if (t.warnings.length > 0) {
-        // console.log(JSON.stringify(t.warnings));//PLA
         allWarnings.push(...t.warnings);
       }
       const triggerName = t.name;

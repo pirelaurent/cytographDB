@@ -48,7 +48,6 @@ new created edges are added with the class 'fk_synth'
 */
 
 import { getCy, perimeterForEdgesAction } from "../graph/cytoscapeCore.js";
-import { showInfo } from "../ui/dialog.js";
 import { NativeCategories,ConstantClass } from "../util/common.js";
 
 
@@ -169,7 +168,7 @@ export function enterFkSynthesisMode(global = true) {
 
   // stored graph could be synthetic only
   if (edges.length == 0) {
-    showInfo("already in mode 1 per FK");
+   // showInfo("already in mode 1 per FK");
     return false;
   }
 

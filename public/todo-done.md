@@ -49,12 +49,11 @@ BreadthFirst parameters changed (one reason about root/leaf redefinition).
 doc reviews
 
 
+# 2.08
 
+main changes with new menu for DB actions. 
+See docs. 
 
-
-
-## TODO 
-   backward orientation for nodes/follow / long path
 
 
 

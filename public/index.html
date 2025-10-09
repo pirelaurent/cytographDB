@@ -156,6 +156,8 @@
                   <ul class="submenu">
                     <li aspectAction="rotateL">Left</li>
                     <li aspectAction="rotateR">Right</li>
+                       <li aspectAction="rotate90">90°</li>
+                      <li aspectAction="rotate180">mirror</li>
                   </ul>
                 </li>
               </ul>
@@ -198,9 +200,9 @@
               <span class="label" title="Select nodes connected by the selected edges">from selected edges... </span>
               <ul class="submenu">
 
-                <li action="selectSourceNodes">select source</li>
-                <li action="selectNodesFromSelectedEdges">select both</li>
-                <li action="selectDestNodes">select target</li>
+                <li action="selectSourceNodes">source node</li>
+                <li action="selectNodesFromSelectedEdges"> both sides</li>
+                <li action="selectDestNodes"> target node</li>
               </ul>
             </li>
 
@@ -402,8 +404,7 @@
               </ul>
             </li>
 
-
-            <li data-category="filterEdges" title="Filter specific edge types (data model only)">filter FK ...
+            <li data-category="filterEdges" title="Filter specific edge types">filter FK ...
               <ul class="submenu">
                 <li action="edgeIsNullable" title="Select FK nullable (N-0)"> nullable
                 </li>
@@ -416,6 +417,14 @@
                 <li action="edgeIsASimplifiedNode" title="Select edges from simplified associations">simplified
                   associations</li>
               </ul>
+            </li>
+              <li data-category="filterEdges" title="Filter table with a named columns">filter tables ...
+              <ul class="submenu">
+              <li data-category="columnsName" data-skip-action>with columns</li>
+
+                </li>
+              </ul>
+            </li>
             <li class="separator"></li>
 
             <li data-category="model">DB layout ...
@@ -486,18 +495,20 @@
     <!-- quick access menu -->
 
     <div id="quickAccessMenu" class="hidden">
-      <span>
-        <div id="someSelect">
-          <img src="img/select/allSelected.png" height="30" id="icon-selectNone" title="unselect all">
-          <img src="img/select/noneSelected.png" height="30" id="icon-selectAll" title="select all">
-          <img src="img/select/selectSwap.png" height="30" id="icon-selectSwap" title="swap selection">
-        </div>
-        <div id="someHide">
-          <img src="img/select/hideSelectedSmall.png" height="30" id="icon-hideSelected" title="hide selected">
-          <img src="img/select/hideNotSelectedSmall.png" height="30" id="icon-hideNotSelected"
+      <span> 
+        <div id="someSelect"  style="display:inline-flex;align-items:center;gap:8px; font-size:12px;" >
+            <span style="font-size:12px; font-weight:300; color:#666;">select:</span>
+          <img src="img/select/allSelected.png" height="30" id="icon-selectNone" title="none">
+          <img src="img/select/noneSelected.png" height="30" id="icon-selectAll" title="all">
+          <img src="img/select/selectSwap.png" height="30" id="icon-selectSwap" title="swap selected">
+        </div><br/>
+        <div id="someHide" style="display:inline-flex;align-items:center;gap:8px; font-size:12px;">
+      <span style="font-size:12px; font-weight:300; color:#666;">hide:</span>
+          <img src="img/select/allSelected.png" height="30" id="icon-hideSelected" title="hide selected">
+          <img src="img/select/noneSelected.png" height="30" id="icon-hideNotSelected"
             title="hide not selected">
           <img src="img/select/swapHidden.png" height="30" id="icon-swapHidden" title="swap hidden">
-          <img src="img/select/eyeOpenSmall.png" width="30" id="icon-showAll" title="show all">
+          <img src="img/select/eyeOpenSmall.png" width="30" id="icon-showAll" title="hide none">
 
         </div>
       </span>

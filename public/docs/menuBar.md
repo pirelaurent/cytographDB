@@ -155,55 +155,6 @@ If you apply a layout on a subset of nodes, the result will be at unexpected pla
 
 💡 **Tip:** Use **Undo (Ctrl Z)** to restore the previous layout.
 
-### Special layout for database uses
-
-<img src="./img/layoutDependency.png" width="180">
-
-This layout organize nodes by layers of dependencies:  
-
-<img src = "./img/dependencyDemo.png" width = "600">
-
-### Useful for export/import
-Reading from left (leaf and orphan) to right (dependant tables, up to root if any in set) you get the order of a controlled import of bulk data. 
-
-The list of tables per level is automatically copied to clipboard, ready to paste (like below)
-
-``` json
-[
-  {
-    "level": 0,
-    "nodes": [
-      "company",
-      "parameters",
-      "product"
-    ]
-  },
-  {
-    "level": 1,
-    "nodes": [
-      "factory"
-    ]
-  },
-  {
-    "level": 2,
-    "nodes": [
-      "employee",
-      "production_line"
-    ]
-  },
-  {
-    "level": 3,
-    "nodes": [
-      "authorization",
-      "intervention",
-      "line_product",
-      "skills"
-    ]
-  }
-]
-```
-
----
 
 ### Move Elements 
 
@@ -250,8 +201,5 @@ Node labels remain **horizontally aligned**.
 
 ---
 
-- ⚪️ [Main](./main.md)  
-- 🟩 [Quick Tour](./quickTour.md)  
-- 🟨 [*Main Menu Bar*](./menuBar.md)  
-- 🟦 [Node Menu](./menuNodesSelectHide.md)  
-- 🟥 [Edge Menu](./menuEdgesSelectHide.md)  
+⚪️ [Main](./main.md)  
+

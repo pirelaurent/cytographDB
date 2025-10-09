@@ -37,11 +37,9 @@ import {
   setNativeNodesCategories,
   getCustomNodesCategories,
   restoreCustomNodesCategories,
-  getCustomStyles,
+
 } from "../filters/categories.js";
 
-
-import {getCyStyles} from "../graph/cyStyles.js";
 
 /*
     Once connected to a DB, analyse model and create graph    
@@ -73,8 +71,14 @@ export function loadInitialGraph() {
   })
     .then((res) => res.json())
     .then((data) => {
-//console.log(JSON.stringify(data));//PLA
+      //console.log(JSON.stringify(data));//PLA
       initializeGraph(data);
+      if (getCy().nodes().length == 0) {
+        showAlert("Empty model");
+        hideWaitLoading();
+        return;
+      }
+
       // store details at load time /now generated with details
       saveDetailedEdges();
       enterFkSynthesisMode(true);
@@ -312,9 +316,9 @@ export function saveGraphToFile() {
   const blob = new Blob([JSON.stringify(json, null, 2)], {
     type: "application/json",
   });
-  
+
   popSnapshot("saveGraphToFile-exit");
-  
+
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -325,9 +329,8 @@ export function saveGraphToFile() {
 
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-// restore 
-//enterFkSynthesisMode(true);
-
+  // restore
+  //enterFkSynthesisMode(true);
 }
 
 /*
@@ -439,13 +442,10 @@ export function loadGraphFromFile(event) {
 }
 
 function createGraphFromJson(json) {
-  
   const cyData = { ...json };
   delete cyData.originalDBName;
   let cy = getCy();
 
-
-  
   cy.json(cyData);
 
   cy.batch(() => {
@@ -458,14 +458,10 @@ function createGraphFromJson(json) {
   restoreCustomNodesCategories();
   setNativeNodesCategories(); // redo categories due to leaf/root change
 
-//PLA TEST
-
-
-
   // show in synthetic after saving details
   saveDetailedEdges();
   enterFkSynthesisMode(true);
-/*
+  /*
 
 ne change pas les roots et leaf malgré le change dans les classes
 
@@ -476,7 +472,6 @@ cy.nodes().forEach(node => {
   node.style(); // forces style recalculation on that node
 });
 */
-
 
   metrologie();
   cy.fit();

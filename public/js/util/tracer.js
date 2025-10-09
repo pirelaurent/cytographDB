@@ -8,6 +8,7 @@
 */
 
 export let trace = null; // sera soit une fonction, soit null
+
 export function traceMessage(...args) {
   const ts =
     typeof performance !== "undefined"

@@ -7,6 +7,7 @@
 import { restoreProportionalSize } from "./cytoscapeCore.js";
 
 import { getCy } from "./cytoscapeCore.js";
+import {trace} from "../util/tracer.js";
 
 export let positionStackUndo = [];
 const maxUndo = 25;
@@ -16,7 +17,8 @@ let lastStackOperation;
 /*
   save current graph in stack 
 */
-export function pushSnapshot(trace = "") {
+export function pushSnapshot(sourceInfo = "") {
+   trace?.("pushSnapShot", sourceInfo); 
   const cy = getCy();
   if (!cy) return;
 
@@ -51,7 +53,6 @@ export function pushSnapshot(trace = "") {
   cursorStack = positionStackUndo.length - 1; // pointeur sur le dernier
   lastStackOperation = "pushSnapshot";
 
-  //console.log(trace+" "+cursorStack);//PLA
 }
 
 /*
@@ -70,7 +71,8 @@ export function resetSnapshot() {
   The lastStackOperation remember the action   
 */
 
-export function popSnapshot(trace = "") {
+export function popSnapshot(sourceInfo = "") {
+     trace?.("popSnapshot", sourceInfo); 
   // undo
   if (cursorStack >= 0) {
     // allow redo on current screen if regret
@@ -79,7 +81,6 @@ export function popSnapshot(trace = "") {
     }
     lastStackOperation = "popSnapshot";
 
-    //console.log(trace+" "+cursorStack);//PLA
     setCurrentState();
     cursorStack -= 1;
   }
@@ -88,7 +89,6 @@ export function popSnapshot(trace = "") {
 export function reDoSnapshot() {
   // redo
   if (cursorStack < positionStackUndo.length - 1) {
-    //console.log(`redo : ${cursorStack}  length : ${positionStackUndo.length} `); //PLA
     cursorStack += 1;
     setCurrentState();
   }

@@ -116,9 +116,6 @@ Primary key
 */
     colBody = document.getElementById("columnsOfPk");
     colBody.innerHTML = "";
-
-    const tableOfPk = document.getElementById("tableOfPk");
-
     const pkh3 = document.getElementById("primaryKey");
     // add markdown in same div
     sectionHeader = pkh3.closest(".section-header");

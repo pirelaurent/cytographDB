@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import { to as copyTo } from "pg-copy-streams";
-import { getPoolFor, getCurrentDBName } from "./db.js"; //
+import { getPoolFor } from "./db.js"; //
 import { formatDuration, formatBytes } from "./public/js/util/formater.js";
 
 const JSON_DIR = "./public/custom/temp4work";
@@ -29,7 +29,7 @@ export async function exportAll(dbName, jsonName) {
   const errors = [];
   const perTableStats = [];
 
-  const t0 = performance.now();
+  //const t0 = performance.now();
 
   try {
     // 1️⃣ Récupération du client depuis le pool

@@ -126,40 +126,6 @@ export function initMenus() {
  prepare click events on menus 
 */
 
-function OLDsetupMenuActions(menuId, actionAttribute, callbackFn) {
-  const menu = document.querySelector(`[data-menu-id="${menuId}"] .menu`);
-  if (!menu) return;
-
-  // Handle submenu items
-  menu
-    .querySelectorAll(".submenu li:not([data-skip-action])")
-    .forEach((item) => {
-      item.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const choice = item.getAttribute(actionAttribute);
-        if (choice) callbackFn(choice, item);
-      });
-    });
-
-  // Handle first-level items without submenu
-  menu.querySelectorAll(".menu > li").forEach((item) => {
-    const hasSubmenu = item.querySelector(".submenu") !== null;
-    if (!hasSubmenu) {
-      item.addEventListener("click", () => {
-        const choice = item.getAttribute(actionAttribute);
-        if (choice) callbackFn(choice, item);
-      });
-
-      item.addEventListener("contextmenu", (e) => {
-        const choice = item.getAttribute(actionAttribute);
-        console.log(choice);
-        e.preventDefault(); // bloque le menu natif (optionnel)
-        someCodeRight(e);
-      });
-    }
-  });
-}
-
 function setupMenuActions(menuId, actionAttribute, callbackFn) {
   const menu = document.querySelector(`[data-menu-id="${menuId}"] .menu`);
   if (!menu) return;
@@ -168,8 +134,8 @@ function setupMenuActions(menuId, actionAttribute, callbackFn) {
   menu
     .querySelectorAll(".submenu li:not([data-skip-action])")
     .forEach((item) => {
-      item.addEventListener("click", (e) => {
-        // e.stopPropagation(); // plus nécessaire si tu passes en délégation, mais ok ici
+      item.addEventListener("click", () => {
+        // e.stopPropagation(); 
         const choice = item.getAttribute(actionAttribute);
         if (choice) callbackFn(choice, item, "left");
       });
@@ -357,6 +323,14 @@ export function menuDisplay(option, item, whichClic = "left") {
     case "rotateR":
       rotateGraphByDegrees(7.5);
       break;
+      
+     case "rotate90":
+      rotateGraphByDegrees(90);
+      break;  
+
+      case "rotate180":
+      rotateGraphByDegrees(180);
+      break;  
 
     // not linked to menu.
     case "separateH":

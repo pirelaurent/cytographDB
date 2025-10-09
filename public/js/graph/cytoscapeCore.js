@@ -1,7 +1,7 @@
 "use strict";
 
 import { getCyStyles } from "./cyStyles.js";
-import { showAlert, showInfo } from "../ui/dialog.js";
+import { showAlert } from "../ui/dialog.js";
 import { modeSelect, AND_SELECTED } from "../ui/dialog.js";
 import { getLocalDBName } from "../dbFront/tables.js";
 import {
@@ -9,7 +9,7 @@ import {
   getCustomStyles,
 } from "../filters/categories.js";
 import { fillInGuiNodesCustomCategories} from "../ui/custom.js";
-import { NativeCategories,ConstantClass} from "../util/common.js"
+import { NativeCategories} from "../util/common.js"
 import { pushSnapshot } from "./snapshots.js";
 
 //-------------------
@@ -289,6 +289,7 @@ export function setAndRunLayoutOptions(option) {
         // idealEdgeLength: 100,
         // edgeElasticity: 0.4,
         // numIter: 1000,
+        fit: false,
       });
       break;
 

@@ -9,7 +9,8 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
 
 (after some ui alignments).
 
-<img src = "./img/democytoscapedb.png" width = "600px" style="border: 1px solid grey;">
+<img src = "./img/democytoscapedb2.png" width = "600px" style="border: 1px solid grey;">
+
 
 # General UI 
 
@@ -193,32 +194,32 @@ Current perimeter : all edges if none selected, only selected edges otherwise.
 **FK name**  : in case of a generated edge for trigger impact, the name is the name of the trigger. 
 **col -> col** : depends of the foreign key details which can be set or not on a individual edges basis. If not detailed, the column is empty ( - ).
 
-###  foreign keys details:   
+## Menu Model and foreign keys details:   
+<img src ="./img/menuModel.png" width = "160">
 
-### 1 edge per FK 
+###  FK  display  
 
-This is the default FK presentation in the graph when loaded. 
+- **raw FK** Default FK presentation : a FK<->1 edge. 
+- **per column** :FK is splitted as one edge per matching columns.
 
-### 1 edge per column 
-
-A FK edge is splitted as one or several edges : one edge per matching columns. 
-Below labels were displayed for some selected edges. Hover also allows to see details.  
+Below labels were displayed for some selected edges.   
+Hover also show details.  
 
   clic on Menu ***Edges-details - 1 per FK/ 1 per column***  to change **all** edges at once .
   clic on Menu ***Edges-label-show***  to see **all** labels at once.
 
 <img src ="./img/edgePerColumn.png" width = "600px" style="border: 1px solid grey;">   
 
-💡You can also flip/flob FK mode and label view on an individual edge **with right click submenu**:    
+💡You can also flip/flob FK mode  (also flip/flop label view) on an individual edge **with right click submenu**:    
 <img src ="./img/edgeFlipFlop.png" width = "200px">
 
 --- 
 
-### add trigger impacts to graph
+### triggers ... generate impacts
 
-menu: **Edges → Data Model → Triggers  → generate  impacts**
+menu: ***Model → triggers  → generate  impacts**
 
-New generated edges represent trigger-based relationships (violet below)
+New edges materialize trigger-based relationships (violet below)
 
 <img src ="./img/triggerNetwork.png" width = "350px" style="border: 1px solid grey;">
 
@@ -330,8 +331,5 @@ See detailed menus for more options.
 ---
 
 - ⚪️ [Main](./main.md)
-- 🟩 [*Quick Tour*](./quickTour.md)  
-- 🟨 [Main Menu Bar](./menuBar.md)  
-- 🟦 [Node Menu](./menuNodesSelectHide.md)  
-- 🟥 [Edge Menu](./menuEdgesSelectHide.md)   
+
 

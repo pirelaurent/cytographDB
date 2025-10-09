@@ -6,7 +6,7 @@ import { getCy } from "../graph/cytoscapeCore.js";
 
 import { fillInGuiNodesCustomCategories } from "../ui/custom.js";
 
-import { NativeCategories, ConstantClass } from "../util/common.js";
+import { NativeCategories } from "../util/common.js";
 
 /*
  adaptation to specific database 

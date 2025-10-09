@@ -1,4 +1,4 @@
-"use stricts";
+"use strict";
 
 /*
  replace alert, warning, confirm with modal window
@@ -22,14 +22,12 @@ export function showMultiChoiceDialog(title, message, choices, doc = document) {
   const overlay = doc.createElement("div");
   overlay.className = "overlay";
 
-
   const dialog = doc.createElement("div");
 
-dialog.style.position = "fixed"; // fixe par rapport à la fenêtre
-dialog.style.top = "20%";        // 20% depuis le haut, donc environ premier tiers
-dialog.style.left = "30%";       // 10% depuis la gauche
-dialog.style.zIndex = 1000;      // au-dessus du contenu
-
+  dialog.style.position = "fixed"; // fixe par rapport à la fenêtre
+  dialog.style.top = "20%"; // 20% depuis le haut, donc environ premier tiers
+  dialog.style.left = "30%"; // 10% depuis la gauche
+  dialog.style.zIndex = 1000; // au-dessus du contenu
 
   dialog.style.background = "white";
   dialog.style.padding = "20px";
@@ -43,7 +41,22 @@ dialog.style.zIndex = 1000;      // au-dessus du contenu
 
   const msgElem = doc.createElement("p");
 
-  msgElem.innerHTML = message;
+  let outMess = message;
+  let mmm = message.split("<br/>");
+  if (mmm.length > 16) {
+    outMess = mmm.slice(0, 16).join("<br/>");
+    outMess += `<br/><br/>... Truncated (16/${mmm.length}) - more in clipboard`;
+    const outMessSlash = mmm.join('\n').replace(/<\/?b\s*\/?>/gi, '');;
+
+// copy to clipboard
+    const tableWin = document.defaultView || window;
+    tableWin.navigator.clipboard?.writeText(outMessSlash).catch((err) => {
+      console.error("Clipboard copy failed:", err);
+    });
+
+  }
+
+  msgElem.innerHTML = outMess;
 
   dialog.appendChild(msgElem);
 
@@ -158,16 +171,6 @@ export function cytogaphdb_version() {
       }
     });
 }
-
-
-
-
-
-
-
-
-
-
 
 /*
  create a window to choose a database
@@ -386,4 +389,16 @@ export function createIconButton(
     img.addEventListener("click", onClick);
   }
   return img;
+}
+
+/*
+@todo take in account root
+
+*/
+export function showToast(msg, root = document) {
+  const toast = root.createElement("div");
+  toast.className = "toast";
+  toast.textContent = msg;
+  root.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
 }

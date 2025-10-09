@@ -1,4 +1,4 @@
-"use stricts";
+"use strict";
 
 /*
  when a graph is created by 'create graph from DB' , 
@@ -81,6 +81,7 @@ export function enterFkDetailedModeForEdges(synthEdges) {
         if (synth.selected()) e.select();
         else e.unselect();
         if (synth.hasClass("showLabel")) e.addClass(`${ConstantClass.SHOW_COLUMNS}`);
+        
         else e.removeClass(`${ConstantClass.SHOW_COLUMNS}`);
         originalArray.push(e);
       });

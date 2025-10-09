@@ -29,7 +29,9 @@ CREATE TABLE company (
 );
 
 CREATE TABLE factory (
-    company_id INT NOT NULL REFERENCES company(id) ON DELETE CASCADE,
+      company_id INT NOT NULL 
+      CONSTRAINT fk_fact_comp
+       REFERENCES company(id) ON DELETE CASCADE,
     id INT NOT NULL,
     name VARCHAR(20) NOT NULL,
     PRIMARY KEY (company_id, id)
@@ -41,7 +43,8 @@ CREATE TABLE production_line (
     id INT NOT NULL,
     name VARCHAR(20) NOT NULL,
     PRIMARY KEY (company_id, factory_id, id),
-    FOREIGN KEY (company_id, factory_id) REFERENCES factory(company_id, id)
+    CONSTRAINT fk_prod_comp_fact
+     FOREIGN KEY (company_id, factory_id) REFERENCES factory(company_id, id)
 );
 
 CREATE TABLE product (
@@ -55,8 +58,10 @@ CREATE TABLE line_product (
     production_line_id INT NOT NULL,
     product_id INT NOT NULL,
     PRIMARY KEY (company_id, factory_id, production_line_id, product_id),
-    FOREIGN KEY (company_id, factory_id, production_line_id) REFERENCES production_line(company_id, factory_id, id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
+    CONSTRAINT fk_line_prod_comp_fact_prod_line
+     FOREIGN KEY (company_id, factory_id, production_line_id) REFERENCES production_line(company_id, factory_id, id) ON DELETE CASCADE,
+    CONSTRAINT fk_line_prod_prod
+     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE
 );
 
 CREATE TABLE employee (
@@ -67,18 +72,19 @@ CREATE TABLE employee (
     factory_id INT NOT NULL,
     activity_points INT DEFAULT 0 NOT NULL,
     PRIMARY KEY (company_id, id),
-    FOREIGN KEY (company_id, factory_id) REFERENCES factory(company_id, id)
+    CONSTRAINT fk_comp_fact
+     FOREIGN KEY (company_id, factory_id) REFERENCES factory(company_id, id)
 );
 
 ALTER TABLE employee ADD COLUMN works_with_company_id INT;
 ALTER TABLE employee ADD COLUMN works_with_id INT;
-ALTER TABLE employee ADD CONSTRAINT employee_works_with_fk
+ALTER TABLE employee ADD CONSTRAINT fk_emp_works_with
     FOREIGN KEY (works_with_company_id, works_with_id)
     REFERENCES employee(company_id, id) ON DELETE SET NULL;
 
 ALTER TABLE employee ADD COLUMN chief_company_id INT;
 ALTER TABLE employee ADD COLUMN chief_id INT;
-ALTER TABLE employee ADD CONSTRAINT employee_chief_fk
+ALTER TABLE employee ADD CONSTRAINT fk_emp_chief
     FOREIGN KEY (chief_company_id, chief_id)
     REFERENCES employee(company_id, id) ON DELETE SET NULL;
 
@@ -87,11 +93,10 @@ CREATE TABLE skills (
     employee_id INT NOT NULL,
     skill_name TEXT NOT NULL,
     PRIMARY KEY (company_id, employee_id, skill_name),
-    FOREIGN KEY (company_id, employee_id)
+    CONSTRAINT fk_skills_comp_emp
+     FOREIGN KEY (company_id, employee_id)
         REFERENCES employee(company_id, id)
 );
-
-
 
 
 
@@ -101,8 +106,10 @@ CREATE TABLE "authorization" (
     factory_id INT NOT NULL,
     production_line_id INT NOT NULL,
     PRIMARY KEY (company_id, employee_id, factory_id, production_line_id),
-    FOREIGN KEY (company_id, employee_id) REFERENCES employee(company_id, id) ON DELETE CASCADE,
-    FOREIGN KEY (company_id, factory_id, production_line_id) REFERENCES production_line(company_id, factory_id, id) ON DELETE CASCADE
+    CONSTRAINT fk_auth_comp_emp_fact_prod_line
+       FOREIGN KEY (company_id, employee_id) REFERENCES employee(company_id, id) ON DELETE CASCADE,
+    CONSTRAINT fk_auth_comp_fact_prod_line
+     FOREIGN KEY (company_id, factory_id, production_line_id) REFERENCES production_line(company_id, factory_id, id) ON DELETE CASCADE
 );
 
 CREATE TABLE intervention (
@@ -112,8 +119,10 @@ CREATE TABLE intervention (
     factory_id INT NOT NULL,
     production_line_id INT NOT NULL,
     date TIMESTAMP NOT NULL DEFAULT now(),
-    FOREIGN KEY (company_id, employee_id) REFERENCES employee(company_id, id) ON DELETE CASCADE,
-    FOREIGN KEY (company_id, factory_id, production_line_id) REFERENCES production_line(company_id, factory_id, id) ON DELETE CASCADE
+    CONSTRAINT fk_int_comp_emp
+      FOREIGN KEY (company_id, employee_id) REFERENCES employee(company_id, id) ON DELETE CASCADE,
+    CONSTRAINT fk_int_comp_fact_prod_line
+      FOREIGN KEY (company_id, factory_id, production_line_id) REFERENCES production_line(company_id, factory_id, id) ON DELETE CASCADE
 );
 
 CREATE TABLE parameters (
@@ -199,8 +208,8 @@ COMMENT ON TRIGGER trg_increment_points ON intervention IS 'Adds activity points
 COMMENT ON TRIGGER trg_check_authorization ON intervention IS 'Checks employee authorization.';
 
 -- FK Comments
-COMMENT ON CONSTRAINT employee_works_with_fk ON employee IS 'Reflexive FK: employee works with another.';
-COMMENT ON CONSTRAINT employee_chief_fk ON employee IS 'Reflexive FK: employee''s chief.';
+COMMENT ON CONSTRAINT fk_emp_works_with ON employee IS 'Reflexive FK: employee works with another.';
+COMMENT ON CONSTRAINT fk_emp_chief ON employee IS 'Reflexive FK: employee''s chief.';
 
 -- PK Comment
 COMMENT ON CONSTRAINT employee_pkey ON employee IS 'Composite PK on (company_id, id).';

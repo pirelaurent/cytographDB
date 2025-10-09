@@ -1,9 +1,10 @@
 "use strict";
 
-import {perimeterForNodesSelection, perimeterForEdgesSelection} from "../graph/cytoscapeCore.js"
+import {perimeterForNodesSelection, perimeterForEdgesSelection,getCy} from "../graph/cytoscapeCore.js"
 
 import { getCustomNodesCategories }
   from "../filters/categories.js"
+import { showToast } from "./dialog.js";
 
   /*
  find all data types in nodes that we leave to user choice 
@@ -57,13 +58,18 @@ function selectNodesByCustomcategories(aCategory) {
 
 export function selectEdgesByNativeCategories(aCategory) {
   const edges = perimeterForEdgesSelection();
-  if (edges.length === 0) return;
-
+  if (edges.length === 0) {
+    showToast("nothing to filter");
+    return;
+  }
+  const count =  getCy().edges(':selected').length;
   edges.forEach((edge) => {
     if (edge.hasClass(aCategory)) {
       edge.select();
     }
   });
+  const count2 = getCy().edges(':selected').length;
+      showToast(`${count2-count} more selected`);
 }
 
 export async function checkForCustomDocs() {

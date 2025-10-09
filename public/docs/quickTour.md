@@ -5,7 +5,7 @@
 This very simple DB model was designed for documentation purpose.   
 To create *democytodb* in your Postgres instance, see the [Installation Guide](./install.md)
 
-## Initial load of democytodb 
+## Initial load of sample *democytodb* 
 
 (after some ui alignments).
 
@@ -24,13 +24,13 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
   -  pentagon ( *parameters* )
 - <img src = "./img/shapeLeafNew.png" height="20"> **leaf** : no outgoing link. 
   - triangle (*product, company*).
-- <img src = "./img/shapeRootNew.png" height="25" width="10"> **root** : no incoming, one outgoing 
+- <img src = "./img/shapeRootNew.png" height="25" width="10"> **root** : no incoming,  but not an association
   - high rounded triangle (*skills*)
--  <img src = "./img/shapeDry.png" height="20">**(dry) association** :  no incomings, 2 outgoings, strict list of columns from FK in table   
+-  <img src = "./img/shapeDry.png" height="20">**(dry) association** :  no incomings, 2 outgoings, list of columns from FK is list of columns in  table   
      - ellipse (*authorization*) 
 - <img src = "./img/shapeMulti.png" height="20"> **multi-association** : no incomings, >2 outgoings, or: 2 outgoings with extra column in table
   - ellipse with double border (*intervention*)
-- <img src = "./img/shapeDefault.png" height="20"> **other tables** 
+- <img src = "./img/shapeDefault.png" height="20"> **default** 
   - round rectangle (*production line, factory, employee*)
   
 #### tag trigger detected 
@@ -58,7 +58,7 @@ With number of triggers and other categories if any :
 
 --- 
 
-## Edge = FK representation
+## Edge = FK from owner to referenced table
 
 - FK    
   - straight line with destination arrow as triangle      
@@ -84,6 +84,14 @@ with hover "on" in main menu bar, a popup is added when mouse is over an edge.
 <img src = "./img/hoverEdgeInfo.png"  width = "450px" style="border: 1px solid grey;">
 
  *1/FK (or 1/Col)* designate current display of edge (global or detailed). See Edge menu.  
+
+
+### warning about root & Leaf  
+
+In an oriented graph a *root* is a node without incoming edge and a *leaf* a node without outgoing edge.
+For FK the less dependant tables are those who have no FK , ie leaves on graph.  
+***For an export, you must start from leaves*** (which are in fact the *roots* of the export)
+
 
 ---
 
@@ -157,7 +165,14 @@ If a sql source uses a interpreted operation with 'EXECUTE someString' it is not
 
 <img src="./img/warningTriggers.png" width = "500px" style="border: 1px solid grey;">
 
-#### sample of code details
+##### Too much warnings case
+
+If you work with a subset of model and ask for impacted tables that involve missing parts, you can get a lot of warnings.   
+The warning window will truncate the list, but **in any case you will find full list into the clipboard**, ready to paste.
+<img src = "./img/moreInClipboard.png" height = "40" style="border: 1px solid grey;"> 
+
+
+#### Sample of code view
 
 CytographDB uses syntaxic color for SQL from a third part. 
 

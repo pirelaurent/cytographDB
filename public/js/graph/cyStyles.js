@@ -154,6 +154,21 @@ const cyStyles = [
       "border-color": "chartreuse",
       "border-style": "dashed",
       "border-width": 20,
+
+      'color': "black",
+        'font-weight': 'bold',
+        //'text-outline-width': 2,
+        //'text-outline-color': '#ffeb3b',   // halo autour du texte
+        //'text-background-color': '#ffeb3b',
+        //'text-background-opacity': 1,
+        //'text-background-shape': 'roundrectangle',
+        //'text-border-width': 1,
+        'text-border-opacity': 1,
+        'text-wrap': 'wrap',
+        'text-margin-y': -2
+
+
+
     },
   },
 

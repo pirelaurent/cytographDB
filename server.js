@@ -49,9 +49,13 @@ import {
   triggerQuery,
   triggerQueryOneTable,
   tableCommentQuery,
+  reqCheckColumn,
 } from "./dbreq.js";
 
 import { encodeCol2Col } from "./public/js/util/common.js";
+import { escapeHtml } from "./public/js/util/formater.js";
+
+import { exportAll } from "./exportTables.js";
 
 console.log("init env");
 // Chargement des variables d'environnement
@@ -125,9 +129,6 @@ app.post("/load-from-db", async (req, res) => {
     const fkColumnMap = {}; // tableName -> Set of FK column names
 
     fkResult.rows.forEach(({ source, source_column, source_not_null }) => {
-
-
-
       if (!fkColumnMap[source]) fkColumnMap[source] = [];
       // here true or false on source_not_null
       fkColumnMap[source].push({
@@ -167,9 +168,9 @@ app.post("/load-from-db", async (req, res) => {
       const data = {
         id: name,
         label: name, //+ (trigs.length > 0 ? "\n" + "*".repeat(trigs.length) : ""), replaced by icon + data.triggers.length
-        // change : now bring back all infos on columns 
+        // change : now bring back all infos on columns
         //columns: details.columns.map((c) => c.column),
-        columns:details.columns,
+        columns: details.columns,
         foreignKeys: details.foreignKeys || [], // ex .map(fk => fk.column),
         comment: details.comment,
         primaryKey: details.primaryKey,
@@ -521,12 +522,11 @@ app.get("/triggers", async (req, res) => {
               let aWarning = {
                 table: table,
                 function: functionName,
-                warn:` code with "EXECUTE 'someString'" is not sure and was not parsed.  `,
+                warn: ` code with "EXECUTE 'someString'" is not sure and was not parsed.  `,
               };
               warnings.push(aWarning);
 
-              console.log( JSON.stringify(aWarning));
-              
+              console.log(JSON.stringify(aWarning));
 
               const dynamicExec = execMatches.map((m) => m[1].trim());
               console.log(dynamicExec);
@@ -670,8 +670,89 @@ app.get("/healthz", (req, res) => {
   res.json("server is on");
 });
 
-// Start the server
+/*
+ essai basique
 
-app.listen(PORT, () => {
-  console.log(`Server started.App now available on http://localhost:${PORT}`);
+ On doit stocker le résultat du graphe de dépendance dans un json et le rappeler ici
+ A câbler plus tard. 
+ /exportAll?dbName=abcdef&, jsonName 
+
+
+*/
+
+app.get("/exportAll", async (req, res) => {
+  const { dbName, jsonName } = req.query;
+  if (!dbName || !jsonName) {
+    console.error("Missing parameter");
+    return res
+      .status(400)
+      .json({ error: "Missing parameters expected { dbName , jsonName } " });
+  }
+
+  try {
+    const report = await exportAll(dbName, jsonName); // <-- attend la Promise
+    res.json(report); // ou res.send(report);
+  } catch (err) {
+    console.error("❌ exportAll failed:", err);
+    res.status(500).json({ error: err.message });
+  }
 });
+
+/*
+ specific sanity check experimental 
+
+search column exist or not in tables 
+http://localhost:3000/searchColumns?dbName=perfo7.8.20&columnName=db_version&exists=false
+
+*/
+
+app.get("/searchColumn", async (req, res) => {
+  const { dbName, columnName, exists } = req.query;
+  if (!dbName) {
+    console.error("Missing parameter");
+    return res.status(400).json({ error: "Missing dbName parameters } " });
+  }
+  let client;
+  try {
+    const pool = getPoolFor(dbName);
+    if (!pool) {
+      return res
+        .status(500)
+        .json({ error: "Database connection not initialized." });
+    }
+
+    client = await pool.connect();
+
+    // check if tables have the column
+
+    if (columnName) {
+      let results = await client.query(reqCheckColumn, [columnName,exists]);
+
+      let stack = [];
+      stack.push(` ## ${results.rows.length} tables that have not a column named "${columnName}"`);
+
+      results.rows.forEach((r) => {
+        stack.push(r.tablename);
+      });
+
+      console.log(stack.join("\n"));
+
+
+      const body = stack.map(escapeHtml).join("<br/>");
+      const html = `<!doctype html>
+<html><head><meta charset="utf-8"><title>Report</title></head>
+<body style="font-family:system-ui">${body}</body></html>`;
+
+      res.type("html"); // = Content-Type: text/html; charset=utf-8
+      res.send(html);
+    } else {
+      return res.status(400).json({ error: "Missing columnName parameter" });
+    }
+  } catch (err) {
+    console.error("Error running query:", err);
+    return res.status(500).json({ error: err.message });
+  } finally {
+    if (client) client.release(); // Always release connection
+  }
+});
+

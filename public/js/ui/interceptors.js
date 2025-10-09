@@ -114,6 +114,7 @@ export function setInterceptors() {
       else outgoers = outgoers + " <- ";
 
       output = `${data.id} <br\>`;
+      if( node.selected()) output+='    '; // trick to verify selected 
       output += `<small>${outgoers} □ ${incomers} </small><br\>`;
 
       if (classInfo) output += ` ${classInfo}<br/> `;

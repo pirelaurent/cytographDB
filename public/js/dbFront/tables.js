@@ -234,9 +234,6 @@ export async function generateTriggers(nodes) {
             function: "trigger impact",
             warn: `missing impact destination :  --> ${target}`,
           });
-          console.warn(
-            `missing impact destination : '${source}' --> '${target}'`
-          );
         }
       });
     });

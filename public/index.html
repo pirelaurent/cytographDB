@@ -115,7 +115,7 @@
               </ul>
             </li>
 
-            <li data-category="layout">move ...
+            <li data-category="layout">move aspect...
               <ul class="submenu">
                 <li data-category="aspect">resize ...
                   <ul class="submenu">
@@ -243,8 +243,8 @@
                 <li action="labelNodeShow">show</li>
                 <li action="labelNodeHide">hide</li>
                 <li class="separator"></li>
-                <li action="increase-font">font +++</li>
-                <li action="decrease-font">font -</li>
+                <li action="increase-font">font +5</li>
+                <li action="decrease-font">font -1</li>
 
                 <!--</li> -->
               </ul>
@@ -292,7 +292,7 @@
             <li class="separator"></li>
 
             <li action="deleteNodesSelected" title="Delete selected nodes (backspace)">delete</li>
-                <li class="separator"></li>
+            <li class="separator"></li>
           </ul>
         </div>
       </div>
@@ -335,52 +335,21 @@
                 <li action="incomingEdges">incoming edges</li>
                 <li class="separator"></li>
                 <li action="betweenNodes">
-                  <span class="label" title="Select edges between selected nodes">between two selected nodes</span>
+                  <span class="label" title="Select edges between selected nodes">between selected nodes</span>
                 </li>
               </ul>
             </li>
-
-            <li data-category="filterEdges" title="Filter specific edge types (data model only)">filter by ...
-
-              <ul class="submenu">
-                <li data-category="edgesName" data-skip-action>name ...</li>
-
-                <li data-skip-action>native category ...
-
-                  <ul class="submenu">
-                    <li action="edgeIsNullable" title="Select FK nullable (N-0)"> nullable
-                    </li>
-                    <li action="edgeIsOnDeleteCascade" title="Select FK ON DELETE CASCADE">on delete cascade
-                    </li>
-
-                    <li class="separator"></li>
-                    <li action="edgeIsTriggerGenerated" title="Select generated trigger impacts edges">trigger_impact
-                    </li>
-                    <li action="edgeIsASimplifiedNode" title="Select edges from simplified associations">simplified
-                      associations</li>
-                  </ul>
-
-              </ul>
-            </li>
-
-
-            <!-- li id="toggle-fk-mode" action="toggleFkMode">toggle details 1 : n</li -->
-            <li data-category="edgeDetails">edge details ...
-              <ul class="submenu">
-                <li action="enterFkSynthesisMode"> 1 per FK</li>
-                <li action="enterFkDetailedMode"> 1 per column</li>
-              </ul>
+            <li data-category="edgesName" data-skip-action>filter by name</li>
             </li>
 
             <li class="separator"></li>
-
             <li data-category="label">label ...
               <ul class="submenu">
                 <li action="labelShow">show</li>
                 <li action="labelHide">hide</li>
                 <li class="separator"></li>
-                <li action="increase-font-edge">font +</li>
-                <li action="decrease-font-edge">font -</li>
+                <li action="increase-font-edge">font +5</li>
+                <li action="decrease-font-edge">font -1</li>
               </ul>
             </li>
 
@@ -392,41 +361,79 @@
             </li>
 
             <li class="separator"></li>
-
-            <li data-category="dataModel" title="actions related to a physical data model ">data model ...
-              <ul class="submenu">
-                <li data-category="edgeDetails">triggers ...
-                  <ul class="submenu">
-                    <li action="generateTriggers">
-                      <span class="label" title="Identify and materialize triggers that affect other tables">generate
-                        impacts</span>
-                    </li>
-                    <li action="removeTriggers">
-                      <span class="label" title="Identify and materialize triggers that affect other tables">
-                        remove impacts</span>
-                    </li>
-                  </ul>
-                </li>
-
-                <li data-category="edgeDetails">associations ...
-                  <ul class="submenu">
-                    <li action="simplifyAssociations">
-                      <span class="label" title="Simplify associations into direct edges">simplify </span>
-                    </li>
-                    <li action="restoreAssociations" title="Undo simplification and restore association nodes">
-                      <span class="label">restore </span>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-
-
-            <li class="separator"></li>
-
             <li action="deleteEdgesSelected">delete</li>
           </ul>
         </div>
       </div>
+
+      <div data-menu-id="menu-model">
+        <div class="menu-wrapper">
+          <span id="EdgesId" class="menu-trigger">Model</span>
+
+          <ul class="menu">
+            <!-- li id="toggle-fk-mode" action="toggleFkMode">toggle details 1 : n</li -->
+            <li data-category="edgeDetails">FK display ...
+              <ul class="submenu">
+                <li action="enterFkSynthesisMode"> raw FK </li>
+                <li action="enterFkDetailedMode"> per column</li>
+              </ul>
+            </li>
+
+            <li data-category="model">triggers ...
+              <ul class="submenu">
+                <li action="generateTriggers">
+                  <span class="label" title="Identify and materialize triggers that affect other tables">generate
+                    impacts</span>
+                </li>
+                <li action="removeTriggers">
+                  <span class="label" title="Identify and materialize triggers that affect other tables">
+                    remove impacts</span>
+                </li>
+
+              </ul>
+            <li data-category="model">associations ...
+              <ul class="submenu">
+                <li action="simplifyAssociations">
+                  <span class="label" title="Simplify associations into direct edges">simplify </span>
+                </li>
+                <li action="restoreAssociations" title="Undo simplification and restore association nodes">
+                  <span class="label">restore </span>
+                </li>
+              </ul>
+            </li>
+
+
+            <li data-category="filterEdges" title="Filter specific edge types (data model only)">filter FK ...
+              <ul class="submenu">
+                <li action="edgeIsNullable" title="Select FK nullable (N-0)"> nullable
+                </li>
+                <li action="edgeIsOnDeleteCascade" title="Select FK ON DELETE CASCADE">on delete cascade
+                </li>
+
+                <li class="separator"></li>
+                <li action="edgeIsTriggerGenerated" title="Select generated trigger impacts edges">trigger_impact
+                </li>
+                <li action="edgeIsASimplifiedNode" title="Select edges from simplified associations">simplified
+                  associations</li>
+              </ul>
+            <li class="separator"></li>
+
+            <li data-category="model">DB layout ...
+              <ul class="submenu">
+                <li action="dependencies" title="organize nodes by dependency levels"> by dependencies</li>
+                <li action="dependenciesPerCustomCategory" title="organize nodes by dependency levels"> by custom
+                  categories</li>
+              </ul>
+            </li>
+          </ul>
+          </li>
+
+          </ul>
+          </li>
+        </div>
+
+      </div>
+
 
       <!-- Controls -->
       <button id="undo-btn" title="Undo (Ctrl z)">
@@ -497,8 +504,6 @@
     </div>
 
 
-    <div id="toast" role="status" aria-live="polite"></div>
-
     <div id="cy"></div>
 
   </div> <!-- from topbar-->
@@ -522,10 +527,10 @@
 
       <!-- champ caché pour retenir l'option -->
       <input type="hidden" id="modalNameFilterType" value="nodeOrEdge" />
-      <input type="text" id="modalNameFilterInput" placeholder="pattern" class="modal-input" title ="text or regex"/>
+      <input type="text" id="modalNameFilterInput" placeholder="pattern" class="modal-input" title="text or regex" />
       <br />
       <input type="checkbox" id="searchOnHidden" title="search hidden nodes too"> <!--checked-->
-            <small>search in hidden elements too</small><br /><br/>
+      <small>search in hidden elements too</small><br /><br />
       <button id="modalNameFilterOk" class="modal-btn">Search & Select</button>
       <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
     </div>
@@ -567,9 +572,10 @@
       </fieldset>
       <fieldset>
 
-        <input type="checkbox" id="degreeRestrictToVisible">
-        <label for="degreeRestrictToVisible" title="restrict count to elements currently visible"><small>work only on visible
-            nodes and visible edges</small></label>
+        <input type="checkbox" id="degreeRestrictToVisible" checked>
+        <label for="degreeRestrictToVisible" title="restrict count to elements currently visible"><small>work only on
+            visible
+            nodes and edges</small></label>
       </fieldset>
       <fieldset>
         <div class="actions">

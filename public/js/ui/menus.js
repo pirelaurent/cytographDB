@@ -79,6 +79,8 @@ import {
   enterFkSynthesisMode,
 } from "../graph/detailedEdges.js";
 
+import { getCustomNodesCategories } from "../filters/categories.js";
+
 import {
   pushSnapshot,
   //popSnapshot,  //done by ctrl Z
@@ -101,16 +103,22 @@ import { createCustomCategories } from "../filters/categories.js";
 import { selectEdgesByNativeCategories } from "./custom.js";
 import { NativeCategories, ConstantClass } from "../util/common.js";
 
+import {
+  organizeSelectedByDependencyLevels,
+  organizeSelectedByDependencyLevelsWithCategories,
+} from "../graph/specialLayout.js";
 
+import { outputMarkdown } from "../util/markdown.js";
 /*
  connect an html menu object to a treatment function with action selected
 */
 export function initMenus() {
+  setupMenuActions("menu-db", "action", menuDb);
+  setupMenuActions("menu-graph", "action", menuGraph);
   setupMenuActions("menu-display", "aspectAction", menuDisplay);
   setupMenuActions("menu-nodes", "action", menuNodes);
   setupMenuActions("menu-edges", "action", menuEdges);
-  setupMenuActions("menu-graph", "action", menuGraph);
-  setupMenuActions("menu-db", "action", menuDb);
+  setupMenuActions("menu-model", "action", menuModel);
 
   setupMenuClickAction();
 }
@@ -144,7 +152,7 @@ function OLDsetupMenuActions(menuId, actionAttribute, callbackFn) {
 
       item.addEventListener("contextmenu", (e) => {
         const choice = item.getAttribute(actionAttribute);
-        console.log(choice)
+        console.log(choice);
         e.preventDefault(); // bloque le menu natif (optionnel)
         someCodeRight(e);
       });
@@ -157,19 +165,25 @@ function setupMenuActions(menuId, actionAttribute, callbackFn) {
   if (!menu) return;
 
   // Items finaux dans les sous-menus
-  menu.querySelectorAll(".submenu li:not([data-skip-action])").forEach((item) => {
-    item.addEventListener("click", (e) => {
-      // e.stopPropagation(); // plus nécessaire si tu passes en délégation, mais ok ici
-      const choice = item.getAttribute(actionAttribute);
-      if (choice) callbackFn(choice, item,"left");
-    });
+  menu
+    .querySelectorAll(".submenu li:not([data-skip-action])")
+    .forEach((item) => {
+      item.addEventListener("click", (e) => {
+        // e.stopPropagation(); // plus nécessaire si tu passes en délégation, mais ok ici
+        const choice = item.getAttribute(actionAttribute);
+        if (choice) callbackFn(choice, item, "left");
+      });
 
-    item.addEventListener("contextmenu", (e) => {
-      e.preventDefault();               // bloque le menu natif
-      const choice = item.getAttribute(actionAttribute);
-      if (choice) callbackFn(choice, item,  "right");
-    }, { capture: true }); // capture pour éviter un stopPropagation éventuel
-  });
+      item.addEventListener(
+        "contextmenu",
+        (e) => {
+          e.preventDefault(); // bloque le menu natif
+          const choice = item.getAttribute(actionAttribute);
+          if (choice) callbackFn(choice, item, "right");
+        },
+        { capture: true }
+      ); // capture pour éviter un stopPropagation éventuel
+    });
 
   // Items de premier niveau SANS sous-menu
   // ⬇️ important : utiliser :scope > li (pas ".menu > li")
@@ -178,19 +192,21 @@ function setupMenuActions(menuId, actionAttribute, callbackFn) {
     if (!hasSubmenu) {
       item.addEventListener("click", () => {
         const choice = item.getAttribute(actionAttribute);
-        if (choice) callbackFn(choice, item,"left");
+        if (choice) callbackFn(choice, item, "left");
       });
 
-      item.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        const choice = item.getAttribute(actionAttribute);
-        if (choice) callbackFn(choice, item, "right");
-      }, { capture: true });
+      item.addEventListener(
+        "contextmenu",
+        (e) => {
+          e.preventDefault();
+          const choice = item.getAttribute(actionAttribute);
+          if (choice) callbackFn(choice, item, "right");
+        },
+        { capture: true }
+      );
     }
   });
 }
-
-
 
 /*
 change color temporarly on click
@@ -211,8 +227,8 @@ function setupMenuClickAction() {
 /*
   ----------------------------------menu for db access and files 
 */
-export function menuDb(option, menuItemElement, whichClic='left') {
-  if (whichClic=="right") return;
+export function menuDb(option, menuItemElement, whichClic = "left") {
+  if (whichClic == "right") return;
   switch (option) {
     case "connectToDb":
       connectToDb(menuItemElement).catch((err) =>
@@ -245,19 +261,19 @@ export function menuDb(option, menuItemElement, whichClic='left') {
 /*
  ----------------------------------  main menu on display actions 
 */
-export function menuDisplay(option, item, whichClic='left') {
-    if (whichClic=="right") return;
+export function menuDisplay(option, item, whichClic = "left") {
+  if (whichClic == "right") return;
   if (!cy) return;
   switch (option) {
     // -------------------------- fitscreen / selected
 
     case "fitScreen":
-           pushSnapshot();
+      pushSnapshot();
       getCy().fit();
       break;
 
     case "fitSelected":
-           pushSnapshot();
+      pushSnapshot();
       getCy().fit(
         getCy()
           .nodes(":selected")
@@ -281,7 +297,9 @@ export function menuDisplay(option, item, whichClic='left') {
       pushSnapshot();
       setAndRunLayoutOptions(option);
       break;
+
     /*
+    
   -------------------------- move resize 
 */
     case "H+":
@@ -355,8 +373,8 @@ export function menuDisplay(option, item, whichClic='left') {
 /*
   ---------------------------------- Files menu on top line 
 */
-export function menuGraph(option, item, whichClic='left') {
-    if (whichClic=="right") return;
+export function menuGraph(option, item, whichClic = "left") {
+  if (whichClic == "right") return;
   switch (option) {
     case "localUpload":
       {
@@ -407,8 +425,8 @@ export function menuGraph(option, item, whichClic='left') {
   ------------------------------------- Nodes 
 
 */
-export function menuNodes(option, item, whichClic='left') {
-    if (whichClic=="right") return;
+export function menuNodes(option, item, whichClic = "left") {
+  if (whichClic == "right") return;
   switch (option) {
     //-------- Nodes Select
 
@@ -501,14 +519,15 @@ export function menuNodes(option, item, whichClic='left') {
       {
         let nodes = perimeterForNodesSelection();
         if (nodes.length === 0) return;
-        // due to previously save json 
-        nodes.forEach((n)=>{
-          if (n.hasClass(NativeCategories.ROOT) && !n.hasClass(NativeCategories.ASSOCIATION) && !n.hasClass(NativeCategories.MULTI_ASSOCIATION))
+        // due to previously save json
+        nodes.forEach((n) => {
+          if (
+            n.hasClass(NativeCategories.ROOT) &&
+            !n.hasClass(NativeCategories.ASSOCIATION) &&
+            !n.hasClass(NativeCategories.MULTI_ASSOCIATION)
+          )
             n.select();
-        })
-
-     
-     
+        });
       }
       break;
 
@@ -533,7 +552,7 @@ export function menuNodes(option, item, whichClic='left') {
       {
         let nodes = perimeterForNodesSelection();
         if (nodes.length === 0) return;
-         nodes.filter(`.${NativeCategories.MULTI_ASSOCIATION}`).select();
+        nodes.filter(`.${NativeCategories.MULTI_ASSOCIATION}`).select();
         nodes.filter(`.${NativeCategories.ASSOCIATION}`).select();
       }
       break;
@@ -596,10 +615,9 @@ export function menuNodes(option, item, whichClic='left') {
       break;
  */
 
-    /*
+/*
     -----------------------   filter by degrees incoming and outgoing 
       is started by event on the menu item by  byFilterMenu that starts openDegreeFilter()
-
 */
 
     //-------------------------------------------------------- Label
@@ -613,7 +631,7 @@ export function menuNodes(option, item, whichClic='left') {
       break;
 
     case "increase-font":
-      changeFontSizeNode(3);
+      changeFontSizeNode(5);
       break;
     case "decrease-font":
       changeFontSizeNode(-1);
@@ -680,9 +698,9 @@ export function menuNodes(option, item, whichClic='left') {
   //------------------------------------------------------------------menu edges relays 
 */
 
-export function menuEdges(option, item, whichClic='left') {
+export function menuEdges(option, item, whichClic = "left") {
   // if we enter an option, we flag the graph as 'changed'
-  if (whichClic=="right") return;
+  if (whichClic == "right") return;
   // select edges
   switch (option) {
     case "allEdges":
@@ -764,39 +782,10 @@ export function menuEdges(option, item, whichClic='left') {
       nodes.connectedEdges().select();
       break;
 
-    case "enterFkSynthesisMode":
-      enterFkSynthesisMode(false);
-      break;
-
-    case "enterFkDetailedMode":
-      enterFkDetailedMode(false);
-      break;
-
     //--- select by data Snapshot done into function
 
     case "selectEdgesByCategory":
       //fillInEdgesCategories();
-      break;
-
-    case "edgeIsTriggerGenerated":
-      selectEdgesByNativeCategories("trigger_impact");
-      break;
-
-    case "edgeIsNullable":
-      getCy().edges();
-      const nullableEdges = getCy().edges(".nullable");
-      nullableEdges.select();
-      break;
-
-    case "edgeIsOnDeleteCascade":
-      getCy().edges();
-      const cascadeEdges = getCy().edges(".delete_cascade");
-      cascadeEdges.select();
-      break;
-
-    case "edgeIsASimplifiedNode":
-      const simplifiedEdges = getCy().edges(".simplified");
-      simplifiedEdges.select();
       break;
 
     case "labelShow":
@@ -813,11 +802,13 @@ export function menuEdges(option, item, whichClic='left') {
 
     case "labelHide":
       let edgesToHide = perimeterForEdgesAction();
-      edgesToHide.removeClass(`${ConstantClass.SHOW_COLUMNS} ${ConstantClass.SHOW_LABEL}`);
+      edgesToHide.removeClass(
+        `${ConstantClass.SHOW_COLUMNS} ${ConstantClass.SHOW_LABEL}`
+      );
       break;
 
     case "increase-font-edge":
-      changeFontSizeEdge(3);
+      changeFontSizeEdge(5);
       break;
     case "decrease-font-edge":
       changeFontSizeEdge(-1);
@@ -854,18 +845,6 @@ export function menuEdges(option, item, whichClic='left') {
     case "listEdges":
       sendEdgeListToHtml();
       break;
-
-    case "simplifyAssociations":
-      pushSnapshot();
-      simplifyAssociations();
-      break;
-
-    case "restoreAssociations":
-      pushSnapshot();
-      restoreAssociations();
-      createCustomCategories(getLocalDBName()); // explication needed
-      break;
-
     case "selectAssociations":
       var simpleEdges = getCy().edges(".simplified");
       if (simpleEdges.length == 0) showAlert("no *-*  associations to select.");
@@ -873,16 +852,6 @@ export function menuEdges(option, item, whichClic='left') {
         pushSnapshot();
         simpleEdges.select();
       }
-      break;
-
-    case "generateTriggers":
-      pushSnapshot();
-      generateTriggers(getCy().nodes()).then(() => metrologie());
-      break;
-
-    case "removeTriggers":
-      pushSnapshot();
-      removeTriggers();
       break;
 
     case "deleteEdgesSelected":
@@ -926,6 +895,95 @@ export function menuEdges(option, item, whichClic='left') {
     }
   }
   metrologie();
+}
+
+/*
+ since v2.08 independant menu for specific to DB model 
+*/
+export function menuModel(option, item, whichClic = "left") {
+  if (whichClic == "right") return;
+  // select edges
+  switch (option) {
+    case "enterFkSynthesisMode":
+      enterFkSynthesisMode(false);
+      break;
+
+    case "enterFkDetailedMode":
+      enterFkDetailedMode(false);
+      break;
+
+    case "generateTriggers":
+      pushSnapshot();
+      generateTriggers(getCy().nodes()).then(() => metrologie());
+      break;
+
+    case "removeTriggers":
+      pushSnapshot();
+      removeTriggers();
+      break;
+
+    case "simplifyAssociations":
+      pushSnapshot();
+      simplifyAssociations();
+      break;
+
+    case "restoreAssociations":
+      pushSnapshot();
+      restoreAssociations();
+      createCustomCategories(getLocalDBName()); // explication needed
+      break;
+
+    // special layout for schema
+    case "dependencies":
+      pushSnapshot();
+      outputMarkdown(
+        {
+          download: false,
+          copyToClipboard: true,
+        },
+        organizeSelectedByDependencyLevels(), // that return text
+        document
+      );
+      break;
+
+    case "dependenciesPerCustomCategory":
+      if (getCustomNodesCategories().size == 0) {
+        showAlert(" No custom catagories defined for this DB<br/> see customization options");
+        return;
+      }
+      pushSnapshot();
+      outputMarkdown(
+        {
+          download: false,
+          copyToClipboard: true,
+        },
+        organizeSelectedByDependencyLevelsWithCategories(), // that select and return MD
+        document
+      );
+
+      break;
+
+    case "edgeIsTriggerGenerated":
+      selectEdgesByNativeCategories("trigger_impact");
+      break;
+
+    case "edgeIsNullable":
+      getCy().edges();
+      const nullableEdges = getCy().edges(".nullable");
+      nullableEdges.select();
+      break;
+
+    case "edgeIsOnDeleteCascade":
+      getCy().edges();
+      const cascadeEdges = getCy().edges(".delete_cascade");
+      cascadeEdges.select();
+      break;
+
+    case "edgeIsASimplifiedNode":
+      const simplifiedEdges = getCy().edges(".simplified");
+      simplifiedEdges.select();
+      break;
+  }
 }
 
 /*

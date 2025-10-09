@@ -188,41 +188,17 @@
   /*background-color: yellow;*/
 }
 
-
-[data-menu-id="menu-nodes"] {
-  --main-bg: #b11e1e;
+[data-menu-id="menu-graph"] {
+  --main-bg: rgb(66, 146, 168);
   --trigger-color: white;
-  --trigger-hover-bg: #ca7b7b;
+  --trigger-hover-bg: lightskyblue;
   --trigger-width: 150px;
   --text-hover-color: black;
-  --border-color: #ca7b7b;
-  --submenu-hover-bg: #f4b3b3;
+  --border-color: rgb(119, 157, 168);
+  --main-bg: rgb(66, 146, 168);
+  --submenu-hover-bg: lightskyblue;
   --submenu-color: white;
-  --submenu-click-bg: red;
-}
-
-[data-menu-id="menu-display"] {
-  --main-bg: #cc5500;
-  --trigger-color: white;
-  --trigger-hover-bg: rgb(246, 223, 192);
-  --trigger-width: 150px;
-  --text-hover-color: black;
-  --border-color: #f4a261;
-  --submenu-hover-bg: rgb(246, 223, 192);
-  --submenu-color: white;
-  --submenu-click-bg: #f4a261;
-}
-
-[data-menu-id="menu-edges"] {
-  --main-bg: #8e2e2e;
-  --trigger-color: white;
-  --trigger-hover-bg: bisque;
-  --trigger-width: 150px;
-  --text-hover-color: black;
-  --border-color: #e8b6b6;
-  --submenu-hover-bg: #fbc8c8;
-  --submenu-color: white;
-  --submenu-click-bg: #be3a3a;
+  --submenu-click-bg: rgb(39, 97, 133);
 }
 
 [data-menu-id="menu-db"] {
@@ -237,6 +213,60 @@
   --submenu-click-bg: #4ff195;
   --underBox: #2e8b57;
 }
+
+[data-menu-id="menu-display"] {
+  --main-bg: #cc5500;
+  --trigger-color: white;
+  --trigger-hover-bg: rgb(246, 223, 192);
+  --trigger-width: 150px;
+  --text-hover-color: black;
+  --border-color: #f4a261;
+  --submenu-hover-bg: rgb(246, 223, 192);
+  --submenu-color: white;
+  --submenu-click-bg: #f4a261;
+}
+
+[data-menu-id="menu-nodes"] {
+  --main-bg: #b11e1e;
+  --trigger-color: white;
+  --trigger-hover-bg: #ca7b7b;
+  --trigger-width: 150px;
+  --text-hover-color: black;
+  --border-color: #ca7b7b;
+  --submenu-hover-bg: #f4b3b3;
+  --submenu-color: white;
+  --submenu-click-bg: red;
+}
+
+
+[data-menu-id="menu-edges"] {
+  --main-bg: #8e2e2e;
+  --trigger-color: white;
+  --trigger-hover-bg: bisque;
+  --trigger-width: 150px;
+  --text-hover-color: black;
+  --border-color: #e8b6b6;
+  --submenu-hover-bg: #fbc8c8;
+  --submenu-color: white;
+  --submenu-click-bg: #be3a3a;
+}
+
+
+
+[data-menu-id="menu-model"] {
+  --main-bg: #5e7d8b;
+  --trigger-color: white;
+  --trigger-hover-bg: #BBBBBB;
+  --trigger-width: 150px;
+  --text-hover-color: black;
+  --border-color: #BBBBBB;
+  --submenu-hover-bg: #BBBBBB;
+  --submenu-color: white;
+  --submenu-click-bg: #96be3a;
+}
+
+
+
 
 .db-prompt-box {
   position: absolute;
@@ -283,18 +313,7 @@
 
 
 
-[data-menu-id="menu-graph"] {
-  --main-bg: rgb(66, 146, 168);
-  --trigger-color: white;
-  --trigger-hover-bg: lightskyblue;
-  --trigger-width: 150px;
-  --text-hover-color: black;
-  --border-color: rgb(119, 157, 168);
-  --main-bg: rgb(66, 146, 168);
-  --submenu-hover-bg: lightskyblue;
-  --submenu-color: white;
-  --submenu-click-bg: rgb(39, 97, 133);
-}
+
 
 #modeSelect {
   background-color: oldLace; /* vert clair par défaut (OR) */

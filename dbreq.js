@@ -269,3 +269,87 @@ export const columnCommentsQuery = `
     AND a.attnum > 0
     AND NOT a.attisdropped
 `;
+
+/*
+ check if identifier are less than 63 for Postgresql
+ Not connected to app. Copy and paste directly in your tools
+*/
+
+
+export let reqSanity63 = `
+-- Check all user-defined identifiers longer than 63 chars
+SELECT 'table' AS object_type, schemaname AS schema, tablename AS name
+FROM pg_tables
+WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
+  AND length(tablename) > 63
+
+UNION ALL
+
+SELECT 'column', table_schema, table_name || '.' || column_name
+FROM information_schema.columns
+WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+  AND length(column_name) > 63
+
+UNION ALL
+
+SELECT 'index', schemaname, indexname
+FROM pg_indexes
+WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
+  AND length(indexname) > 63
+
+UNION ALL
+
+SELECT 'constraint', table_schema, constraint_name
+FROM information_schema.table_constraints
+WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+  AND length(constraint_name) > 22
+
+UNION ALL
+
+SELECT 'sequence', sequence_schema, sequence_name
+FROM information_schema.sequences
+WHERE sequence_schema NOT IN ('pg_catalog', 'information_schema')
+  AND length(sequence_name) > 63
+
+UNION ALL
+
+SELECT 'view', table_schema, table_name
+FROM information_schema.views
+WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+  AND length(table_name) > 63
+
+ORDER BY object_type, schema, name;
+
+`
+
+
+export let reqCheckColumn = /* `
+
+SELECT t.tablename AS table
+FROM pg_tables AS t
+WHERE t.schemaname = 'public'              -- ← ex: 'public'
+  AND NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns c
+    WHERE c.table_schema = t.schemaname
+      AND c.table_name   = t.tablename
+      AND c.column_name  = $1        -- ← ex: 'my_column'
+  )
+ORDER BY 1;
+` */
+
+`
+  SELECT t.tablename
+  FROM pg_tables t
+  WHERE t.schemaname =  'public'
+    AND (EXISTS (
+          SELECT 1
+          FROM information_schema.columns c
+          WHERE c.table_schema = t.schemaname
+            AND c.table_name   = t.tablename
+            AND c.column_name  = $1
+        )) = $2
+  ORDER BY 1;
+`;
+
+

@@ -112,7 +112,12 @@ function modalDegreeFilter() {
 
   // calculation loop
   let cy = getCy();
-  let nodes = degreeRestrictToVisible?cy.nodes(":visible"):cy.nodes();
+  let nodes;
+  nodes = perimeterForNodesSelection();
+  if (!degreeRestrictToVisible) nodes = cy.nodes();
+ // nodes = degreeRestrictToVisible?cy.nodes(":visible"):cy.nodes();
+
+
 
   // if at least one input go on
   if (minOut != null || maxOut != null || minIn != null || maxIn != null) {

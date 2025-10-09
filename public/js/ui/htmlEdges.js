@@ -14,6 +14,8 @@ import { setEventMarkdown } from "../util/markdown.js";
 
 import { createIconButton } from "../ui/dialog.js";
 
+import {ConstantClass} from "../util/common.js"
+
 /*
  edges list 
 */

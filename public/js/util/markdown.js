@@ -1,6 +1,6 @@
 // Export to Markdown
 
-import { showError, showInfo } from "../ui/dialog.js";
+import { showError, showInfo,showToast } from "../ui/dialog.js";
 
 /*
  create a document part to set in place the icons for download and copy/paste in markdown
@@ -92,7 +92,6 @@ export function htmlTableToMarkdown(
   title,
   root = document
 ) {
-
   const el = root.getElementById(tableId);
   if (!el) {
     showError(`Table with id="${tableId}" not found`);
@@ -151,23 +150,23 @@ export function htmlTableToMarkdown(
   const titleMd = title ? `\n## ${title}\n\n` : "";
   const markdownTable =
     titleMd + [headerLine, separatorLine, ...bodyLines].join("\n");
-  outputMarkdown(opts, markdownTable,root);
+  outputMarkdown(opts, markdownTable, root);
 }
 
 /*
 more general output for markdown
-*/ 
-export function outputMarkdown(opts={}, markdownText,root) {
+*/
+export function outputMarkdown(opts = {}, markdownText, root) {
   // output .md : file or clipboard
   const filename = opts.filename ?? `default.md`;
 
   if (opts.copyToClipboard) {
-  
-      const tableWin = root.defaultView || window;
+    const tableWin = root.defaultView || window;
     tableWin.navigator.clipboard?.writeText(markdownText).catch((err) => {
       console.error("Clipboard copy failed:", err);
     });
-    showInfo("table content (markdown) in clipboard !", root);
+    //showInfo(" content copied in clipboard !", root);
+    showToast(" content copied in clipboard !", root);
   }
 
   if (opts.download !== false) {
@@ -183,4 +182,3 @@ export function outputMarkdown(opts={}, markdownText,root) {
     setTimeout(() => URL.revokeObjectURL(url), 1000); // leave time to nav and release
   }
 }
-

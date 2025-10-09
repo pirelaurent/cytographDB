@@ -17,7 +17,6 @@ let lastStackOperation;
   save current graph in stack 
 */
 export function pushSnapshot(trace = "") {
-
   const cy = getCy();
   if (!cy) return;
 
@@ -25,6 +24,15 @@ export function pushSnapshot(trace = "") {
     json: cy.json(),
     selectedIds: cy.elements(":selected").map((ele) => ele.id()),
     hiddenIds: cy.elements(":hidden").map((ele) => ele.id()),
+    labelStyles: cy.nodes().map((n) => ({
+      id: n.id(),
+      fontSize: n.style("font-size"),
+      fontFamily: n.style("font-family"),
+      fontWeight: n.style("font-weight"),
+      color: n.style("color"),
+      textOutlineWidth: n.style("text-outline-width"),
+      textOutlineColor: n.style("text-outline-color"),
+    })),
   };
 
   // coupe le "futur" si on avait fait des undo
@@ -62,7 +70,7 @@ export function resetSnapshot() {
   The lastStackOperation remember the action   
 */
 
-export function popSnapshot(trace ="") {
+export function popSnapshot(trace = "") {
   // undo
   if (cursorStack >= 0) {
     // allow redo on current screen if regret
@@ -71,11 +79,9 @@ export function popSnapshot(trace ="") {
     }
     lastStackOperation = "popSnapshot";
 
-
-  //console.log(trace+" "+cursorStack);//PLA
+    //console.log(trace+" "+cursorStack);//PLA
     setCurrentState();
-      cursorStack -= 1;
-
+    cursorStack -= 1;
   }
 }
 
@@ -95,7 +101,7 @@ function setCurrentState() {
   const cy = getCy();
 
   const snapshot = positionStackUndo[cursorStack];
-  
+
   if (!cy || !snapshot) return;
 
   cy.elements().remove(); // optionnel : cy.json(snapshot.json) réécrit déjà
@@ -115,4 +121,10 @@ function setCurrentState() {
   });
 
   restoreProportionalSize();
+  snapshot.labelStyles.forEach(({ id, ...style }) => {
+    const ele = cy.getElementById(id);
+    if (ele.nonempty()) {
+      Object.entries(style).forEach(([k, v]) => ele.style(k, v));
+    }
+  });
 }

@@ -144,11 +144,64 @@ Apply a layout algorithm to reorganize ***the current scope***:
 - the whole graph if no nodes are selected  
 - only the selected nodes if there is a selection  
 
-Several algorithms are available.  
+Several common algorithms are available at redaction time: 
+<img src = "./img/layouts.png" width = "150"> 
+
 Some may spread nodes outside the screen: use **Fit Screen** or try a different layout.  
-Layout calculations include a random component and may vary with each execution.
+Note: some layout calculations include a random component and may vary with each execution.
+
+If you apply a layout on a subset of nodes, the result will be at unexpected place into the graph. Drag this part using one of selected node.
+
 
 💡 **Tip:** Use **Undo (Ctrl Z)** to restore the previous layout.
+
+### Special layout for database uses
+
+<img src="./img/layoutDependency.png" width="180">
+
+This layout organize nodes by layers of dependencies:  
+
+<img src = "./img/dependencyDemo.png" width = "600">
+
+### Useful for export/import
+Reading from left (leaf and orphan) to right (dependant tables, up to root if any in set) you get the order of a controlled import of bulk data. 
+
+The list of tables per level is automatically copied to clipboard, ready to paste (like below)
+
+``` json
+[
+  {
+    "level": 0,
+    "nodes": [
+      "company",
+      "parameters",
+      "product"
+    ]
+  },
+  {
+    "level": 1,
+    "nodes": [
+      "factory"
+    ]
+  },
+  {
+    "level": 2,
+    "nodes": [
+      "employee",
+      "production_line"
+    ]
+  },
+  {
+    "level": 3,
+    "nodes": [
+      "authorization",
+      "intervention",
+      "line_product",
+      "skills"
+    ]
+  }
+]
+```
 
 ---
 

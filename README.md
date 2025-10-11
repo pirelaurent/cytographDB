@@ -8,8 +8,9 @@ The simple graph below comes from a small database used for documentation purpos
 <img src="./public/docs/img/simpleGraph.png" alt="simple graph" width="400">
 
 
-Once installed, you can access the documentation from within CytographDB or browse it directly here in github:
-[CytographDB main documentation](https://github.com/pirelaurent/cytographDB/blob/main/public/docs/main.md)
+Once application installed on your machine, you can directly access the documentation from within CytographDB or browse it directly here in github:
+[CytographDB main documentation locally](./public/docs/main.md)
+[CytographDB main documentation in gitbub](https://github.com/pirelaurent/cytographDB/blob/main/public/docs/main.md)
 
 ## License
 

@@ -32,6 +32,9 @@ import { follow } from "../graph/walker.js";
 import { menuNodes } from "./menus.js";
 import { setModalInterceptors } from "./modal.js";
 import { NativeCategories, ConstantClass } from "../util/common.js";
+import { showClipReport } from "../util/clipReport.js";
+
+
 
 /*
  all the events set in gui are defined here 
@@ -295,6 +298,12 @@ export function setInterceptors() {
   document.getElementById("undo-btn").addEventListener("click", () => {
     popSnapshot("undo button");
   });
+
+// clipBoard 
+  document.getElementById("clip-btn").addEventListener("click", () => { 
+    showClipReport();
+  });
+
 
   document.addEventListener("keyup", (e) => {
     if (e.key === "Control") {

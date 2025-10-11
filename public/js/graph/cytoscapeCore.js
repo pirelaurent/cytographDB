@@ -11,7 +11,7 @@ import {
 import { fillInGuiNodesCustomCategories} from "../ui/custom.js";
 import { NativeCategories} from "../util/common.js"
 import { pushSnapshot } from "./snapshots.js";
-
+import {adjustClipReportBtn} from "../util/clipReport.js";
 //-------------------
 /*
  cy defined in a module cannot be accessed directly
@@ -126,13 +126,16 @@ export function hideNotSelectedThenDagre() {
 }
 
 export function selectAllVisibleNodes() {
+  let cy= getCy();
   if (cy) {
+    cy.batch(() =>{
     pushSnapshot("selectAllVisibleNodes");
     let nodes = restrictToVisible()
-      ? getCy().nodes(":visible")
-      : getCy().nodes();
+      ? cy.nodes(":visible")
+      : cy.nodes();
     nodes.select();
-  }
+  });
+}
   metrologie();
 }
 
@@ -504,6 +507,8 @@ export function metrologie() {
   }
   display += dispHidden;
   labelEdges.innerHTML = display;
+  // for reports 
+  adjustClipReportBtn();
 }
 
 // Fonction utilitaire pour calculer le centre d’un groupe de nœuds
@@ -552,9 +557,11 @@ export function changePosRelative(xFactor, yFactor) {
 }
 
 export function selectOutputBetween(min, max) {
+
   let nodes = perimeterForNodesSelection();
   if (nodes == null) return;
   pushSnapshot("selectOutputBetween");
+  
   nodes.forEach((node) => {
     // Tous les outgoers sortants
     let outgoingEdges = node.outgoers("edge:visible");

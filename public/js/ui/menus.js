@@ -914,10 +914,12 @@ export function menuModel(option, item, whichClic = "left") {
         {
           download: false,
           copyToClipboard: true,
+          title: ' dependencies ',
         },
         organizeSelectedByDependencyLevels(), // that return text
         document
       );
+      metrologie();
       break;
 
     case "dependenciesPerCustomCategory":
@@ -930,11 +932,12 @@ export function menuModel(option, item, whichClic = "left") {
         {
           download: false,
           copyToClipboard: true,
+          title: 'dependencies per category',
         },
         organizeSelectedByDependencyLevelsWithCategories(), // that select and return MD
         document
       );
-
+      metrologie();
       break;
 
     case "edgeIsTriggerGenerated":

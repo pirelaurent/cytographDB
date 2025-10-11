@@ -1,6 +1,10 @@
 // Export to Markdown
 
 import { showError,showToast } from "../ui/dialog.js";
+import {setClipReport} from "./clipReport.js";
+
+
+
 
 /*
  create a document part to set in place the icons for download and copy/paste in markdown
@@ -165,7 +169,11 @@ export function outputMarkdown(opts = {}, markdownText, root) {
       console.error("Clipboard copy failed:", err);
     });
     //showInfo(" content copied in clipboard !", root);
-    showToast(" content copied in clipboard !", root);
+    // also set in internal report 
+    const title = opts.title?opts.title:null;
+
+    setClipReport(title,markdownText);
+    showToast(" content copied in clipboard and clipReport!", root);
   }
 
   if (opts.download !== false) {

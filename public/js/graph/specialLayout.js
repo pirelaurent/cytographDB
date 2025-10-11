@@ -12,7 +12,7 @@ export function organizeSelectedByDependencyLevels() {
   // keep track of selected to work only on the subset if any
   //let withSelect = true;
   let selectedNodes = cy.nodes(":selected:visible");
-  
+
   if (selectedNodes.length == 0) {
     selectedNodes = cy.nodes(":visible");
     // withSelect = false;
@@ -26,9 +26,9 @@ export function organizeSelectedByDependencyLevels() {
   selectedNodes.forEach((node) => {
     const id = node.id();
     let targets = node.outgoers("edge[target]").targets();
-targets = targets.filter(":visible");
+    targets = targets.filter(":visible");
 
-/*     if (withSelect) {
+    /*     if (withSelect) {
       targets = targets.filter(":selected");
     } */
 
@@ -65,11 +65,13 @@ targets = targets.filter(":visible");
 
   // --- 4. mode nodes on horizontal layers ---
 
+  const maxCount = Object.values(levels).reduce(
+    (m, arr) => Math.max(m, arr.length),
+    0
+  );
 
-const maxCount = Object.values(levels).reduce((m, arr) => Math.max(m, arr.length), 0);
-
-const multiplier = Math.floor(maxCount / 50) + 1;
-  const xSpacing = 30+180 *multiplier; //from Object.keys(levels).length;
+  const multiplier = Math.floor(maxCount / 50) + 1;
+  const xSpacing = 30 + 180 * multiplier; //from Object.keys(levels).length;
   const ySpacing = 100;
   const minY = cy.extent().y1 + 100;
   const minX = cy.extent().x1 + 100;
@@ -203,7 +205,7 @@ export function organizeSelectedByDependencyLevelsWithCategories() {
       const totalHeight = (nodes.length - 1) * ySpacing;
       nodes.forEach((n, j) => {
         const y = baseY + j * ySpacing - totalHeight / 2;
-        n.position({ x: colX, y }); 
+        n.position({ x: colX, y });
       });
     });
 
@@ -227,5 +229,9 @@ export function organizeSelectedByDependencyLevelsWithCategories() {
   }));
 
   //console.log("Dependency levels by class-category:", exported);
-  return exported;
+const formatedResult = JSON.stringify(exported, null, 2);
+  //console.log("Levels:", formatedResult);
+  return formatedResult;
 }
+
+

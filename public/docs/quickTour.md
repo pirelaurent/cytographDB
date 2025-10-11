@@ -20,12 +20,11 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
 
 ### table shapes
 
--
-<img src = "./img/shapeOrphan.png" height="20"> **orphan** : no links
+- <img src = "./img/shapeOrphan.png" height="20"> **orphan** : no links
   -  pentagon ( *parameters* )
 - <img src = "./img/shapeLeafNew.png" height="20"> **leaf** : no outgoing link. 
   - triangle (*product, company*).
-- <img src = "./img/shapeRootNew.png" height="25" width="10"> **root** : no incoming,  but not an association
+- <img src = "./img/shapeRootNew.png" height="25"> **root** : no incoming,  but not an association
   - high rounded triangle (*skills*)
 -  <img src = "./img/shapeDry.png" height="20">**(dry) association** :  no incomings, 2 outgoings, list of columns from FK is list of columns in  table   
      - ellipse (*authorization*) 
@@ -34,9 +33,9 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
 - <img src = "./img/shapeDefault.png" height="20"> **default** 
   - round rectangle (*production line, factory, employee*)
   
-#### tag trigger detected 
+#### tag 'trigger detected' 
 
-<img src = '/img/trigger2.png' width=20>   This symbol appears under the label when a table **has triggers** (*replacing previously used stars\** )
+<img src = '../img/trigger2.png' width=25>   This symbol appears under the label of a node when a table **has triggers** (*replacing previously used stars\** )
 
 
 ### hover on node
@@ -45,7 +44,7 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
 When mouse cursor is over a node, direct neighbours are highlighted:
 - **outgoings edges** (foreign keys) are green 
 - **incomings edges** (referenced by other tables) are red 
-- ***More***: with hover "on" in main menu bar, a detail popup is added on the node:  
+- ***More***: with hover "on" in main menu bar, a detail popup is added close to the node:  
 
 With number of edges **<-out & <-in** :
   

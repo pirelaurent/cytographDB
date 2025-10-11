@@ -64,14 +64,19 @@ button:hover {
 }
 
 #undo-btn,
-#btn-export {
+#btn-export,
+#clip-btn {
   all: unset;
   cursor: pointer;
   padding: 8px;
   border-radius: 4px;
 }
 
-#undo-btn:hover {
+
+
+#undo-btn:hover,
+#btn-export:hover
+ {
   background-color: cornsilk;
 }
 
@@ -79,9 +84,9 @@ button:hover {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
-#btn-export:hover {
-  background-color: cornsilk;
-}
+
+
+
 
 .metrologie {
   background-color: rosybrown;

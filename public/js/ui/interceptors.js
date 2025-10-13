@@ -17,6 +17,7 @@ import {
   menuSelectSizeOutgoing,
   menuSelectSizeIncoming,
   deleteNodesSelected,
+  helpRegex,
 } from "./dialog.js";
 
 import { openTable, openTriggerPage } from "../dbFront/tables.js";
@@ -514,9 +515,10 @@ export function setInterceptors() {
 
   // clic hors éléments
   getCy().on("tap", function (event) {
-    if (event.target === cy) {
+    if (event.target === getCy()) {
       getCy().elements().unselect();
       getCy().elements().removeClass("faded start-node");
+
       getCy().edges(":selected").removeClass("internal outgoing incoming");
     } else if (event.target.isNode && event.target.isNode()) {
       // pushSnapshot('tapNode');
@@ -593,6 +595,26 @@ export function setInterceptors() {
     commonArrow("both");
   });
 
+
+  const svg = document.getElementById('follow-graph');
+
+  // Clic souris / tactile
+  svg.addEventListener('click', (e) => {
+    const zone = e.target.closest('.zone');
+    if (!zone || !svg.contains(zone)) return;
+
+menuNodes(zone.dataset.action, e);
+
+    //triggerAction(zone.dataset.action);
+  
+  
+  });
+
+
+
+
+
+
   function commonArrow(direction) {
     // store current selected
     let selectedElements = getCy().elements(":visible:selected");
@@ -636,4 +658,11 @@ export function setInterceptors() {
   document.getElementById("icon-showAll").addEventListener("click", () => {
     menuNodes("showAll");
   });
+
+const tipsBtn = document.getElementById('tipsBtn');
+tipsBtn.addEventListener('click', () => {
+  helpRegex();
+});
+
+
 } // setInterceptor

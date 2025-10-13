@@ -671,10 +671,11 @@ app.get("/healthz", (req, res) => {
 });
 
 /*
- essai basique
+ Experimental 
+ read a dependencies list made by action Model/dbLayout/dependencies and accessible in clipReport. 
+ Save this list in a file , into a git excluded directory ( here temp4Work )
 
- On doit stocker le résultat du graphe de dépendance dans un json et le rappeler ici
- A câbler plus tard.
+ 
  /exportAll?dbName=abcdef&, jsonName 
 
 http://localhost:3000/exportALL?dbName=perfo7.8.20&jsonName=tables.json
@@ -689,14 +690,27 @@ app.get("/exportAll", async (req, res) => {
       .json({ error: "Missing parameters expected { dbName , jsonName } " });
   }
 
+  // on indique qu'on va envoyer du texte progressif
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.setHeader("Transfer-Encoding", "chunked");
+
   try {
-    const report = await exportAll(dbName, jsonName); // <-- attend la Promise
-    res.json(report); // ou res.send(report);
+    res.write("🚀 Export démarré...\n");
+
+    // Exemple : tu peux écrire au fur et à mesure de ton exportAll
+    const report = await exportAll(dbName, jsonName, (msg) => {
+      res.write(msg + "\n"); // callback appelé depuis exportAll
+    });
+
+    res.write("✅ Export terminé !\n");
+    res.end(JSON.stringify(report, null, 2)); // fin du flux
   } catch (err) {
     console.error("❌ exportAll failed:", err);
-    res.status(500).json({ error: err.message });
+    res.write(`❌ Erreur: ${err.message}\n`);
+    res.end();
   }
 });
+
 
 /*
  specific sanity check experimental 

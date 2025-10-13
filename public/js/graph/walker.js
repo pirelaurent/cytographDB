@@ -727,7 +727,6 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
   function dfs(node, pkToMatch) {
     const nodeId = node.id();
 
-
     // already seen
     if (visited.has(nodeId)) return;
     // note we visit it
@@ -764,14 +763,11 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
           targetCols.includes(col)
         );
 
-
-
         const sourceContainsAllMapped = sourceColsMapped.every((col) => {
           //console.log("search:"+col);
           //console.log("sourceColNames:", [...sourceColNames]);
           return sourceColNames.has(col);
         });
-
 
         if (pkMatches && sourceContainsAllMapped) {
           trace.push({
@@ -805,4 +801,76 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
   const rootPK = new Set(rootNode.data("primaryKey")?.columns || []);
   dfs(rootNode, rootPK);
   return { visited, trace };
+}
+
+
+/*
+ forward not used
+*/
+
+/*
+ treedir
+*/
+
+// Arbre "en ligne droite" dans un sens donné (outgoers ou incomers)
+export function treeDir(cy, start, dir, maxDepth = Infinity) {
+  const seen = new Set([start.id()]);
+  let keepNodes = cy.collection(start);
+  let keepEdges = cy.collection();
+  const q = [{ n: start, d: 0 }];
+
+  while (q.length) {
+    const { n, d } = q.shift();
+    if (d >= maxDepth) continue;
+
+    const edges = n[dir]("edge"); // 'outgoers' ou 'incomers'
+    edges.forEach((e) => {
+      const next = dir === "outgoers" ? e.target() : e.source();
+      if (!seen.has(next.id())) {
+        seen.add(next.id());
+        keepNodes = keepNodes.add(next);
+        keepEdges = keepEdges.add(e);
+        q.push({ n: next, d: d + 1 });
+      }
+    });
+  }
+  cy.elements().addClass('faded'); // or .hide();
+  keepNodes.select().show().removeClass("faded");
+
+  keepEdges.select().show().removeClass("faded");
+
+
+  return { nodes: keepNodes, edges: keepEdges };
+}
+
+/*
+ Bidirectionnel "en ligne droite" à partir d'une racine
+
+*/
+
+export function straightLineBidirectional(
+  cy,
+  rootSel,
+  { includeOut = true, includeIn = true, depth = Infinity } = {}
+) {
+  const root = cy.$(rootSel);
+  let keep = cy.collection(root);
+
+  cy.batch(() => {
+    if (includeOut) {
+      const tOut = treeDir(cy, root, "outgoers", depth);
+      keep = keep.union(tOut.nodes).union(tOut.edges);
+    }
+    if (includeIn) {
+      const tIn = treeDir(cy, root, "incomers", depth);
+      keep = keep.union(tIn.nodes).union(tIn.edges);
+    }
+    cy.elements().not(keep).addClass('faded'); // or .hide();
+    keep.show(); 
+    keep.select();
+  
+  
+  });
+
+  return keep;
 }

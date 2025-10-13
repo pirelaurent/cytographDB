@@ -41,6 +41,8 @@ import {
   simplifyAssociations,
   restoreAssociations,
   findPkFkChains,
+  treeDir,
+  straightLineBidirectional,
 } from "../graph/walker.js";
 
 import {
@@ -135,7 +137,7 @@ function setupMenuActions(menuId, actionAttribute, callbackFn) {
     .querySelectorAll(".submenu li:not([data-skip-action])")
     .forEach((item) => {
       item.addEventListener("click", () => {
-        // e.stopPropagation(); 
+        // e.stopPropagation();
         const choice = item.getAttribute(actionAttribute);
         if (choice) callbackFn(choice, item, "left");
       });
@@ -323,14 +325,14 @@ export function menuDisplay(option, item, whichClic = "left") {
     case "rotateR":
       rotateGraphByDegrees(7.5);
       break;
-      
-     case "rotate90":
-      rotateGraphByDegrees(90);
-      break;  
 
-      case "rotate180":
+    case "rotate90":
+      rotateGraphByDegrees(90);
+      break;
+
+    case "rotate180":
       rotateGraphByDegrees(180);
-      break;  
+      break;
 
     // not linked to menu.
     case "separateH":
@@ -589,7 +591,7 @@ export function menuNodes(option, item, whichClic = "left") {
       break;
  */
 
-/*
+    /*
     -----------------------   filter by degrees incoming and outgoing 
       is started by event on the menu item by  byFilterMenu that starts openDegreeFilter()
 */
@@ -651,6 +653,27 @@ export function menuNodes(option, item, whichClic = "left") {
       findPkFkChains();
       break;
 
+    case "treeForward":
+      pushSnapshot();
+      treeDir(getCy(), getCy().nodes(":selected"), "outgoers");
+
+      break;
+    case "treeBackward":
+      pushSnapshot();
+      treeDir(getCy(), getCy().nodes(":selected"), "incomers");
+      break;
+
+    case "treeBoth":
+      pushSnapshot();
+      straightLineBidirectional(
+        getCy(),
+        getCy().nodes(":selected"),
+        true,
+        true
+      );
+      break;
+
+
     //--------------
     case "proportionalSize":
       proportionalSizeNodeSizeByLinks();
@@ -663,7 +686,6 @@ export function menuNodes(option, item, whichClic = "left") {
 
     case "deleteNodesSelected":
       deleteNodesSelected();
-
       break;
   }
 }
@@ -674,12 +696,13 @@ export function menuNodes(option, item, whichClic = "left") {
 
 export function menuEdges(option, item, whichClic = "left") {
   // if we enter an option, we flag the graph as 'changed'
-  if (whichClic == "right") return;
+  if (whichClic == "right") return; //later: options
   // select edges
   switch (option) {
     case "allEdges":
       pushSnapshot();
       getCy().edges().select();
+
       break;
 
     case "noEdges":
@@ -907,6 +930,8 @@ export function menuModel(option, item, whichClic = "left") {
       createCustomCategories(getLocalDBName()); // explication needed
       break;
 
+    // filter table with column is in modalSelectByName called from popup
+
     // special layout for schema
     case "dependencies":
       pushSnapshot();
@@ -914,7 +939,7 @@ export function menuModel(option, item, whichClic = "left") {
         {
           download: false,
           copyToClipboard: true,
-          title: ' dependencies ',
+          title: " dependencies ",
         },
         organizeSelectedByDependencyLevels(), // that return text
         document
@@ -924,7 +949,9 @@ export function menuModel(option, item, whichClic = "left") {
 
     case "dependenciesPerCustomCategory":
       if (getCustomNodesCategories().size == 0) {
-        showAlert(" No custom catagories defined for this DB<br/> see customization options");
+        showAlert(
+          " No custom catagories defined for this DB<br/> see customization options"
+        );
         return;
       }
       pushSnapshot();
@@ -932,7 +959,7 @@ export function menuModel(option, item, whichClic = "left") {
         {
           download: false,
           copyToClipboard: true,
-          title: 'dependencies per category',
+          title: "dependencies per category",
         },
         organizeSelectedByDependencyLevelsWithCategories(), // that select and return MD
         document

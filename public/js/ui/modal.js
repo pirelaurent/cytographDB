@@ -2,7 +2,11 @@
 // Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
 
-import { getCy, metrologie, perimeterForNodesSelection } from "../graph/cytoscapeCore.js";
+import {
+  getCy,
+  metrologie,
+  perimeterForNodesSelection,
+} from "../graph/cytoscapeCore.js";
 
 import {
   modeSelect,
@@ -125,34 +129,34 @@ function modalDegreeFilter() {
 
   // if at least one input go on
   if (minOut != null || maxOut != null || minIn != null || maxIn != null) {
-    cy.batch(()=>{
-    nodes.forEach((n) => {
-      const n_in = degreeRestrictToVisible
-        ? n.incomers("edge:visible").length
-        : n.incomers("edge").length;
+    cy.batch(() => {
+      nodes.forEach((n) => {
+        const n_in = degreeRestrictToVisible
+          ? n.incomers("edge:visible").length
+          : n.incomers("edge").length;
 
-      const n_out = degreeRestrictToVisible
-        ? n.outgoers("edge:visible").length
-        : n.outgoers("edge").length;
+        const n_out = degreeRestrictToVisible
+          ? n.outgoers("edge:visible").length
+          : n.outgoers("edge").length;
 
-      let outOk = true;
+        let outOk = true;
 
-      if (minOut != null && !(n_out >= minOut)) outOk = false;
-      if (maxOut != null && !(n_out < maxOut)) outOk = false;
+        if (minOut != null && !(n_out >= minOut)) outOk = false;
+        if (maxOut != null && !(n_out < maxOut)) outOk = false;
 
-      let inOk = true;
-      if (minIn != null && !(n_in >= minIn)) inOk = false;
-      if (maxIn != null && !(n_in < maxIn)) inOk = false;
+        let inOk = true;
+        if (minIn != null && !(n_in >= minIn)) inOk = false;
+        if (maxIn != null && !(n_in < maxIn)) inOk = false;
 
-      let allOk = true;
-      if (logicAnd === "AND") allOk = outOk && inOk;
-      else allOk = outOk || inOk;
-      if (allOk) {
-        n.select();
-        if (!degreeRestrictToVisible) n.show();
-      }
+        let allOk = true;
+        if (logicAnd === "AND") allOk = outOk && inOk;
+        else allOk = outOk || inOk;
+        if (allOk) {
+          n.select();
+          if (!degreeRestrictToVisible) n.show();
+        }
+      });
     });
-    })
   }
   // exit
   closeDegreeFilter();
@@ -279,46 +283,40 @@ export function selectByName(pattern, hiddenType) {
 
     // un select residual hidden selecteed nodes if any
     if (withHidden) getCy().$("node:hidden").unselect();
-    let results=[];
+    let results = [];
     let count = 0;
-  getCy().batch(() => {
-    nodes.forEach((node) => {
-      let cases =[];
-      let okNode = false;
-      node.data().columns.forEach((col) => {
-        if (regex.test(col.column)) {
-          okNode = true;
-          cases.push(col.column);
+    getCy().batch(() => {
+      nodes.forEach((node) => {
+        let cases = [];
+        let okNode = false;
+        node.data().columns.forEach((col) => {
+          if (regex.test(col.column)) {
+            okNode = true;
+            cases.push(col.column);
+          }
+        });
+        if (okNode) {
+          count += 1;
+          results.push(`${node.id()} :  ${cases.join(" , ")} `);
+          node.select();
+        } else {
+          if (modeSelect() == AND_SELECTED) node.unselect();
         }
       });
-      if (okNode) {
-        count+=1;
-        results.push(`${node.id()} :  ${cases.join(" , ")} ` );
-        node.select();
-      } else {
-        if (modeSelect() == AND_SELECTED) node.unselect();
-      }
-    });
-  })//batch
+    }); //batch
     getCy().$("node:selected").show();
-    showToast(`${count} found`)
-    const output =results.join("\n");
-    console.log(output);
+    showToast(`${count} found`);
+    const output = results.join("\n");
+    //console.log(output);
     outputMarkdown(
-            {
-              download: false,
-              copyToClipboard: true,
-              title: `search columm with /${pattern}/`,
-            },
-            output, // that return text
-            document
-          );
-
-
-
-
-
-
+      {
+        download: false,
+        copyToClipboard: true,
+        title: `search columm with /${pattern}/`,
+      },
+      output, // that return text
+      document
+    );
 
     return true;
   }

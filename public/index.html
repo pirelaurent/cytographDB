@@ -156,8 +156,8 @@
                   <ul class="submenu">
                     <li aspectAction="rotateL">Left</li>
                     <li aspectAction="rotateR">Right</li>
-                       <li aspectAction="rotate90">90°</li>
-                      <li aspectAction="rotate180">mirror</li>
+                    <li aspectAction="rotate90">90°</li>
+                    <li aspectAction="rotate180">mirror</li>
                   </ul>
                 </li>
               </ul>
@@ -267,6 +267,8 @@
             <li class="separator"></li>
             <li data-category="follow">follow & show ...
               <ul class="submenu">
+
+         <!--       
                 <li action="followOutgoing" title="Follow outgoing edges and show target nodes">
                   outgoing</li>
 
@@ -275,6 +277,84 @@
                 <li action="followIncoming" title="Follow incoming edges and show source nodes">
                   Incoming
                 </li>
+          -->
+                <li>
+
+<svg id="follow-graph" width="150" height="34" viewBox="0 25 200 50">
+  <!-- outgoing -->
+  <g class="zone outgoing" data-action="followOutgoing"
+     role="button" tabindex="0" aria-label="Follow outgoing"
+     cursor="pointer" pointer-events="bounding-box">
+    <title>Follow outgoing edges and show target nodes</title>
+    <rect class="zone-bg" x="10" y="35" width="90" height="30" rx="6" ry="6" fill="transparent">
+      <title>Follow outgoing edges and show target nodes</title>
+    </rect>
+    <circle cx="30" cy="50" r="12" fill="#6cc644" stroke="#FFFF00">
+      <title>Follow outgoing</title>
+    </circle>
+    <line x1="100" y1="50" x2="42" y2="50" stroke="#6cc644" stroke-width="2" marker-end="url(#arrow-green)">
+      <title>Follow outgoing</title>
+    </line>
+  </g>
+
+  <!-- both (center) -->
+  <g class="zone both" data-action="followBoth"
+     role="button" tabindex="0" aria-label="Follow both"
+     cursor="pointer" pointer-events="bounding-box">
+    <title>Follow all connected edges and show nodes</title>
+    <rect class="zone-bg" x="70" y="35" width="60" height="30" rx="6" ry="6" fill="transparent">
+      <title>Follow both</title>
+    </rect>
+    <circle cx="100" cy="50" r="15" fill="#AAA" stroke="#666" stroke-width="2">
+      <title>Follow both</title>
+    </circle>
+  </g>
+
+  <!-- incoming -->
+  <g class="zone incoming" data-action="followIncoming"
+     role="button" tabindex="0" aria-label="Follow incoming"
+     cursor="pointer" pointer-events="bounding-box">
+    <title>Follow incoming edges and show source nodes</title>
+    <rect class="zone-bg" x="120" y="35" width="70" height="30" rx="6" ry="6" fill="transparent">
+      <title>Follow incoming</title>
+    </rect>
+    <line x1="120" y1="50" x2="158" y2="50" stroke="#d33" stroke-width="2" marker-start="url(#arrow-red)">
+      <title>Follow incoming</title>
+    </line>
+    <circle cx="170" cy="50" r="12" fill="#d33" stroke="#FFFF00">
+      <title>Follow incoming</title>
+    </circle>
+  </g>
+
+  <defs>
+    <!-- flèche VERTE -->
+    <marker id="arrow-green" markerWidth="10" markerHeight="10"
+            refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L9,3 L0,6 z" fill="#6cc644" />
+    </marker>
+    <!-- flèche ROUGE -->
+    <marker id="arrow-red" markerWidth="10" markerHeight="10"
+            refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M9,0 L9,6 L0,3 z" fill="#d33" />
+    </marker>
+  </defs>
+</svg>
+
+
+                </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                 <li class="separator"></li>
                 <li action="followCrossAssociations" title="Select nodes linked through associations">association
@@ -285,9 +365,18 @@
                   long paths
                 </li>
                 <li class="separator"></li>
-                <li action="findPkFkChains" title="Find chain of relations from a root">
-                  pk &lt;- fk chains
+                <li action="treeBackward" title="treeBackward">
+                  tree Incoming
                 </li>
+
+                <li action="treeForward" title="treeForward">
+                  tree Outgoing
+                </li>
+
+                <li action="treeBoth" title="treeBoth">
+                  tree both
+                </li>
+
               </ul>
             </li>
 
@@ -418,22 +507,22 @@
                   associations</li>
               </ul>
             </li>
-              <li data-category="filterEdges" title="Filter table with a named columns">filter tables ...
+            <li data-category="filterEdges" title="Filter table with a named columns">filter tables ...
               <ul class="submenu">
-              <li data-category="columnsName" data-skip-action>with columns</li>
+                <li data-category="columnsName" data-skip-action>with columns</li>
 
-                </li>
-              </ul>
             </li>
-            <li class="separator"></li>
+          </ul>
+          </li>
+          <li class="separator"></li>
 
-            <li data-category="model">DB layout ...
-              <ul class="submenu">
-                <li action="dependencies" title="organize nodes by dependency levels"> by dependencies</li>
-                <li action="dependenciesPerCustomCategory" title="organize nodes by dependency levels"> by custom
-                  categories</li>
-              </ul>
-            </li>
+          <li data-category="model">DB layout ...
+            <ul class="submenu">
+              <li action="dependencies" title="organize nodes by dependency levels"> by dependencies</li>
+              <li action="dependenciesPerCustomCategory" title="organize nodes by dependency levels"> by custom
+                categories</li>
+            </ul>
+          </li>
           </ul>
           </li>
 
@@ -452,8 +541,9 @@
         <img src="./img/redCapture.png" alt="PNG Snapshot" style="width: 22px; height: 22px;">
       </button>
 
-      <button id="clip-btn" title = "clipBoard">
-        <img id="clip-img" src="./img/clipShort.png" title="deployed when content in clipboard" alt="clipboard access" style="width: 30px; height: 28px;">
+      <button id="clip-btn" title="clipBoard">
+        <img id="clip-img" src="./img/clipShort.png" title="deployed when content in clipboard" alt="clipboard access"
+          style="width: 30px; height: 28px;">
       </button>
 
       <!-- span class="labelPrevious">select</span-->
@@ -488,9 +578,9 @@
       <li id="open-table">🔍table definition</li>
       <li id="open-trigger">⚡table triggers</li>
       <div class="arrows">
-        <img id="arrowLeft" src="./img/arrowLeft.png" height="40" title="follow outgoing">
-        <img id="arrowMiddle" src="./img/arrowMiddle.png" height="40" title="follow both">
-        <img id="arrowRight" src="./img/arrowRight.png" height="40" title="follow incoming">
+        <img id="arrowLeft" src="./img/arrowLeft.png" height="35" title="follow outgoing">
+        <img id="arrowMiddle" src="./img/arrowMiddle.png" height="35" title="follow both">
+        <img id="arrowRight" src="./img/arrowRight.png" height="35" title="follow incoming">
       </div>
     </ul>
 
@@ -502,18 +592,17 @@
     <!-- quick access menu -->
 
     <div id="quickAccessMenu" class="hidden">
-      <span> 
-        <div id="someSelect"  style="display:inline-flex;align-items:center;gap:8px; font-size:12px;" >
-            <span style="font-size:12px; font-weight:300; color:#666;">select:</span>
+      <span>
+        <div id="someSelect" style="display:inline-flex;align-items:center;gap:8px; font-size:12px;">
+          <span style="font-size:12px; font-weight:300; color:#666;">select:</span>
           <img src="img/select/allSelected.png" height="30" id="icon-selectNone" title="none">
           <img src="img/select/noneSelected.png" height="30" id="icon-selectAll" title="all">
           <img src="img/select/selectSwap.png" height="30" id="icon-selectSwap" title="swap selected">
-        </div><br/>
+        </div><br />
         <div id="someHide" style="display:inline-flex;align-items:center;gap:8px; font-size:12px;">
-      <span style="font-size:12px; font-weight:300; color:#666;">hide:</span>
+          <span style="font-size:12px; font-weight:300; color:#666;">hide:</span>
           <img src="img/select/allSelected.png" height="30" id="icon-hideSelected" title="hide selected">
-          <img src="img/select/noneSelected.png" height="30" id="icon-hideNotSelected"
-            title="hide not selected">
+          <img src="img/select/noneSelected.png" height="30" id="icon-hideNotSelected" title="hide not selected">
           <img src="img/select/swapHidden.png" height="30" id="icon-swapHidden" title="swap hidden">
           <img src="img/select/eyeOpenSmall.png" width="30" id="icon-showAll" title="hide none">
 
@@ -543,10 +632,17 @@
     <div class="modal-content">
       <h3 id="nameFilterTitle">Filter by name -- replaced by code for nodes/edges</h3>
 
+
       <!-- champ caché pour retenir l'option -->
       <input type="hidden" id="modalNameFilterType" value="nodeOrEdge" />
-      <input type="text" id="modalNameFilterInput" placeholder="pattern" class="modal-input" title="text or regex" />
-      <br />
+
+      <div class="input-adorned">
+        <input type="text" id="modalNameFilterInput" placeholder="pattern" class="modal-input" title="text or regex" />
+        <button id="tipsBtn" type="button" class="tips-inline" aria-label="Show regex tips"
+          title="Show regex tips">✨</button>
+      </div>
+
+
       <input type="checkbox" id="searchOnHidden" title="search hidden nodes too"> <!--checked-->
       <small>search in hidden elements too</small><br /><br />
       <button id="modalNameFilterOk" class="modal-btn">Search & Select</button>

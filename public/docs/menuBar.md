@@ -17,9 +17,16 @@ Notice shortcut **Ctrl Y** can restore backward.
 
 ## <img src ="../img/redCapture.png" height =25px/> PNG Snapshot
 
-This button captures the current view and prompts you to download it as a PNG image.   
-The edges are temporarily enhanced in the graph image so they are more visible when printing.   
-You can also use the keyboard shortcut **Ctrl G** — useful for taking a snapshot without moving the mouse outside the graph. 
+This button captures the current view and prompts you to download it as a PNG image.      
+The edges are temporarily enhanced in the graph image so they are more visible when printing.      
+You can also use the keyboard shortcut **Ctrl G** — useful for taking a snapshot without moving the mouse outside the graph.   
+
+---
+## <img src="../img/clipShort.png" height =30px/> <img src = "../img/clipFull.png" height =30px/> &nbsp; Clip Report
+
+These icons show empty and filled in clipped data that echoes results of actions.    
+A click will diplay the last clipped content in a new tab to quickly browse results.    .  
+
 
 ---
 

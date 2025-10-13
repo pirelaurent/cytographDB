@@ -46,14 +46,18 @@ if (clipReport!=null) deployClipBtn(); else retractClipBtn();
 let clipWin = null;
 
 export function showClipReport() {
-  // Réutilise l'onglet si déjà ouvert (nommé)
+
+  if (clipWin && !clipWin.closed) {
+    try { clipWin.close(); } catch (_) { /* cross-origin: ignore */ }
+  }
+
   clipWin =
     clipWin && !clipWin.closed ? clipWin : window.open("", "app-clipboard");
   if (!clipWin) {
     alert("Popup blocked by browser.");
     return null;
   }
-
+  clipWin.focus?.();
   const d = clipWin.document;
 
   // Squelette minimal (sans <script>)

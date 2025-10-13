@@ -46,14 +46,13 @@ export function showMultiChoiceDialog(title, message, choices, doc = document) {
   if (mmm.length > 16) {
     outMess = mmm.slice(0, 16).join("<br/>");
     outMess += `<br/><br/>... Truncated (16/${mmm.length}) - more in clipboard`;
-    const outMessSlash = mmm.join('\n').replace(/<\/?b\s*\/?>/gi, '');;
+    const outMessSlash = mmm.join("\n").replace(/<\/?b\s*\/?>/gi, "");
 
-// copy to clipboard
+    // copy to clipboard
     const tableWin = document.defaultView || window;
     tableWin.navigator.clipboard?.writeText(outMessSlash).catch((err) => {
       console.error("Clipboard copy failed:", err);
     });
-
   }
 
   msgElem.innerHTML = outMess;
@@ -123,6 +122,21 @@ export function showAlert(textAlert) {
 export function showInfo(textInfo, doc = document) {
   showMultiChoiceDialog(
     "ℹ️  Information",
+    textInfo,
+    [
+      {
+        label: "OK",
+        onClick: () => {},
+        isDefault: true,
+      },
+    ],
+    doc
+  );
+}
+
+export function showHelp(title, textInfo, doc = document) {
+  showMultiChoiceDialog(
+    "✨ Help on " + title,
     textInfo,
     [
       {
@@ -401,4 +415,31 @@ export function showToast(msg, root = document) {
   toast.textContent = msg;
   root.body.appendChild(toast);
   setTimeout(() => toast.remove(), 2500);
+}
+
+export function helpRegex() {
+  const liste = [
+    ["contains  “tenant”", "tenant"],
+    ["Doesn’t contain “tenant”", "^(?!.*tenant).+$"],
+    ["Whole word:", "\\btenant\\b"],
+    ["Starts / Ends :", "^prefix · suffix$"],
+    ["One of :", "\\b(foo|bar|baz)\\b"],
+    ["Exclude words :", "^(?!.*\\b(foo|bar)\\b).+$"],
+    ["Escape a dot :", "file\\.json"],
+  ];
+  let all = [];
+  liste.forEach((l) => {
+    all.push(
+      `<span class= "labelHelp"> ${l[0]}</span> <span class ="labelRegex"> ${l[1]}</span>`
+    );
+  });
+
+  showHelp(
+    "Main Regex patterns",
+    `
+${all.join("<br/>")}
+
+
+`
+  );
 }

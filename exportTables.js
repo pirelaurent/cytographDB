@@ -1,11 +1,23 @@
+/*
+ experimental 
+ export in csv a set of ordered tables prepared through Model/DB Layout/by dependencies 
+ Save the clipped string into a json file here in temp4work then call it with url 
+*/
+
 import fs from "fs-extra";
 import path from "path";
+import { fileURLToPath } from "url";
 import { to as copyTo } from "pg-copy-streams";
 import { getPoolFor } from "./db.js"; //
+
 import { formatDuration, formatBytes } from "./public/js/util/formater.js";
 
-const JSON_DIR = "./public/custom/temp4work";
-const OUTPUT_DIR = "./public/custom/temp4work/exports";
+// Recreate __filename and __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const JSON_DIR = path.join(__dirname, "temp4Work");
+const OUTPUT_DIR = path.join(JSON_DIR, "exports");
 
 /*
  helper to share destination 
@@ -22,7 +34,7 @@ function pathForInputJson(jsonName) {
  takes a Json file as metadata then goes to dump table by stream in csv
 */
 
-export async function exportAll(dbName, jsonName) {
+export async function exportAll(dbName, jsonName, onProgress) {
   const pool = getPoolFor(dbName);
 
   let client;
@@ -32,13 +44,18 @@ export async function exportAll(dbName, jsonName) {
   //const t0 = performance.now();
 
   try {
+    // make sure directories exist
+    await fs.ensureDir(JSON_DIR);
+    await fs.ensureDir(OUTPUT_DIR);
+
+      onProgress?.("Connexion à la base...");
     // 1️⃣ Récupération du client depuis le pool
     client = await pool.connect();
 
     // 2️⃣ Chargement du JSON
     const levels = await fs.readJson(pathForInputJson(jsonName));
     await fs.ensureDir(OUTPUT_DIR);
-
+  onProgress?.("Export en cours...");
     // 3️⃣ Démarrage transaction snapshot
     await client.query("BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ");
 
@@ -53,12 +70,13 @@ export async function exportAll(dbName, jsonName) {
       let totalByteThisLevel = 0;
       let totalTimeThisLevel = 0;
       console.log(`\n=== Level ${levelObj.level} ===`);
+        onProgress?.(`\n=== Level ${levelObj.level} ===`);
 
       for (const tableName of levelObj.nodes) {
         bigTotalTable += 1;
         const tTable0 = performance.now();
         let tTable1 = performance.now(); // for visibility in console error message
-
+        onProgress(`export: ${tableName} `);
         try {
           const { bytes } = await exportTable(client, tableName);
           tTable1 = performance.now();
@@ -70,11 +88,12 @@ export async function exportAll(dbName, jsonName) {
 
           totalByteThisLevel += bytes;
           totalTimeThisLevel += tTable1 - tTable0;
-          console.log(
-            `✔ ${tableName} exported to ${pathForOutput(
-              tableName
-            )} in ${formatDuration(tTable1 - tTable0)} (${formatBytes(bytes)}) `
-          );
+          const result = `${formatBytes(bytes)} in ${tableName}.csv -  ${formatDuration(tTable1 - tTable0)} `
+          console.log(result);
+           onProgress(result);
+
+
+          
         } catch (err) {
           errors.push({ tableName, message: err.message });
           console.error(

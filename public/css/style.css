@@ -319,6 +319,17 @@ tr.group-start > th {
   margin-left: 15px;
 }
 
+.labelHelp {
+  display: inline-block;   /* <— clé */
+  width: 200px;            /* fixe la largeur */
+  margin-right: 20px;
+  vertical-align: top;     /* ou middle selon l’alignement voulu */
+}
+.labelRegex {
+  display: inline-block;
+  color: rgb(110, 84, 176);
+  text-align: left;
+}
 .bigPerim {
   font-size: 1.5em;
   font-weight: bold;
@@ -614,6 +625,7 @@ th .sort-indicator {
 #arrowMiddle:hover,
 #arrowRight:hover {
   cursor: pointer;
+  background-color: #777;
   filter: brightness(1.8) saturate(1.5);
 
   /*  transform: translateY(-1px);*/
@@ -679,3 +691,41 @@ fieldset {
   max-width: 12.5ch;
   width: 100%;
 }
+
+
+.input-adorned{
+  position:relative;
+  display:inline-block;
+  width:100%;                /* or a fixed width if you prefer */
+}
+
+.input-adorned .modal-input{
+  width:100%;
+  padding-right:2rem;        /* leave room for the icon */
+}
+
+.tips-inline{
+  position:absolute;
+  right:.5rem;
+  top:50%;
+  transform:translateY(-50%);
+  background:none;
+  border:0;
+  cursor:pointer;
+  font-size:1.1rem;
+  line-height:1;
+  padding:0;
+}
+.tips-inline:focus-visible{ outline:2px solid currentColor; border-radius:4px; }
+
+
+/* Retire le cadre noir par défaut mais garde un focus visible personnalisé */
+   #follow-graph .zone { outline: none; }
+
+  /* hover/focus : colorie le fond de la zone */
+  #follow-graph .zone:hover   .zone-bg { fill: rgba(0,0,0,.2); }      /* léger gris */
+  #follow-graph .zone:focus   .zone-bg { fill: rgba(0,181,255,.18); }  /* halo clavier bleu */
+  #follow-graph .zone:active  .zone-bg { fill: rgba(0,0,0,.12); }      /* clic */
+
+  /* feedback doux sur la ligne au survol */
+  #follow-graph .zone:hover line { stroke-width: 3; }

@@ -2,6 +2,7 @@
 
 import { getCy, perimeterForNodesAction } from "../graph/cytoscapeCore.js";
 import { getCustomNodesCategories } from "../filters/categories.js";
+import { showAlert } from "../ui/dialog.js";
 /*
  organize dependencies by levels 
 */
@@ -13,9 +14,14 @@ export function organizeSelectedByDependencyLevels() {
   //let withSelect = true;
   let selectedNodes = cy.nodes(":selected:visible");
 
-  if (selectedNodes.length == 0) {
+  if (selectedNodes.length === 0) {
     selectedNodes = cy.nodes(":visible");
     // withSelect = false;
+  }
+
+  if (selectedNodes.length === 1) {
+    showAlert("Cannot organize dependencies with a unique selected node ");
+    return;
   }
 
   if (selectedNodes.empty()) return;
@@ -121,6 +127,10 @@ export function organizeSelectedByDependencyLevelsWithCategories() {
 
   const selected = perimeterForNodesAction();
   if (selected.empty()) return [];
+  if (selected.length === 1) {
+    showAlert("Cannot organize dependencies with a unique selected node ");
+    return;
+  }
 
   // --- 0) Categories come from node classes
   const categoryOrder = Array.from(getCustomNodesCategories() ?? new Set());
@@ -229,9 +239,7 @@ export function organizeSelectedByDependencyLevelsWithCategories() {
   }));
 
   //console.log("Dependency levels by class-category:", exported);
-const formatedResult = JSON.stringify(exported, null, 2);
+  const formatedResult = JSON.stringify(exported, null, 2);
   //console.log("Levels:", formatedResult);
   return formatedResult;
 }
-
-

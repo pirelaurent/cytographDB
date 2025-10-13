@@ -80,14 +80,17 @@ This menu works only with previously selected edges.
 
 #### By Name
 
-<img src ='./img/filterByName.png' width= "300px" >
+<img src ='./img/filterByName.png' width= "350px" >
 
-Applies a **regex-based filter** on node labels (e.g., table names). Matching nodes are selected.  
+Applies a **regex-based filter** on node labels (e.g., table names). Matching nodes are selected.   
+The stars on the right opens a common regex reminder: 
+<img src ='./img/tipRegex.png' width= "300" >
+
 
 ⚠️ **Caution:** Some browsers may show text with autofill but not pass it to the regex.  
 Enter manually or copy/paste your filter.  
 
-#### By degree 
+#### Filter by degree 
 
 Degree is the number of edges belonging to a node. 
 

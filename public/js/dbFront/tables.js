@@ -35,6 +35,11 @@ export function openTable(tableId) {
   );
 }
 
+
+
+
+
+
 /*
  fill in a visual page for triggers details
 */
@@ -120,11 +125,17 @@ export async function connectToDbByNameWithoutLoading(dbName) {
 }
 
 // about DB through postgres
-let postgresConnected = false;
+ let postgresConnected = false;
 // to set from several places
 export function setPostgresConnected() {
   postgresConnected = true;
 }
+export function getPostgresConnected(){
+ return postgresConnected;
+}
+
+
+
 /*
  to keep track of current DB
 */

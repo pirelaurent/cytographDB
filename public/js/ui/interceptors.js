@@ -442,6 +442,7 @@ export function setInterceptors() {
 
   document.getElementById("open-table").addEventListener("click", () => {
     openTable(nodeForInfo.id());
+        //openTable10rows(nodeForInfo.id())
   });
 
   document.getElementById("open-trigger").addEventListener("click", () => {

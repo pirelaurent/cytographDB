@@ -31,7 +31,6 @@
       <div class="third">
         <div class="section-header">
           <h3 id="columnNumber" class="section-title">Columns</h3>
-          <img id="show10rows" src = "./img/select/eyeOpen.png" width = "25px" title = "show 10 rows"/>
         </div>
 
         <table id='tableOfTableColumns'>
@@ -40,6 +39,16 @@
               <th>Name</th>
               <th>Type</th>
               <th title='not null / nullable'>●/○</th>
+              <th></th>
+<th>.</th>
+<th>.</th>
+<th>.</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
             </tr>
           </thead>
           <tbody id="columnsTable"></tbody>
@@ -47,48 +56,10 @@
       </div>
     </div>
 
-    <div id='tablePkFKForStyle'>
-      <div class="third">
-        <div class="section-header">
-          <h3 id="primaryKey" class="section-title">Primary&nbsp;key</h3>
-        </div>
-
-        <table id='tableOfPk'>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Columns</th>
-            </tr>
-          </thead>
-          <tbody id="columnsOfPk"></tbody>
-        </table>
 
 
+  <script type="module" src="./js/dbFront/table10rows.js"></script>
 
-      </div>
-      <div>
-        <div class="section-header">
-          <h3 id="fkNumber">Foreign Keys</h3>
-        </div>
-        <div id="foreignKeysContainer" class="fkContainer"></div>
-      </div>
-    </div>
-
-
-    <div id="indexForStyle">
-
-      <div class="third">
-        <div class="section-header">
-          <h3 id="indexNumber" class="section-title">Indexes</h3>
-        </div>
-        <div id="indexesContainer" class="indexContainer"></div>
-        <h2 id="uniqueNumber">constraints</h2>
-        <div id="uniqueContainer" class="indexContainer"></div>
-      </div>
-    </div>
-  </div>
-
-  <script type="module" src="./js/dbFront/tableDetails.js"></script>
 </body>
 
 </html>

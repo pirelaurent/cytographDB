@@ -73,6 +73,20 @@ getTableData(tableName).then((result) => {
     markdown = bandeauMarkdown(document, "forColTable");
     sectionHeader.appendChild(markdown);
 
+    /*
+     add local interceptor 
+    */
+    const show10rows = document.getElementById("show10rows");
+
+    show10rows.addEventListener("click", (e) => {
+      window.open(
+        `/table10rows.html?name=${tableName}&currentDBName=${currentDBName}`,
+        `TableDetails10rows_${tableName}`
+      );
+    });
+
+
+    //columns vertically 
     data.columns.forEach((col) => {
       const tr = document.createElement("tr");
       const hasComment = !!col.comment;
@@ -96,6 +110,10 @@ getTableData(tableName).then((result) => {
 
       nullableCell.textContent = col.nullable === "NO" ? "●" : "○"; // from DB YES/NO
 
+      // 10 rows 
+      
+
+
       // Ajouter toutes les cellules à la ligne
       tr.appendChild(columnCell);
       tr.appendChild(typeCell);
@@ -107,8 +125,8 @@ getTableData(tableName).then((result) => {
     });
 
     setEventMarkdown(document, "tableOfTableColumns", tableName, "forColTable");
-  // allow sort
-  enableTableSorting("tableOfTableColumns");
+    // allow sort
+    enableTableSorting("tableOfTableColumns");
     /*
 
 Primary key 

@@ -68,7 +68,10 @@ const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-const PORT = 3000;
+const PORT = process.env.CYTOGRAPHPORT?process.env.CYTOGRAPHPORT:3000;
+
+
+
 // directory to store json saved graph
 const GRAPH_DIR = path.join(__dirname, "saved-graphs");
 // Ensure the directory exists
@@ -258,6 +261,43 @@ app.get("/table/:name", async (req, res) => {
     if (client) client.release();
   }
 });
+
+
+/*
+
+Table details  
+
+*/
+app.get("/table10rows/:name", async (req, res) => {
+  const pool = getCurrentPool();
+  if (!pool) return res.status(400).send("No DB in place.");
+
+  const table = req.params.name;
+
+  // Vérifie que le nom de la table est valide (pas d’injection SQL possible)
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+    return res.status(400).json({ error: "Invalid table name format." });
+  }
+
+  let client;
+  try {
+    client = await pool.connect();
+    const result = await client.query(`SELECT * FROM "${table}" LIMIT 10`);
+
+    // Important : result.rows contient les données
+    return res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(404)
+      .json({ error: `Table '${table}' does not exist or cannot be queried.` });
+  } finally {
+    if (client) client.release();
+  }
+});
+
+
+
 
 /*
  comment of one table 

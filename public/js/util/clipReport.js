@@ -3,9 +3,6 @@ Due to browser limits for our use, an internal clipReport is available to view l
 
 
 */
-import { createIconButton } from "../ui/dialog.js";
-
-
 let clipReport;
 let clipReport_title;
 
@@ -48,7 +45,7 @@ let clipWin = null;
 export function showClipReport() {
 
   if (clipWin && !clipWin.closed) {
-    try { clipWin.close(); } catch (_) { /* cross-origin: ignore */ }
+    try { clipWin.close(); } catch { /* cross-origin: ignore */ }
   }
 
   clipWin =

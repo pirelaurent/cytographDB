@@ -78,7 +78,7 @@ getTableData(tableName).then((result) => {
     */
     const show10rows = document.getElementById("show10rows");
 
-    show10rows.addEventListener("click", (e) => {
+    show10rows.addEventListener("click", () => {
       window.open(
         `/table10rows.html?name=${tableName}&currentDBName=${currentDBName}`,
         `TableDetails10rows_${tableName}`

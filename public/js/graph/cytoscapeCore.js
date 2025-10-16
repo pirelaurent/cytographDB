@@ -446,6 +446,7 @@ export function perimeterForEdgesSelection() {
 
 //------------- display counts in menu bar------------
 export function metrologie(where="") {
+  if(where) console.log(`Metrologie from ${where}`);
   //display some measures
   const wholeNodesVisible = cy.nodes(":visible").length;
   const selectedCountNodesVisible = cy.nodes(":selected:visible").length;

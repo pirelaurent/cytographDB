@@ -2,11 +2,10 @@
 
 // cannot share data with main, so dbName is in the params
 
-import { showError, getCommentIcon } from "../ui/dialog.js";
+import { getCommentIcon } from "../ui/dialog.js";
 import {
   bandeauMarkdown,
   setEventMarkdown,
-  outputMarkdown,
 } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
 
@@ -63,8 +62,6 @@ const tableName = params.get("name");
 
 //reused var for markdown
 
-let colBody, markdown, sectionHeader;
-
 const currentDBName = params.get("currentDBName");
 let infoWarning = "";
 if (currentDBName == "null") infoWarning = "is not available: no db connected";
@@ -77,6 +74,7 @@ document.title = `table ${tableName}`;
 // call full info from DB and work once loaded
 
 await renderTableInfo(tableName);
+
 
 
 /*
@@ -98,9 +96,15 @@ async function renderTableInfo(tableName) {
 
     // Récupère les 10 premières lignes
     const rowsResult = await getTableData10rows(tableName);
-    if (!rowsResult.success) throw new Error("Failed to get table rows");
 
-    const rows10 = rowsResult.data.rows;
+
+    if (!rowsResult.success) {
+      console.log("Failed to get table rows");
+      throw new Error("Failed to get table rows");
+    }
+    const rows10 = rowsResult.data;
+
+
     // Référence du tbody
     const colBody = document.getElementById("columnsTable");
     colBody.innerHTML = "";
@@ -113,7 +117,7 @@ async function renderTableInfo(tableName) {
     sectionHeader.appendChild(markdown);
 
     // Création des lignes du tableau
-    data.columns.forEach((col,colIdx) => {
+    data.columns.forEach((col) => {
       const tr = document.createElement("tr");
       const hasComment = !!col.comment;
 

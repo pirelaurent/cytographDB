@@ -513,7 +513,7 @@ tr td.nullable {
   text-align: left;
   color: #3b5f8b;
   font-size: 14px;
-    font-style: italic;
+  font-style: italic;
 }
 
 tr.nullable td {
@@ -526,7 +526,13 @@ td.notDetailed {
   color:#8e2e2e;
 }
 
-
+tr td.onUpDel {
+  font-size: 8px;
+  color:#8e2e2e;
+}
+th.onUpDel {
+    font-size: 10px;
+}
 
 #tableOfPk th[scope="rowgroup"] {
   vertical-align: top;

@@ -9,7 +9,7 @@ import {
   outputMarkdown,
 } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
-
+import {actionMap} from "../util/common.js";
 /*
  get details on a table 
 */
@@ -21,7 +21,7 @@ async function getTableData(tableName) {
     }
     const data = await response.json();
 
-    //console.log(JSON.stringify(data));//PLA
+
     return { success: true, data };
   } catch (error) {
     return { success: false, error };
@@ -54,7 +54,6 @@ document.title = `table ${tableName}`;
 getTableData(tableName).then((result) => {
   if (result.success) {
     const data = result.data;
-    //console.log(JSON.stringify(data));//PLA
     if (data.comment) {
       const icon = getCommentIcon(document, data.comment);
       whereTitle.appendChild(icon);
@@ -229,13 +228,7 @@ foreign keys
 
       data.foreignKeys.forEach((fk) => {
         // if no action, no output
-        // const actionMap = { a: "NO ACTION", r: "RESTRICT", c: "CASCADE", n: "SET NULL", d: "SET DEFAULT" };
-        const actionMap = {
-          r: "RESTRICT",
-          c: "CASCADE",
-          n: "SET NULL",
-          d: "SET DEFAULT",
-        };
+  
         const upd = actionMap[fk.on_update] || "";
         const del = actionMap[fk.on_delete] || "";
 
@@ -481,12 +474,6 @@ function fkToMd(tableName, fkArray) {
       `**${fk.source_table}** ${smallSrc}  →  **${fk.target_table}** ${infoUnique}  `
     );
 
-    const actionMap = {
-      r: "RESTRICT",
-      c: "CASCADE",
-      n: "SET NULL",
-      d: "SET DEFAULT",
-    };
     const upd = actionMap[fk.on_update] || "";
     const del = actionMap[fk.on_delete] || "";
 

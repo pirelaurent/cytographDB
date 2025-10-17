@@ -93,7 +93,6 @@ function openDegreeFilter() {
 }
 
 function closeDegreeFilter() {
-  //console.log("closeDegreeFilter")
   document.getElementById("degreeFilter").style.display = "none";
 }
 
@@ -208,8 +207,10 @@ As modal form is shared
 */
 function modalSelectByName() {
   const val = document.getElementById("modalNameFilterInput").value;
+  const cleanVal = val.trim();
+  if (!cleanVal) { /* rien à filtrer */ return; }
   const hiddenType = document.getElementById("modalNameFilterType").value;
-  const ok = selectByName(val, hiddenType);
+  const ok = selectByName(cleanVal, hiddenType);
   if (ok) closeNameFilterModal();
   metrologie();
 }
@@ -221,12 +222,19 @@ function modalSelectByName() {
 */
 export function selectByName(pattern, hiddenType) {
   let regex;
+  // detect a negative search to check differently
+  const hasNegativeLookahead = /(?<!\\)\(\?\!/.test(pattern);
+  
+  // if a string has not the pattern : it is true 
+  // if a string has the pattern: it is false (that it has not the pattern) 
+
   try {
-    regex = new RegExp(pattern.trimEnd(), "i");
+    regex = new RegExp(pattern, "i");
   } catch (e) {
     showAlert("unvalid regex:", e.message);
     return false;
   }
+
 
   if (hiddenType === "nodes") {
     /*
@@ -275,7 +283,9 @@ export function selectByName(pattern, hiddenType) {
       }
     });
   }
-  // search by column names
+  /*
+   search by column names
+  */
   if (hiddenType === "columns") {
     const withHidden = document.getElementById("searchOnHidden").checked;
     let nodes = withHidden ? getCy().nodes() : perimeterForNodesSelection();
@@ -285,16 +295,30 @@ export function selectByName(pattern, hiddenType) {
     if (withHidden) getCy().$("node:hidden").unselect();
     let results = [];
     let count = 0;
+
     getCy().batch(() => {
       nodes.forEach((node) => {
         let cases = [];
-        let okNode = false;
-        node.data().columns.forEach((col) => {
-          if (regex.test(col.column)) {
-            okNode = true;
-            cases.push(col.column);
+        // temporary patch for json reloaded
+        const columns = node.data().columns.map((c) => c.column ?? c);
+
+        let okNode;
+
+        if (hasNegativeLookahead) {
+           okNode = true;
+          for (const name of columns) {
+            const ok = regex.test(name);
+            if (!ok) okNode = false; // one has = false that it has not 
           }
-        });
+        } else {
+          // Cas normal : au moins un champ correspond
+          const anyMatch = columns.some((name) => {
+            const m = regex.test(name);
+            if (m) cases.push(name);
+            return m;
+          });
+          okNode = anyMatch;
+        }
         if (okNode) {
           count += 1;
           results.push(`${node.id()} :  ${cases.join(" , ")} `);
@@ -307,12 +331,12 @@ export function selectByName(pattern, hiddenType) {
     getCy().$("node:selected").show();
     showToast(`${count} found`);
     const output = results.join("\n");
-    //console.log(output);
+
     outputMarkdown(
       {
         download: false,
         copyToClipboard: true,
-        title: `search columm with /${pattern}/`,
+        title: `search columm with ${pattern}`,
       },
       output, // that return text
       document

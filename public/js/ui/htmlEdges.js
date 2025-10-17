@@ -14,7 +14,7 @@ import { setEventMarkdown } from "../util/markdown.js";
 
 import { createIconButton } from "../ui/dialog.js";
 
-import {ConstantClass} from "../util/common.js"
+import { ConstantClass, actionMap } from "../util/common.js";
 
 /*
  edges list 
@@ -76,6 +76,9 @@ export function sendEdgeListToHtml() {
     // an edge is an fk and hold its name
     const fkLabel = e.data("label") || "";
     // current state of edge : global or detailed
+    const fk_on_delete = e.data("onDelete");
+    const fk_on_update = e.data("onUpdate");
+    //console.log(e.data("onDelete"));//PLA
 
     const columns = e.hasClass(`${ConstantClass.FK_DETAILED}`)
       ? { label: e.data("columnsLabel") || "", nullable: e.data("nullable") }
@@ -83,7 +86,15 @@ export function sendEdgeListToHtml() {
 
     const fkNullable = e.data("nullable"); // true/false
 
-    return { sourceName, targetName, fkLabel, fkNullable, columns };
+    return {
+      sourceName,
+      targetName,
+      fkLabel,
+      fkNullable,
+      fk_on_update,
+      fk_on_delete,
+      columns,
+    };
   });
 
   // Initial sort by Source then Target for stable display
@@ -142,18 +153,31 @@ export function sendEdgeListToHtml() {
 
   {
     const th = doc.createElement("th");
-    th.textContent = "Source";
+    th.textContent = "Child";
     thr.appendChild(th);
   }
   {
     const th = doc.createElement("th");
-    th.textContent = "Target";
+    th.textContent = "Parent";
     thr.appendChild(th);
   }
 
   {
     const th = doc.createElement("th");
-    th.textContent = "FK";
+    th.textContent = "on update";
+    th.classList.add("onUpDel");
+    thr.appendChild(th);
+  }
+  {
+    const th = doc.createElement("th");
+    th.textContent = "on delete";
+    th.classList.add("onUpDel");
+    thr.appendChild(th);
+  }
+
+  {
+    const th = doc.createElement("th");
+    th.textContent = "FK name";
     thr.appendChild(th);
   }
 
@@ -167,7 +191,7 @@ export function sendEdgeListToHtml() {
 
   {
     const th = doc.createElement("th");
-    th.innerHTML = "col. -> col.";
+    th.innerHTML = "details";
     th.title = "columns are detailed only in mode FK 1/col";
     thr.appendChild(th);
   }
@@ -185,7 +209,15 @@ export function sendEdgeListToHtml() {
   let lastTriple = { s: null, t: null, f: null };
 
   rowsData.forEach(
-    ({ sourceName, targetName, fkLabel, fkNullable, columns }) => {
+    ({
+      sourceName,
+      targetName,
+      fkLabel,
+      fkNullable,
+      fk_on_update,
+      fk_on_delete,
+      columns,
+    }) => {
       const tr = doc.createElement("tr");
       // color change if FK change
       tr.className = rowColor;
@@ -226,11 +258,25 @@ export function sendEdgeListToHtml() {
       const tdTarget = doc.createElement("td");
       tdTarget.className = "link";
       tdTarget.dataset.value = targetName;
+
+      const tdUpdate = doc.createElement("td");
+      tdUpdate.textContent = actionMap[fk_on_update] || "";
+      tdUpdate.classList.add("onUpDel");
+
+      const tdDelete = doc.createElement("td");
+      tdDelete.textContent = actionMap[fk_on_delete] || "";
+      tdDelete.classList.add("onUpDel");
+
       if (sameAsAbove) {
         tdTarget.textContent = "";
         tdTarget.classList.add("repeat-marker");
+
+        tdUpdate.textContent = "";
+        tdDelete.textContent = "";
+        
       } else {
         tdTarget.textContent = targetName;
+
       }
       tdTarget.title = `Open table: ${targetName}`;
       tdTarget.addEventListener("click", () =>
@@ -243,6 +289,8 @@ export function sendEdgeListToHtml() {
       );
 
       tr.appendChild(tdTarget);
+      tr.appendChild(tdUpdate);
+      tr.appendChild(tdDelete);
 
       // --- FK ---
       const tdFk = doc.createElement("td");
@@ -305,14 +353,14 @@ export function sendEdgeListToHtml() {
 
   // Sorting on which columns
 
-  const sortableCols = [0, 1, 2, 3];
+  const sortableCols = [0, 1, 4, 5];
 
   doc.querySelectorAll(`#${tableName} th`).forEach((th, index) => {
     if (sortableCols.includes(index)) {
       th.addEventListener("click", () => {
         sortTable(table, index, false); // false all are string
       });
-    }
+    } 
   });
   // Mark initial sort on "Source"
   table.querySelector("th").classList.add("sort-asc");

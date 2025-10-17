@@ -163,7 +163,7 @@ export function setInterceptors() {
       }
 
       output = `
-          ${edge.source().id()} --> 
+          ${edge.source().id()}  >   
           ${edge.target().id()}
           <br/><small>
           ${label} ${libelArray}

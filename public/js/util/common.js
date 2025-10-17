@@ -35,7 +35,7 @@ export function warningOutputHtml(allWarnings){
 
 
 // some info are concatenated in back and in front. 
-const col2colSeparator = " --> ";
+const col2colSeparator = " → ";
 /*
  as a cytograph edge has only one label, encode columns correspondance
 */
@@ -50,3 +50,21 @@ export function decodeCol2Col(edgeLabel) {
   let twoCol = edgeLabel.split(col2colSeparator);
   return twoCol;
 }
+
+/*
+ codes for action on update or on delete 
+ describe the referential action you choose for the whole foreign key 
+ on a given event (typically ON DELETE and ON UPDATE). 
+ You can pick different actions for delete vs update, 
+  but you can’t set a different action per column inside a composite FK.
+
+*/
+
+      // const actionMap = { a: "NO ACTION", r: "RESTRICT", c: "CASCADE", n: "SET NULL", d: "SET DEFAULT" };
+        export const actionMap = {
+          a: "-",//"NO ACTION",
+          r: "RESTRICT",
+          c: "CASCADE",
+          n: "SET NULL",
+          d: "SET DEFAULT",
+        };

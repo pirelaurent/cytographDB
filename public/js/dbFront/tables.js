@@ -242,7 +242,7 @@ export async function generateTriggers(nodes) {
           allWarnings.push({
             table: ` ${source}`,
             function: "trigger impact",
-            warn: `missing impact destination :  --> ${target}`,
+            warn: `missing impact destination :  >  ${target}`,
           });
         }
       });

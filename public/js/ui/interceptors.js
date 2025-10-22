@@ -148,8 +148,9 @@ export function setInterceptors() {
       if (filteredClasses.length > 0) {
         let allInfos = [];
         filteredClasses.forEach((cls) => {
+          // simplify visual edge mode 
           switch (cls) {
-            case "fk_detailed":
+            case `${ConstantClass.FK_DETAILED}`:
               allInfos.push(`1/Col`);
               break;
             case `${ConstantClass.FK_SYNTH}`:
@@ -505,6 +506,9 @@ export function setInterceptors() {
     }
   });
 
+  
+
+
   // trace current selection values
   getCy().on("select unselect", "node", function () {
     metrologie();
@@ -629,9 +633,9 @@ menuNodes(zone.dataset.action, e);
   }
 
   /*
-
-  quick menu 
+   menu icons event  
   */
+
   document.getElementById("icon-selectAll").addEventListener("click", () => {
     menuNodes("all");
   });
@@ -641,7 +645,7 @@ menuNodes(zone.dataset.action, e);
   document.getElementById("icon-selectSwap").addEventListener("click", () => {
     menuNodes("swapSelected");
   });
-
+/* hide in menu */
   document.getElementById("icon-hideSelected").addEventListener("click", () => {
     menuNodes("hideSelected");
   });
@@ -659,6 +663,38 @@ menuNodes(zone.dataset.action, e);
   document.getElementById("icon-showAll").addEventListener("click", () => {
     menuNodes("showAll");
   });
+
+/*
+ same icons in menus 
+*/
+document.getElementById("quick_icon-selectAll").addEventListener("click", () => {
+    menuNodes("all");
+  });
+  document.getElementById("quick_icon-selectNone").addEventListener("click", () => {
+    menuNodes("none");
+  });
+  document.getElementById("quick_icon-selectSwap").addEventListener("click", () => {
+    menuNodes("swapSelected");
+  });
+
+  document.getElementById("quick_icon-hideSelected").addEventListener("click", () => {
+    menuNodes("hideSelected");
+  });
+
+  document
+    .getElementById("quick_icon-hideNotSelected")
+    .addEventListener("click", () => {
+      menuNodes("hideNotSelected");
+    });
+
+  document.getElementById("quick_icon-swapHidden").addEventListener("click", () => {
+    menuNodes("swapHidden");
+  });
+
+  document.getElementById("quick_icon-showAll").addEventListener("click", () => {
+    menuNodes("showAll");
+  });
+
 
 const tipsBtn = document.getElementById('tipsBtn');
 tipsBtn.addEventListener('click', () => {

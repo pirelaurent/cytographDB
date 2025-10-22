@@ -8,10 +8,10 @@ import {
   createCustomCategories,
   getCustomStyles,
 } from "../filters/categories.js";
-import { fillInGuiNodesCustomCategories} from "../ui/custom.js";
-import { NativeCategories} from "../util/common.js"
+import { fillInGuiNodesCustomCategories } from "../ui/custom.js";
+import { NativeCategories } from "../util/common.js";
 import { pushSnapshot } from "./snapshots.js";
-import {adjustClipReportBtn} from "../util/clipReport.js";
+import { adjustClipReportBtn } from "../util/clipReport.js";
 //-------------------
 /*
  cy defined in a module cannot be accessed directly
@@ -68,7 +68,6 @@ export function initializeGraph(data, fromDisk = false) {
   cy.style(mergedStyles).update();
 
   fillInGuiNodesCustomCategories();
-
   cy.once("layoutstop", () => {});
 
   //avoid layout when come from disk
@@ -97,7 +96,7 @@ export function hideSelected() {
   pushSnapshot("hideSelected");
   let nodesToHide = getCy().nodes(":selected");
   nodesToHide.hide();
-  nodesToHide.unselect();
+ // nodesToHide.unselect();
   cy.fit(cy.nodes(":visible"), 30); // padding 30px
   metrologie();
 }
@@ -126,16 +125,14 @@ export function hideNotSelectedThenDagre() {
 }
 
 export function selectAllVisibleNodes() {
-  let cy= getCy();
+  let cy = getCy();
   if (cy) {
-    cy.batch(() =>{
-    pushSnapshot("selectAllVisibleNodes");
-    let nodes = restrictToVisible()
-      ? cy.nodes(":visible")
-      : cy.nodes();
-    nodes.select();
-  });
-}
+    cy.batch(() => {
+      pushSnapshot("selectAllVisibleNodes");
+      let nodes = restrictToVisible() ? cy.nodes(":visible") : cy.nodes();
+      nodes.select();
+    });
+  }
   metrologie();
 }
 
@@ -324,8 +321,7 @@ export function setAndRunLayoutOptions(option) {
         take all visible 
       */
     case "breadthfirst":
-
-      const rootNodes = selectedNodes.filter(`.${NativeCategories.ROOT}`); 
+      const rootNodes = selectedNodes.filter(`.${NativeCategories.ROOT}`);
 
       Object.assign(layoutOptions, {
         direction: "upward",
@@ -445,8 +441,8 @@ export function perimeterForEdgesSelection() {
 }
 
 //------------- display counts in menu bar------------
-export function metrologie(where="") {
-  if(where) console.log(`Metrologie from ${where}`);
+export function metrologie(where = "") {
+  if (where) console.log(`Metrologie from ${where}`);
   //display some measures
   const wholeNodesVisible = cy.nodes(":visible").length;
   const selectedCountNodesVisible = cy.nodes(":selected:visible").length;
@@ -507,7 +503,7 @@ export function metrologie(where="") {
   }
   display += dispHidden;
   labelEdges.innerHTML = display;
-  // for reports 
+  // for reports
   adjustClipReportBtn();
 }
 
@@ -557,11 +553,10 @@ export function changePosRelative(xFactor, yFactor) {
 }
 
 export function selectOutputBetween(min, max) {
-
   let nodes = perimeterForNodesSelection();
   if (nodes == null) return;
   pushSnapshot("selectOutputBetween");
-  
+
   nodes.forEach((node) => {
     // Tous les outgoers sortants
     let outgoingEdges = node.outgoers("edge:visible");
@@ -652,8 +647,10 @@ export function proportionalSizeNodeSizeByLinks() {
     setProportionalSize(node);
   });
 }
-
-function setProportionalSize(node) {
+/*
+ adapt the shape against the number of edges 
+*/
+export function setProportionalSize(node) {
   let degree = node.connectedEdges().length;
   node.data("degree", degree);
   if (degree == 0) degree = 1;
@@ -670,13 +667,15 @@ function setProportionalSize(node) {
     return;
   }
 
-  // muliple check for compatibility with stored json 
- if (node.hasClass(NativeCategories.ROOT) &&
+  // muliple check for compatibility with stored json
+  if (
+    node.hasClass(NativeCategories.ROOT) &&
     !node.hasClass(NativeCategories.ASSOCIATION) &&
-    !node.hasClass(NativeCategories.MULTI_ASSOCIATION)) {
+    !node.hasClass(NativeCategories.MULTI_ASSOCIATION)
+  ) {
     node.style({
-       width: 20,
-      height: 45, 
+      width: 20,
+      height: 45,
     });
     return;
   }
@@ -700,6 +699,7 @@ export function noProportionalSize() {
 
 /*
   set size according to number of edges 
+  when coming back from a Json
 */
 
 export function restoreProportionalSize() {
@@ -708,6 +708,7 @@ export function restoreProportionalSize() {
     setProportionalSize(node);
   });
 }
+
 // Helper pour interpoler une valeur entre deux bornes
 function mapValue(value, inMin, inMax, outMin, outMax) {
   const clamped = Math.max(inMin, Math.min(value, inMax));
@@ -909,35 +910,32 @@ export function revealNeighbor(edge, maxDist = 1000) {
   }
 }
 
-//------------------
-export function labelNodeShow() {
-  perimeterForNodesAction().forEach((node) => {
-    if (node.data("originalSizeW")) {
-      node.data("label", node.data("originalLabel"));
-      node.style({
-        width: node.data("originalSizeW"),
-        height: node.data("originalSizeH"),
-      });
-      // caution : removeData don't remove the key. The key stays as undefined.
-      node.removeData("originalSizeH");
-      node.removeData("originalSizeW");
-      node.removeData("originalLabel");
-    }
+//
+export function labelAlias() {
+  cy.batch(() => {
+    perimeterForNodesAction().forEach((node) => {
+      if (node.data("alias") != null) {
+        node.data("label", node.data("alias"));
+      }
+    });
+  });
+}
+export function labelId() {
+  cy.batch(() => {
+    perimeterForNodesAction().forEach((node) => {
+      node.data("label", node.id());
+    });
   });
 }
 
+
 export function labelNodeHide() {
-  perimeterForNodesAction().forEach((node) => {
-    // detect if already done
-    if (node.data("originalLabel") === undefined) {
-      node.data("originalSizeH", node.style("height"));
-      node.data("originalSizeW", node.style("width"));
-      node.data("originalLabel", node.data("label"));
-      node.data("label", " ");
-      node.style({
-        width: "6px",
-        height: "6px",
-      });
-    }
+  cy.batch(() => {
+    perimeterForNodesAction().forEach((node) => {
+      node.data("label",".");
+    });
   });
 }
+
+
+

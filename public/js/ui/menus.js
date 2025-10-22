@@ -43,6 +43,7 @@ import {
   findPkFkChains,
   treeDir,
   straightLineBidirectional,
+  buildRelations,
 } from "../graph/walker.js";
 
 import {
@@ -51,7 +52,7 @@ import {
   restrictToVisible,
   hideSelected,
   hideNotSelected,
-  labelNodeShow,
+  labelAlias,
   labelNodeHide,
   swapHidden,
   setAndRunLayoutOptions,
@@ -70,10 +71,12 @@ import {
   bringSelectedToBack,
   rotateGraphByDegrees,
   noProportionalSize,
+  setProportionalSize,
   changeFontSizeEdge,
   changeFontSizeNode,
   selectEdgesBetweenSelectedNodes,
   proportionalSizeNodeSizeByLinks,
+  labelId,
 } from "../graph/cytoscapeCore.js";
 
 import {
@@ -230,6 +233,7 @@ export function menuDb(option, menuItemElement, whichClic = "left") {
  ----------------------------------  main menu on display actions 
 */
 export function menuDisplay(option, item, whichClic = "left") {
+  console.log(option); //PLA
   if (whichClic == "right") return;
   if (!cy) return;
   switch (option) {
@@ -341,6 +345,9 @@ export function menuDisplay(option, item, whichClic = "left") {
     case "separateV":
       separateCloseNodesVertical();
       break;
+
+
+
   }
   // refresh info bar
   metrologie();
@@ -477,6 +484,9 @@ export function menuNodes(option, item, whichClic = "left") {
       selectTargetNodesFromSelectedEdges();
       break;
 
+
+
+      
     // -----------------------------------------Nodes filter by
 
     // *** by Name *** is under clic event -> openNameFilterModal
@@ -598,20 +608,37 @@ export function menuNodes(option, item, whichClic = "left") {
 
     //-------------------------------------------------------- Label
 
-    case "labelNodeShow":
-      labelNodeShow();
+    case "labelAlias":
+     labelAlias();
       break;
 
     case "labelNodeHide":
       labelNodeHide();
       break;
 
+    case "labelId":
+      labelId();
+      break;
+      
     case "increase-font":
       changeFontSizeNode(5);
       break;
     case "decrease-font":
       changeFontSizeNode(-1);
       break;
+
+
+    //-------------- shape 
+    case "proportionalSize":
+     setProportionalSize();
+      break;
+    case "noProportionalSize":
+      noProportionalSize();
+      break;
+
+
+
+
 
     //------------------------------------------------ Nodes List
 
@@ -637,6 +664,7 @@ export function menuNodes(option, item, whichClic = "left") {
       follow("both");
       break;
 
+
     case "followCrossAssociations":
       followCrossAssociations();
       break;
@@ -648,6 +676,9 @@ export function menuNodes(option, item, whichClic = "left") {
       pushSnapshot();
       findLongOutgoingPaths(getCy());
       break;
+
+
+
 
     case "findPkFkChains":
       findPkFkChains();
@@ -671,15 +702,6 @@ export function menuNodes(option, item, whichClic = "left") {
         true,
         true
       );
-      break;
-
-
-    //--------------
-    case "proportionalSize":
-      proportionalSizeNodeSizeByLinks();
-      break;
-    case "noProportionalSize":
-      noProportionalSize();
       break;
 
     //----------------------------------  nodes Delete
@@ -790,10 +812,13 @@ export function menuEdges(option, item, whichClic = "left") {
       let edgesToShow = perimeterForEdgesAction();
 
       for (let edge of edgesToShow) {
-        if (edge.hasClass(ConstantClass.FK)) {
+        if (edge.hasClass(ConstantClass.FK_DETAILED)) {
           edge.addClass(`${ConstantClass.SHOW_COLUMNS}`);
           //labelToShow = ele.data('columnsLabel').replace('\n', "<BR/>");
-        } else edge.addClass(`${ConstantClass.SHOW_LABEL}`);
+        } else {
+          // FK_SYNTH
+          edge.addClass(`${ConstantClass.SHOW_LABEL}`);
+        }
       }
       break;
 
@@ -966,6 +991,14 @@ export function menuModel(option, item, whichClic = "left") {
       );
       metrologie();
       break;
+
+
+case "buildRelations":
+  buildRelations();
+ break;
+
+
+
 
     case "edgeIsTriggerGenerated":
       selectEdgesByNativeCategories("trigger_impact");

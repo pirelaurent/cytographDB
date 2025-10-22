@@ -9,7 +9,7 @@ import {
   outputMarkdown,
 } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
-import {actionMap} from "../util/common.js";
+import {actionMap,actionTitle} from "../util/common.js";
 /*
  get details on a table 
 */
@@ -110,8 +110,7 @@ getTableData(tableName).then((result) => {
       nullableCell.textContent = col.nullable === "NO" ? "●" : "○"; // from DB YES/NO
 
       // 10 rows 
-      
-
+    
 
       // Ajouter toutes les cellules à la ligne
       tr.appendChild(columnCell);
@@ -230,13 +229,15 @@ foreign keys
         // if no action, no output
   
         const upd = actionMap[fk.on_update] || "";
+        const updTitle = [fk.on_update]|| "";
         const del = actionMap[fk.on_delete] || "";
+        const delTitle = actionTitle[fk.on_delete]|| "";
 
         let allUpDelInfo = "";
         if (upd)
-          allUpDelInfo += `<br/><span>ON UPDATE: <code>${upd}</code></span>`;
+          allUpDelInfo += `<br/><span title=${updTitle} >ON UPDATE: <code>${upd}</code></span>`;
         if (del)
-          allUpDelInfo += `<br/><span>ON DELETE: <code>${del}</code></span>`;
+          allUpDelInfo += `<br/><span titla =${delTitle}>ON DELETE: <code>${del}</code></span>`;
 
         const block = makeFkBlock(fk, allUpDelInfo);
         frag.appendChild(block);

@@ -55,7 +55,7 @@
   min-width: 150px;
 }
 
-.menu>li {
+.menu > li {
   position: relative;
   display: flex;
   align-items: center;
@@ -71,7 +71,7 @@
   margin: 0px;
   background-color: var(--main-bg, #0a8df8);
   min-width: 100px;
-  min-height: 30px;
+  min-height: 25px;
 }
 
 .submenu {
@@ -84,16 +84,18 @@
   background-color: var(--main-bg, #0bf837);
   z-index: 1000;
   min-width: 150px;
+  min-height: 25px;
   white-space: nowrap;
 }
 
-.menu>li,
-.submenu>li {
+.menu > li,
+.submenu > li {
   position: relative;
+  max-height: 25px;
 }
 
-.menu li:hover>.submenu,
-.submenu li:hover>.submenu {
+.menu li:hover > .submenu,
+.submenu li:hover > .submenu {
   display: block;
 }
 
@@ -143,8 +145,7 @@
 
 .submenu li.clicked,
 .menu li.clicked {
-  background-color: var(--submenu-click-bg,
-      red);
+  background-color: var(--submenu-click-bg, red);
   /* couleur différente du hover */
   color: var(--text-click-color, white);
 }
@@ -153,17 +154,18 @@
   background-color: var(--submenu-click-bg);
 }
 
+/* --- Corrige le comportement des séparateurs dans les sous-menus --- */
 .menu .separator,
 .submenu .separator {
+  display: block;
   height: 2px;
-  min-height: 0;
-  /* ✅ annule le min-height hérité */
-  background-color: var(--border-color);
-  margin: 3px 0;
+  margin: 0; /* supprime tout espace vertical */
   padding: 0;
-  list-style: none;
-  pointer-events: none;
-  /* not clickable */
+  background-color: var(--border-color, #888);
+  border: none;
+  pointer-events: none; /* évite qu'ils perturbent le hover */
+  min-height: 0 !important; /* neutralise toute hauteur héritée */
+  line-height: 0;
 }
 
 .submenu-content {
@@ -176,17 +178,130 @@
   color: white;
 }
 
-
 .submenu li img {
   position: absolute;
   right: 6px;
   top: 50%;
   transform: translateY(-50%);
-  height: 20px;            /* optionnel : force une taille homogène */
-  width: 20px;             /* optionnel */
-  pointer-events: none;     /* clics passent sur le <li> */
+  /* height: 20px;*/ /* optionnel : force une taille homogène */
+  width: 20px; /* optionnel */
+  pointer-events: none; /* clics passent sur le <li> */
   /*background-color: yellow;*/
 }
+
+/* Make the icon row compact (keep if you like) */
+.submenu .icon-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 2px 6px;
+}
+
+/* Override the generic submenu image rule */
+.submenu .icon-actions img {
+  position: static !important; /* cancel absolute from .submenu li img */
+  right: auto !important;
+  top: auto !important;
+  transform: none; /* <-- no !important so hover can win */
+  pointer-events: auto !important; /* re-enable hover/click */
+  height: 30px;
+  width: auto;
+  margin: 0 6px;
+}
+
+/* Single hover rule with higher or equal specificity */
+/* .submenu .icon-actions img:hover,
+.submenu .icon-actions img[role="button"]:hover,
+.submenu .icon-actions img:focus-visible {
+  filter: brightness(1.2);
+  transform: scale(1.5);       
+  background-color: "#f1eded";
+}
+*/
+.submenu .icon-actions img[role="button"] {
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  background-color:#f9d5d5;
+  outline: none;
+  border-radius: 2px;
+}
+
+.submenu .icon-actions img[role="button"]:hover,
+.submenu .icon-actions img[role="button"]:focus {
+  /* filter: brightness(1.02); */
+  /* transform: translateY(-1px); */
+
+  background-color: #f9d5d5;
+  outline: 2px solid #8a4e4e;
+  outline-offset: 2px;
+}
+*/ .submenu li.separator {
+  height: 3px; /* plus fin dans les sous-menus si tu veux */
+  background-color: var(--border-color, #aaa);
+  margin: 0; /* aucun espace vertical */
+  border: none;
+}
+
+
+li[data-category="selectNodes"] {
+  --main-bg: #f9d5d5;
+}
+
+
+/* Survol */
+#icon-selectAll:hover {
+  content: url("../img/select/selectAllBright.png");
+}
+#icon-selectNone:hover {
+  content: url("../img/select/noneSelected.png"); 
+}
+#icon-selectSwap:hover {
+  content: url("../img/select/swapSelected.png");
+}
+
+/*  hide img */
+
+#icon-hideSelected:hover {
+  content: url("../img/select/hideSelected.png");
+}
+#icon-hideNotSelected:hover {
+  content: url("../img/select/hideNotSelected.png");
+}
+#icon-swapHidden:hover {
+  content: url("../img/select/hideSwap2.png");
+}
+#icon-showAll:hover {
+  content: url("../img/select/halfSelected.png");
+}
+
+/* the same for quick menu */
+/* Survol */
+#quick_icon-selectAll:hover {
+  content: url("../img/select/selectAll.png");
+}
+#quick_icon-selectNone:hover {
+  content: url("../img/select/noneSelected.png"); 
+}
+#quick_icon-selectSwap:hover {
+  content: url("../img/select/swapSelected.png");
+}
+#quick_icon-hideSelected:hover {
+  content: url("../img/select/hideSelected.png");
+}
+#quick_icon-hideNotSelected:hover {
+  content: url("../img/select/hideNotSelected.png");
+}
+#quick_icon-swapHidden:hover {
+  content: url("../img/select/hideSwap2.png");
+}
+#quick_icon-showAll:hover {
+  content: url("../img/select/halfSelected.png");
+}
+
+/*
+ colors menu by domains 
+*/
 
 [data-menu-id="menu-graph"] {
   --main-bg: rgb(66, 146, 168);
@@ -233,11 +348,10 @@
   --trigger-width: 150px;
   --text-hover-color: black;
   --border-color: #ca7b7b;
-  --submenu-hover-bg: #f4b3b3;
+  --submenu-hover-bg: #f8d4d4;
   --submenu-color: white;
-  --submenu-click-bg: red;
+  --submenu-click-bg: #ca7b7b;
 }
-
 
 [data-menu-id="menu-edges"] {
   --main-bg: #8e2e2e;
@@ -251,22 +365,17 @@
   --submenu-click-bg: #be3a3a;
 }
 
-
-
 [data-menu-id="menu-model"] {
   --main-bg: #5e7d8b;
   --trigger-color: white;
-  --trigger-hover-bg: #BBBBBB;
+  --trigger-hover-bg: #bbbbbb;
   --trigger-width: 150px;
   --text-hover-color: black;
-  --border-color: #BBBBBB;
-  --submenu-hover-bg: #BBBBBB;
+  --border-color: #bbbbbb;
+  --submenu-hover-bg: #bbbbbb;
   --submenu-color: white;
   --submenu-click-bg: #96be3a;
 }
-
-
-
 
 .db-prompt-box {
   position: absolute;
@@ -288,7 +397,7 @@
   background-color: var(--main-bg);
   border: 1px solid #ccc;
   width: 80px;
-  color: white
+  color: white;
 }
 
 .db-prompt-box button:hover {
@@ -311,8 +420,6 @@
   /* optionnel : effet léger */
 }
 
-
-
 #modeSelect {
   background-color: oldLace; /* vert clair par défaut (OR) */
   border-color: crimson;
@@ -320,10 +427,9 @@
 
 #modeSelect.AND-select {
   background-color: red; /* rouge clair ou ce que tu veux pour AND */
-  color:white;
-  border-color:white;
+  color: white;
+  border-color: white;
 }
-
 
 #versionInfo {
   margin-left: auto;
@@ -335,12 +441,12 @@
 #graphName {
   margin-left: 9px;
   width: 155px;
-  
 }
 
 #current-db {
- font-family: Arial,sans-serif;
-    font-size: 14px;
-    text-shadow: none;
-   color: black
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  text-shadow: none;
+  color: black;
 }
+

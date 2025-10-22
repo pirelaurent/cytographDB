@@ -71,8 +71,10 @@ export function sendEdgeListToHtml() {
   const rowsData = edges.map((e) => {
     const nodeSource = e.source();
     const nodeDest = e.target();
+
     const sourceName = cleanLabel(nodeSource.data("label") || e.source().id());
     const targetName = cleanLabel(nodeDest.data("label") || e.target().id());
+    
     // an edge is an fk and hold its name
     const fkLabel = e.data("label") || "";
     // current state of edge : global or detailed
@@ -84,6 +86,33 @@ export function sendEdgeListToHtml() {
       ? { label: e.data("columnsLabel") || "", nullable: e.data("nullable") }
       : "";
 
+/*
+    console.log(JSON.stringify(e.source().data("foreignKeys")));
+    let sourceData = [
+      {
+        constraint_name: "fk_skills_comp_emp",
+        source_table: "skills",
+        target_table: "employee",
+        comment: null,
+        column_mappings: [
+          {
+            source_column: "company_id",
+            source_not_null: true,
+            target_column: "company_id",
+          },
+          {
+            source_column: "employee_id",
+            source_not_null: true,
+            target_column: "id",
+          },
+        ],
+        all_source_not_null: true,
+        is_target_unique: true,
+        on_delete: "a",
+        on_update: "a",
+      },
+    ];
+*/
     const fkNullable = e.data("nullable"); // true/false
 
     return {
@@ -93,7 +122,7 @@ export function sendEdgeListToHtml() {
       fkNullable,
       fk_on_update,
       fk_on_delete,
-      columns,
+      columns,   //  { label, nullable }
     };
   });
 
@@ -273,10 +302,8 @@ export function sendEdgeListToHtml() {
 
         tdUpdate.textContent = "";
         tdDelete.textContent = "";
-        
       } else {
         tdTarget.textContent = targetName;
-
       }
       tdTarget.title = `Open table: ${targetName}`;
       tdTarget.addEventListener("click", () =>
@@ -293,6 +320,7 @@ export function sendEdgeListToHtml() {
       tr.appendChild(tdDelete);
 
       // --- FK ---
+  
       const tdFk = doc.createElement("td");
       tdFk.className = "text";
       tdFk.dataset.value = fkLabel || "";
@@ -311,9 +339,12 @@ export function sendEdgeListToHtml() {
 
       const tdNullable = doc.createElement("td");
       tdNullable.className = "text";
+
+
+
       if (columns != "") {
         tdNullable.textContent = columns.nullable ? "○" : "●"; // /○<here true/false changed
-        tdNullable.title = columns.nullable ? "nullable" : "not null";
+        tdNullable.title = columns.nullable ? "nullable => FK nullable" : "not null";
       } else {
         tdNullable.textContent = fkNullable ? "○" : "●";
         tdNullable.title = fkNullable ? "nullable" : "not null";
@@ -360,7 +391,7 @@ export function sendEdgeListToHtml() {
       th.addEventListener("click", () => {
         sortTable(table, index, false); // false all are string
       });
-    } 
+    }
   });
   // Mark initial sort on "Source"
   table.querySelector("th").classList.add("sort-asc");

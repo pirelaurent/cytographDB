@@ -82,13 +82,19 @@ export function restoreCustomNodesCategories() {
   fillInGuiNodesCustomCategories();
 }
 
+
+
+
+
+
+
 /*
  associated classes to separate nodes into catagories . 
  will be called after initial load of nodes
 */
 
 export function createCustomCategories(myCurrentDB) {
-  //console.log("createCustomCategories in customCategorie for "+myCurrentDB)
+  console.log("createCustomCategories in customCategorie for "+myCurrentDB);//PLA
 
   const mod = getCustomModule(myCurrentDB);
   if (mod?.createCustomCategories) {
@@ -96,7 +102,22 @@ export function createCustomCategories(myCurrentDB) {
   } else {
     console.log(`No customCategories registered for ${myCurrentDB}`);
   }
+  // allows to alias the label 
+  if(mod?.setLabelAlias){
+    mod.setLabelAlias();
+  }
 }
+
+export function enforceLabelToAlias(myCurrentDB){
+  const mod = getCustomModule(myCurrentDB);
+  if(mod?.setLabelAlias){
+    mod.setLabelAlias();
+  }
+}
+
+
+
+
 /*
  associated styles . 
  will be added to standard style to create mergedStyles

@@ -653,28 +653,7 @@ th .sort-indicator {
   padding: 6px;
 }
 
-/* Survol */
-#icon-selectAll:hover {
-  content: url("../img/select/selectAllBright.png");
-}
-#icon-selectNone:hover {
-  content: url("../img/select/selectNoneGrey.png");
-}
-#icon-selectSwap:hover {
-  content: url("../img/select/selectSwap2.png");
-}
-#icon-hideSelected:hover {
-  content: url("../img/select/hideSelected.png");
-}
-#icon-hideNotSelected:hover {
-  content: url("../img/select/hideNotSelected.png");
-}
-#icon-swapHidden:hover {
-  content: url("../img/select/swapHidden2.png");
-}
-#icon-showAll:hover {
-  content: url("../img/select/eyeOpen.png");
-}
+
 
 legend {
   width: 35%;
@@ -735,3 +714,5 @@ fieldset {
 
   /* feedback doux sur la ligne au survol */
   #follow-graph .zone:hover line { stroke-width: 3; }
+
+ 

@@ -56,5 +56,9 @@ See docs.
 
 
 
+# 2.1.2
+Custom label interceptor 
+Aspect menu including shape options
+Reduced menus with icons for all/none/swap 
 
 

@@ -199,7 +199,8 @@ app.post("/load-from-db", async (req, res) => {
           source: e.source,
           target: e.target,
           label: e.constraint_name,
-          columnsLabel: encodeCol2Col(e.source_column, e.target_column), //`${e.source_column} --> ${e.target_column}`,
+          // we add a visual label to be set on screen with //`${e.source_column} → ${e.target_column}`,
+          columnsLabel: encodeCol2Col(e.source_column, e.target_column), 
           onDelete: e.on_delete, // raw code: 'a', 'c', etc.
           onUpdate: e.on_update, // raw code
           nullable: !e.source_not_null,

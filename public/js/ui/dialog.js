@@ -334,6 +334,11 @@ export function menuSelectSizeIncoming() {
 export function deleteNodesSelected() {
   let nodesToKill = getCy().nodes(":selected:visible");
 
+  if (nodesToKill.length==0){
+    showInfo('Nothing to delete');
+    return;
+  }
+
   if (nodesToKill.length > 1) {
     // confirm title, messagge
     showMultiChoiceDialog(`delete ${nodesToKill.length} nodes`, `Confirm ?`, [

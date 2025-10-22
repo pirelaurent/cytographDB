@@ -48,14 +48,12 @@ new created edges are added with the class 'fk_synth'
 */
 
 import { getCy, perimeterForEdgesAction } from "../graph/cytoscapeCore.js";
-import { NativeCategories,ConstantClass } from "../util/common.js";
-
+import { NativeCategories, ConstantClass } from "../util/common.js";
 
 let detailedEdgesArray; // to be able to reverse, store details here
 
 // called at startup now as request load details
 export function saveDetailedEdges() {
-
   detailedEdgesArray = getCy().edges(); // cytoscape collection, not array
 
   //document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
@@ -79,8 +77,8 @@ export function enterFkDetailedModeForEdges(synthEdges) {
         if (synth.hasClass(NativeCategories.TRIGGER_IMPACT)) return;
         if (synth.selected()) e.select();
         else e.unselect();
-        if (synth.hasClass("showLabel")) e.addClass(`${ConstantClass.SHOW_COLUMNS}`);
-        
+        if (synth.hasClass("showLabel"))
+          e.addClass(`${ConstantClass.SHOW_COLUMNS}`);
         else e.removeClass(`${ConstantClass.SHOW_COLUMNS}`);
         originalArray.push(e);
       });
@@ -109,7 +107,7 @@ export function enterFkDetailedMode(global = true) {
   // if no edge to restore
   if (synthEdges.length == 0) return false;
 
-    enterFkDetailedModeForEdges(synthEdges);
+  enterFkDetailedModeForEdges(synthEdges);
 }
 
 /*
@@ -117,8 +115,7 @@ export function enterFkDetailedMode(global = true) {
  We can clean obsolete details here .
 */
 
-export function cleanDetailedEdgesArray()
-{
+export function cleanDetailedEdgesArray() {
   // note all valid ids
 
   const cy = getCy();
@@ -161,14 +158,14 @@ export function cleanDetailedEdgesArray()
 export function enterFkSynthesisMode(global = true) {
   let edges;
   if (global) {
-    edges = getCy().edges(`.${ConstantClass.FK_DETAILED}` );
+    edges = getCy().edges(`.${ConstantClass.FK_DETAILED}`);
   } else {
     edges = perimeterForEdgesAction().filter(`.${ConstantClass.FK_DETAILED}`);
   }
 
   // stored graph could be synthetic only
   if (edges.length == 0) {
-   // showInfo("already in mode 1 per FK");
+    // showInfo("already in mode 1 per FK");
     return false;
   }
 
@@ -208,7 +205,9 @@ export function enterFkSynthesisModeForEdges(edges) {
 
     // synthétique FK nullable if at leeast one element is nullable
     const nullable = edgeGroup.some((e) => e.data("nullable"));
-    const labeled = edgeGroup.some((e) => e.hasClass(`${ConstantClass.SHOW_COLUMNS}`));
+    const labeled = edgeGroup.some((e) =>
+      e.hasClass(`${ConstantClass.SHOW_COLUMNS}`)
+    );
 
     getCy().add({
       group: "edges",

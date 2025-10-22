@@ -37,9 +37,8 @@ import {
   setNativeNodesCategories,
   getCustomNodesCategories,
   restoreCustomNodesCategories,
-
+  enforceLabelToAlias,
 } from "../filters/categories.js";
-
 
 /*
     Once connected to a DB, analyse model and create graph    
@@ -443,7 +442,7 @@ export function loadGraphFromFile(event) {
 
 function createGraphFromJson(json) {
   const cyData = { ...json };
-  delete cyData.originalDBName;
+
   let cy = getCy();
 
   cy.json(cyData);
@@ -457,6 +456,8 @@ function createGraphFromJson(json) {
   resetSnapshot();
   restoreCustomNodesCategories();
   setNativeNodesCategories(); // redo categories due to leaf/root change
+
+  enforceLabelToAlias(cyData.originalDBName); // despite alias could have been saved in new
 
   // show in synthetic after saving details
   saveDetailedEdges();
@@ -472,7 +473,7 @@ cy.nodes().forEach(node => {
   node.style(); // forces style recalculation on that node
 });
 */
-
+  delete cyData.originalDBName;
   metrologie();
   cy.fit();
   //getCy().layout({ name: 'cose'}).run();

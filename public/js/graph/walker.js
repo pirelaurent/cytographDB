@@ -24,6 +24,7 @@ import {
   hideNotSelectedThenDagre,
   perimeterForEdgesAction,
   revealNeighbor,
+  hideNotSelected,
 } from "../graph/cytoscapeCore.js";
 
 import { setEventMarkdown, bandeauMarkdown } from "../util/markdown.js";
@@ -803,11 +804,6 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
   return { visited, trace };
 }
 
-
-/*
- forward not used
-*/
-
 /*
  treedir
 */
@@ -834,11 +830,10 @@ export function treeDir(cy, start, dir, maxDepth = Infinity) {
       }
     });
   }
-  cy.elements().addClass('faded'); // or .hide();
+  cy.elements().addClass("faded"); // or .hide();
   keepNodes.select().show().removeClass("faded");
 
   keepEdges.select().show().removeClass("faded");
-
 
   return { nodes: keepNodes, edges: keepEdges };
 }
@@ -865,12 +860,148 @@ export function straightLineBidirectional(
       const tIn = treeDir(cy, root, "incomers", depth);
       keep = keep.union(tIn.nodes).union(tIn.edges);
     }
-    cy.elements().not(keep).addClass('faded'); // or .hide();
-    keep.show(); 
+    cy.elements().not(keep).addClass("faded"); // or .hide();
+    keep.show();
     keep.select();
-  
-  
   });
 
   return keep;
+}
+
+/**
+ * Build relationship edges from a schema definition
+ * @param {object} table - Table JSON (your sample)
+ * @returns {Array} relationships
+ */
+export function buildRelations() {
+  let cy = getCy();
+
+  let selectedNodes = cy.nodes(":visible:selected");
+  if (selectedNodes.length != 1) {
+    //selectedNodes = cy.nodes(":visible");
+    showAlert("Need a unique starting node to establish its ownership");
+    return;
+  }
+
+  showWaitCursor();
+  const rootId = selectedNodes[0].id();
+
+  /** Build { tableId -> tableJson } from Cytoscape nodes */
+
+  // All Cytoscape nodes (your full schema)
+  const schema = buildSchemaFromNodes(cy.nodes());
+
+  // Build full graph once 
+  const graph = buildOwnershipGraph(schema, { onlyMandatory: true });
+
+  // Build ownership tree **limited to descendants of rootId**
+  const tree = buildOwnershipTree(rootId, graph);
+
+  // Show it
+  //printTree(tree);
+  selectBasedOnTree(tree);
+  hideWaitCursor();
+}
+
+function selectBasedOnTree(node, prefix = "") {
+  const cy = getCy();
+  //cy.nodes().show(); // to avoid all links when brought back
+  //cy.edges().hide();
+cy.batch(()=>{
+  cy.elements().addClass("faded");
+  treeLoop(node);
+  cy.elements(":selected").removeClass("faded");
+  return;
+})
+
+// embedded recursive 
+  
+function treeLoop(node) {
+    for (const child of node.children || []) {
+      const tag = child.via?.mandatory ? "mandatory" : "optional";
+      const fk = child.via?.constraint || "?";
+      const txt = child.via?.comment ? ` // ${child.via.comment}` : "";
+      //console.log(` ↳ ${child.table} [${tag}] via ${fk}${txt}`); //tag : mandatory
+      cy.$id(child.table).show().select();
+     // console.log(`edge[name = "${fk}"]`)
+    cy.$(`edge[label = "${fk}"]`).show().select();
+      treeLoop(child.table);
+    }
+  }
+}
+
+/**
+ * Build { tableId -> tableJson } from Cytoscape nodes
+ */
+function buildSchemaFromNodes(nodes) {
+  const schema = {};
+  nodes.forEach((n) => {
+    const d = n.data();
+    const id = d.id || n.id();
+    schema[id] = d;
+  });
+  return schema;
+}
+
+/**
+ * Build a global ownership graph (parent → children)
+ */
+function buildOwnershipGraph(schema, { onlyMandatory = false } = {}) {
+  const graph = new Map();
+  const ensure = (k) => {
+    if (!graph.has(k)) graph.set(k, []);
+    return graph.get(k);
+  };
+
+  for (const table of Object.values(schema)) {
+    for (const fk of table.foreignKeys || []) {
+      const parent = fk.target_table;
+      const child = fk.source_table;
+      const mandatory = !!fk.all_source_not_null;
+      if (onlyMandatory && !mandatory) continue;
+
+      // skip FKs pointing outside schema
+      if (!schema[parent] || !schema[child]) continue;
+
+      ensure(parent).push({
+        parent,
+        child,
+        constraint: fk.constraint_name,
+        mandatory,
+        comment: fk.comment || null,
+        reflexive: parent === child,
+      });
+    }
+  }
+  return graph;
+}
+
+/**
+ * Recursively explore only descendants of rootId
+ */
+function buildOwnershipTree(rootId, graph, visited = new Set()) {
+  if (visited.has(rootId)) return { table: rootId, cycle: true, children: [] };
+  visited.add(rootId);
+
+  const edges = graph.get(rootId) || []; // only children of this root
+  const children = edges.map((edge) => {
+    const sub = buildOwnershipTree(edge.child, graph, new Set(visited));
+    return { ...sub, via: edge };
+  });
+
+  return { table: rootId, children };
+}
+
+/**
+ * Pretty print tree (for verification)
+ */
+function printTree(node, prefix = "") {
+  console.log(prefix + node.table + (node.cycle ? " (cycle)" : ""));
+  for (const child of node.children || []) {
+    const tag = child.via?.mandatory ? "mandatory" : "optional";
+    const fk = child.via?.constraint || "?";
+    const txt = child.via?.comment ? ` // ${child.via.comment}` : "";
+    console.log(`${prefix}  ↳ ${child.table} [${tag}] via ${fk}${txt}`);
+    printTree(child, prefix + "    ");
+  }
 }

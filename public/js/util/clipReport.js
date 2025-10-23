@@ -3,19 +3,35 @@ Due to browser limits for our use, an internal clipReport is available to view l
 
 
 */
-let clipReport;
-let clipReport_title;
+// clipreport.js
+const NS = "cytographDB:";                  // <-- ton namespace
+const KEY_CLIP = NS + "clipReport";   // "myapp:clipReport"
 
 export function setClipReport(title, somethingToView) {
-  clipReport = somethingToView;
-  clipReport_title = title ? title : "no name";
+  const payload = { title: title || "no name", content: somethingToView };
+  localStorage.setItem(KEY_CLIP, JSON.stringify(payload));
 }
+
+
+// À appeler très tôt au lancement de l'app si tu veux purger à chaque démarrage
+export function wipeAppStorageNamespace() {
+  console.log("wipeAppStorageNamespace");//PLA
+  // itération sûre sans muter pendant qu’on itère
+  const toRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(NS)) toRemove.push(k);
+  }
+  toRemove.forEach(k => localStorage.removeItem(k));
+}
+
+
 
 /*
  change aspect of button when report is available or not 
 */
 export function adjustClipReportBtn(){
-if (clipReport!=null) deployClipBtn(); else retractClipBtn();
+if (localStorage.getItem(KEY_CLIP)!=null) deployClipBtn(); else retractClipBtn();
 }
 
 /*
@@ -44,6 +60,11 @@ let clipWin = null;
 
 export function showClipReport() {
 
+  const data = JSON.parse(localStorage.getItem(KEY_CLIP) || "{}");
+  let clipReport = data.content || null;
+  let clipReport_title = data.title || null;
+
+
   if (clipWin && !clipWin.closed) {
     try { clipWin.close(); } catch { /* cross-origin: ignore */ }
   }
@@ -56,11 +77,11 @@ export function showClipReport() {
   }
   clipWin.focus?.();
   const d = clipWin.document;
-
+console.log(clipReport);//PLA
   // Squelette minimal (sans <script>)
   d.open();
   d.write(
-    '<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Presse-papier</title></head><body></body></html>'
+    '<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>ClipBoard</title></head><body></body></html>'
   );
   d.close();
 
@@ -121,6 +142,3 @@ clipWin.close();
 
   return clipWin;
 }
-
-
-//http://localhost:3000/img/closePage.png

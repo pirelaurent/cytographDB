@@ -2,13 +2,13 @@
 
 // cannot share data with main, so dbName is in the params
 
-import { getCommentIcon } from "../ui/dialog.js";
+import { getCommentIcon, showInfo } from "../ui/dialog.js";
 import {
   bandeauMarkdown,
   setEventMarkdown,
+
 } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
-
 /*
  get details on a table 
 */
@@ -44,12 +44,6 @@ async function getTableData10rows(tableName) {
     return { success: false, error: error.message };
   }
 }
-
-
-
-
-
-
 
 /*
 Start of specific <script src =  from table.html.
@@ -103,6 +97,8 @@ async function renderTableInfo(tableName) {
       throw new Error("Failed to get table rows");
     }
     const rows10 = rowsResult.data;
+    if (rows10.length === 0) { showInfo("Table is empty, no rows to show",document); return; }
+
 
 
     // Référence du tbody
@@ -162,11 +158,11 @@ async function renderTableInfo(tableName) {
 
 
 // reduc column size 
-function simplifyType(aType){
-let newType = aType.replace("character varying","char");
-newType = newType.replace("integer","int");
-newType = newType.replace("timestamp without time zone","tstamp");
-return newType;
+function simplifyType(aType) {
+  let newType = aType.replace("character varying", "char");
+  newType = newType.replace("integer", "int");
+  newType = newType.replace("timestamp without time zone", "tstamp");
+  return newType;
 }
 
 

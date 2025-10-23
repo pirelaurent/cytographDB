@@ -16,6 +16,8 @@
 <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
 <script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/cytoscape-cose-bilkent@4.0.0/cytoscape-cose-bilkent.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
 -->
 
   <!-- local installation-->
@@ -23,6 +25,12 @@
   <script src="/js/external/dagre.min.js"></script>
   <script src="/js/external/cytoscape-dagre.js"></script>
   <script src="/js/external/cytoscape-cose-bilkent.min.js"></script>
+  <script src="/js/external/xlsx.full.min.js"></script>
+<script type="module">
+  import { wipeAppStorageNamespace } from "./js/util/clipReport.js";
+  wipeAppStorageNamespace();
+</script>
+  
 
   <script>
     cytoscape.use(cytoscapeCoseBilkent)

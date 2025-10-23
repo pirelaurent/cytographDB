@@ -1,7 +1,8 @@
 // Export to Markdown
 
-import { showError,showToast } from "../ui/dialog.js";
-import {setClipReport} from "./clipReport.js";
+import { showError, showToast } from "../ui/dialog.js";
+import { setClipReport } from "./clipReport.js";
+import { exportXlsx } from "./excel.js";
 
 
 
@@ -22,16 +23,29 @@ export function bandeauMarkdown(doc, rootMd = "") {
   actions.setAttribute("role", "group");
   actions.setAttribute("aria-label", "Actions Markdown");
 
-  // Download
+  // markdown Download
   const imgDl = doc.createElement("img");
-  imgDl.id = rootMd + "mdDownload";
-  imgDl.src = url("./img/download.png");
+  imgDl.id = rootMd + "mkDownload";
+  imgDl.src = url("./img/mkDownload.png");
   imgDl.alt = "Download Markdown";
   imgDl.title = "download Markdown";
-  imgDl.height = 25;
+  imgDl.height = 23;
   imgDl.setAttribute("aria-hidden", "true");
   imgDl.style.cursor = "pointer";
   actions.appendChild(imgDl);
+
+  // csv Download
+  const imgCsv = doc.createElement("img");
+  imgCsv.id = rootMd + "xlsDownload";
+  imgCsv.src = url("./img/xlsDownload.png");
+  imgCsv.alt = "Download CSV";
+  imgCsv.title = "download CSV";
+  imgCsv.height = 25;
+  imgCsv.width = 27;
+  imgCsv.setAttribute("aria-hidden", "true");
+  imgCsv.style.cursor = "pointer";
+  actions.appendChild(imgCsv);
+
 
   // Copy
   const imgCp = doc.createElement("img");
@@ -39,7 +53,8 @@ export function bandeauMarkdown(doc, rootMd = "") {
   imgCp.src = url("./img/clipboardCopy.png");
   imgCp.alt = "Copy markdown to clipboard";
   imgCp.title = "Copy markdown to clipboard";
-  imgCp.height = 22;
+  imgCp.height = 25;
+  imgCp.width = 25;
   imgCp.setAttribute("aria-hidden", "true");
   imgCp.style.cursor = "pointer";
   actions.appendChild(imgCp);
@@ -54,14 +69,13 @@ export function bandeauMarkdown(doc, rootMd = "") {
 */
 
 export function setEventMarkdown(doc, tableName, title, rootMd = "") {
-  //console.log(` setEventMarkdown ${tableName} ${title} ${rootMd}`)
-  //console.log(doc.getElementById(rootMd+"mdCopy"));
 
   doc.getElementById(rootMd + "mdCopy")?.addEventListener("click", async () => {
     htmlTableToMarkdown(
       tableName,
       {
         download: false,
+        xlsDownload: false,
         copyToClipboard: true,
       },
       title,
@@ -69,11 +83,27 @@ export function setEventMarkdown(doc, tableName, title, rootMd = "") {
     );
   });
 
-  doc.getElementById(rootMd + "mdDownload")?.addEventListener("click", () => {
+  doc.getElementById(rootMd + "xlsDownload")?.addEventListener("click", async () => {
+    htmlTableToMarkdown(
+      tableName,
+      {
+        download: false,
+        xlsDownload: true,
+        copyToClipboard: false,
+        filename: `columns_${tableName || "table"}.xlsx`,
+      },
+      title,
+      doc
+    );
+  });
+
+
+  doc.getElementById(rootMd + "mkDownload")?.addEventListener("click", () => {
     htmlTableToMarkdown(
       tableName,
       {
         download: true,
+        xlsDownload: false,
         copyToClipboard: false,
         filename: `columns_${tableName || "table"}.md`,
       },
@@ -91,11 +121,13 @@ export function setEventMarkdown(doc, tableName, title, rootMd = "") {
 */
 
 export function htmlTableToMarkdown(
+
   tableId,
   opts = {},
   title,
   root = document
 ) {
+  //console.log("htmlTableToMarkdown", tableId, opts);
   const el = root.getElementById(tableId);
   if (!el) {
     showError(`Table with id="${tableId}" not found`);
@@ -123,11 +155,24 @@ export function htmlTableToMarkdown(
     return cell.innerText;
   }
 
-  const escapeCell = (txt) =>
-    String(txt)
+  const escapeCellMk = (txt) => {
+    let s = String(txt).trim();
+    s = s
       .replace(/\r?\n+/g, " ") // pas de retours ligne dans les cellules
       .replace(/\|/g, "\\|") // échapper les pipes pour Markdown
       .trim();
+    return s;
+  }
+
+  const escapeCellXls = (txt) => {
+    let s = String(txt).trim();
+    // neutraliser l’injection de formules Excel
+    // (=, +, -, @ en 1er caractère) en préfixant d'un apostrophe sauf si un seul char
+    if ((s.length > 1) && (/^[=+\-@]/.test(s))) s = "'" + s;
+    return s;
+  }
+  // excel needs an array of arrays 
+  let allXlsRows = [];
 
   const headRows = table.tHead ? Array.from(table.tHead.rows) : [table.rows[0]]; // fallback if no thead
 
@@ -135,49 +180,83 @@ export function htmlTableToMarkdown(
     ? Array.from(table.tBodies).flatMap((tb) => Array.from(tb.rows))
     : Array.from(table.rows).slice(headRows.length); // fallback if no tbody
 
-  // ligne d’en-tête
-  const headerCells = Array.from(headRows[0].cells).map((c) =>
-    escapeCell(getCellContent(c))
-  );
-  const headerLine = `| ${headerCells.join(" | ")} |`;
-  const separatorLine = `| ${headerCells.map(() => "---").join(" | ")} |`;
+  // clear header 
 
-  // lines corps
-  const bodyLines = bodyRows.map((tr) => {
-    const cells = Array.from(tr.cells).map((c) =>
-      escapeCell(getCellContent(c))
+  let headerCells;
+  let headerLine;
+  let bodyLines;
+  let separatorLine;
+  let cells;
+
+
+  if (opts.xlsDownload) {
+    headerCells = Array.from(headRows[0].cells).map((c) =>
+      escapeCellXls(getCellContent(c))
     );
-    return `| ${cells.join(" | ")} |`;
-  });
+    allXlsRows.push(headerCells);
+   
+    // lines corps
+    bodyLines = bodyRows.map((tr) => {
+      cells = Array.from(tr.cells).map((c) =>
+        escapeCellXls(getCellContent(c)))
+      return cells;
+    });
+    allXlsRows.push(...bodyLines);
+    let filename = opts.filename ?? `exportCyto.xlsx`;
+    exportXlsx(allXlsRows, filename)
+  }
+  else {
+    headerCells = Array.from(headRows[0].cells).map((c) => 
+      escapeCellMk(getCellContent(c))
+    );
+    headerLine = `| ${headerCells.join(" | ")} |`;
+    separatorLine = `| ${headerCells.map(() => "---").join(" | ")} |`;
+    // lines corps
+    bodyLines = bodyRows.map((tr) => {
+      cells = Array.from(tr.cells).map((c) =>
+        escapeCellMk(getCellContent(c))
+      );
+      return `| ${cells.join(" | ")} |`;
+    });
 
-  const titleMd = title ? `\n## ${title}\n\n` : "";
-  const markdownTable =
-    titleMd + [headerLine, separatorLine, ...bodyLines].join("\n");
-  outputMarkdown(opts, markdownTable, root);
+    let tableText
+    const titleMd = title ? `\n## ${title}\n\n` : "";
+    tableText = titleMd + [headerLine, separatorLine, ...bodyLines].join("\n");
+    outputMarkdown(opts, tableText, root);
+  }
 }
 
 /*
 more general output for markdown
 */
-export function outputMarkdown(opts = {}, markdownText, root) {
+export function outputMarkdown(opts = {}, tableText, root) {
   // output .md : file or clipboard
-  const filename = opts.filename ?? `default.md`;
+  let filename = opts.filename ?? `default.md`;
 
   if (opts.copyToClipboard) {
     const tableWin = root.defaultView || window;
-    tableWin.navigator.clipboard?.writeText(markdownText).catch((err) => {
+    tableWin.navigator.clipboard?.writeText(tableText).catch((err) => {
       console.error("Clipboard copy failed:", err);
     });
     //showInfo(" content copied in clipboard !", root);
     // also set in internal report 
-    const title = opts.title?opts.title:null;
-
-    setClipReport(title,markdownText);
-    showToast(" content copied in clipboard and clipReport!", root);
+    const title = opts.title ? opts.title : "no title"; 
+    setClipReport(title, tableText);
+    showToast(`content copied in clipboard and clipReport! (${title})`, root);
+  }
+  let blob;
+  if (opts.download === true) {
+    blob = new Blob([tableText], { type: "text/markdown" });
+    startDownload();
   }
 
-  if (opts.download !== false) {
-    const blob = new Blob([markdownText], { type: "text/markdown" });
+
+
+
+
+
+  // common . simulate a clic on a href for download
+  function startDownload() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -189,3 +268,4 @@ export function outputMarkdown(opts = {}, markdownText, root) {
     setTimeout(() => URL.revokeObjectURL(url), 1000); // leave time to nav and release
   }
 }
+

@@ -4,40 +4,38 @@ Due to browser limits for our use, an internal clipReport is available to view l
 
 */
 // clipreport.js
-const NS = "cytographDB:";                  // <-- ton namespace
-const KEY_CLIP = NS + "clipReport";   // "myapp:clipReport"
+const NS = "cytographDB:"; // <-- ton namespace
+const KEY_CLIP = NS + "clipReport"; // "myapp:clipReport"
 
 export function setClipReport(title, somethingToView) {
   const payload = { title: title || "no name", content: somethingToView };
   localStorage.setItem(KEY_CLIP, JSON.stringify(payload));
+  adjustClipReportBtn();
 }
-
 
 // À appeler très tôt au lancement de l'app si tu veux purger à chaque démarrage
 export function wipeAppStorageNamespace() {
-  console.log("wipeAppStorageNamespace");//PLA
   // itération sûre sans muter pendant qu’on itère
   const toRemove = [];
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
     if (k && k.startsWith(NS)) toRemove.push(k);
   }
-  toRemove.forEach(k => localStorage.removeItem(k));
+  toRemove.forEach((k) => localStorage.removeItem(k));
 }
-
-
 
 /*
  change aspect of button when report is available or not 
 */
-export function adjustClipReportBtn(){
-if (localStorage.getItem(KEY_CLIP)!=null) deployClipBtn(); else retractClipBtn();
+export function adjustClipReportBtn() {
+  if (localStorage.getItem(KEY_CLIP) != null) deployClipBtn();
+  else retractClipBtn();
 }
 
 /*
  change the icon of clipboard in main menu
 */
- function deployClipBtn() {
+function deployClipBtn() {
   let btnImg = document.getElementById("clip-img");
   btnImg.src = "./img/clipFull.png";
 }
@@ -46,7 +44,7 @@ if (localStorage.getItem(KEY_CLIP)!=null) deployClipBtn(); else retractClipBtn()
  lower icon for clipboard
 */
 
- function retractClipBtn() {
+function retractClipBtn() {
   let btnImg = document.getElementById("clip-img");
   btnImg.src = "./img/clipShort.png";
 }
@@ -59,14 +57,16 @@ if (localStorage.getItem(KEY_CLIP)!=null) deployClipBtn(); else retractClipBtn()
 let clipWin = null;
 
 export function showClipReport() {
-
   const data = JSON.parse(localStorage.getItem(KEY_CLIP) || "{}");
   let clipReport = data.content || null;
   let clipReport_title = data.title || null;
 
-
   if (clipWin && !clipWin.closed) {
-    try { clipWin.close(); } catch { /* cross-origin: ignore */ }
+    try {
+      clipWin.close();
+    } catch {
+      /* cross-origin: ignore */
+    }
   }
 
   clipWin =
@@ -77,7 +77,6 @@ export function showClipReport() {
   }
   clipWin.focus?.();
   const d = clipWin.document;
-console.log(clipReport);//PLA
   // Squelette minimal (sans <script>)
   d.open();
   d.write(
@@ -100,23 +99,22 @@ console.log(clipReport);//PLA
 
   // ---- UI
   const header = d.createElement("header");
-  
+
   const title = d.createElement("h1");
   header.append(title);
 
   // --- Titre + bouton de fermeture
   const h2 = d.createElement("h2");
-  const h2Title = clipReport_title?clipReport_title:" <no report> "
+  const h2Title = clipReport_title ? clipReport_title : " <no report> ";
   h2.appendChild(d.createTextNode(`Last report : ${h2Title}`));
-
 
   //const btns = d.createElement("div");
   const btnClose = d.createElement("button");
   btnClose.id = "btn-close";
   btnClose.textContent = "Close ";
   //btns.append(btnClose);
- const separator = d.createElement("text");
- separator.innerText=' ';
+  const separator = d.createElement("text");
+  separator.innerText = " ";
   const btnClear = d.createElement("button");
   btnClear.id = "btn-clear";
   btnClear.textContent = "Clear";
@@ -124,16 +122,19 @@ console.log(clipReport);//PLA
   const pre = d.createElement("pre");
   pre.id = "out";
   pre.textContent = clipReport || "— (last Report content is empty) —";
-  d.body.append(header,btnClose,separator, btnClear,  h2, pre);
+  d.body.append(header, btnClose, separator, btnClear, h2, pre);
 
+  /*
+   remove data in shared deposit 
+  */
   async function clearClipReport() {
-    clipReport = null;
+    localStorage.removeItem(KEY_CLIP);
     adjustClipReportBtn();
     clipWin.close();
   }
 
-  async function closeClipReport(){
-clipWin.close();
+  async function closeClipReport() {
+    clipWin.close();
   }
   btnClear.addEventListener("click", clearClipReport);
   btnClose.addEventListener("click", closeClipReport);

@@ -72,21 +72,14 @@ button:hover {
   border-radius: 4px;
 }
 
-
-
 #undo-btn:hover,
-#btn-export:hover
- {
+#btn-export:hover {
   background-color: cornsilk;
 }
 
 #undo-btn:active {
   background-color: rgba(0, 0, 0, 0.2);
 }
-
-
-
-
 
 .metrologie {
   background-color: rosybrown;
@@ -140,8 +133,6 @@ button:hover {
   font-size: 1rem;
   z-index: 999;
 }
-
-
 
 #tableInfo table {
   width: 100%;
@@ -219,8 +210,6 @@ tr.group-start > th {
   /* ne gêne pas les clics */
 }
 
-
-
 #spacingControls span {
   display: flex;
   align-items: center;
@@ -240,12 +229,10 @@ tr.group-start > th {
   color: #fff;
   padding: 8px 12px;
   border-radius: 4px;
-  border-color : #BBB;
+  border-color: #bbb;
   opacity: 0.9;
   font-size: 0.9em;
 }
-
-
 
 .overlayXX {
   display: none;
@@ -320,10 +307,10 @@ tr.group-start > th {
 }
 
 .labelHelp {
-  display: inline-block;   /* <— clé */
-  width: 200px;            /* fixe la largeur */
+  display: inline-block; /* <— clé */
+  width: 200px; /* fixe la largeur */
   margin-right: 20px;
-  vertical-align: top;     /* ou middle selon l’alignement voulu */
+  vertical-align: top; /* ou middle selon l’alignement voulu */
 }
 .labelRegex {
   display: inline-block;
@@ -492,9 +479,6 @@ th.sort-desc::after {
   content: " ▼";
 }
 
-
-
-
 /* change background one lien / two */
 tr.one {
   background-color: #efefef;
@@ -522,16 +506,16 @@ tr.nullable td {
 }
 
 td.notDetailed {
-  text-align:center;
-  color:#8e2e2e;
+  text-align: center;
+  color: #8e2e2e;
 }
 
 tr td.onUpDel {
   font-size: 8px;
-  color:#8e2e2e;
+  color: #8e2e2e;
 }
 th.onUpDel {
-    font-size: 10px;
+  font-size: 10px;
 }
 
 #tableOfPk th[scope="rowgroup"] {
@@ -653,8 +637,6 @@ th .sort-indicator {
   padding: 6px;
 }
 
-
-
 legend {
   width: 35%;
   display: flex;
@@ -677,42 +659,67 @@ fieldset {
   width: 100%;
 }
 
-
-.input-adorned{
-  position:relative;
-  display:inline-block;
-  width:100%;                /* or a fixed width if you prefer */
+.input-adorned {
+  position: relative;
+  display: inline-block;
+  width: 100%; /* or a fixed width if you prefer */
 }
 
-.input-adorned .modal-input{
-  width:100%;
-  padding-right:2rem;        /* leave room for the icon */
+.input-adorned .modal-input {
+  width: 100%;
+  padding-right: 2rem; /* leave room for the icon */
 }
 
-.tips-inline{
-  position:absolute;
-  right:.5rem;
-  top:50%;
-  transform:translateY(-50%);
-  background:none;
-  border:0;
-  cursor:pointer;
-  font-size:1.1rem;
-  line-height:1;
-  padding:0;
+.tips-inline {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0;
 }
-.tips-inline:focus-visible{ outline:2px solid currentColor; border-radius:4px; }
-
+.tips-inline:focus-visible {
+  outline: 2px solid currentColor;
+  border-radius: 4px;
+}
 
 /* Retire le cadre noir par défaut mais garde un focus visible personnalisé */
-   #follow-graph .zone { outline: none; }
+#follow-graph .zone,
+#tree-follow-graph .zone,
+#follow-relations .zone {
+  outline: none;
+}
 
-  /* hover/focus : colorie le fond de la zone */
-  #follow-graph .zone:hover   .zone-bg { fill: rgba(0,0,0,.2); }      /* léger gris */
-  #follow-graph .zone:focus   .zone-bg { fill: rgba(0,181,255,.18); }  /* halo clavier bleu */
-  #follow-graph .zone:active  .zone-bg { fill: rgba(0,0,0,.12); }      /* clic */
+/* hover/focus : colorie le fond de la zone */
+#follow-graph .zone:hover .zone-bg,
+#tree-follow-graph .zone:hover .zone-bg,
+#follow-relations .zone:hover .zone-bg
+ {
+  fill: rgba(0, 0, 0, 0.2);
+} /* léger gris */
+#follow-graph .zone:focus .zone-bg,
+#tree-follow-graph .zone:focus .zone-bg,
+#follow-relations .zone:focus .zone-bg 
 
-  /* feedback doux sur la ligne au survol */
-  #follow-graph .zone:hover line { stroke-width: 3; }
+{
+  fill: rgba(0, 181, 255, 0.18);
+} /* halo clavier bleu */
+#follow-graph .zone:active .zone-bg,
+#tree-follow-graph .zone:active .zone-bg,
+#follow-relations .zone:active .zone-bg
+ {
+  fill: rgba(0, 0, 0, 0.12);
+} /* clic */
 
- 
+/* feedback doux sur la ligne au survol */
+#follow-graph .zone:hover line, 
+#tree-follow-graph .zone:hover line 
+#follow-relations .zone:hover line 
+
+{
+  stroke-width: 3;
+}

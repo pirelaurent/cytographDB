@@ -41,10 +41,12 @@ import {
   simplifyAssociations,
   restoreAssociations,
   findPkFkChains,
-  treeDir,
   straightLineBidirectional,
-  buildRelations,
+  ownerShipLayout,
+  followTree,
 } from "../graph/walker.js";
+
+
 
 import {
   getCy,
@@ -71,11 +73,10 @@ import {
   bringSelectedToBack,
   rotateGraphByDegrees,
   noProportionalSize,
-  setProportionalSize,
+  setProportionalNodeSizeByLinks,
   changeFontSizeEdge,
   changeFontSizeNode,
   selectEdgesBetweenSelectedNodes,
-  proportionalSizeNodeSizeByLinks,
   labelId,
 } from "../graph/cytoscapeCore.js";
 
@@ -99,6 +100,8 @@ import {
   showAlert,
   showError,
   deleteNodesSelected,
+  showWaitCursor,
+  hideWaitCursor,
 } from "./dialog.js";
 
 import { getLocalDBName } from "../dbFront/tables.js";
@@ -114,6 +117,7 @@ import {
 } from "../graph/specialLayout.js";
 
 import { outputMarkdown } from "../util/markdown.js";
+import { setClipReport } from "../util/clipReport.js";
 /*
  connect an html menu object to a treatment function with action selected
 */
@@ -233,7 +237,6 @@ export function menuDb(option, menuItemElement, whichClic = "left") {
  ----------------------------------  main menu on display actions 
 */
 export function menuDisplay(option, item, whichClic = "left") {
-  console.log(option); //PLA
   if (whichClic == "right") return;
   if (!cy) return;
   switch (option) {
@@ -346,8 +349,68 @@ export function menuDisplay(option, item, whichClic = "left") {
       separateCloseNodesVertical();
       break;
 
+    //-------------- shape
+    case "proportionalSize":
+      setProportionalNodeSizeByLinks();
+      break;
+    case "noProportionalSize":
+      noProportionalSize();
+      break;
+    //-------------------------------------------------------- Label
 
+    case "labelAlias":
+      labelAlias();
+      break;
 
+    case "labelNodeHide":
+      labelNodeHide();
+      break;
+
+    case "labelId":
+      labelId();
+      break;
+
+    case "increase-font":
+      changeFontSizeNode(5);
+      break;
+    case "decrease-font":
+      changeFontSizeNode(-1);
+      break;
+    case "restore-font":
+      changeFontSizeNode(24, false);
+      break;
+
+    case "labelShow":
+      // Show visible edges, or selected ones if any are selected
+      let edgesToShow = perimeterForEdgesAction();
+
+      for (let edge of edgesToShow) {
+        if (edge.hasClass(ConstantClass.FK_DETAILED)) {
+          edge.addClass(`${ConstantClass.SHOW_COLUMNS}`);
+          //labelToShow = ele.data('columnsLabel').replace('\n', "<BR/>");
+        } else {
+          // FK_SYNTH
+          edge.addClass(`${ConstantClass.SHOW_LABEL}`);
+        }
+      }
+      break;
+
+    case "labelHide":
+      let edgesToHide = perimeterForEdgesAction();
+      edgesToHide.removeClass(
+        `${ConstantClass.SHOW_COLUMNS} ${ConstantClass.SHOW_LABEL}`
+      );
+      break;
+
+    case "increase-font-edge":
+      changeFontSizeEdge(5);
+      break;
+    case "decrease-font-edge":
+      changeFontSizeEdge(-1);
+      break;
+    case "restore-font-edge":
+      changeFontSizeEdge(18, false);
+      break;
   }
   // refresh info bar
   metrologie();
@@ -484,9 +547,6 @@ export function menuNodes(option, item, whichClic = "left") {
       selectTargetNodesFromSelectedEdges();
       break;
 
-
-
-      
     // -----------------------------------------Nodes filter by
 
     // *** by Name *** is under clic event -> openNameFilterModal
@@ -568,6 +628,8 @@ export function menuNodes(option, item, whichClic = "left") {
       }
       break;
 
+    case "nodeIsComposite":
+      getCy().nodes(".composite").select();
       break;
 
     /*
@@ -606,40 +668,6 @@ export function menuNodes(option, item, whichClic = "left") {
       is started by event on the menu item by  byFilterMenu that starts openDegreeFilter()
 */
 
-    //-------------------------------------------------------- Label
-
-    case "labelAlias":
-     labelAlias();
-      break;
-
-    case "labelNodeHide":
-      labelNodeHide();
-      break;
-
-    case "labelId":
-      labelId();
-      break;
-      
-    case "increase-font":
-      changeFontSizeNode(5);
-      break;
-    case "decrease-font":
-      changeFontSizeNode(-1);
-      break;
-
-
-    //-------------- shape 
-    case "proportionalSize":
-     setProportionalSize();
-      break;
-    case "noProportionalSize":
-      noProportionalSize();
-      break;
-
-
-
-
-
     //------------------------------------------------ Nodes List
 
     case "listNodesAll":
@@ -664,8 +692,21 @@ export function menuNodes(option, item, whichClic = "left") {
       follow("both");
       break;
 
+    //------------------------------------------------ Nodes  Follow tree
+    case "followIncomingTree":
+      followTree("incoming");
+      break;
 
-    case "followCrossAssociations":
+    case "followOutgoingTree":
+      followTree("outgoing");
+      break;
+
+    case "followBothTree":
+      followTree("both");
+      break;
+
+    case "allowPropagation":
+      //case "followCrossAssociations":
       followCrossAssociations();
       break;
 
@@ -677,31 +718,8 @@ export function menuNodes(option, item, whichClic = "left") {
       findLongOutgoingPaths(getCy());
       break;
 
-
-
-
     case "findPkFkChains":
       findPkFkChains();
-      break;
-
-    case "treeForward":
-      pushSnapshot();
-      treeDir(getCy(), getCy().nodes(":selected"), "outgoers");
-
-      break;
-    case "treeBackward":
-      pushSnapshot();
-      treeDir(getCy(), getCy().nodes(":selected"), "incomers");
-      break;
-
-    case "treeBoth":
-      pushSnapshot();
-      straightLineBidirectional(
-        getCy(),
-        getCy().nodes(":selected"),
-        true,
-        true
-      );
       break;
 
     //----------------------------------  nodes Delete
@@ -756,7 +774,7 @@ export function menuEdges(option, item, whichClic = "left") {
      follow edges from selected nodes only and select them 
     */
 
-    case "outgoingEdges":
+    case "selectOutgoingEdges":
       let nodesOut = getCy().nodes(":selected:visible");
       if (nodesOut.length == 0) {
         showAlert("no selected nodes.");
@@ -767,7 +785,7 @@ export function menuEdges(option, item, whichClic = "left") {
       nodesOut.outgoers("edge").addClass("outgoing");
       break;
 
-    case "incomingEdges":
+    case "selectIncomingEdges":
       let nodesIn = getCy().nodes(":selected:visible");
       if (nodesIn.length == 0) {
         showAlert("no selected nodes.");
@@ -778,7 +796,7 @@ export function menuEdges(option, item, whichClic = "left") {
       nodesIn.incomers("edge:visible").addClass("incoming");
       break;
 
-    case "bothEdges":
+    case "selectBothEdges":
       let nodes = getCy().nodes(":selected:visible");
       if (nodes.length == 0) {
         showAlert("no selected nodes.");
@@ -805,35 +823,6 @@ export function menuEdges(option, item, whichClic = "left") {
 
     case "selectEdgesByCategory":
       //fillInEdgesCategories();
-      break;
-
-    case "labelShow":
-      // Show visible edges, or selected ones if any are selected
-      let edgesToShow = perimeterForEdgesAction();
-
-      for (let edge of edgesToShow) {
-        if (edge.hasClass(ConstantClass.FK_DETAILED)) {
-          edge.addClass(`${ConstantClass.SHOW_COLUMNS}`);
-          //labelToShow = ele.data('columnsLabel').replace('\n', "<BR/>");
-        } else {
-          // FK_SYNTH
-          edge.addClass(`${ConstantClass.SHOW_LABEL}`);
-        }
-      }
-      break;
-
-    case "labelHide":
-      let edgesToHide = perimeterForEdgesAction();
-      edgesToHide.removeClass(
-        `${ConstantClass.SHOW_COLUMNS} ${ConstantClass.SHOW_LABEL}`
-      );
-      break;
-
-    case "increase-font-edge":
-      changeFontSizeEdge(5);
-      break;
-    case "decrease-font-edge":
-      changeFontSizeEdge(-1);
       break;
 
     case "hideEdgeSelected":
@@ -924,6 +913,8 @@ export function menuEdges(option, item, whichClic = "left") {
 */
 export function menuModel(option, item, whichClic = "left") {
   if (whichClic == "right") return;
+  // valid for all menu
+  const cy = getCy();
   // select edges
   switch (option) {
     case "enterFkSynthesisMode":
@@ -992,32 +983,55 @@ export function menuModel(option, item, whichClic = "left") {
       metrologie();
       break;
 
-
-case "buildRelations":
-  buildRelations();
- break;
-
+    case "ownerShipLayout":
+      ownerShipLayout();
+      break;
 
 
+
+      /*      showWaitCursor();
+      cy.batch(() => {
+        // regroupement + compactage local
+      buildCompositeGroups(cy);
+
+      // trace of hierarchy before collapsing
+      const hierarchy = buildHierarchyTXT(cy);
+      //console.log(hierarchy);
+      setClipReport("composition", hierarchy);
+
+
+        // tous les composites démarrent en mode "collapsed"
+        cy.nodes(":parent").forEach((p) => collapseComposite(p));
+  
+      });
+      cy.style().update();
+      hideWaitCursor();
+
+
+
+      hideWaitCursor();
+      cy.fit(); */
+
+      break;
 
     case "edgeIsTriggerGenerated":
       selectEdgesByNativeCategories("trigger_impact");
       break;
 
     case "edgeIsNullable":
-      getCy().edges();
+      cy.edges();
       const nullableEdges = getCy().edges(".nullable");
       nullableEdges.select();
       break;
 
     case "edgeIsOnDeleteCascade":
-      getCy().edges();
-      const cascadeEdges = getCy().edges(".delete_cascade");
+      cy.edges();
+      const cascadeEdges = cy.edges(".delete_cascade");
       cascadeEdges.select();
       break;
 
     case "edgeIsASimplifiedNode":
-      const simplifiedEdges = getCy().edges(".simplified");
+      const simplifiedEdges = cy.edges(".simplified");
       simplifiedEdges.select();
       break;
   }
@@ -1027,7 +1041,7 @@ case "buildRelations":
  this is not yet in any menus
 */
 export function visibility(option) {
-  if (!getCy()) return;
+  if (!cy) return;
   switch (option) {
     case "front":
       bringSelectedToFront();

@@ -464,7 +464,7 @@ export function metrologie(where = "") {
 
   let big = '<span class = "bigPerim">';
   let small = '<span class = "smallPerim">';
-  let display = "Nodes&nbsp;&nbsp;";
+  let display = "Tables&nbsp;&nbsp;";
 
   if (selectedCountNodesVisible > 0) {
     display += `${big}${selectedCountNodesVisible}/</span> ${small}${wholeNodesVisible}</span>`;
@@ -486,7 +486,7 @@ export function metrologie(where = "") {
 
   // ------------ edges info
 
-  display = "Edges &nbsp;";
+  display = "Relations &nbsp;";
   if (selectedCountEdgesVisible > 0) {
     display += `${big}${selectedCountEdgesVisible}/</span> ${small}${wholeEdgesVisible}</span>`;
   } else {
@@ -609,19 +609,19 @@ export function selectInputBetween(min, max) {
   });
 }
 
-export function changeFontSizeNode(delta) {
+export function changeFontSizeNode(value, increase = true) {
   let selectedNodes = perimeterForNodesAction();
 
   // getCy().style().selector("node").style("font-size", newSize).update();
   selectedNodes.forEach((node) => {
     const currentFontSize = parseFloat(node.style("font-size"));
 
-    const newSize = Math.max(6, currentFontSize + delta);
+    const newSize = increase?Math.max(6, currentFontSize + value):value;
     node.style("font-size", newSize);
   });
 }
 
-export function changeFontSizeEdge(delta) {
+export function changeFontSizeEdge(value, increase=true) {
   let selectedEdges = getCy().edges(":visible:selected");
 
   // S'il n'y a pas d'arêtes sélectionnées visibles, on prend toutes les visibles
@@ -631,7 +631,7 @@ export function changeFontSizeEdge(delta) {
 
   selectedEdges.forEach((edge) => {
     const currentFontSize = parseFloat(edge.style("font-size")) || 10; // valeur par défaut
-    const newSize = Math.max(6, currentFontSize + delta);
+    const newSize = increase?Math.max(6, currentFontSize + value):value;
     edge.style("font-size", newSize);
   });
 }
@@ -639,7 +639,7 @@ export function changeFontSizeEdge(delta) {
 /*
  increase size of nodes against number of edges 
 */
-export function proportionalSizeNodeSizeByLinks() {
+export function setProportionalNodeSizeByLinks() {
   let selectedNodes = perimeterForNodesAction();
 
   // 1. Calculer le nombre de liens pour chaque nœud
@@ -650,7 +650,7 @@ export function proportionalSizeNodeSizeByLinks() {
 /*
  adapt the shape against the number of edges 
 */
-export function setProportionalSize(node) {
+ function setProportionalSize(node) {
   let degree = node.connectedEdges().length;
   node.data("degree", degree);
   if (degree == 0) degree = 1;
@@ -939,3 +939,14 @@ export function labelNodeHide() {
 
 
 
+export function hideDanglingEdges() {
+  cy.edges().forEach(e => {
+    const src = e.source();
+    const tgt = e.target();
+    if (src.hasClass('hidden-child') || tgt.hasClass('hidden-child')) {
+      e.addClass('hidden-edge');
+    } else {
+      e.removeClass('hidden-edge');
+    }
+  });
+}

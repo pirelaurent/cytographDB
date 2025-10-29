@@ -30,7 +30,7 @@ import {
 } from "../graph/detailedEdges.js";
 
 import { follow } from "../graph/walker.js";
-import { menuNodes } from "./menus.js";
+import { menuNodes,menuEdges } from "./menus.js";
 import { setModalInterceptors } from "./modal.js";
 import { NativeCategories, ConstantClass } from "../util/common.js";
 import { showClipReport } from "../util/clipReport.js";
@@ -148,7 +148,7 @@ export function setInterceptors() {
       if (filteredClasses.length > 0) {
         let allInfos = [];
         filteredClasses.forEach((cls) => {
-          // simplify visual edge mode 
+          // simplify visual edge mode
           switch (cls) {
             case `${ConstantClass.FK_DETAILED}`:
               allInfos.push(`1/Col`);
@@ -301,11 +301,10 @@ export function setInterceptors() {
     popSnapshot("undo button");
   });
 
-// clipBoard 
-  document.getElementById("clip-btn").addEventListener("click", () => { 
+  // clipBoard
+  document.getElementById("clip-btn").addEventListener("click", () => {
     showClipReport();
   });
-
 
   document.addEventListener("keyup", (e) => {
     if (e.key === "Control") {
@@ -377,7 +376,7 @@ export function setInterceptors() {
       y + 5 - (clicNodeMenu.offsetHeight || 0) - offsetY
     }px`;
 
-    // Ton affichage conditionnel
+    //  affichage conditionnel
     document.getElementById("open-trigger").style.display =
       nodeForInfo.hasClass(NativeCategories.HAS_TRIGGERS)
         ? "list-item"
@@ -418,6 +417,23 @@ export function setInterceptors() {
     quickAccessMenu.style.display = "none";
   }
 
+  let lastTap = 0;
+  getCy().on("tap", "node", (e) => {
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      const parent = e.target;
+      //switch
+      if (parent.hasClass("collapsed")) {
+        expandComposite(parent);
+      } else {
+        collapseComposite(parent);
+      }
+      getCy().style().update();
+      getCy().fit(getCy().nodes(":visible"), 50);
+    }
+    lastTap = now;
+  });
+
   getCy().on("tap", (e) => {
     // si on a cliqué ailleurs que le menu, on masque
     // (tap catchera aussi le clic gauche; c’est voulu)
@@ -443,7 +459,7 @@ export function setInterceptors() {
 
   document.getElementById("open-table").addEventListener("click", () => {
     openTable(nodeForInfo.id());
-        //openTable10rows(nodeForInfo.id())
+    //openTable10rows(nodeForInfo.id())
   });
 
   document.getElementById("open-trigger").addEventListener("click", () => {
@@ -505,9 +521,6 @@ export function setInterceptors() {
       edgeForInfo.toggleClass(ConstantClass.SHOW_COLUMNS);
     }
   });
-
-  
-
 
   // trace current selection values
   getCy().on("select unselect", "node", function () {
@@ -600,25 +613,52 @@ export function setInterceptors() {
     commonArrow("both");
   });
 
-
-  const svg = document.getElementById('follow-graph');
+  const svg = document.getElementById("follow-graph");
 
   // Clic souris / tactile
-  svg.addEventListener('click', (e) => {
-    const zone = e.target.closest('.zone');
+  svg.addEventListener("click", (e) => {
+    const zone = e.target.closest(".zone");
     if (!zone || !svg.contains(zone)) return;
 
-menuNodes(zone.dataset.action, e);
+    menuNodes(zone.dataset.action, e);
 
     //triggerAction(zone.dataset.action);
-  
-  
+  });
+
+
+  const svgTree = document.getElementById("tree-follow-graph");
+
+  // Clic souris / tactile
+  svgTree.addEventListener("click", (e) => {
+    const zone = e.target.closest(".zone");
+    if (!zone || !svgTree.contains(zone)) return;
+
+    menuNodes(zone.dataset.action, e);
+
+  });
+
+const svgPassThroug = document.getElementById("pass-through-graph");
+
+  // Clic souris / tactile
+  svgPassThroug.addEventListener("click", (e) => {
+    const zone = e.target.closest(".zone");
+    if (!zone || !svgPassThroug.contains(zone)) return;
+    menuNodes(zone.dataset.action, e);
+  });
+
+
+const svgRelations = document.getElementById("follow-relations");
+
+  // Clic souris / tactile
+  svgRelations.addEventListener("click", (e) => {
+    const zone = e.target.closest(".zone");
+    if (!zone || !svgRelations.contains(zone)) return;
+    menuEdges(zone.dataset.action, e);
   });
 
 
 
-
-
+ 
 
   function commonArrow(direction) {
     // store current selected
@@ -645,7 +685,7 @@ menuNodes(zone.dataset.action, e);
   document.getElementById("icon-selectSwap").addEventListener("click", () => {
     menuNodes("swapSelected");
   });
-/* hide in menu */
+  /* hide in menu */
   document.getElementById("icon-hideSelected").addEventListener("click", () => {
     menuNodes("hideSelected");
   });
@@ -664,22 +704,30 @@ menuNodes(zone.dataset.action, e);
     menuNodes("showAll");
   });
 
-/*
+  /*
  same icons in menus 
 */
-document.getElementById("quick_icon-selectAll").addEventListener("click", () => {
-    menuNodes("all");
-  });
-  document.getElementById("quick_icon-selectNone").addEventListener("click", () => {
-    menuNodes("none");
-  });
-  document.getElementById("quick_icon-selectSwap").addEventListener("click", () => {
-    menuNodes("swapSelected");
-  });
+  document
+    .getElementById("quick_icon-selectAll")
+    .addEventListener("click", () => {
+      menuNodes("all");
+    });
+  document
+    .getElementById("quick_icon-selectNone")
+    .addEventListener("click", () => {
+      menuNodes("none");
+    });
+  document
+    .getElementById("quick_icon-selectSwap")
+    .addEventListener("click", () => {
+      menuNodes("swapSelected");
+    });
 
-  document.getElementById("quick_icon-hideSelected").addEventListener("click", () => {
-    menuNodes("hideSelected");
-  });
+  document
+    .getElementById("quick_icon-hideSelected")
+    .addEventListener("click", () => {
+      menuNodes("hideSelected");
+    });
 
   document
     .getElementById("quick_icon-hideNotSelected")
@@ -687,19 +735,20 @@ document.getElementById("quick_icon-selectAll").addEventListener("click", () => 
       menuNodes("hideNotSelected");
     });
 
-  document.getElementById("quick_icon-swapHidden").addEventListener("click", () => {
-    menuNodes("swapHidden");
+  document
+    .getElementById("quick_icon-swapHidden")
+    .addEventListener("click", () => {
+      menuNodes("swapHidden");
+    });
+
+  document
+    .getElementById("quick_icon-showAll")
+    .addEventListener("click", () => {
+      menuNodes("showAll");
+    });
+
+  const tipsBtn = document.getElementById("tipsBtn");
+  tipsBtn.addEventListener("click", () => {
+    helpRegex();
   });
-
-  document.getElementById("quick_icon-showAll").addEventListener("click", () => {
-    menuNodes("showAll");
-  });
-
-
-const tipsBtn = document.getElementById('tipsBtn');
-tipsBtn.addEventListener('click', () => {
-  helpRegex();
-});
-
-
 } // setInterceptor

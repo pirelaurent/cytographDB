@@ -139,6 +139,47 @@ export function follow(direction = "outgoing") {
   hideWaitCursor();
 }
 
+export function followTree(direction = "outgoing") {
+
+  // not perimeterForNodesAction to avoid full nodes.
+  let cy = getCy();
+
+  let selectedNodes = cy.nodes(":visible:selected");
+  if (selectedNodes.length === 0) {
+    //selectedNodes = cy.nodes(":visible");
+    showAlert("no starting nodes to follow.");
+    return;
+  }
+
+  showWaitCursor();
+  pushSnapshot();
+
+  if (direction === "incoming")
+    straightLineBidirectional(
+      cy,
+      selectedNodes,
+{      includeIn:true, 
+      includeOut:false }
+    );
+
+  if (direction === "outgoing")
+    straightLineBidirectional(
+      cy,
+      selectedNodes,
+{      includeIn:false, 
+      includeOut:true }
+    );
+
+  if (direction === "both")
+    straightLineBidirectional(
+      cy,
+      selectedNodes,
+      {includeIn:true, 
+      includeOut:true }
+    );
+
+  hideWaitCursor();
+}
 /*
  when an association node is selected by a side, 
  continue with node linked to the other side 
@@ -806,9 +847,13 @@ export function findFunctionalDescendantsCytoscape(rootNode) {
 
 /*
  treedir
-*/
+Starts from a node,
+Follows edges either via .outgoers("edge") or .incomers("edge"),
+Keeps track of visited nodes to avoid infinite loops,
+Stops at maxDepth,
+Returns { nodes, edges } for that subgraph.
+ */
 
-// Arbre "en ligne droite" dans un sens donné (outgoers ou incomers)
 export function treeDir(cy, start, dir, maxDepth = Infinity) {
   const seen = new Set([start.id()]);
   let keepNodes = cy.collection(start);
@@ -830,16 +875,19 @@ export function treeDir(cy, start, dir, maxDepth = Infinity) {
       }
     });
   }
-  cy.elements().addClass("faded"); // or .hide();
+  /*   cy.elements().addClass("faded"); // or .hide();
   keepNodes.select().show().removeClass("faded");
-
-  keepEdges.select().show().removeClass("faded");
+  keepEdges.select().show().removeClass("faded"); */
 
   return { nodes: keepNodes, edges: keepEdges };
 }
 
 /*
- Bidirectionnel "en ligne droite" à partir d'une racine
+ Bidirectionnal straight 
+calls treeDir() once for outgoing,
+calls it again for incoming,
+merges the results,
+and then fades out everything else (.not(keep).addClass("faded")). 
 
 */
 
@@ -848,6 +896,8 @@ export function straightLineBidirectional(
   rootSel,
   { includeOut = true, includeIn = true, depth = Infinity } = {}
 ) {
+
+
   const root = cy.$(rootSel);
   let keep = cy.collection(root);
 
@@ -873,7 +923,7 @@ export function straightLineBidirectional(
  * @param {object} table - Table JSON (your sample)
  * @returns {Array} relationships
  */
-export function buildRelations() {
+export function ownerShipLayout() {
   let cy = getCy();
 
   let selectedNodes = cy.nodes(":visible:selected");
@@ -891,7 +941,7 @@ export function buildRelations() {
   // All Cytoscape nodes (your full schema)
   const schema = buildSchemaFromNodes(cy.nodes());
 
-  // Build full graph once 
+  // Build full graph once
   const graph = buildOwnershipGraph(schema, { onlyMandatory: true });
 
   // Build ownership tree **limited to descendants of rootId**
@@ -907,24 +957,24 @@ function selectBasedOnTree(node, prefix = "") {
   const cy = getCy();
   //cy.nodes().show(); // to avoid all links when brought back
   //cy.edges().hide();
-cy.batch(()=>{
-  cy.elements().addClass("faded");
-  treeLoop(node);
-  cy.elements(":selected").removeClass("faded");
-  return;
-})
+  cy.batch(() => {
+    cy.elements().addClass("faded");
+    treeLoop(node);
+    cy.elements(":selected").removeClass("faded");
+    return;
+  });
 
-// embedded recursive 
-  
-function treeLoop(node) {
+  // embedded recursive
+
+  function treeLoop(node) {
     for (const child of node.children || []) {
       const tag = child.via?.mandatory ? "mandatory" : "optional";
       const fk = child.via?.constraint || "?";
       const txt = child.via?.comment ? ` // ${child.via.comment}` : "";
       //console.log(` ↳ ${child.table} [${tag}] via ${fk}${txt}`); //tag : mandatory
       cy.$id(child.table).show().select();
-     // console.log(`edge[name = "${fk}"]`)
-    cy.$(`edge[label = "${fk}"]`).show().select();
+      // console.log(`edge[name = "${fk}"]`)
+      cy.$(`edge[label = "${fk}"]`).show().select();
       treeLoop(child.table);
     }
   }

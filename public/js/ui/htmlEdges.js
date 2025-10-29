@@ -80,7 +80,7 @@ export function sendEdgeListToHtml() {
     // current state of edge : global or detailed
     const fk_on_delete = e.data("onDelete");
     const fk_on_update = e.data("onUpdate");
-    //console.log(e.data("onDelete"));//PLA
+
 
     const columns = e.hasClass(`${ConstantClass.FK_DETAILED}`)
       ? { label: e.data("columnsLabel") || "", nullable: e.data("nullable") }

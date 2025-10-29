@@ -11,7 +11,7 @@ import {
   setAndRunLayoutOptions,
   metrologie,
   restoreProportionalSize,
-  proportionalSizeNodeSizeByLinks,
+setProportionalNodeSizeByLinks,
 } from "./cytoscapeCore.js";
 
 import {
@@ -84,7 +84,7 @@ export function loadInitialGraph() {
       // moved after reduction to 1 edge per fk
       setNativeNodesCategories();
       hideWaitLoading();
-      proportionalSizeNodeSizeByLinks();
+      setProportionalNodeSizeByLinks();
       setAndRunLayoutOptions();
 
       getCy().fit();

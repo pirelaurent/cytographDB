@@ -46,8 +46,8 @@ const cyStyles = [
       "font-size": "24px",
       padding: "2px",
       "text-max-width": 200,
-      width:"40px", //PLA ne change rien 
-      height:"40px",
+      width: "40px", //PLA ne change rien
+      height: "40px",
       width: "label",
       /* overwritten into proportionalSizeNodeSizeByLinks 
       "min-width": 40,
@@ -91,7 +91,7 @@ const cyStyles = [
     },
   },
   {
-    // leaf is modified in setProportionalSize
+    // leaf is modified in setProportionalNodeSizeByLinks
     selector: "node.leaf",
     style: {
       shape: "triangle",
@@ -102,13 +102,13 @@ const cyStyles = [
     },
   },
   {
-    // root is modified in setProportionalSize
+    // root is modified in setProportionalNodeSizeByLinks
     selector: "node.root",
     style: {
       shape: "round-triangle",
       color: "#000000",
-      width: 20,
-      height: 45,
+      //width: 20,
+      //height: 45,
       //"border-color": "DarkTurquoise",
       "background-color": "red",
     },
@@ -118,8 +118,8 @@ const cyStyles = [
     style: {
       shape: "ellipse",
       color: "#222",
-      width:40,
-      height:40,
+      //width:40,
+      //height:40,
       "border-color": "#8a615a",
       "background-color": "#FFB3A7",
       // "border-style": "dotted",
@@ -155,24 +155,19 @@ const cyStyles = [
       "border-style": "dashed",
       "border-width": 20,
 
-      'color': "black",
-        'font-weight': 'bold',
-        //'text-outline-width': 2,
-        //'text-outline-color': '#ffeb3b',   // halo autour du texte
-        //'text-background-color': '#ffeb3b',
-        //'text-background-opacity': 1,
-        //'text-background-shape': 'roundrectangle',
-        //'text-border-width': 1,
-        'text-border-opacity': 1,
-        'text-wrap': 'wrap',
-        'text-margin-y': -2
-
-
-
+      color: "black",
+      "font-weight": "bold",
+      //'text-outline-width': 2,
+      //'text-outline-color': '#ffeb3b',   // halo autour du texte
+      //'text-background-color': '#ffeb3b',
+      //'text-background-opacity': 1,
+      //'text-background-shape': 'roundrectangle',
+      //'text-border-width': 1,
+      "text-border-opacity": 1,
+      "text-wrap": "wrap",
+      "text-margin-y": -2,
     },
   },
-
-
 
   {
     selector: "node.hasTriggers",
@@ -195,7 +190,7 @@ const cyStyles = [
   {
     selector: "edge",
     style: {
-      width: 2,
+      "width": 2,
       "line-color": "#aaa",
       "target-arrow-color": "#888",
       "target-arrow-shape": "vee",
@@ -306,7 +301,7 @@ const cyStyles = [
     style: {
       "line-style": "dashed",
       "z-index": 1002,
-      width: 4,
+      "width": 6,
     },
   },
 
@@ -401,7 +396,7 @@ const cyStyles = [
       "target-arrow-color": "#c770e9",
     },
   },
-
+/* 
   // must enforce the color otherwise cytoscape don't fade colored edges
   {
     selector: "edge.faded",
@@ -413,4 +408,104 @@ const cyStyles = [
       "text-opacity": 0.1,
     },
   },
+
+{
+      selector: '.hidden-edge',
+      style: {
+        'opacity': 0,
+        'events': 'no'
+      }
+    },
+
+    // --- Arêtes normales ---
+    {
+      selector: 'edge',
+      style: {
+        'width': 1,
+        'line-color': '#aaa',
+        'target-arrow-shape': 'triangle',
+        'target-arrow-color': '#aaa',
+        'curve-style': 'bezier'
+      }
+    },
+  
+
+  {
+      selector: 'node',
+      style: {
+        'label': 'data(id)',
+        'text-valign': 'center',
+        'text-halign': 'center',
+        'text-wrap': 'wrap',
+        'text-max-width': 100,
+        'text-background-color': '#fff',
+        'text-background-opacity': 0.8,
+        'text-background-padding': 2,
+        'font-size': 10
+      }
+    }, */
+
+    // --- Parents en mode expanded ---
+    {
+      selector: 'node:parent.expanded',
+      style: {
+        'background-color': '#eaf3ff',
+        'border-width': 2,
+        'border-color': '#0077cc',
+        'padding': 20,
+        'compound-sizing-wrt-labels': 'exclude',
+        'text-valign': 'top',
+        'text-halign': 'center',
+        'text-margin-y': -10
+      }
+    },
+
+    // --- Parents en mode collapsed ---
+    {
+      selector: 'node:parent.collapsed',
+      style: {
+        'background-color': '#eaf3ff',
+        'border-width': 2,
+        'border-color': '#0077cc',
+        'width': 90,
+        'height': 60,
+        'padding': 5,
+        'text-valign': 'center',
+        'text-halign': 'center',
+        'compound-sizing-wrt-labels': 'exclude' // 👈 important
+        
+      }
+    },
+
+    // --- Enfants cachés mais existants ---
+    {
+      selector: '.hidden-child',
+      style: {
+        'opacity': 0,
+        'text-opacity': 0,
+        'background-opacity': 0,
+        'border-width': 0,
+        'events': 'no'
+      }
+    },
+
+    // --- Arêtes cachées ---
+    {
+      selector: '.hidden-edge',
+      style: {
+        'opacity': 0,
+        'events': 'no'
+      }
+    },
+
+
+
+
+
+
+
+
+
+
+
 ];

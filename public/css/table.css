@@ -5,17 +5,18 @@
   }
 
   #headerBar h1 {
-    margin: 0;
+    margin: 5px;
     /* supprime marge par défaut */
   }
 
 
 
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-top: 1rem;
-  }
+ table {
+  border-collapse: collapse;
+  margin-top: 1rem;
+  width: auto;
+  max-width: 100%;
+}
 
   th,
   td {
@@ -69,25 +70,49 @@
     overflow: visible;
     /* important si un parent mettait hidden */
   }
+/* conteneur inchangé */
+
+#tableInfo h2 {
+  margin: 0.3em 0;
+}
+
+#tableInfo {
+  display: inline-flex;
+  justify-content: flex-start;
+  gap: 1em;
+  flex-wrap: wrap;
+  width: fit-content;
+  max-width: 100%;
+}
+
+/* tables qui se réduisent à leur contenu */
+#tableInfo table {
+  border-collapse: collapse;
+  border: 1px solid #c8d2dc;
+  background: #fff;
+  width: auto;                /* << remplace width:100% */
+  max-width: 100%;            /* << limite la taille */
+  table-layout: auto;         /* largeur basée sur le contenu */
+   outline: 2px solid red !important;
+}
+
+/* cellules */
+#tableInfo th,
+#tableInfo td {
+  border: 1px solid #c8d2dc;
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  white-space: nowrap;        /* empêche l’élargissement si tu veux des colonnes compactes */
+}
+
+/* si tu veux permettre les retours à la ligne plutôt que nowrap */
+#tableInfo td.wrap {
+  white-space: normal;
+  word-break: break-word;
+}
 
 
-  #tableInfo {
-    display: inline-flex;
-    /* shrink-to-content */
-    justify-content: flex-start;
-    /* pas d'étirement de l'espace */
-    gap: 1em;
-    flex-wrap: wrap;
-    width: fit-content;
-    /* optionnel, renforce le shrink */
-    max-width: 100%;
-    /* ne dépasse pas l'écran */
-  }
 
-  #tableInfo h2 {
-    margin-top: 0.3em;
-    margin-bottom: 0.3em;
-  }
 
 
 #tableForThree {
@@ -116,8 +141,6 @@
   border: 1px solid #e8e1e1;
   width: 100%
 }
-
-
 
   .index-block,
   .pk-block,

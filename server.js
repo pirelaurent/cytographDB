@@ -63,6 +63,19 @@ dotenv.config();
 
 const app = express();
 
+// Configuration du moteur de template EJS
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+// Fichiers statiques (css, js, images)
+app.use(express.static(path.join(__dirname, "public")));
+
+// Route principale
+app.get("/", (req, res) => {
+  res.render("layout", { title: "cytoGraphDB" });
+});
+
+
 // Middleware to parse JSON bodies
 // Increase payload size limit to 50MB
 app.use(express.json({ limit: "50mb" }));

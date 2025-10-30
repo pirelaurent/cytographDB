@@ -58,6 +58,7 @@ export function openTriggerPage(node) {
  connect to db with graph or only db 
 */
 export function connectToDb(menuItemElement) {
+  
   return promptDatabaseSelectionNear(menuItemElement).then((dbName) => {
     if (!dbName) {
       // no selection of db , not an error

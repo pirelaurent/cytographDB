@@ -1,0 +1,44 @@
+<!-- ===================== Node Context Menu ===================== -->
+<ul id="clicNodeMenu" class="hidden">
+    <li id="open-table">🔍 Definition</li>
+    <li id="open-trigger">⚡ Triggers</li>
+
+    <div class="arrows">
+        <img id="arrowLeft" src="/img/arrowLeft.png" height="35" title="Follow outgoing (descendant)">
+        <img id="arrowMiddle" src="/img/arrowMiddle.png" height="35" title="Follow both directions">
+        <img id="arrowRight" src="/img/arrowRight.png" height="35" title="Follow incoming (ancestor)">
+    </div>
+</ul>
+
+<!-- ===================== Edge Context Menu ===================== -->
+<ul id="clicEdgeMenu" class="hidden">
+    <li id="toggleEdgeDetails">
+        <img src="/img/toggle.png" alt="toggle details"> 1/FK - 1/Col
+    </li>
+    <li id="toggleEdgeLabel">
+        <img src="/img/toggle.png" alt="toggle label"> Label
+    </li>
+</ul>
+<!-- quick access menu -->
+<div id="quickAccessMenu" class="hidden">
+    <span>
+        <div id="someSelect" style="display:inline-flex;align-items:center;gap:8px; font-size:12px;">
+            <span style="font-size:12px; font-weight:300; color:#666;">select:</span>
+            <img src="img/halfSelected.png" height="30" id="quick_icon-selectNone" title="none">
+            <img src="img/halfSelected.png" height="30" id="quick_icon-selectAll" title="all">
+            <img src="img/halfSelected.png" height="30" id="quick_icon-selectSwap" title="swap selected">
+        </div><br />
+
+        <div id="someHide" style="display:inline-flex;align-items:center;gap:8px; font-size:12px;">
+            <span style="font-size:12px; font-weight:300; color:#666;">hide:</span>
+            <img src="img/halfSelected.png" height="30" id="quick_icon-hideSelected" title="hide selected">
+            <img src="img/halfSelected.png" height="30" id="quick_icon-hideNotSelected"
+                title="hide not selected">
+            <img src="img/hideSwap1.png" height="30" id="quick_icon-swapHidden" title="swap hidden">
+            <img src="img/halfHidden.png" width="30" id="quick_icon-showAll" title="hide none">
+
+        </div>
+    </span>
+</div>
+
+   <div id="waitLoading" style="display: none">⏳ Loading graph...</div>

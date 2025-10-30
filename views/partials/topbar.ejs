@@ -1,0 +1,52 @@
+<div id="topbar">
+
+  <!-- Ligne 1 : DB / Files -->
+  <div class="loadGraphOptions">
+    <%- include('topbar/db-menu') %>
+      <%- include('topbar/files-menu') %>
+        <span id="current-db"></span>
+        <span id="versionInfo">...</span>
+  </div>
+
+  <!-- Ligne 2 : Display / Tables / Relations / Model + outils -->
+  <div id="graph-controls" class="layout">
+    <%- include('topbar/display-menu') %>
+      <%- include('topbar/nodes-menu') %>
+        <%- include('topbar/edges-menu') %>
+          <%- include('topbar/model-menu') %>
+
+            <!-- Boutons d’action -->
+            <button id="undo-btn" title="Undo (Ctrl+Z)">
+              <img src="/img/rollback2.png" alt="Undo" width="20" height="20">
+            </button>
+
+            <button id="btn-export" title="PNG Snapshot (Ctrl+G)">
+              <img src="/img/redCapture.png" alt="PNG Snapshot" width="22" height="22">
+            </button>
+
+            <button id="clip-btn" title="Clipboard">
+              <img id="clip-img" src="/img/clipShort.png" alt="Clipboard" width="30" height="28"
+                title="Deployed when content in clipboard">
+            </button>
+
+            <!-- Mode de sélection -->
+            <select id="modeSelect" title="Choose successive selection operations (OR,AND)">
+              <option value="or_selected" selected>OR</option>
+              <option value="AND">AND</option>
+            </select>
+
+            <!-- Hover info toggle -->
+            <label>
+              <span class="labelPrevious" title="Show node & edge infos on hover">hover</span>
+              <input type="checkbox" id="hoverInfoToggle" title="Toggle visible infos on hover">
+            </label>
+
+            <!-- Lien Documentation -->
+            <div id="doc-links" style="margin-left:auto; display:flex; gap:12px;">
+              <a href="/docs/main.md" class="doc-link" target="docTab">Documentation</a>
+            </div>
+
+
+  </div>
+
+</div>

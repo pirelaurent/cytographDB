@@ -251,10 +251,6 @@ export function outputMarkdown(opts = {}, tableText, root) {
   }
 
 
-
-
-
-
   // common . simulate a clic on a href for download
   function startDownload() {
     const url = URL.createObjectURL(blob);

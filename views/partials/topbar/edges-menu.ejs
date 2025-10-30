@@ -1,0 +1,102 @@
+<!-- Menu: Relations / Edges -->
+<div data-menu-id="menu-edges">
+  <div class="menu-wrapper">
+    <span class="menu-trigger" id="EdgesId">Relations</span>
+    <ul class="menu">
+      <li data-category="selection">Select ...
+        <ul class="submenu">
+          <li action="noEdges">None</li>
+          <li action="allEdges">All</li>
+          <li action="swapEdges">Swap</li>
+        </ul>
+      </li>
+      <li data-category="hideEdge">Visibility ...
+        <ul class="submenu">
+          <li action="hideEdgeSelected">Hide Selected</li>
+          <li action="hideEdgeNotSelected">Hide Not selected</li>
+
+          <li action="swapEdgeHidden">Swap hidden</li>
+          <li action="showAllEdges">Show all</li>
+        </ul>
+      </li>
+
+      <li data-category="edgeDetails">Details ...
+        <ul class="submenu">
+          <li action="enterFkSynthesisMode">Raw FK</li>
+          <li action="enterFkDetailedMode">Per column</li>
+        </ul>
+      </li>
+
+
+
+      <li data-category="selection">
+        <span class="label" title="Select edges related to selected nodes">of Selected tables... </span>
+
+        <ul class="submenu">
+          <li title="follow relations">
+
+            <svg id="follow-relations" width="150" height="34" viewBox="0 25 200 50">
+              <!-- outgoing -->
+              <g class="zone outgoing" data-action="selectOutgoingEdges" role="button" tabindex="0"
+                aria-label="Follow outgoing" cursor="pointer" pointer-events="bounding-box">
+                <title>select outgoing relations from selected tables</title>
+                <rect class="zone-bg" x="10" y="35" width="90" height="30" rx="6" ry="6" fill="transparent">
+                  <title>select outgoing relations from selected tables</title>
+                </rect>
+
+                <line x1="100" y1="50" x2="22" y2="50" stroke="#6cc644" stroke-width="3"
+                  marker-end="url(#arrow-green3)">
+                </line>
+              </g>
+
+              <!-- both (center) -->
+              <g class="zone both" data-action="selectBothEdges" role="button" tabindex="0" aria-label="Follow both"
+                cursor="pointer" pointer-events="bounding-box">
+                <title>select all relations from selected tables</title>
+                <rect class="zone-bg" x="70" y="35" width="60" height="30" rx="6" ry="6" fill="transparent">
+                  <title>select all relations from selected tables</title>
+                </rect>
+                <circle cx="100" cy="50" r="15" fill="#AAA" stroke="#666" stroke-width="2">
+                </circle>
+              </g>
+
+              <!-- incoming -->
+              <g class="zone incoming" data-action="selectIncomingEdges" role="button" tabindex="0"
+                aria-label="Follow incoming" cursor="pointer" pointer-events="bounding-box">
+                <title>select child tables of selected relations </title>
+                <rect class="zone-bg" x="120" y="35" width="70" height="30" rx="6" ry="6" fill="transparent">
+                  <title>select incoming relations from selected tables</title>
+                </rect>
+                <line x1="120" y1="50" x2="188" y2="50" stroke="#d33" stroke-width="3" marker-start="url(#arrow-red3)">
+                </line>
+              </g>
+
+              <defs>
+                <!-- flèche VERTE -->
+                <marker id="arrow-green3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                  markerUnits="strokeWidth">
+                  <path d="M0,0 L9,3 L0,6 z" fill="#6cc644" />
+                </marker>
+                <!-- flèche ROUGE -->
+                <marker id="arrow-red3" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto"
+                  markerUnits="strokeWidth">
+                  <path d="M9,0 L9,6 L0,3 z" fill="#d33" />
+                </marker>
+              </defs>
+            </svg>
+          </li>
+          <li action="betweenNodes">
+            <span class="label" title="Select relations between pairs of selected tables">between two tables</span>
+          </li>
+        </ul>
+      </li>
+
+
+      <li data-category="edgesName">Filter by name</li>
+      <li action="listEdges">Show list</li>
+
+      <li class="separator"></li>
+      <li action="deleteEdgesSelected">Delete</li>
+    </ul>
+  </div>
+</div>

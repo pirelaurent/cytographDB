@@ -82,10 +82,17 @@ export function listNodesToHtml(all=true) {
   doc.head.appendChild(meta);
 
   // styles
+  const base = window.location.origin;
+
   const link = doc.createElement("link");
   link.rel = "stylesheet";
-  link.href = "/css/style.css";
+  link.href = base+"/css/style.css";
   doc.head.appendChild(link);
+
+  const link2 = doc.createElement("link");
+  link2.rel = "stylesheet";
+  link2.href = base+"/css/table.css";
+  doc.head.appendChild(link2);
 
   // ---- BODY HtmL----
 

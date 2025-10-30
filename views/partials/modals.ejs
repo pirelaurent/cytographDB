@@ -1,0 +1,77 @@
+<!-- ================= Overlay (Saved Graphs) ================= -->
+<div id="overlay" class="overlayXX">
+  <div id="file-list">
+    <h3>Choose a saved graph</h3>
+    <ul id="files" style="list-style:none; padding:0;"></ul>
+    <button onclick="document.getElementById('overlay').style.display='none'">Close</button>
+  </div>
+</div>
+
+<!-- ================= Name Filter Modal ================= -->
+<div id="nameFilterModal" class="modal-bg" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <h3 id="nameFilterTitle">Filter by name</h3>
+
+    <input type="hidden" id="modalNameFilterType" value="nodeOrEdge" />
+
+    <div class="input-adorned">
+      <input type="text" id="modalNameFilterInput" placeholder="pattern" class="modal-input" title="text or regex" />
+      <button id="tipsBtn" type="button" class="tips-inline" title="Show regex tips">✨</button>
+    </div>
+
+    <label>
+      <input type="checkbox" id="searchOnHidden" />
+      <small>Search in hidden elements too</small>
+    </label>
+
+    <div class="modal-actions">
+      <button id="modalNameFilterOk" class="modal-btn">Search & Select</button>
+      <button id="modalNameFilterCancel" class="modal-btn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= Degree Filter Modal ================= -->
+<div id="degreeFilter" class="modal-bg" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <h3>Filter nodes by degree</h3>
+
+    <!-- Outgoing -->
+    <fieldset class="filter">
+      <legend><img src="./img/outgoing.png" width="30" alt="">Outgoing</legend>
+      <label>&gt;=</label>
+      <input type="number" id="degree-out-min" class="short" min="0" />
+      <label>&lt;</label>
+      <input type="number" id="degree-out-max" class="short" min="0" />
+    </fieldset>
+
+    <!-- Incoming -->
+    <fieldset class="filter">
+      <legend>Incoming <img src="./img/incoming.png" width="40" alt=""></legend>
+      <label>&gt;=</label>
+      <input type="number" id="degree-in-min" class="short" min="0" />
+      <label>&lt;</label>
+      <input type="number" id="degree-in-max" class="short" min="0" />
+    </fieldset>
+
+    <!-- Logic -->
+    <fieldset>
+      <label><input type="radio" id="degree-logic-and" name="logic" value="AND" checked> and</label>
+      <label><input type="radio" id="logic-or" name="logic" value="OR"> or</label>
+    </fieldset>
+
+    <!-- Restrict -->
+    <fieldset>
+      <label>
+        <input type="checkbox" id="degreeRestrictToVisible" checked>
+        <small>Restrict to visible nodes and edges</small>
+      </label>
+    </fieldset>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button id="modalDegreeFilterOk" class="modal-btn">Search & Select</button>
+      <button id="modalDegreeFilterCancel" class="modal-btn">Cancel</button>
+    </div>
+  </div>
+</div>

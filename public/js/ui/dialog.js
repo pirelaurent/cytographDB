@@ -217,16 +217,17 @@ export function promptDatabaseSelectionNear(targetElement) {
     container.innerHTML = ""; // nettoie les anciennes boîtes
     container.style.position = "relative";
 
-    container.appendChild(box);
-
-    // document.body.appendChild(box);
+    //container.appendChild(box);
+     document.body.appendChild(box);
 
     // Position
     const rect = targetElement.getBoundingClientRect();
     const containerRect = container.getBoundingClientRect();
 
-    box.style.left = `${rect.left - containerRect.left}px`;
-    box.style.top = `${rect.bottom - containerRect.top}px`;
+   // box.style.left = `${rect.left - containerRect.left}px`;
+   // box.style.top = `${rect.bottom - containerRect.top}px`;
+box.style.left = `${rect.left}px`;
+box.style.top = `${rect.bottom + window.scrollY}px`;
 
     try {
       const res = await fetch("/api/databases");

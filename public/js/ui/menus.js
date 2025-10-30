@@ -203,6 +203,7 @@ function setupMenuClickAction() {
   ----------------------------------menu for db access and files 
 */
 export function menuDb(option, menuItemElement, whichClic = "left") {
+ 
   if (whichClic == "right") return;
   switch (option) {
     case "connectToDb":
@@ -762,6 +763,15 @@ export function menuEdges(option, item, whichClic = "left") {
       });
       break;
 
+
+    case "enterFkSynthesisMode":
+      enterFkSynthesisMode(false);
+      break;
+
+    case "enterFkDetailedMode":
+      enterFkDetailedMode(false);
+      break;
+
     /*
     select edges that rely selected nodes 
 */
@@ -848,7 +858,7 @@ export function menuEdges(option, item, whichClic = "left") {
       edgesHidden.show();
       break;
 
-    case "NoneEdgeSelected":
+    case "showAllEdges":
       pushSnapshot();
       getCy().edges().show();
       break;
@@ -889,7 +899,7 @@ export function menuEdges(option, item, whichClic = "left") {
 
             {
               label: "❌ No",
-              onClick: () => {}, // rien
+              onClick: () => { }, // rien
             },
           ]
         );
@@ -917,13 +927,7 @@ export function menuModel(option, item, whichClic = "left") {
   const cy = getCy();
   // select edges
   switch (option) {
-    case "enterFkSynthesisMode":
-      enterFkSynthesisMode(false);
-      break;
 
-    case "enterFkDetailedMode":
-      enterFkDetailedMode(false);
-      break;
 
     case "generateTriggers":
       pushSnapshot();
@@ -1067,4 +1071,10 @@ function vertiMore() {
 }
 function vertiLess() {
   changePosRelative(1, 1 / 1.3);
+}
+
+export function toggleMenu(id) {
+  document.querySelectorAll('.menu-visible').forEach(m => m.classList.remove('menu-visible'));
+  const menu = document.querySelector(`#${id}`);
+  if (menu) menu.classList.add('menu-visible');
 }

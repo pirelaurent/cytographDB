@@ -1,0 +1,238 @@
+<!-- Menu: Tables / Nodes -->
+<div data-menu-id="menu-nodes" id="menu-nodes">
+  <div class="menu-wrapper">
+
+    <span id="NodesId" class="menu-trigger">Tables</span>
+    <ul class="menu">
+      <li data-category="selection">Change selection
+
+        <ul class="submenu icon-actions">
+           <li class="icon-actions" data-category="selectNodes">
+          <img src="img/select/halfSelected.png" height="35" id="icon-selectNone" title="Select none">
+          <img src="img/select/halfSelected.png" height="35" id="icon-selectAll" title="Select all">
+          <img src="img/select/halfSelected.png" height="35" id="icon-selectSwap" title="Swap selection">
+          </li>
+        </ul>
+      </li>
+
+      <li data-category="hideNodes">Change visibility
+        <ul class="submenu icon-actions">
+          <li class="icon-actions" data-category="selectNodes">
+          <img src="img/select/halfSelected.png" height="35" id="icon-hideSelected" title="Hide selected">
+          <img src="img/select/halfSelected.png" height="35" id="icon-hideNotSelected" title="Hide not selected">
+          <img src="img/select/hideSwap1.png" height="35" id="icon-swapHidden" title="Swap hidden">
+          <img src="img/select/halfHidden.png" height="35" id="icon-showAll" title="Show all">
+          </li>
+        </ul>
+      </li>
+
+      <li data-category="filterNodes">Filter by ...
+        <ul class="submenu">
+          <li data-category="nodesName">Table names ...</li>
+          <li data-category="columnsName">Column names ...</li>
+          <li id="byFilterMenu">Degree ...</li>
+          <li>Native category ...
+            <ul class="submenu">
+              <li action="nodeIsOrphan">Orphan</li>
+              <li action="nodeIsRoot">Root</li>
+              <li action="nodeIsLeaf">Leaf</li>
+              <li action="nodeIsAssociation">Association</li>
+              <li action="nodeIsMultiAssociation">Multi-association</li>
+              <li action="nodeHasTriggers">Has triggers</li>
+            </ul>
+          </li>
+          <li action="noCare" id="customList">custom category ...</li>
+        </ul>
+      </li>
+            <li data-category="selection">
+              <span class="label" title="Select tables connected by the selected relations">Connected to relations
+              </span>
+              <ul class="submenu">
+
+                <li action="selectSourceNodes" title="source node">Child table (source)</li>
+                <li action="selectNodesFromSelectedEdges" title="source & destination"> Both tables</li>
+                <li action="selectDestNodes" title="destination node"> Parent table (dest)</li>
+              </ul>
+            </li>
+      <li data-category="list">Show list ...
+        <ul class="submenu">
+          <li action="listNodesAll">All</li>
+          <li action="listNodesSelected">Selected</li>
+        </ul>
+      </li>
+
+      <li class="separator"></li>
+      <li data-category="follow">follow & show ...
+        <ul class="submenu">
+          <li title="follow on one level">
+            <svg id="follow-graph" width="150" height="34" viewBox="0 25 200 50">
+              <!-- outgoing -->
+              <g class="zone outgoing" data-action="followOutgoing" role="button" tabindex="0"
+                aria-label="Follow outgoing" cursor="pointer" pointer-events="bounding-box">
+                <title>Follow outgoing edges and show target nodes</title>
+                <rect class="zone-bg" x="10" y="35" width="90" height="30" rx="6" ry="6" fill="transparent">
+                  <title>Follow outgoing edges and show target nodes</title>
+                </rect>
+                <circle cx="30" cy="50" r="12" fill="#6cc644" stroke="#FFFF00">
+                  <title>Follow outgoing</title>
+                </circle>
+                <line x1="100" y1="50" x2="42" y2="50" stroke="#6cc644" stroke-width="2" marker-end="url(#arrow-green)">
+                  <title>Follow outgoing</title>
+                </line>
+              </g>
+
+              <!-- both (center) -->
+              <g class="zone both" data-action="followBoth" role="button" tabindex="0" aria-label="Follow both"
+                cursor="pointer" pointer-events="bounding-box">
+                <title>Follow all connected edges and show nodes</title>
+                <rect class="zone-bg" x="70" y="35" width="60" height="30" rx="6" ry="6" fill="transparent">
+                  <title>Follow both</title>
+                </rect>
+                <circle cx="100" cy="50" r="15" fill="#AAA" stroke="#666" stroke-width="2">
+                  <title>Follow both</title>
+                </circle>
+              </g>
+
+              <!-- incoming -->
+              <g class="zone incoming" data-action="followIncoming" role="button" tabindex="0"
+                aria-label="Follow incoming" cursor="pointer" pointer-events="bounding-box">
+                <title>Follow incoming edges and show source nodes</title>
+                <rect class="zone-bg" x="120" y="35" width="70" height="30" rx="6" ry="6" fill="transparent">
+                  <title>Follow incoming</title>
+                </rect>
+                <line x1="120" y1="50" x2="158" y2="50" stroke="#d33" stroke-width="2" marker-start="url(#arrow-red)">
+                  <title>Follow incoming</title>
+                </line>
+                <circle cx="170" cy="50" r="12" fill="#d33" stroke="#FFFF00">
+                  <title>Follow incoming</title>
+                </circle>
+              </g>
+
+              <defs>
+                <!-- flèche VERTE -->
+                <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                  markerUnits="strokeWidth">
+                  <path d="M0,0 L9,3 L0,6 z" fill="#6cc644" />
+                </marker>
+                <!-- flèche ROUGE -->
+                <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto"
+                  markerUnits="strokeWidth">
+                  <path d="M9,0 L9,6 L0,3 z" fill="#d33" />
+                </marker>
+              </defs>
+            </svg>
+          </li>
+          <li title="follow on several levels">
+            <svg id="tree-follow-graph" width="180" height="34" viewBox="0 20 200 60">
+              <!-- OUTGOING TREE -->
+              <g class="zone outgoing-tree" data-action="followOutgoingTree" role="button" tabindex="0"
+                aria-label="Follow outgoing tree" cursor="pointer" pointer-events="bounding-box">
+                <title>Follow outgoing tree (descendants)</title>
+                <rect class="zone-bg" x="10" y="35" width="90" height="30" rx="6" ry="6" fill="transparent">
+                </rect>
+
+                <!-- Subtree: root + 2 leaves -->
+                <circle cx="45" cy="50" r="5" fill="#6cc644" stroke="#FFFF00" stroke-width="1" />
+                <line x1="45" y1="50" x2="30" y2="38" stroke="#6cc644" stroke-width="1.5" />
+                <line x1="45" y1="50" x2="30" y2="62" stroke="#6cc644" stroke-width="1.5" />
+                <circle cx="28" cy="38" r="4" fill="#6cc644" stroke="#FFFF00" stroke-width="0.8" />
+                <circle cx="28" cy="62" r="4" fill="#6cc644" stroke="#FFFF00" stroke-width="0.8" />
+
+                <!-- arrow from center node -->
+                <line x1="100" y1="50" x2="55" y2="50" stroke="#6cc644" stroke-width="2"
+                  marker-end="url(#arrow-green-tree)" />
+              </g>
+
+              <!-- BOTH TREES (CENTER) -->
+              <g class="zone both-tree" data-action="followBothTree" role="button" tabindex="0"
+                aria-label="Follow both trees" cursor="pointer" pointer-events="bounding-box">
+                <title>Follow incoming and outgoing trees</title>
+                <rect class="zone-bg" x="70" y="35" width="60" height="30" rx="6" ry="6" fill="transparent">
+                </rect>
+                <circle cx="100" cy="50" r="12" fill="#AAA" stroke="#666" stroke-width="2" />
+              </g>
+
+              <!-- INCOMING TREE -->
+              <g class="zone incoming-tree" data-action="followIncomingTree" role="button" tabindex="0"
+                aria-label="Follow incoming tree" cursor="pointer" pointer-events="bounding-box">
+                <title>Follow incoming tree (ancestors)</title>
+                <rect class="zone-bg" x="120" y="35" width="70" height="30" rx="6" ry="6" fill="transparent">
+                </rect>
+
+                <!-- arrow toward the subtree -->
+                <line x1="120" y1="50" x2="160" y2="50" stroke="#d33" stroke-width="2"
+                  marker-start="url(#arrow-red-tree)" />
+
+                <!-- Subtree: root + 2 leaves -->
+                <circle cx="155" cy="50" r="5" fill="#d33" stroke="#FFFF00" stroke-width="1" />
+                <line x1="155" y1="50" x2="170" y2="38" stroke="#d33" stroke-width="1.5" />
+                <line x1="155" y1="50" x2="170" y2="62" stroke="#d33" stroke-width="1.5" />
+                <circle cx="172" cy="38" r="4" fill="#d33" stroke="#FFFF00" stroke-width="0.8" />
+                <circle cx="172" cy="62" r="4" fill="#d33" stroke="#FFFF00" stroke-width="0.8" />
+              </g>
+
+              <defs>
+                <marker id="arrow-green-tree" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                  markerUnits="strokeWidth">
+                  <path d="M0,0 L9,3 L0,6 z" fill="#6cc644" />
+                </marker>
+                <marker id="arrow-red-tree" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto"
+                  markerUnits="strokeWidth">
+                  <path d="M9,0 L9,6 L0,3 z" fill="#d33" />
+                </marker>
+              </defs>
+            </svg>
+
+          </li>
+          <li title="cross over associations">
+            <svg id="pass-through-graph" width="180" height="34" viewBox="0 20 200 60">
+              <g class="zone passthrough" data-action="allowPropagation" role="button" tabindex="0"
+                aria-label="Allow propagation through outgoing associations" cursor="pointer"
+                pointer-events="bounding-box">
+                <title>Allow selection propagation through outgoing-only associations</title>
+
+                <!-- zone cliquable -->
+                <rect class="zone-bg" x="55" y="35" width="90" height="30" rx="6" ry="6" fill="transparent">
+                </rect>
+
+                <!-- cercle central -->
+                <circle cx="100" cy="50" r="12" fill="#cccccc" stroke="#6cc644" stroke-width="2" />
+
+                <!-- flèche verte gauche→droite -->
+                <line x1="40" y1="50" x2="160" y2="50" stroke="#6cc644" stroke-width="2.5"
+                  marker-start="url(#arrow-green-left)" marker-end="url(#arrow-green-right)" />
+
+                <!-- légère translation verticale pour la 2ᵉ flèche superposée -->
+                <line x1="40" y1="51.5" x2="160" y2="51.5" stroke="#6cc644" stroke-width="2.5"
+                  marker-start="url(#arrow-green-left)" marker-end="url(#arrow-green-right)" />
+              </g>
+
+              <defs>
+                <!-- flèche verte droite -->
+                <marker id="arrow-green-right" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                  markerUnits="strokeWidth">
+                  <path d="M0,0 L9,3 L0,6 z" fill="#6cc644" />
+                </marker>
+
+                <!-- flèche verte gauche -->
+                <marker id="arrow-green-left" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto"
+                  markerUnits="strokeWidth">
+                  <path d="M9,0 L9,6 L0,3 z" fill="#6cc644" />
+                </marker>
+              </defs>
+            </svg>
+          </li>
+
+          <li class="separator"></li>
+          <li action="findLongOutgoingPaths" title="Find nodes reachable by long forward paths (more than 2 hops)">
+            long paths
+          </li>
+        </ul>
+      </li>
+
+
+
+      <li action="deleteNodesSelected" title="Delete selected nodes">Delete</li>
+    </ul>
+  </div>
+</div>

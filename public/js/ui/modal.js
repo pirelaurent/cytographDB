@@ -6,6 +6,7 @@ import {
   getCy,
   metrologie,
   perimeterForNodesSelection,
+  perimeterForEdgesSelection
 } from "../graph/cytoscapeCore.js";
 
 import {

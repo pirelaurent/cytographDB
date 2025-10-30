@@ -347,17 +347,6 @@ export function setInterceptors() {
   // global to be reused once clicked on subMenu
   let nodeForInfo;
 
-  /* 
-  getCy().on("cxttap", "node", function (evt) {
-    nodeForInfo = evt.target;
-    const { x, y } = whereClicInContainer(evt.renderedPosition)
-    clicNodeMenu.style.left = `${x + 5}px`;
-    clicNodeMenu.style.top = `${y - 5}px`;
-    document.getElementById("open-trigger").style.display = nodeForInfo.hasClass(NativeCategories.HAS_TRIGGERS) ? "list-item" : "none"
-    clicNodeMenu.style.display = "block";
-  });
- */
-
   getCy().on("cxttap", "node", function (evt) {
     nodeForInfo = evt.target;
 
@@ -381,7 +370,7 @@ export function setInterceptors() {
       nodeForInfo.hasClass(NativeCategories.HAS_TRIGGERS)
         ? "list-item"
         : "none";
-
+clicNodeMenu.classList.remove('hidden');
     clicNodeMenu.style.display = "block";
   });
 
@@ -487,6 +476,7 @@ export function setInterceptors() {
     const { x, y } = whereClicInContainer(evt.renderedPosition);
     clicEdgeMenu.style.left = `${x - 10}px`;
     clicEdgeMenu.style.top = `${y - 20}px`;
+    clicEdgeMenu.classList.remove('hidden');
     clicEdgeMenu.style.display = "block";
   });
 

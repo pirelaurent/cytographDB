@@ -519,7 +519,7 @@ export function simplifyAssociations() {
 
     const elementsToSave = node.closedNeighborhood(); // le nœud + ses edges
     let nodeBackup = elementsToSave.jsons(); // copie profonde des data + style + classes
-
+    // nodes involved 
     let targets = outEdges.map((e) => e.target());
 
     if (targets.length === 2) {
@@ -529,8 +529,20 @@ export function simplifyAssociations() {
 
       a.show();
       b.show();
+      // double links to allows bi directional circulation 
+      createEdge(a,b);
+      createEdge(b,a)
 
-      let newId = `${a.id()} <-( ${node.id()} )->${b.id()}`;
+
+
+      // remove old node and links
+      node.connectedEdges().remove();
+      node.remove();
+
+// internal function add an edge 
+  function createEdge(a,b){
+    
+    let newId = `${a.id()} <<-( ${node.id()} )->${b.id()}`;
 
       // Add the generated edge
 
@@ -547,13 +559,15 @@ export function simplifyAssociations() {
         },
         classes: NativeCategories.SIMPLIFIED,
       });
+    }//createEdge
 
-      // remove old node and links
-      node.connectedEdges().remove();
-      node.remove();
+
     }
   });
   if (done == 0) showAlert("nothing found. Check selected.");
+
+
+  
 }
 
 /*

@@ -44,6 +44,7 @@ import {
     Once connected to a DB, analyse model and create graph    
 */
 export function loadInitialGraph() {
+
   let dbName = getLocalDBName();
   if (!dbName) {
     showAlert("you must first connect a database.");
@@ -54,11 +55,10 @@ export function loadInitialGraph() {
   if (typeof cy !== "undefined" && cy) {
     getCy().elements().remove();
   }
+ 
   getCustomNodesCategories().clear();
   resetSnapshot();
   waitLoading("⏳ Analyzing DB --> create graph...");
-
-  //document.getElementById("current-graph").textContent = "new graph from db ";
   document.getElementById("graphName").value = "draft";
 
   fetch("/load-from-db", {

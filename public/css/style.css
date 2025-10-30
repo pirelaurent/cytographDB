@@ -1,725 +1,387 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  padding: 1rem;
-}
+/***********************************************************
+ *  CYTOGRAPHDB – GLOBAL STYLE
+ *  Cleaned & organized 2025
+ ***********************************************************/
 
-#topbar {
-  height: 80px;
+/* --------------------------------------------------------
+   1. GLOBAL BASE LAYOUT
+-------------------------------------------------------- */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f6f8fa;
+  overflow: hidden;
 }
 
 #cy {
+  position: absolute;
+  top: 85px; /* leaves space for topbar */
+  left: 0;
   width: 100%;
-  height: calc(100vh - 80px);
-  display: block;
+  height: calc(100% - 85px);
+  background-color: #fff;
+  z-index: 0;
 }
 
-#file-list {
-  background: lightblue;
+#topbar {
   position: fixed;
-  top: 50px;
-  left: 200px;
-  padding: 20px;
-  width: 300px;
-  max-height: 80%;
-  overflow: auto;
-  z-index: 999;
-}
-
-button {
-  font-size: 14px;
-  transition: transform 0.2s, background-color 0.2s;
-}
-
-button:active {
-  transform: scale(0.95);
-  /* effet "enfoncé" */
-  background: #ddd;
-}
-
-button:hover {
-  transform: scale(1.05);
-  background: greenyellow;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #e7edf3;
+  border-bottom: 1px solid #c8d2dc;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
 }
 
 .loadGraphOptions {
-  height: 30px;
-  background-color: rgb(168, 222, 238);
   display: flex;
   align-items: center;
-  /* centrage vertical */
+  gap: 10px;
+  height: 45px;
+  padding: 0 10px;
+  border-bottom: 1px solid #c8d2dc;
+  background-color: #f0f4f8;
 }
 
-.loadGraphOptions button {
-  width: 120px;
-  background-color: rgb(66, 146, 168);
-  color: white;
-}
-
-.loadGraphOptions button:hover {
-  background-color: rgb(190, 241, 255);
-  color: black;
-  /* au choix */
-}
-
-#undo-btn,
-#btn-export,
-#clip-btn {
-  all: unset;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 4px;
-}
-
-#undo-btn:hover,
-#btn-export:hover {
-  background-color: cornsilk;
-}
-
-#undo-btn:active {
-  background-color: rgba(0, 0, 0, 0.2);
-}
-
-.metrologie {
-  background-color: rosybrown;
-  color: white;
-  display: inline-block;
-  text-align: center;
-  width: 400px;
-}
-
-.stretch button {
-  width: 40px;
-  margin: 3px;
-}
-
-#filters {
-  padding: 0.5rem;
-  background: #f7f7f7;
-  border-bottom: 1px solid #ccc;
+#graph-controls.layout {
   display: flex;
-  gap: 1rem;
   align-items: center;
+  height: 40px;
+  background-color: #eaeff5;
+  border-bottom: 1px solid #d0d7de;
+  padding: 0 10px;
+  gap: 8px;
 }
 
-#filters input[type="text"] {
-  padding: 0.3rem 0.5rem;
-  font-size: 0.9rem;
-  width: 00px;
-}
+/* --------------------------------------------------------
+   2. GENERIC ELEMENTS & UTILITIES
+-------------------------------------------------------- */
 
-#filters select,
-#filters input[type="checkbox"] {
-  font-size: 0.9rem;
-}
+.hidden { display: none !important; }
+.lineSelected { background-color: #b5d0ee !important; }
+.spacingControls { margin: 0 10px; }
+.labelPrevious { font-size: 0.8em; color: #555; }
 
-.lineSelected {
-  display: flex;
-  background: rgb(240, 245, 145);
-  width: 100%;
-  height: 30px;
-  align-items: center;
-}
-
-#waitLoading {
-  position: absolute;
-  top: 150px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(174, 255, 0, 0.9);
-  padding: 10px 20px;
+button, select, input[type="text"], input[type="number"] {
+  font-family: inherit;
   border: 1px solid #ccc;
-  font-size: 1rem;
-  z-index: 999;
+  border-radius: 3px;
+  background: #fff;
+  padding: 4px 6px;
 }
 
-#tableInfo table {
-  width: 100%;
-  border-collapse: collapse;
+button:hover,
+select:hover,
+input:hover {
+  border-color: #89a;
 }
 
-#tableInfo th,
-#tableInfo td {
-  border: 1px solid #ddd;
-  padding: 6px;
-  font-size: 0.9rem;
-}
+/* --------------------------------------------------------
+   3. CONTEXT MENUS
+-------------------------------------------------------- */
 
-/* separator in table rows */
-tr.group-start > td,
-tr.group-start > th {
-  border-top: 2px solid grey;
-  padding-top: 0.25rem;
-}
-
-#spacingControls {
-  display: flex;
-  gap: 2rem;
-  padding: 0.5rem 1rem;
-}
-
-#clicNodeMenu,
-#clicEdgeMenu {
-  position: absolute;
-  background: #ffff;
-  border: 1px solid #ccc;
+/* Context menus (right click) */
+ul#clicNodeMenu,
+ul#clicEdgeMenu {
+  position: fixed;           /* indépendant des parents, stable même si un parent est positionné */
+  display: none;             /* le JS mettra display:block */
+  background: #fdfdfd;
+  border: 1px solid #bbb;
   border-radius: 4px;
-  padding: 4px 0;
   list-style: none;
-  font-size: 14px;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  min-width: 150px;
-  display: none;
+  padding: 4px 0;
+  margin: 0;
+  min-width: 160px;
+  z-index: 8000;             /* au-dessus du graphe et du topbar */
+  box-shadow: 2px 2px 8px rgba(0,0,0,.15);
 }
 
-#clicNodeMenu li,
-#clicEdgeMenu li {
-  padding: 6px 12px;
+ul#clicNodeMenu li,
+ul#clicEdgeMenu li {
+  padding: 5px 10px;
   cursor: pointer;
 }
 
-#clicNodeMenu li:hover,
-#clicEdgeMenu li:hover {
-  background-color: #f1e9e9;
+ul#clicNodeMenu li:hover,
+ul#clicEdgeMenu li:hover {
+  background-color: #d7e7f7;
 }
 
-.hidden {
-  display: none;
-}
-
-.spacingControls {
-  background-color: chocolate;
-  color: #fff;
-  display: inline-block;
-}
-
-.info-panel {
-  position: absolute;
-  width: auto;
-  max-width: 400px;
-  background: Beige;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  z-index: 999;
-  display: none;
-  /* masqué par défaut */
-  pointer-events: none;
-  /* ne gêne pas les clics */
-}
-
-#spacingControls span {
+ul#clicNodeMenu .arrows {
   display: flex;
-  align-items: center;
-  gap: 0.3em;
+  justify-content: space-around;
+  padding: 4px 6px;
+  border-top: 1px solid #ccc;
+  margin-top: 4px;
 }
 
-.dispatch {
-  width: 100px;
-  margin: 4px;
-}
+/* Ne pas laisser .hidden empêcher l’affichage si tu fais display:block en JS */
+ul#clicNodeMenu.hidden,
+ul#clicEdgeMenu.hidden { display: none; }
 
-.toast {
+
+
+
+
+
+/* --------------------------------------------------------
+   4. MODALS & OVERLAYS
+-------------------------------------------------------- */
+
+.modal-bg {
   position: fixed;
-  top: 16px; /*bottom*/
-  right: 300px;
-  background: #333;
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 4px;
-  border-color: #bbb;
-  opacity: 0.9;
-  font-size: 0.9em;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(100, 100, 100, 0.3);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px 25px;
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+  min-width: 300px;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+}
+
+.modal-btn {
+  background-color: #f0f4f8;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 4px 10px;
+  margin: 4px;
+  cursor: pointer;
+}
+.modal-btn:hover {
+  background-color: #d7e7f7;
 }
 
 .overlayXX {
-  display: none;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-  /* semi-transparent */
-  z-index: 1000;
-}
-
-#hoverInfoToggle {
-  height: 146x;
-  width: 16px;
-  margin: 0;
-  vertical-align: middle;
-}
-
-#hoverInfoToggle:checked {
-  accent-color: red;
-}
-
-#graphUpload {
+  background-color: rgba(70, 70, 70, 0.6);
+  z-index: 2500;
   display: none;
-  /* cacher le vrai input */
+  align-items: center;
+  justify-content: center;
 }
 
-.upload-label {
-  display: inline-block;
-  padding: 6px 12px;
-  background-color: #007bff;
-  color: white;
-  border-radius: 4px;
+#file-list {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  min-width: 280px;
+}
+
+/* --- Boîte de sélection DB (prompt) --- */
+.db-box-container {
+  position: relative;          /* pour le positionnement local */
+  z-index: 5000;               /* au-dessus du graphe */
+}
+
+/* La boîte elle-même */
+.db-prompt-box {
+  position: fixed;
+  background: #fff;
+  border: 1px solid #8899aa;
+  border-radius: 5px;
+  padding: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  z-index: 6000;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 180px;
+}
+
+.db-prompt-select {
+  font-size: 0.9em;
+  padding: 4px;
+}
+
+.db-prompt-box button {
+  background: #e7edf3;
+  border: 1px solid #aac;
+  border-radius: 3px;
   cursor: pointer;
-  font-size: 14px;
+  padding: 4px 8px;
+}
+.db-prompt-box button:hover {
+  background: #d7e7f7;
 }
 
-.upload-label:hover {
-  background-color: #0056b3;
+
+
+
+/* --------------------------------------------------------
+   5. INFO PANEL & DOC
+-------------------------------------------------------- */
+
+/* --- Info panel (hover tooltip for nodes/edges) --- */
+#info-panel {
+  position: absolute;      /* doit être absolu ou fixed */
+  display: none;
+  z-index: 7000;           /* > graphe et menus */
+  background: #fefefe;
+  border: 1px solid #8899aa;
+  border-radius: 5px;
+  padding: 6px 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  pointer-events: none;    /* ne capte pas la souris */
+  font-size: 0.85em;
+  color: #333;
+  max-width: 300px;
+  line-height: 1.2em;
 }
 
-.doc-link {
-  color: darkred;
-  /* couleur du lien normal */
-  text-decoration: none;
+
+#nodeDetails {
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 0.8em;
+}
+
+/* --------------------------------------------------------
+   6. FILTER PANELS
+-------------------------------------------------------- */
+
+fieldset.filter {
+  border: 1px solid #ccd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  padding: 8px;
+}
+
+fieldset legend {
+  font-size: 0.9em;
+  color: #335;
+}
+
+.input-adorned {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.input-adorned input {
+  flex: 1;
+}
+
+/* --------------------------------------------------------
+   7. TOASTS, BUSY, AND STATUS
+-------------------------------------------------------- */
+
+.toast {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: #333;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 5px;
+  opacity: 0.9;
+  z-index: 4000;
+  font-size: 0.85em;
+}
+
+.busy {
+  cursor: wait !important;
+  opacity: 0.6;
+}
+
+/* --------------------------------------------------------
+   8. VERSION INFO / STATUS
+-------------------------------------------------------- */
+
+#current-db {
+  color: #1a405f;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+#versionInfo {
   margin-left: auto;
   padding-right: 15px;
+  font-size: 0.75em;
+  color: rgb(39, 97, 133);
 }
 
-.doc-link:hover {
-  color: red;
-  /* couleur au survol */
-  text-decoration: underline;
-  /* ou autre effet au hover */
+/* --------------------------------------------------------
+   9. SCROLLBARS (modern look)
+-------------------------------------------------------- */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f3f3f3;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #c0c0c0;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }
 
-#nameFilter {
-  font-size: 1.1em;
-  height: 25px;
-}
-
-.label {
-  margin-right: 10px;
-  margin-left: 15px;
-}
-
-.labelPrevious {
-  margin-right: 4px;
-  margin-left: 15px;
-}
-
-.labelHelp {
-  display: inline-block; /* <— clé */
-  width: 200px; /* fixe la largeur */
-  margin-right: 20px;
-  vertical-align: top; /* ou middle selon l’alignement voulu */
-}
-.labelRegex {
-  display: inline-block;
-  color: rgb(110, 84, 176);
-  text-align: left;
-}
+/*
+ some effects
+*/
 .bigPerim {
-  font-size: 1.5em;
+  font-size: 1.25em;
   font-weight: bold;
-  color: white;
+  color: navy;
 }
 
 .smallPerim {
   font-size: 1em;
-  color: cornsilk;
-}
-
-.test {
-  background-color: rgb(66, 128, 5);
-  font-size: 1em;
-}
-
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  /* change ici pour alignement vertical */
-  z-index: 10000;
-}
-
-.dialog {
-  margin-top: 30vh;
-  /* ne se met pas en place. a revoir*/
-}
-
-/* Modal background */
-
-#nameFilterModal.modal-bg,
-#degreeFilter.modal-bg {
-  display: none;
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Modal visible (optionnel class to open) */
-#nameFilterModal.open {
-  display: flex;
-}
-
-/* Modal content box */
-#nameFilterModal .modal-content,
-#degreeFilter .modal-content {
-  background: rgb(247, 240, 233);
-  padding: 24px 32px;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px #0002;
-  min-width: 260px;
-}
-
-#nameFilterModal .modal-content h3,
-#degreeFilter .modal-content h3 {
-  margin-top: 0;
-}
-
-/* Input styling */
-#nameFilterModal .modal-input {
-  width: 90%;
-  margin: 16px 0;
-  padding: 8px;
-  font-size: 1.1em;
-}
-
-/* Result/message area */
-#nameFilterModal .modal-result {
-  height: 1.2em;
-  margin-bottom: 10px;
-  color: #555;
-}
-
-/* Button styling */
-#nameFilterModal .modal-btn {
-  margin-right: 12px;
-}
-
-.close-btn {
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.close-btn img {
-  width: 25px;
-  height: 25px;
-  display: block;
-}
-.path {
-  color: #000;
-}
-.path .prefix {
-  color: #888;
-  font-style: italic;
-} /* gris pour le début identique */
-.path .rest {
-  color: #000;
-} /* noir pour la suite différente */
-.path {
-  font-size: 1em;
-}
-
-/* Force le curseur sur toute la page quand html a la classe 'busy' */
-html.busy,
-html.busy * {
-  cursor: wait !important;
+  color: lightblue
 }
 
 /*
- css for the list 
+ markdown list
 */
-
-table {
-  border-collapse: collapse;
-  cursor: pointer;
-}
-th {
-  padding: 5px 10px;
-  border: 1px solid #ccc;
-  color: grey;
-}
-td {
-  padding: 5px 10px;
-  border: 1px solid #ccc;
-  color: grey;
-}
-th {
-  background-color: #8e2e2e;
-  color: white;
-}
-
-td.num {
-  text-align: left;
-  padding-left: 30px;
-}
-td.asc {
-  text-align: center;
-  color: black;
-  font-weight: bold;
-}
-th.sort-asc::after {
-  content: " ▲";
-}
-th.sort-desc::after {
-  content: " ▼";
-}
-
-/* change background one lien / two */
-tr.one {
-  background-color: #efefef;
-}
-tr.one td {
-  color: black;
-}
-tr.two {
-  background-color: white;
-}
-tr.two td {
-  color: rgb(42, 37, 37);
-}
-
-tr td.nullable {
-  text-align: left;
-  color: #3b5f8b;
-  font-size: 14px;
-  font-style: italic;
-}
-
-tr.nullable td {
-  color: #3b5f8b;
-  font-style: italic;
-}
-
-td.notDetailed {
-  text-align: center;
-  color: #8e2e2e;
-}
-
-tr td.onUpDel {
-  font-size: 8px;
-  color: #8e2e2e;
-}
-th.onUpDel {
-  font-size: 10px;
-}
-
-#tableOfPk th[scope="rowgroup"] {
-  vertical-align: top;
-  background-color: #f2f2f2;
-}
-
-/*
- body for generated pages
-*/
-body.alt-body {
-  font-family: system-ui, sans-serif;
-  margin: 20px; /* ou autre mise en forme */
-}
-
-/* node list checkbox*/
-input.nodeChk {
-  accent-color: #b11e1e;
-  width: 16px;
-  height: 16px;
-}
-input.nodeChk:hover {
-  accent-color: rgb(222, 82, 82);
-}
-
-/* style.css */
-th.sortable {
-  cursor: pointer;
-  user-select: none;
-  white-space: nowrap;
-}
-
-th .sort-indicator {
-  display: inline-block;
-  margin-left: 6px;
-  font-size: 11px;
-  opacity: 0.8;
-}
-
+/* Base commune */
 .md-actions {
-  display: inline-flex;
+  display: flex;            /* ou inline-flex si tu veux que le bloc n'occupe que son contenu */
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+    width: 30%;
 }
 
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 6px 0 10px;
-  max-width: 400px; /* <— clé */
-}
+/* Variantes de distribution */
+.md-actions--end { justify-content: flex-end; }
+.md-actions--between { justify-content: space-between; }
 
-.md-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+/* Gestion de largeur (évite de la mettre sur la base) */
+.md-actions--narrow {
   width: 30%;
   max-width: 400px;
 }
-.md-actions {
-  justify-content: flex-end;
-  gap: 12px;
-}
 
-.section-title {
-  margin: 0; /* avoid vertical jump*/
-  margin-left: 10px;
-}
+/* Option: en ligne (ne prend pas toute la largeur) */
+.md-actions--inline { display: inline-flex; }
 
-.comment-icon {
-  display: inline-block;
-  width: 1.1em;
-  height: 1.1em;
-  background: url("../img/commentIcon.png") no-repeat center/contain;
-  vertical-align: text-bottom;
-  margin-left: 0.33em; /* space  */
-  first-child {
-    margin-left: 0;
-  }
-}
-
-.arrows {
-  display: flex;
-  gap: 0; /* aucun espace */
-}
-.arrows img {
-  display: block; /* supprime l’espace inline */
-  margin: 0;
-  padding: 0;
-}
-
-/* effet au survol : plus “brillant” + léger lift (optionnel) */
-#arrowLeft:hover,
-#arrowMiddle:hover,
-#arrowRight:hover {
-  cursor: pointer;
-  background-color: #777;
-  filter: brightness(1.8) saturate(1.5);
-
-  /*  transform: translateY(-1px);*/
-}
-
-.has-icon {
-  position: relative;
-}
-
-#quickAccessMenu {
-  position: absolute;
-  z-index: 9999;
-  display: none; /* caché par défaut */
-  min-width: 130px;
-  background: #fff;
-  border: 1px solid #333;
-  border-radius: 6px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  padding: 6px;
-}
-
-legend {
-  width: 35%;
-  display: flex;
-  justify-content: left; /* centre horizontalement */
-  align-items: center; /* aligne l'image et le texte */
-  gap: 0.5rem; /* espace entre icône et texte */
-  /*padding:  .15rem; optionnel, pour l’esthétique */
-}
-
-legend img {
-  display: block;
-} /* évite l’alignement sur la ligne de base */
-fieldset {
-  border: 1px solid rgb(105, 102, 99); /* ta couleur */
-}
-
-.filter .short {
-  min-width: 8ch;
-  max-width: 12.5ch;
-  width: 100%;
-}
-
-.input-adorned {
-  position: relative;
-  display: inline-block;
-  width: 100%; /* or a fixed width if you prefer */
-}
-
-.input-adorned .modal-input {
-  width: 100%;
-  padding-right: 2rem; /* leave room for the icon */
-}
-
-.tips-inline {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: 0;
-  cursor: pointer;
-  font-size: 1.1rem;
-  line-height: 1;
-  padding: 0;
-}
-.tips-inline:focus-visible {
-  outline: 2px solid currentColor;
-  border-radius: 4px;
-}
-
-/* Retire le cadre noir par défaut mais garde un focus visible personnalisé */
-#follow-graph .zone,
-#tree-follow-graph .zone,
-#follow-relations .zone {
-  outline: none;
-}
-
-/* hover/focus : colorie le fond de la zone */
-#follow-graph .zone:hover .zone-bg,
-#tree-follow-graph .zone:hover .zone-bg,
-#follow-relations .zone:hover .zone-bg
- {
-  fill: rgba(0, 0, 0, 0.2);
-} /* léger gris */
-#follow-graph .zone:focus .zone-bg,
-#tree-follow-graph .zone:focus .zone-bg,
-#follow-relations .zone:focus .zone-bg 
-
-{
-  fill: rgba(0, 181, 255, 0.18);
-} /* halo clavier bleu */
-#follow-graph .zone:active .zone-bg,
-#tree-follow-graph .zone:active .zone-bg,
-#follow-relations .zone:active .zone-bg
- {
-  fill: rgba(0, 0, 0, 0.12);
-} /* clic */
-
-/* feedback doux sur la ligne au survol */
-#follow-graph .zone:hover line, 
-#tree-follow-graph .zone:hover line 
-#follow-relations .zone:hover line 
-
-{
-  stroke-width: 3;
+/* Responsive (exemple) */
+@media (max-width: 768px) {
+  .md-actions--narrow { width: 100%; max-width: none; }
 }

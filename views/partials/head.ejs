@@ -1,0 +1,39 @@
+<!-- ===================== META & TITLE ===================== -->
+<meta charset="UTF-8" />
+<title>cytoGraphDB</title>
+<link rel="icon" type="image/png" href="/pep-inno.png" />
+
+<!-- ===================== STYLES ===================== -->
+<link rel="stylesheet" href="/css/style.css" />
+<link rel="stylesheet" href="/css/menus.css" />
+
+
+
+<!-- ===================== CYTOSCAPE LIBRARIES ===================== -->
+  <!-- original url below have been replaced by local libs to allow some off line usage
+<script src="https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"></script>
+<script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
+<script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-cose-bilkent@4.0.0/cytoscape-cose-bilkent.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+-->
+
+<script src="/js/external/cytoscape.min.js"></script>
+<script src="/js/external/dagre.min.js"></script>
+<script src="/js/external/cytoscape-dagre.js"></script>
+<script src="/js/external/cytoscape-cose-bilkent.min.js"></script>
+
+<!-- ===================== UTILITIES ===================== -->
+<script src="/js/external/xlsx.full.min.js"></script>
+<script type="module" src="/js/graph/cyStyles.js"></script>
+
+<!-- ===================== APP INITIALIZATION ===================== -->
+<script type="module">
+  import { wipeAppStorageNamespace } from "/js/util/clipReport.js";
+  wipeAppStorageNamespace();
+</script>
+
+<script>
+  cytoscape.use(cytoscapeCoseBilkent);
+</script>
+

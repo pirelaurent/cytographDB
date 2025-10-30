@@ -145,11 +145,18 @@ export function sendEdgeListToHtml() {
   meta.setAttribute("charset", "UTF-8");
   doc.head.appendChild(meta);
 
-  // styles
+ // styles
+  const base = window.location.origin;
+
   const link = doc.createElement("link");
   link.rel = "stylesheet";
-  link.href = "/css/style.css";
+  link.href = base+"/css/style.css";
   doc.head.appendChild(link);
+
+  const link2 = doc.createElement("link");
+  link2.rel = "stylesheet";
+  link2.href = base+"/css/table.css";
+  doc.head.appendChild(link2);
   // BODY
   const body = doc.body;
   //body.className = "alt-body";

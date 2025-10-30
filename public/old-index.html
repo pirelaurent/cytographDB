@@ -92,7 +92,7 @@
 
       <!-- Status display -->
       <span id="current-db"></span>
-      <span id="versionInfo">...</span>
+  
 
     </div>
 
@@ -172,13 +172,11 @@
             </li>
             <li class="separator"></li>
 
-
-
             <!-- Sous-menu : label -->
             <li data-category="label">table labels
               <ul class="submenu">
                 <li aspectAction="labelAlias">custom alias</li>
-                <li aspectAction="labelId">DB name</li>
+                <li aspectAction="labelId">table name</li>
                 <li aspectAction="labelNodeHide">hide</li>
 
                 <li class="separator"></li>
@@ -204,7 +202,7 @@
             <li class="separator"></li>
             <li data-category="label">relation labels ...
               <ul class="submenu">
-                <li aspectAction="labelShow">DB name</li>
+                <li aspectAction="labelShow">relation name</li>
                 <li aspectAction="labelHide">hide</li>
                 <li class="separator"></li>
               </ul>
@@ -239,13 +237,13 @@
             <li data-category="selection">change selection
               <ul class="submenu">
                 <li class="icon-actions" data-category="selectNodes">
-                  <img src="img/select/halfSelected.png" height="25" id="icon-selectNone" alt="None" title="select none"
+                  <img src="img/select/halfSelected.png" height="35" id="icon-selectNone" alt="None" title="select none"
                     role="button" tabindex="0" aria-label="Select none">
 
-                  <img src="img/select/halfSelected.png" height="25" id="icon-selectAll" alt="All" title="select all"
+                  <img src="img/select/halfSelected.png" height="35" id="icon-selectAll" alt="All" title="select all"
                     role="button" tabindex="0" aria-label="Select all">
 
-                  <img src="img/select/halfSelected.png" height="25" id="icon-selectSwap" alt="Swap"
+                  <img src="img/select/halfSelected.png" height="35" id="icon-selectSwap" alt="Swap"
                     title="swap selected" role="button" tabindex="0" aria-label="Swap selection">
                 </li>
               </ul>
@@ -256,16 +254,16 @@
                 <li class="icon-actions" data-category="selectNodes">
 
 
-                  <img src="img/select/halfSelected.png" height="25" id="icon-hideSelected" alt="None"
+                  <img src="img/select/halfSelected.png" height="35" id="icon-hideSelected" alt="None"
                     title="hide selected" role="button" tabindex="0" aria-label="Select none">
 
-                  <img src="img/select/halfSelected.png" height="25" id="icon-hideNotSelected" alt="All"
+                  <img src="img/select/halfSelected.png" height="35" id="icon-hideNotSelected" alt="All"
                     title="hide not selected" role="button" tabindex="0" aria-label="Select all">
 
-                  <img src="img/select/hideSwap1.png" height="25" id="icon-swapHidden" alt="Swap" title="swap hidden"
+                  <img src="img/select/hideSwap1.png" height="35" id="icon-swapHidden" alt="Swap" title="swap hidden"
                     role="button" tabindex="0" aria-label="Swap selection">
 
-                  <img src="img/select/halfHidden.png" height="25" id="icon-showAll" alt="Swap" title="show all"
+                  <img src="img/select/halfHidden.png" height="35" id="icon-showAll" alt="Swap" title="show all"
                     role="button" tabindex="0" aria-label="Swap selection">
 
 
@@ -340,17 +338,6 @@
             <li class="separator"></li>
             <li data-category="follow">follow & show ...
               <ul class="submenu">
-
-                <!--       
-                <li action="followOutgoing" title="Follow outgoing edges and show target nodes">
-                  outgoing</li>
-
-                <li action="followBoth" title="Follow all connected edges and show nodes">both
-                </li>
-                <li action="followIncoming" title="Follow incoming edges and show source nodes">
-                  Incoming
-                </li>
-          -->
                 <li title="follow on one level">
 
                   <svg id="follow-graph" width="150" height="34" viewBox="0 25 200 50">
@@ -668,7 +655,7 @@
             </li>
             <li data-category="model">associations ...
               <ul class="submenu">
-                <li action="simplifyAssociations">
+                <li action="f">
                   <span class="label" title="Simplify associations into direct edges">simplify </span>
                 </li>
                 <li action="restoreAssociations" title="Undo simplification and restore association nodes">

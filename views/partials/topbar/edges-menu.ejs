@@ -3,14 +3,14 @@
   <div class="menu-wrapper">
     <span class="menu-trigger" id="EdgesId">Relations</span>
     <ul class="menu">
-      <li data-category="selection">Select ...
+      <li data-category="selection">Change selection ...
         <ul class="submenu">
           <li action="noEdges">None</li>
           <li action="allEdges">All</li>
           <li action="swapEdges">Swap</li>
         </ul>
       </li>
-      <li data-category="hideEdge">Visibility ...
+      <li data-category="hideEdge">Change visibility ...
         <ul class="submenu">
           <li action="hideEdgeSelected">Hide Selected</li>
           <li action="hideEdgeNotSelected">Hide Not selected</li>
@@ -19,23 +19,32 @@
           <li action="showAllEdges">Show all</li>
         </ul>
       </li>
+      <li class="separator"></li>
 
-      <li data-category="edgeDetails">Details ...
+      <li data-category="edgesName">Filter by
         <ul class="submenu">
-          <li action="enterFkSynthesisMode">Raw FK</li>
-          <li action="enterFkDetailedMode">Per column</li>
+          <li action="edgesName">Relation name</li>
+
+          <li action="filterByCategory">Native category
+            <ul class="submenu">
+              <li action="filterByCategory_add">@ToDo</li>
+            </ul>
+
+
+          </li>
         </ul>
+
+
+
       </li>
 
-
-
       <li data-category="selection">
-        <span class="label" title="Select edges related to selected nodes">of Selected tables... </span>
+        <span class="label" title="Select edges related to selected nodes">Connected to tables...</span>
 
         <ul class="submenu">
           <li title="follow relations">
 
-            <svg id="follow-relations" width="150" height="34" viewBox="0 25 200 50">
+            <svg id="follow-relations" xmlns="http://www.w3.org/2000/svg" width="150" height="34" viewBox="0 25 200 50">
               <!-- outgoing -->
               <g class="zone outgoing" data-action="selectOutgoingEdges" role="button" tabindex="0"
                 aria-label="Follow outgoing" cursor="pointer" pointer-events="bounding-box">
@@ -45,7 +54,7 @@
                 </rect>
 
                 <line x1="100" y1="50" x2="22" y2="50" stroke="#6cc644" stroke-width="3"
-                  marker-end="url(#arrow-green3)">
+                  marker-end="url(#edges-arrow-green)">
                 </line>
               </g>
 
@@ -56,44 +65,108 @@
                 <rect class="zone-bg" x="70" y="35" width="60" height="30" rx="6" ry="6" fill="transparent">
                   <title>select all relations from selected tables</title>
                 </rect>
-                <circle cx="100" cy="50" r="15" fill="#AAA" stroke="#666" stroke-width="2">
-                </circle>
+                <rect x="92" y="38" width="24" height="24" rx="4" ry="4" fill="gold" stroke="#666" stroke-width="2" />
               </g>
 
               <!-- incoming -->
               <g class="zone incoming" data-action="selectIncomingEdges" role="button" tabindex="0"
                 aria-label="Follow incoming" cursor="pointer" pointer-events="bounding-box">
-                <title>select child tables of selected relations </title>
+                <title>select child tables of selected relations</title>
                 <rect class="zone-bg" x="120" y="35" width="70" height="30" rx="6" ry="6" fill="transparent">
                   <title>select incoming relations from selected tables</title>
                 </rect>
-                <line x1="120" y1="50" x2="188" y2="50" stroke="#d33" stroke-width="3" marker-start="url(#arrow-red3)">
+                <line x1="120" y1="50" x2="188" y2="50" stroke="#d33" stroke-width="3"
+                  marker-start="url(#edges-arrow-red)">
                 </line>
               </g>
 
               <defs>
                 <!-- flèche VERTE -->
-                <marker id="arrow-green3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                <marker id="edges-arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
                   markerUnits="strokeWidth">
                   <path d="M0,0 L9,3 L0,6 z" fill="#6cc644" />
                 </marker>
                 <!-- flèche ROUGE -->
-                <marker id="arrow-red3" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto"
+                <marker id="edges-arrow-red" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto"
                   markerUnits="strokeWidth">
                   <path d="M9,0 L9,6 L0,3 z" fill="#d33" />
                 </marker>
               </defs>
             </svg>
           </li>
+          <!------------- svg between selected nodes ------------->
+
           <li action="betweenNodes">
-            <span class="label" title="Select relations between pairs of selected tables">between two tables</span>
+            <svg id="follow-graph-edges" class="zone" xmlns="http://www.w3.org/2000/svg" width="150" height="50"
+              viewBox="0 15 180 70" role="button" tabindex="0" aria-label="Follow edges both directions"
+              cursor="pointer" data-action="followBothEdges">
+              <g class="zone">
+                <!-- zone de clic sur tout le SVG -->
+                <rect class="zone-bg" x="44" y="15" width="115" height="70" rx="8" ry="8" fill="transparent"
+                  pointer-events="all" />
+
+                <title>select relations between selected tables</title>
+                <!-- flèche verte vers la droite (haut) -->
+                <rect x="18" y="38" width="24" height="24" rx="4" ry="4" fill="gold" stroke="#666" stroke-width="2" />
+                <line x1="42" y1="46" x2="158" y2="46" stroke="#6cc644" stroke-width="3"
+                  marker-end="url(#fg-arrow-green)" />
+
+                <!-- flèche rouge vers la gauche (bas) -->
+                <rect x="158" y="38" width="24" height="24" rx="4" ry="4" fill="gold" stroke="#666" stroke-width="2" />
+                <line x1="158" y1="54" x2="42" y2="54" stroke="#d33" stroke-width="3" marker-end="url(#fg-arrow-red)" />
+              </g>
+              <defs>
+                <marker id="fg-arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                  markerUnits="strokeWidth">
+                  <path d="M0,0 L9,3 L0,6 z" fill="#6cc644" />
+                </marker>
+
+                <marker id="fg-arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                  markerUnits="strokeWidth">
+                  <path d="M0,0 L9,3 L0,6 z" fill="#d33" />
+                </marker>
+              </defs>
+            </svg>
+
           </li>
         </ul>
       </li>
 
 
-      <li data-category="edgesName">Filter by name</li>
-      <li action="listEdges">Show list</li>
+
+      <li action="listEdges">View list</li>
+      <li class="separator"></li>
+
+
+      <li data-category="layout">modify relations ...
+        <ul class="submenu">
+
+          <li data-category="edgeDetails">Detail relations ...
+            <ul class="submenu">
+              <li action="enterFkSynthesisMode">Raw FK</li>
+              <li action="enterFkDetailedMode">Per column</li>
+            </ul>
+          </li>
+          <li data-category="model">Reveal triggers ...
+            <ul class="submenu">
+              <li action="generateTriggers">Generate impacts</li>
+              <li action="removeTriggers">Remove impacts</li>
+            </ul>
+          </li>
+
+          <li data-category="model">Transform associations ...
+            <ul class="submenu">
+              <li action="simplifyAssociations">Pass through</li>
+              <li action="restoreAssociations">Restore associations</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+
+
+
+
+
 
       <li class="separator"></li>
       <li action="deleteEdgesSelected">Delete</li>

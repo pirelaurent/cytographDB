@@ -186,11 +186,11 @@ function openNameFilterModal(event, type) {
   //|| event?.currentTarget?.dataset.category === "nodesName";
 
   if (type === "node") {
-    title.textContent = "Filter nodes by name";
+    title.textContent = "Filter tables by name";
     hiddenType.value = "nodes";
   }
   if (type === "edge") {
-    title.textContent = "Filter edges by name";
+    title.textContent = "Filter relations by name";
     hiddenType.value = "edges";
   }
 

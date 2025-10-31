@@ -292,8 +292,8 @@ fieldset legend {
 
 .toast {
   position: fixed;
-  bottom: 10px;
-  right: 10px;
+  top: 16px;
+  right: 50px;
   background: #333;
   color: #fff;
   padding: 8px 14px;
@@ -365,7 +365,6 @@ fieldset legend {
   display: flex;            /* ou inline-flex si tu veux que le bloc n'occupe que son contenu */
   align-items: center;
   gap: 12px;
-    width: 30%;
 }
 
 /* Variantes de distribution */
@@ -385,3 +384,55 @@ fieldset legend {
 @media (max-width: 768px) {
   .md-actions--narrow { width: 100%; max-width: none; }
 }
+
+/*
+ Icons and miscellaneous styles for follow graph and relations
+*/
+
+/* Retire le cadre noir par défaut mais garde un focus visible personnalisé */
+#follow-graph .zone,
+#tree-follow-graph .zone,
+#follow-relations .zone,
+#follow-graph-edges .zone
+{
+  outline: none
+}
+
+/* hover/focus : colorie le fond de la zone */
+#follow-graph .zone:hover .zone-bg,
+#tree-follow-graph .zone:hover .zone-bg,
+#follow-relations .zone:hover .zone-bg,
+#follow-graph-edges .zone:hover .zone-bg
+ {
+  fill: rgba(0, 0, 0, 0.2);
+} /* léger gris */
+#follow-graph .zone:focus .zone-bg,
+#tree-follow-graph .zone:focus .zone-bg,
+#follow-relations .zone:focus .zone-bg ,
+#follow-graph-edges .zone:focus .zone-bg
+
+{
+  fill: rgba(0, 181, 255, 0.18);
+} 
+/* halo clavier bleu */
+#follow-graph .zone:active .zone-bg,
+#tree-follow-graph .zone:active .zone-bg,
+#follow-relations .zone:active .zone-bg,
+#follow-graph-edges .zone:active .zone-bg
+ {
+  fill: rgba(0, 0, 0, 0.12);
+} /* clic */
+
+/* feedback doux sur la ligne au survol */
+#follow-graph .zone:hover line, 
+#tree-follow-graph .zone:hover line 
+#follow-relations .zone:hover line ,
+#follow-graph-edges .zone:hover line
+
+{
+  stroke-width: 3;
+}
+
+
+
+

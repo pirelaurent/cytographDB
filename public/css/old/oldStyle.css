@@ -551,15 +551,26 @@ th .sort-indicator {
 }
 
 
-
-.section-header {
-  display: flex;
+/* Base pour tous les bandeaux Markdown */
+.md-actions {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 6px 0 10px;
-  max-width: 400px; /* <— clé */
+  gap: 8px;
+  width: auto;          /* pas de largeur imposée */
+  max-width: none;
+  justify-content: flex-end;  /* les icônes groupées à droite */
+  flex: 0 0 auto;
 }
+
+/* Si besoin d’une version "pleine largeur" ailleurs, utilise un modificateur */
+.md-actions--wide {
+  display: flex;
+  justify-content: space-between;
+  width: 30%;
+  max-width: 400px;
+}
+
+
 .md-actions {
   display: inline-flex;
   align-items: center;
@@ -577,6 +588,9 @@ th .sort-indicator {
   justify-content: flex-end;
   gap: 12px;
 }
+
+
+
 
 .section-title {
   margin: 0; /* avoid vertical jump*/

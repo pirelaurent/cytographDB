@@ -112,28 +112,10 @@
 }
 
 
+/***********************************************************
+ *  LAYOUT DES TROIS TABLES — ajustement de largeur
+ ***********************************************************/
 
-
-
-#tableForThree {
-  display: flex;         /* important */
-  justify-content: space-between; /* optionnel */
-  width: 100%;
-  gap: 10px;             /* espace entre colonnes */
-}
-
-#tableForThree .third {
-  flex: 0 0 30%;         /* 30% fixe */
-  min-width: 300px;      /* ne pas descendre en-dessous */
-  box-sizing: border-box;
-}
-
-#tableForThree
- {
-  display: flex;
-  gap: 2rem;
-  margin-top: 1rem;
-}
 
 #tablePkFKForStyle,
 #tableColumnsGlobalForStyle,
@@ -161,3 +143,111 @@
   }
 
 .testColor{ color:rgb(32, 125, 125)}
+
+/***********************************************************
+ *  SECTION HEADER & MARKDOWN ACTIONS (for table.html)
+ ***********************************************************/
+
+
+ /* Réactive le scroll vertical pour table.html uniquement */
+html, .doc-table {
+  height: auto !important;
+  min-height: 100%;
+  overflow-y: auto !important;
+  overflow-x: hidden; /* ou auto si tu préfères */
+}
+
+/* Assure qu’aucun ancêtre ne coupe le flux */
+.doc-table, .doc-table * {
+  scroll-behavior: smooth;
+}
+
+/* Titre + icônes sur une seule ligne */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+/* Le titre */
+.section-header h3.section-title,
+.section-header .section-title {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Conteneur d'actions à droite */
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+/* Bandeau Markdown */
+.section-header .md-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  width: auto;
+  max-width: none;
+  justify-content: flex-end;
+}
+
+/* Uniformise les icônes */
+.section-header img,
+.section-header svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+
+/***********************************************************
+ *  CORRECTION : espace et bordure visibles à droite
+ ***********************************************************/
+#tableForThree {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+
+  /* important : occupe légèrement moins que 100% pour ne pas rogner la bordure */
+  width: calc(100% - 12px);
+  margin-right: auto;
+  padding-right: 6px;
+
+  box-sizing: border-box;
+  overflow-x: visible;      /* autorise le rendu complet du dernier pixel */
+}
+
+/* chaque "tier" : que le contenu s'ajuste sans déborder */
+#tableForThree .third {
+  flex: 1 1 0;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+/* tables internes */
+#tableForThree table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+/* forcer la bordure droite du dernier tableau à être visible */
+#tableForThree .third:last-child table 
+{
+  border-right: 2px solid #999;
+  margin-right: 0;
+  padding-right: 0;
+}
+
+

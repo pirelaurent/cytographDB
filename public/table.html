@@ -4,12 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <title>Table Details</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/table.css" />
-    <script src="/js/external/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/table.css" />
+  <script src="/js/external/xlsx.full.min.js"></script>
 </head>
 
-<body>
+<body class="doc-table">
   <script>
     function tryClose() {
       if (window.opener) {
@@ -32,8 +32,15 @@
       <div class="third">
         <div class="section-header">
           <h3 id="columnNumber" class="section-title">Columns</h3>
-          <img id="show10rows" src = "./img/select/eyeOpen.png" width = "25px" title = "show 10 rows"/>
+
+          <div class="section-actions">
+            <img id="show10rows" src="/img/select/eyeOpen.png" width="20" title="show first 10 rows" />
+
+            <!-- ici le bandeau que tu génères -->
+            <!-- <div class="md-actions"> ... </div> -->
+          </div>
         </div>
+
 
         <table id='tableOfTableColumns'>
           <thead>

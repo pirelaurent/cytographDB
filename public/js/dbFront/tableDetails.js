@@ -9,7 +9,7 @@ import {
   outputMarkdown,
 } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
-import {actionMap,actionTitle} from "../util/common.js";
+import { actionMap, actionTitle } from "../util/common.js";
 /*
  get details on a table 
 */
@@ -61,16 +61,25 @@ getTableData(tableName).then((result) => {
 
     /*
     list of columns of table
-*/
+    */
     colBody = document.getElementById("columnsTable");
     colBody.innerHTML = "";
 
     const columnNumber = document.getElementById("columnNumber");
     columnNumber.innerHTML += `<small>(${data.columns.length})</small>`;
     // add markdown in same div
-    sectionHeader = columnNumber.closest(".section-header");
-    markdown = bandeauMarkdown(document, "forColTable");
-    sectionHeader.appendChild(markdown);
+     sectionHeader = columnNumber.closest(".section-header");
+
+    let actions = sectionHeader.querySelector(".section-actions");
+    if (!actions) {
+      actions = document.createElement("div");
+      actions.className = "section-actions";
+      sectionHeader.appendChild(actions);
+    }
+
+     markdown = bandeauMarkdown(document, "forColTable");
+    actions.appendChild(markdown);
+
 
     /*
      add local interceptor 
@@ -110,7 +119,7 @@ getTableData(tableName).then((result) => {
       nullableCell.textContent = col.nullable === "NO" ? "●" : "○"; // from DB YES/NO
 
       // 10 rows 
-    
+
 
       // Ajouter toutes les cellules à la ligne
       tr.appendChild(columnCell);
@@ -227,11 +236,11 @@ foreign keys
 
       data.foreignKeys.forEach((fk) => {
         // if no action, no output
-  
+
         const upd = actionMap[fk.on_update] || "";
-        const updTitle = [fk.on_update]|| "";
+        const updTitle = [fk.on_update] || "";
         const del = actionMap[fk.on_delete] || "";
-        const delTitle = actionTitle[fk.on_delete]|| "";
+        const delTitle = actionTitle[fk.on_delete] || "";
 
         let allUpDelInfo = "";
         if (upd)
@@ -282,9 +291,8 @@ foreign keys
       body.append(strongTgt);
 
       const smallTgt = document.createElement("small");
-      smallTgt.innerHTML = ` <code>(${
-        fk.is_target_unique ? "PK" : "NOT UNIQUE"
-      })</code>`;
+      smallTgt.innerHTML = ` <code>(${fk.is_target_unique ? "PK" : "NOT UNIQUE"
+        })</code>`;
       body.append(smallTgt);
 
       // Infos ON UPDATE/DELETE (si c’est déjà du HTML sûr)
@@ -389,11 +397,10 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
         if (idx.constraint_type == "UNIQUE") {
           indicator = "(uniq constraint)";
         }
-        titleDiv.innerHTML = `${idx.name}${indicator ?? ""} ${
-          idx.comment
+        titleDiv.innerHTML = `${idx.name}${indicator ?? ""} ${idx.comment
             ? `<span class="comment-icon" style="cursor:help" title="${idx.comment}"></span>`
             : ""
-        }`;
+          }`;
         block.appendChild(titleDiv);
         //
         block.insertAdjacentHTML(
@@ -431,8 +438,8 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
           titleDiv.innerHTML = `
     ${esc(idx.name)} (${esc(idx.constraint_type)})
     <span class="comment-icon" style="cursor:help" title="${esc(
-      idx.comment
-    )}"></span>
+            idx.comment
+          )}"></span>
   `;
         } else {
           titleDiv.innerHTML = `

@@ -203,7 +203,7 @@ function setupMenuClickAction() {
   ----------------------------------menu for db access and files 
 */
 export function menuDb(option, menuItemElement, whichClic = "left") {
- 
+
   if (whichClic == "right") return;
   switch (option) {
     case "connectToDb":
@@ -911,6 +911,29 @@ export function menuEdges(option, item, whichClic = "left") {
         metrologie;
       }
 
+    case "simplifyAssociations":
+      pushSnapshot();
+      simplifyAssociations();
+      break;
+
+    case "generateTriggers":
+      pushSnapshot();
+      generateTriggers(getCy().nodes()).then(() => metrologie());
+      break;
+
+    case "removeTriggers":
+      pushSnapshot();
+      removeTriggers();
+      break;
+
+
+
+    case "restoreAssociations":
+      pushSnapshot();
+      restoreAssociations();
+      createCustomCategories(getLocalDBName()); // explication needed
+      break;
+
     case "test": {
       break;
     }
@@ -929,26 +952,7 @@ export function menuModel(option, item, whichClic = "left") {
   switch (option) {
 
 
-    case "generateTriggers":
-      pushSnapshot();
-      generateTriggers(getCy().nodes()).then(() => metrologie());
-      break;
 
-    case "removeTriggers":
-      pushSnapshot();
-      removeTriggers();
-      break;
-
-    case "simplifyAssociations":
-      pushSnapshot();
-      simplifyAssociations();
-      break;
-
-    case "restoreAssociations":
-      pushSnapshot();
-      restoreAssociations();
-      createCustomCategories(getLocalDBName()); // explication needed
-      break;
 
     // filter table with column is in modalSelectByName called from popup
 

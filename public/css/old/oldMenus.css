@@ -158,13 +158,12 @@
 .menu .separator,
 .submenu .separator {
   display: block;
-  height: 2px;
-  margin: 0; /* supprime tout espace vertical */
-  padding: 0;
-  background-color: var(--border-color, #888);
-  border: none;
-  pointer-events: none; /* évite qu'ils perturbent le hover */
-  min-height: 0 !important; /* neutralise toute hauteur héritée */
+  width: 100%;                   /* occupe toute la largeur du menu */
+  height: 0;                     /* pas de hauteur propre */
+  margin: 4px 0;                 /* petit espace autour */
+  border-top: 1px solid var(--border-color, red);
+  pointer-events: none;          /* ne capte pas le hover */
+  background: transparent;       /* pas de fond résiduel */
   line-height: 0;
 }
 

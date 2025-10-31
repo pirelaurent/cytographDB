@@ -7,10 +7,10 @@
       <li data-category="selection">Change selection
 
         <ul class="submenu icon-actions">
-           <li class="icon-actions" data-category="selectNodes">
-          <img src="img/select/halfSelected.png" height="35" id="icon-selectNone" title="Select none">
-          <img src="img/select/halfSelected.png" height="35" id="icon-selectAll" title="Select all">
-          <img src="img/select/halfSelected.png" height="35" id="icon-selectSwap" title="Swap selection">
+          <li class="icon-actions" data-category="selectNodes">
+            <img src="img/select/halfSelected.png" height="35" id="icon-selectNone" title="Select none">
+            <img src="img/select/halfSelected.png" height="35" id="icon-selectAll" title="Select all">
+            <img src="img/select/halfSelected.png" height="35" id="icon-selectSwap" title="Swap selection">
           </li>
         </ul>
       </li>
@@ -18,14 +18,14 @@
       <li data-category="hideNodes">Change visibility
         <ul class="submenu icon-actions">
           <li class="icon-actions" data-category="selectNodes">
-          <img src="img/select/halfSelected.png" height="35" id="icon-hideSelected" title="Hide selected">
-          <img src="img/select/halfSelected.png" height="35" id="icon-hideNotSelected" title="Hide not selected">
-          <img src="img/select/hideSwap1.png" height="35" id="icon-swapHidden" title="Swap hidden">
-          <img src="img/select/halfHidden.png" height="35" id="icon-showAll" title="Show all">
+            <img src="img/select/halfSelected.png" height="35" id="icon-hideSelected" title="Hide selected">
+            <img src="img/select/halfSelected.png" height="35" id="icon-hideNotSelected" title="Hide not selected">
+            <img src="img/select/hideSwap1.png" height="35" id="icon-swapHidden" title="Swap hidden">
+            <img src="img/select/halfHidden.png" height="35" id="icon-showAll" title="Show all">
           </li>
         </ul>
       </li>
-
+      <li class="separator"></li>
       <li data-category="filterNodes">Filter by ...
         <ul class="submenu">
           <li data-category="nodesName">Table names ...</li>
@@ -41,31 +41,31 @@
               <li action="nodeHasTriggers">Has triggers</li>
             </ul>
           </li>
-          <li action="noCare" id="customList">custom category ...</li>
+          <li action="noCare" id="customList">Custom category ...</li>
         </ul>
       </li>
-            <li data-category="selection">
-              <span class="label" title="Select tables connected by the selected relations">Connected to relations
-              </span>
-              <ul class="submenu">
-
-                <li action="selectSourceNodes" title="source node">Child table (source)</li>
-                <li action="selectNodesFromSelectedEdges" title="source & destination"> Both tables</li>
-                <li action="selectDestNodes" title="destination node"> Parent table (dest)</li>
-              </ul>
-            </li>
-      <li data-category="list">Show list ...
+      <li data-category="selection">
+        <span class="label" title="Select tables connected by the selected relations">Connected to relations
+        </span>
         <ul class="submenu">
-          <li action="listNodesAll">All</li>
+
+          <li action="selectSourceNodes" title="source node">Child table (source)</li>
+          <li action="selectNodesFromSelectedEdges" title="source & destination"> Both tables</li>
+          <li action="selectDestNodes" title="destination node"> Parent table (dest)</li>
+        </ul>
+      </li>
+      <li data-category="list">List of tables ...
+        <ul class="submenu">
+          <li action="listNodesAll">Visibles</li>
           <li action="listNodesSelected">Selected</li>
         </ul>
       </li>
 
       <li class="separator"></li>
-      <li data-category="follow">follow & show ...
+      <li data-category="follow">Follow & Reveal ...
         <ul class="submenu">
           <li title="follow on one level">
-            <svg id="follow-graph" width="150" height="34" viewBox="0 25 200 50">
+            <svg id="follow-graph" width="180" height="48" viewBox="0 20 200 60">
               <!-- outgoing -->
               <g class="zone outgoing" data-action="followOutgoing" role="button" tabindex="0"
                 aria-label="Follow outgoing" cursor="pointer" pointer-events="bounding-box">
@@ -73,7 +73,7 @@
                 <rect class="zone-bg" x="10" y="35" width="90" height="30" rx="6" ry="6" fill="transparent">
                   <title>Follow outgoing edges and show target nodes</title>
                 </rect>
-                <circle cx="30" cy="50" r="12" fill="#6cc644" stroke="#FFFF00">
+                <circle cx="30" cy="50" r="11" fill="#6cc644" stroke="#FFFF00">
                   <title>Follow outgoing</title>
                 </circle>
                 <line x1="100" y1="50" x2="42" y2="50" stroke="#6cc644" stroke-width="2" marker-end="url(#arrow-green)">
@@ -88,9 +88,11 @@
                 <rect class="zone-bg" x="70" y="35" width="60" height="30" rx="6" ry="6" fill="transparent">
                   <title>Follow both</title>
                 </rect>
-                <circle cx="100" cy="50" r="15" fill="#AAA" stroke="#666" stroke-width="2">
-                  <title>Follow both</title>
-                </circle>
+                <!--    <circle cx="100" cy="50" r="15" fill="#AAA" stroke="#666" stroke-width="2">      </circle>-->
+                <rect x="88" y="38" width="24" height="24" rx="4" ry="4" fill="#AAA" stroke="#666" stroke-width="2" />
+
+                <title>Follow both</title>
+
               </g>
 
               <!-- incoming -->
@@ -103,7 +105,7 @@
                 <line x1="120" y1="50" x2="158" y2="50" stroke="#d33" stroke-width="2" marker-start="url(#arrow-red)">
                   <title>Follow incoming</title>
                 </line>
-                <circle cx="170" cy="50" r="12" fill="#d33" stroke="#FFFF00">
+                <circle cx="170" cy="50" r="11" fill="#d33" stroke="#FFFF00">
                   <title>Follow incoming</title>
                 </circle>
               </g>
@@ -123,7 +125,7 @@
             </svg>
           </li>
           <li title="follow on several levels">
-            <svg id="tree-follow-graph" width="180" height="34" viewBox="0 20 200 60">
+            <svg id="tree-follow-graph" width="180" height="50" viewBox="0 20 200 60">
               <!-- OUTGOING TREE -->
               <g class="zone outgoing-tree" data-action="followOutgoingTree" role="button" tabindex="0"
                 aria-label="Follow outgoing tree" cursor="pointer" pointer-events="bounding-box">
@@ -149,7 +151,9 @@
                 <title>Follow incoming and outgoing trees</title>
                 <rect class="zone-bg" x="70" y="35" width="60" height="30" rx="6" ry="6" fill="transparent">
                 </rect>
-                <circle cx="100" cy="50" r="12" fill="#AAA" stroke="#666" stroke-width="2" />
+                <!--     <circle cx="100" cy="50" r="12" fill="#AAA" stroke="#666" stroke-width="2" /> -->
+                <rect x="88" y="38" width="24" height="24" rx="4" ry="4" fill="#AAA" stroke="#666" stroke-width="2" />
+
               </g>
 
               <!-- INCOMING TREE -->
@@ -185,52 +189,44 @@
 
           </li>
           <li title="cross over associations">
-            <svg id="pass-through-graph" width="180" height="34" viewBox="0 20 200 60">
-              <g class="zone passthrough" data-action="allowPropagation" role="button" tabindex="0"
-                aria-label="Allow propagation through outgoing associations" cursor="pointer"
-                pointer-events="bounding-box">
-                <title>Allow selection propagation through outgoing-only associations</title>
-
-                <!-- zone cliquable -->
-                <rect class="zone-bg" x="55" y="35" width="90" height="30" rx="6" ry="6" fill="transparent">
-                </rect>
-
-                <!-- cercle central -->
-                <circle cx="100" cy="50" r="12" fill="#cccccc" stroke="#6cc644" stroke-width="2" />
-
-                <!-- flèche verte gauche→droite -->
-                <line x1="40" y1="50" x2="160" y2="50" stroke="#6cc644" stroke-width="2.5"
-                  marker-start="url(#arrow-green-left)" marker-end="url(#arrow-green-right)" />
-
-                <!-- légère translation verticale pour la 2ᵉ flèche superposée -->
-                <line x1="40" y1="51.5" x2="160" y2="51.5" stroke="#6cc644" stroke-width="2.5"
-                  marker-start="url(#arrow-green-left)" marker-end="url(#arrow-green-right)" />
-              </g>
-
+            <svg id="pass-through-graph" width="180" height="60" viewBox="0 20 200 60">
               <defs>
-                <!-- flèche verte droite -->
-                <marker id="arrow-green-right" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                <!-- Pointe verte orientée automatiquement selon le sens de la ligne -->
+                <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
                   markerUnits="strokeWidth">
                   <path d="M0,0 L9,3 L0,6 z" fill="#6cc644" />
                 </marker>
-
-                <!-- flèche verte gauche -->
-                <marker id="arrow-green-left" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto"
-                  markerUnits="strokeWidth">
-                  <path d="M9,0 L9,6 L0,3 z" fill="#6cc644" />
-                </marker>
               </defs>
+
+              <g class="zone passthrough" data-action="allowPropagation" role="button" tabindex="0"
+                aria-label="Allow propagation through outgoing associations" cursor="pointer"
+                pointer-events="bounding-box">
+
+                <title>Allow selection propagation through association in opposite directions</title>
+
+                <!-- zone cliquable -->
+                <rect class="zone-bg" x="55" y="35" width="90" height="30" rx="6" ry="6" fill="transparent"></rect>
+
+                <!-- Ligne du haut : GAUCHE -> DROITE (pointe à droite) -->
+                <line x1="40" y1="46" x2="160" y2="46" stroke="#6cc644" stroke-width="2.5"
+                  marker-end="url(#arrow-green)" />
+
+                <!-- Ligne du bas : DROITE -> GAUCHE (pointe à gauche) -->
+                <line x1="160" y1="54" x2="40" y2="54" stroke="#6cc644" stroke-width="2.5"
+                  marker-end="url(#arrow-green)" />
+
+                <!-- Cercle au-dessus pour masquer le centre des traits -->
+                <circle cx="100" cy="50" r="12" fill="#cccccc" stroke="#6cc644" stroke-width="2" />
+              </g>
             </svg>
+
           </li>
 
-          <li class="separator"></li>
-          <li action="findLongOutgoingPaths" title="Find nodes reachable by long forward paths (more than 2 hops)">
-            long paths
-          </li>
+
         </ul>
       </li>
 
-
+      <li class="separator"></li>
 
       <li action="deleteNodesSelected" title="Delete selected nodes">Delete</li>
     </ul>

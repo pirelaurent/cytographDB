@@ -29,7 +29,8 @@ export function bandeauMarkdown(doc, rootMd = "") {
   imgDl.src = url("./img/mkDownload.png");
   imgDl.alt = "Download Markdown";
   imgDl.title = "download Markdown";
-  imgDl.height = 23;
+  imgDl.height = 20;
+   imgDl.width = 28;
   imgDl.setAttribute("aria-hidden", "true");
   imgDl.style.cursor = "pointer";
   actions.appendChild(imgDl);
@@ -40,8 +41,8 @@ export function bandeauMarkdown(doc, rootMd = "") {
   imgCsv.src = url("./img/xlsDownload.png");
   imgCsv.alt = "Download CSV";
   imgCsv.title = "download CSV";
-  imgCsv.height = 25;
-  imgCsv.width = 27;
+  imgCsv.height = 20;
+  imgCsv.width = 28;
   imgCsv.setAttribute("aria-hidden", "true");
   imgCsv.style.cursor = "pointer";
   actions.appendChild(imgCsv);
@@ -53,8 +54,8 @@ export function bandeauMarkdown(doc, rootMd = "") {
   imgCp.src = url("./img/clipboardCopy.png");
   imgCp.alt = "Copy markdown to clipboard";
   imgCp.title = "Copy markdown to clipboard";
-  imgCp.height = 25;
-  imgCp.width = 25;
+  imgCp.height = 20;
+  imgCp.width = 20  ;
   imgCp.setAttribute("aria-hidden", "true");
   imgCp.style.cursor = "pointer";
   actions.appendChild(imgCp);

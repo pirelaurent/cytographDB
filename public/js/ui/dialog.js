@@ -420,7 +420,7 @@ export function showToast(msg, root = document) {
   toast.className = "toast";
   toast.textContent = msg;
   root.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 2500);
+  setTimeout(() => toast.remove(), 3500);
 }
 
 export function helpRegex() {

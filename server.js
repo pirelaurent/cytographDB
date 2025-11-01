@@ -214,6 +214,7 @@ app.post("/load-from-db", async (req, res) => {
           label: e.constraint_name,
           // we add a visual label to be set on screen with //`${e.source_column} → ${e.target_column}`,
           columnsLabel: encodeCol2Col(e.source_column, e.target_column), 
+          
           onDelete: e.on_delete, // raw code: 'a', 'c', etc.
           onUpdate: e.on_update, // raw code
           nullable: !e.source_not_null,
@@ -222,6 +223,7 @@ app.post("/load-from-db", async (req, res) => {
         classes: [
           "fk_detailed", // one edge per column fk
           e.on_delete === "c" ? "delete_cascade" : "",
+          e.on_delete === "r" ? "delete_restrict" : "",
           !e.source_not_null ? "nullable" : "",
         ]
           .filter(Boolean) // supprime les chaînes vides
@@ -229,6 +231,8 @@ app.post("/load-from-db", async (req, res) => {
       }));
  
     res.json({ nodes, edges: filteredEdges });
+
+
   } catch (error) {
     console.error("error loading graph :", error);
     // Renvoie un statut HTTP 500 (erreur serveur) avec un message lisible

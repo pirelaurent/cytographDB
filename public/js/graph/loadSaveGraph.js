@@ -70,7 +70,8 @@ export function loadInitialGraph() {
   })
     .then((res) => res.json())
     .then((data) => {
-      //console.log(JSON.stringify(data));//PLA
+     //pouetPouet(data);//PLA ne ramène pas les colonnes individuelles, juste les labels composites
+     //@todo
       initializeGraph(data);
       if (getCy().nodes().length == 0) {
         showAlert("Empty model");
@@ -514,4 +515,43 @@ export async function resetPoolFromFront() {
   setLocalDBName(null);
   document.getElementById("current-db").innerHTML = "";
   return response.json();
+}
+
+
+
+function pouetPouet(data) {
+  console.log("pouetpouet");//PLA
+  console.log(JSON.stringify(data.edges,0,2)  );//PLA
+
+  if (!data.edges || !Array.isArray(data.edges)) {
+    console.warn("No edges found in data for classification.");
+    return;
+  }
+
+  data.edges.forEach((edge) => {
+    if (edge.data ) {
+      const fk = edge.data;
+      const classification = classifyForeignKey(fk);
+      console.log(classification);
+    }
+  });
+}
+
+
+
+// --- Fonction de classification ---
+function classifyForeignKey(fk) {
+  const required = fk.all_source_not_null === true;
+  const identifying = fk.source_columns.every(col =>
+    fk.source_table_pk_columns?.includes(col)
+  );
+  const deleteRule = fk.delete_rule?.toUpperCase() || '';
+
+  if (identifying && required && deleteRule === 'CASCADE') {
+    return 'composition';
+  } else if (required && !identifying) {
+    return 'association';
+  } else {
+    return 'simple_link';
+  }
 }

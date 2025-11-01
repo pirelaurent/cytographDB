@@ -24,13 +24,13 @@ import {
   hideNotSelectedThenDagre,
   perimeterForEdgesAction,
   revealNeighbor,
-  hideNotSelected,
 } from "../graph/cytoscapeCore.js";
 
-import { setEventMarkdown, bandeauMarkdown } from "../util/markdown.js";
+import { setEventMarkdown, bandeauMarkdown,createHeaderMarkdown } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
 import { createIconButton } from "../ui/dialog.js";
 import { NativeCategories } from "../util/common.js";
+import { setClipReport } from "../util/clipReport.js";
 
 //------------------------
 
@@ -158,24 +158,30 @@ export function followTree(direction = "outgoing") {
     straightLineBidirectional(
       cy,
       selectedNodes,
-{      includeIn:true, 
-      includeOut:false }
+      {
+        includeIn: true,
+        includeOut: false
+      }
     );
 
   if (direction === "outgoing")
     straightLineBidirectional(
       cy,
       selectedNodes,
-{      includeIn:false, 
-      includeOut:true }
+      {
+        includeIn: false,
+        includeOut: true
+      }
     );
 
   if (direction === "both")
     straightLineBidirectional(
       cy,
       selectedNodes,
-      {includeIn:true, 
-      includeOut:true }
+      {
+        includeIn: true,
+        includeOut: true
+      }
     );
 
   hideWaitCursor();
@@ -381,7 +387,7 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
             },
             {
               label: "❌ No",
-              onClick: () => {}, // rien
+              onClick: () => { }, // rien
             },
           ]
         );
@@ -412,9 +418,13 @@ function showLongPathList(limit, paths) {
   link.href = "/css/style.css";
   doc.head.appendChild(link);
 
+  const link2 = doc.createElement("link");
+  link2.rel = "stylesheet";
+  link2.href = "/css/table.css";
+  doc.head.appendChild(link2);
   // BODY
   const body = doc.body;
-  body.className = "alt-body";
+  body.className = "doc-table";
   body.textContent = "";
 
   // --- Titre + bouton de fermeture
@@ -431,6 +441,7 @@ function showLongPathList(limit, paths) {
 
   const band = bandeauMarkdown(doc);
   body.appendChild(band);
+
   // --- Table
   const table = doc.createElement("table");
   table.id = "longPathTable";
@@ -530,8 +541,8 @@ export function simplifyAssociations() {
       a.show();
       b.show();
       // double links to allows bi directional circulation 
-      createEdge(a,b);
-      createEdge(b,a)
+      createEdge(a, b);
+      createEdge(b, a)
 
 
 
@@ -539,27 +550,27 @@ export function simplifyAssociations() {
       node.connectedEdges().remove();
       node.remove();
 
-// internal function add an edge 
-  function createEdge(a,b){
-    
-    let newId = `${a.id()} <<-( ${node.id()} )->${b.id()}`;
+      // internal function add an edge 
+      function createEdge(a, b) {
 
-      // Add the generated edge
+        let newId = `${a.id()} <<-( ${node.id()} )->${b.id()}`;
 
-      getCy().add({
-        group: "edges",
-        data: {
-          id: newId,
-          label: newId,
-          source: a.id(),
-          target: b.id(),
-          generated: true,
-          backup: nodeBackup,
-          simplified_association: true,
-        },
-        classes: NativeCategories.SIMPLIFIED,
-      });
-    }//createEdge
+        // Add the generated edge
+
+        getCy().add({
+          group: "edges",
+          data: {
+            id: newId,
+            label: newId,
+            source: a.id(),
+            target: b.id(),
+            generated: true,
+            backup: nodeBackup,
+            simplified_association: true,
+          },
+          classes: NativeCategories.SIMPLIFIED,
+        });
+      }//createEdge
 
 
     }
@@ -567,7 +578,7 @@ export function simplifyAssociations() {
   if (done == 0) showAlert("nothing found. Check selected.");
 
 
-  
+
 }
 
 /*
@@ -617,16 +628,16 @@ export function downloadJson(jsonObject, filename = "trace.json") {
  used by long path longPathNto1List
 */
 
-function openJsonInNewTab(jsonArray, aTitle) {
+function openPkFkJsonInNewTab(jsonArray, aTitle) {
   function toPkfkTable(arr) {
     let htmlPart = `
     <table id ='table-pk-fk'> 
     <thead>
       <tr>
-        <th>target node</th>
+        <th>target table</th>
         <th> target PK</th>
         <th> matching fk  </th>
-        <th> from node</th>
+        <th> from table</th>
       </tr>
      </thead>
       <tbody>`;
@@ -661,51 +672,61 @@ function openJsonInNewTab(jsonArray, aTitle) {
         lastObjFrom = obj.from;
       }
     }
-    htmlPart += `</tbody> </table>`;
+    htmlPart += `</table>`;
 
     return htmlPart;
   }
   const pkfkTable = toPkfkTable(jsonArray);
 
-  // chemin absolu (important si la nouvelle page est "vierge")
-  const imgSrc = `${location.origin}/img/closePage.png`;
+  const win = window.open("", "PkFkWindow");
+  const doc = win.document;
 
-  const html = `
-    <!doctype html>
-    <html>
-      <head>
-  <meta charset="utf-8">
-  <title>${aTitle}</title>
-  <link rel="stylesheet" href="${location.origin}/css/style.css">
+  // HEAD
 
- </head>
-      <body class ="alt-body">
-        <h1>
-        <button class="close-btn" title="close" onclick="window.close()">
-            <img src="${imgSrc}" alt="close">
-          </button>
-        
-        from ${aTitle}</h1>
-        <h2> 
-          chains of PK matched exactly by FK
-        </h2>
+  doc.title = `PkFk propagation `;
+  const meta = doc.createElement("meta");
+  meta.setAttribute("charset", "UTF-8");
+  doc.head.appendChild(meta);
 
-        <div id="md-actions-anchor"> </div> <!-- to inject later markdown output -->
+  // styles
+  const base = window.location.origin;
 
-        ${pkfkTable}
-      </body>
-  </html>
-  `;
+  const link = doc.createElement("link");
+  link.rel = "stylesheet";
+  link.href = base + "/css/style.css";
+  doc.head.appendChild(link);
 
-  const win = window.open("", "longPath");
+  const link2 = doc.createElement("link");
+  link2.rel = "stylesheet";
+  link2.href = base + "/css/table.css";
+  doc.head.appendChild(link2);
+  // BODY
+  const body = doc.body;
+  body.className = "doc-table";
+  body.textContent = "";
 
-  win.document.documentElement.innerHTML = html;
-  const toolbar = bandeauMarkdown(win.document);
-  const anchor = win.document.getElementById("md-actions-anchor");
-  if (anchor) {
-    anchor.appendChild(toolbar);
-  }
-  setEventMarkdown(win.document, "table-pk-fk", "pk-fk-chains");
+  // Title + close button
+  const h2 = doc.createElement("h2");
+  const closeImg = createIconButton(doc, {
+    src: "img/closePage.png",
+    alt: "Return",
+    title: "Close",
+    onClick: () => win.close(),
+  });
+  h2.appendChild(closeImg);
+  h2.appendChild(
+    doc.createTextNode(` Propagation of ${aTitle} Pk`)
+  );
+  body.appendChild(h2);
+
+  const header = createHeaderMarkdown(doc);
+  body.appendChild(header);
+ 
+  const elt = doc.createElement("div");
+  elt.innerHTML = pkfkTable;
+  body.appendChild(elt);
+  setEventMarkdown(doc, "table-pk-fk", "pk-fk-chains");
+ 
 }
 
 /*
@@ -761,7 +782,7 @@ export function findPkFkChains() {
     if (getCy().nodes(":selected:visible").length > 1) {
       //auto display
       hideNotSelectedThenDagre();
-      openJsonInNewTab(trace, `${root.id()}`);
+      openPkFkJsonInNewTab(trace, `${root.id()}`);
     }
   });
 }
@@ -937,7 +958,7 @@ export function straightLineBidirectional(
  * @param {object} table - Table JSON (your sample)
  * @returns {Array} relationships
  */
-export function ownerShipLayout() {
+export function ownerShipPerimeter(onlyMandatory = true) {
   let cy = getCy();
 
   let selectedNodes = cy.nodes(":visible:selected");
@@ -956,7 +977,7 @@ export function ownerShipLayout() {
   const schema = buildSchemaFromNodes(cy.nodes());
 
   // Build full graph once
-  const graph = buildOwnershipGraph(schema, { onlyMandatory: true });
+  const graph = buildOwnershipGraph(schema, { onlyMandatory: onlyMandatory });
 
   // Build ownership tree **limited to descendants of rootId**
   const tree = buildOwnershipTree(rootId, graph);
@@ -964,6 +985,7 @@ export function ownerShipLayout() {
   // Show it
   //printTree(tree);
   selectBasedOnTree(tree);
+  setClipReport("ownerShip", JSON.stringify(treeToJSON(tree), 0, 2));
   hideWaitCursor();
 }
 
@@ -1069,3 +1091,35 @@ function printTree(node, prefix = "") {
     printTree(child, prefix + "    ");
   }
 }
+
+function treeToJSON(node) {
+  const seen = new WeakSet();
+
+  function build(n) {
+    // Si on a déjà visité ce nœud → marquer comme cycle
+    if (seen.has(n)) {
+      return { table: n.table, cycle: true, children: [] };
+    }
+
+    seen.add(n);
+
+    return {
+      table: n.table,
+      cycle: !!n.cycle,
+      children: (n.children || []).map(child => ({
+        via: {
+          tag: child.via?.mandatory ? "mandatory" : "optional",
+          constraint: child.via?.constraint ?? "?",
+          comment: child.via?.comment ?? null,
+        },
+        child: build(child),
+      })),
+    };
+  }
+
+  return build(node);
+}
+
+// Exemple d'usage :
+// const json = treeToJSON(root);
+// console.log(JSON.stringify(json, null, 2));

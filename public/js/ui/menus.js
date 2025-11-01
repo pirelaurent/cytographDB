@@ -41,8 +41,7 @@ import {
   simplifyAssociations,
   restoreAssociations,
   findPkFkChains,
-  straightLineBidirectional,
-  ownerShipLayout,
+  ownerShipPerimeter,
   followTree,
 } from "../graph/walker.js";
 
@@ -711,17 +710,7 @@ export function menuNodes(option, item, whichClic = "left") {
       followCrossAssociations();
       break;
 
-    /*
-     uses the default defined in the function 
-    */
-    case "findLongOutgoingPaths":
-      pushSnapshot();
-      findLongOutgoingPaths(getCy());
-      break;
 
-    case "findPkFkChains":
-      findPkFkChains();
-      break;
 
     //----------------------------------  nodes Delete
 
@@ -831,8 +820,30 @@ export function menuEdges(option, item, whichClic = "left") {
 
     //--- select by data Snapshot done into function
 
-    case "selectEdgesByCategory":
-      //fillInEdgesCategories();
+    case "edgeIsTriggerGenerated":
+      selectEdgesByNativeCategories("trigger_impact");
+      break;
+
+    case "edgeIsNullable":
+      const nullableEdges = getCy().edges(".nullable");
+      nullableEdges.select();
+      break;
+
+    case "edgeIsOnDeleteCascade":
+      const cascadeEdges = getCy().edges(".delete_cascade");
+      cascadeEdges.select();
+      break;
+
+    case "edgeIsOnDeleteRestrict":
+      selectEdgesByNativeCategories("delete_restrict");
+      // const restrictEdges = getCy().edges(".delete_restrict");
+      // restrictEdges.select();
+      break;
+
+
+    case "edgeIsASimplifiedNode":
+      const simplifiedEdges = getCy().edges(".simplified");
+      simplifiedEdges.select();
       break;
 
     case "hideEdgeSelected":
@@ -863,9 +874,14 @@ export function menuEdges(option, item, whichClic = "left") {
       getCy().edges().show();
       break;
 
-    case "listEdges":
-      sendEdgeListToHtml();
+    case "listEdgesAll":
+      sendEdgeListToHtml(false);
       break;
+    case "listEdgesSelected":
+      sendEdgeListToHtml(true);
+      break;
+
+
     case "selectAssociations":
       var simpleEdges = getCy().edges(".simplified");
       if (simpleEdges.length == 0) showAlert("no *-*  associations to select.");
@@ -945,14 +961,9 @@ export function menuEdges(option, item, whichClic = "left") {
  since v2.08 independant menu for specific to DB model 
 */
 export function menuModel(option, item, whichClic = "left") {
-  if (whichClic == "right") return;
-  // valid for all menu
-  const cy = getCy();
+  if (whichClic == "right") return; //for later parameters
   // select edges
   switch (option) {
-
-
-
 
     // filter table with column is in modalSelectByName called from popup
 
@@ -991,11 +1002,22 @@ export function menuModel(option, item, whichClic = "left") {
       metrologie();
       break;
 
-    case "ownerShipLayout":
-      ownerShipLayout();
+    case "ownerShipPerimeter":
+      ownerShipPerimeter(false);
       break;
 
+    case "ownerShipPerimeterMandatory":
+      ownerShipPerimeter(true);
+      break;
 
+    case "findLongOutgoingPaths":
+      pushSnapshot();
+      findLongOutgoingPaths(getCy());
+      break;
+
+    case "findPkFkChains":
+      findPkFkChains();
+      break;
 
       /*      showWaitCursor();
       cy.batch(() => {
@@ -1020,28 +1042,7 @@ export function menuModel(option, item, whichClic = "left") {
       hideWaitCursor();
       cy.fit(); */
 
-      break;
 
-    case "edgeIsTriggerGenerated":
-      selectEdgesByNativeCategories("trigger_impact");
-      break;
-
-    case "edgeIsNullable":
-      cy.edges();
-      const nullableEdges = getCy().edges(".nullable");
-      nullableEdges.select();
-      break;
-
-    case "edgeIsOnDeleteCascade":
-      cy.edges();
-      const cascadeEdges = cy.edges(".delete_cascade");
-      cascadeEdges.select();
-      break;
-
-    case "edgeIsASimplifiedNode":
-      const simplifiedEdges = cy.edges(".simplified");
-      simplifiedEdges.select();
-      break;
   }
 }
 

@@ -251,3 +251,10 @@ html, .doc-table {
 }
 
 
+/*
+ body for generated pages
+*/
+body.alt-body {
+  font-family: system-ui, sans-serif;
+  margin: 20px; /* ou autre mise en forme */
+}

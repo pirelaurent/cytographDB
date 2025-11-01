@@ -41,8 +41,16 @@ ul.submenu {
   box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
   z-index: 3100;
   white-space: nowrap;
+  font-size: 0.9em;
 
 }
+
+ul.submenu,
+ul.submenu ul.submenu  {
+  left: calc(100% - 6px); /* chevauche le parent de 6px */
+  margin-left: 0;         /* supprime la marge inutile */
+}
+
 
 ul.submenu li {
   position: relative;  /* ancre locale */
@@ -52,10 +60,6 @@ ul.submenu li > ul.submenu {
   top: 0;
   left: 100%;
 }
-
-
-
-
 
 /* --- Affichage par HOVER (compat ancien comportement) --- */
 .menu-wrapper:hover > ul.menu { display: block; }
@@ -83,13 +87,14 @@ ul.submenu li:hover {
   background-color: #eaf3fa;
 }
 
-/* Sous-menu à droite */
-ul.submenu { top: 0; left: 100%; }
+
 
 /* --- Correction : sous-menus alignés sur leur ligne parent --- */
 ul.menu > li {
   position: relative; /* sert de référence verticale à son sous-menu */
 }
+
+
 
 ul.menu > li > ul.submenu {
   top: 0;
@@ -214,7 +219,7 @@ li[data-category="follow"] > ul.submenu > li:hover {
   width: 40px;
   height: 40px;
   border-radius: 3px;
-  border: 1px solid transparent;
+ border: 1px solid #e6e6e6; 
 }
 .icon-actions img:hover,
 #quickAccessMenu img:hover {
@@ -232,10 +237,6 @@ li[data-category="follow"] > ul.submenu > li:hover {
 #menu-nodes #icon-hideNotSelected:hover{ content: url("/img/select/hideNotSelected.png"); }
 #menu-nodes #icon-swapHidden:hover     { content: url("/img/select/hideSwap2.png"); }
 #menu-nodes #icon-showAll:hover        { content: url("/img/select/halfSelected.png"); }
-
-
-
-
 
 
 /* --- Comment icon --- */
@@ -294,16 +295,16 @@ ul.submenu li:hover > ul.submenu {
   display: block;
 }
 
-/* Décalage horizontal des sous-menus */
-ul.submenu {
-  top: 0;
-  left: 100%;
-  margin-left: 2px;
+#waitLoading {
+  position: absolute;
+  top: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(174, 255, 0, 0.9);
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  z-index: 999;
 }
 
-/* Évite qu’un sous-menu long dépasse l’écran */
-ul.submenu ul.submenu {
-  left: 100%;
-  top: 0;
-  z-index: 3200;
-}
+

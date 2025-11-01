@@ -56,7 +56,6 @@ let detailedEdgesArray; // to be able to reverse, store details here
 export function saveDetailedEdges() {
   detailedEdgesArray = getCy().edges(); // cytoscape collection, not array
 
-  //document.getElementById('toggle-fk-mode').textContent = 'toggle details n --> 1';
 }
 
 /*
@@ -128,14 +127,7 @@ export function cleanDetailedEdgesArray() {
   // as some nodes could have been deleted in fk mode, detailed are not more valid
 
   detailedEdgesArray.forEach((aDetailedEdge) => {
-    /*
-    console.log('edge id:', edge.id());
-    console.log('source node id:', edge.source().id());
-    console.log('target node id:', edge.target().id());
-    // ou via data :
-    console.log('source id (data):', edge.data('source'));
-    console.log('target id (data):', edge.data('target'));
-    */
+  
     const sourceId = aDetailedEdge.source().id();
     const destId = aDetailedEdge.target().id();
 
@@ -222,6 +214,7 @@ export function enterFkSynthesisModeForEdges(edges) {
       classes: [
         "fk_synth",
         onDelete === "c" ? "delete_cascade" : "",
+        onDelete === "r" ? "delete_restrict" : "",
         nullable ? "nullable" : "",
         labeled ? "showLabel" : "",
       ]
@@ -230,3 +223,4 @@ export function enterFkSynthesisModeForEdges(edges) {
     });
   });
 }
+

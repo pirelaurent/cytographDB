@@ -97,7 +97,7 @@ export function listNodesToHtml(all=true) {
   // ---- BODY HtmL----
 
   const body = doc.body;
-  body.className = "alt-body";
+  body.className = "doc-table";
   body.textContent = ""; // nettoie le body
 
   // titre + bouton close
@@ -355,25 +355,7 @@ window.applySelectionFromPopup = function (ids) {
   });
 };
 
-/*
- shared with edges
- */
 
-export function createHeaderMarkdown(doc) {
-  // --- Header (H2 + 3 imgs) ---
-  const header = doc.createElement("div");
-  header.className = "section-header";
-
-  const h2 = doc.createElement("h2");
-  h2.id = "columnNumber";
-  h2.className = "section-title";
-  h2.textContent = ""; // Columns in table details, no name here
-
-  header.appendChild(h2);
-  let bandeau = bandeauMarkdown(doc);
-  header.appendChild(bandeau);
-  return header;
-}
 
 
 

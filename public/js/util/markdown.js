@@ -265,4 +265,25 @@ export function outputMarkdown(opts = {}, tableText, root) {
     setTimeout(() => URL.revokeObjectURL(url), 1000); // leave time to nav and release
   }
 }
+/*
+  create a header for markdown tables with icons by code
+*/
+export function createHeaderMarkdown(doc) {
+  // --- Header (H2 + 3 imgs) ---
+  const header = doc.createElement("div");
+  header.className = "section-header";
 
+  const h3 = doc.createElement("h3");
+  h3.id = "columnNumber";
+  h3.className = "section-title";
+  h3.textContent = ""; // Columns in table details, no name here
+ const wrap = doc.createElement("div");
+  wrap.className = "section-actions";
+  h3.appendChild(wrap);
+  header.appendChild(h3);
+
+  let bandeau = bandeauMarkdown(doc);
+  wrap.appendChild(bandeau);
+  //header.appendChild(bandeau);
+  return header;
+}

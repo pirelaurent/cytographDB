@@ -4,28 +4,24 @@
     <span class="menu-trigger">Model</span>
     <ul class="menu">
 
-
-
-      <li data-category="filterEdges">Filter FK ...
+      <li data-category="model">Reorganize ...
         <ul class="submenu">
-          <li action="edgeIsNullable">Nullable</li>
-          <li action="edgeIsOnDeleteCascade">On delete cascade</li>
-          <li action="edgeIsTriggerGenerated">Trigger impact</li>
-          <li action="edgeIsASimplifiedNode">Simplified associations</li>
+          <li action="dependencies">by Dependencies</li>
+          <li action="dependenciesPerCustomCategory">By Depencies and custom categories</li>
         </ul>
       </li>
-
-      <li data-category="model">DB layout ...
+      <li data-category="model">Propagations ...
         <ul class="submenu">
-          <li action="dependencies">By dependencies</li>
-          <li action="dependenciesPerCustomCategory">By custom categories</li>
-          <li action="ownerShipLayout">Ownership layout</li>
-        </ul>
-      </li>
-           
+          <li action="ownerShipPerimeter">Ownership layout</li>
+          <li action="ownerShipPerimeterMandatory">Ownership layout only mandatory</li>
           <li action="findLongOutgoingPaths" title="Find nodes reachable by long forward paths (more than 2 hops)">
-            long paths
+            Search long paths
           </li>
+          <li action="findPkFkChains" title="Show chains of primary key to foreign key relations">
+            Find chains of PK-FK from leaf (table without FK)
+          </li>
+        </ul>
+      </li>
     </ul>
   </div>
 </div>

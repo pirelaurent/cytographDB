@@ -9,8 +9,8 @@ import { getCy } from "../graph/cytoscapeCore.js";
 import { showAlert } from "./dialog.js";
 
 import { getLocalDBName } from "../dbFront/tables.js";
-import { createHeaderMarkdown } from "../ui/htmlNodes.js";
-import { setEventMarkdown } from "../util/markdown.js";
+
+import { setEventMarkdown,createHeaderMarkdown } from "../util/markdown.js";
 
 import { createIconButton } from "../ui/dialog.js";
 
@@ -19,12 +19,12 @@ import { ConstantClass, actionMap } from "../util/common.js";
 /*
  edges list 
 */
-export function sendEdgeListToHtml() {
-  let edges = getCy().edges(":selected:visible");
-  if (edges.length === 0) edges = getCy().edges(":visible");
+export function sendEdgeListToHtml(selectedOnly = false) {
+
+  let edges = selectedOnly?getCy().edges(":selected:visible"):getCy().edges(":visible");
 
   if (edges.length === 0) {
-    showAlert("no selected edges to list.");
+    showAlert("no edges to list.");
     return;
   }
 
@@ -74,7 +74,7 @@ export function sendEdgeListToHtml() {
 
     const sourceName = cleanLabel(nodeSource.data("label") || e.source().id());
     const targetName = cleanLabel(nodeDest.data("label") || e.target().id());
-    
+
     // an edge is an fk and hold its name
     const fkLabel = e.data("label") || "";
     // current state of edge : global or detailed
@@ -86,33 +86,33 @@ export function sendEdgeListToHtml() {
       ? { label: e.data("columnsLabel") || "", nullable: e.data("nullable") }
       : "";
 
-/*
-    console.log(JSON.stringify(e.source().data("foreignKeys")));
-    let sourceData = [
-      {
-        constraint_name: "fk_skills_comp_emp",
-        source_table: "skills",
-        target_table: "employee",
-        comment: null,
-        column_mappings: [
+    /*
+        console.log(JSON.stringify(e.source().data("foreignKeys")));
+        let sourceData = [
           {
-            source_column: "company_id",
-            source_not_null: true,
-            target_column: "company_id",
+            constraint_name: "fk_skills_comp_emp",
+            source_table: "skills",
+            target_table: "employee",
+            comment: null,
+            column_mappings: [
+              {
+                source_column: "company_id",
+                source_not_null: true,
+                target_column: "company_id",
+              },
+              {
+                source_column: "employee_id",
+                source_not_null: true,
+                target_column: "id",
+              },
+            ],
+            all_source_not_null: true,
+            is_target_unique: true,
+            on_delete: "a",
+            on_update: "a",
           },
-          {
-            source_column: "employee_id",
-            source_not_null: true,
-            target_column: "id",
-          },
-        ],
-        all_source_not_null: true,
-        is_target_unique: true,
-        on_delete: "a",
-        on_update: "a",
-      },
-    ];
-*/
+        ];
+    */
     const fkNullable = e.data("nullable"); // true/false
 
     return {
@@ -145,21 +145,21 @@ export function sendEdgeListToHtml() {
   meta.setAttribute("charset", "UTF-8");
   doc.head.appendChild(meta);
 
- // styles
+  // styles
   const base = window.location.origin;
 
   const link = doc.createElement("link");
   link.rel = "stylesheet";
-  link.href = base+"/css/style.css";
+  link.href = base + "/css/style.css";
   doc.head.appendChild(link);
 
   const link2 = doc.createElement("link");
   link2.rel = "stylesheet";
-  link2.href = base+"/css/table.css";
+  link2.href = base + "/css/table.css";
   doc.head.appendChild(link2);
   // BODY
   const body = doc.body;
-  //body.className = "alt-body";
+  body.className = "doc-table";
   body.textContent = "";
 
   // Title + close button
@@ -237,6 +237,7 @@ export function sendEdgeListToHtml() {
 
   const tbody = doc.createElement("tbody");
   table.appendChild(tbody);
+
   body.appendChild(table);
 
   // Fill rows
@@ -327,7 +328,7 @@ export function sendEdgeListToHtml() {
       tr.appendChild(tdDelete);
 
       // --- FK ---
-  
+
       const tdFk = doc.createElement("td");
       tdFk.className = "text";
       tdFk.dataset.value = fkLabel || "";
@@ -391,7 +392,7 @@ export function sendEdgeListToHtml() {
 
   // Sorting on which columns
 
-  const sortableCols = [0, 1, 4, 5];
+  const sortableCols = [0, 1, 2, 3, 4, 5];
 
   doc.querySelectorAll(`#${tableName} th`).forEach((th, index) => {
     if (sortableCols.includes(index)) {

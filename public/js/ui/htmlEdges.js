@@ -172,7 +172,7 @@ export function sendEdgeListToHtml(selectedOnly = false) {
   });
   h2.appendChild(closeEdgeImg);
   h2.appendChild(
-    doc.createTextNode(`Edges (${edges.length}  in current perimeter)`)
+    doc.createTextNode(` Relations (${edges.length}  in current perimeter)`)
   );
   body.appendChild(h2);
 

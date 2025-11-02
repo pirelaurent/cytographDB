@@ -1083,3 +1083,4 @@ export function toggleMenu(id) {
   const menu = document.querySelector(`#${id}`);
   if (menu) menu.classList.add('menu-visible');
 }
+

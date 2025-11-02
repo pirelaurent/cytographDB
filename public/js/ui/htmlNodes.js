@@ -7,7 +7,7 @@
 import { getCy } from "../graph/cytoscapeCore.js";
 import { showAlert } from "./dialog.js";
 import { getLocalDBName } from "../dbFront/tables.js";
-import {bandeauMarkdown,setEventMarkdown } from "../util/markdown.js";
+import {setEventMarkdown,createHeaderMarkdown } from "../util/markdown.js";
 
 import {createIconButton} from "../ui/dialog.js";
 
@@ -310,10 +310,10 @@ export function listNodesToHtml(all=true) {
 
     // --- icône ---
     const img = doc.createElement("img");
-    img.src = "./img/toggleWhite.png"; // ⇐ ton image
+    img.src = "./img/toggle.png"; // ⇐ ton image
     img.alt = ""; // décoratif (aria-label sur le bouton)
-    img.width = 16; // ajuste la taille
-    img.height = 16;
+    img.width = 20; // ajuste la taille
+    img.height = 20;
     img.draggable = false;
 
     btn.appendChild(img);

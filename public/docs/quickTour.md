@@ -7,18 +7,23 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
 
 ## Initial load of sample *democytodb* 
 
-(after some ui alignments).
-
 <img src = "./img/democytoscapedb2.png" width = "600px" style="border: 1px solid grey;">
 
 
 # General UI 
 
+## Main menu entries
+
+- Display : all options that will change visual aspects 
+- Tables  : browse, select and manage visibility of tables
+- Relations: browse, select and manage visibility of relations
+- Model : other global actions using the metamodel.  
+
 ## Node = table representation
 
 ( all UI choices can be customized later by yourself & per database )
 
-### table shapes
+### Table shapes
 
 - <img src = "./img/shapeOrphan.png" height="20"> **orphan** : no links
   -  pentagon ( *parameters* )
@@ -33,12 +38,12 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
 - <img src = "./img/shapeDefault.png" height="20"> **default** 
   - round rectangle (*production line, factory, employee*)
   
-#### tag 'trigger detected' 
+#### Icon 'trigger detected' 
 
 <img src = '../img/trigger2.png' width=25>   This symbol appears under the label of a node when a table **has triggers** (*replacing previously used stars\** )
 
 
-### hover on node
+### Hover on a table 
 
 
 When mouse cursor is over a node, direct neighbours are highlighted:
@@ -58,7 +63,9 @@ With number of triggers and other categories if any :
 
 --- 
 
-## Edge = FK from owner to referenced table
+## Graphical oriented edge line 
+
+**FK from owner (relational child) to referenced table(relational parent)**
 
 - FK    
   - straight line with destination arrow as triangle      
@@ -72,7 +79,7 @@ With number of triggers and other categories if any :
   - special line color ( default blue sky )   
  <img src ="./img/edgeNullable.png" width = "100px">. 
 
-### hover on edges  
+### Hover on relations  
 
 with hover "on" in main menu bar, a popup is added when mouse is over an edge.   
 
@@ -86,7 +93,7 @@ with hover "on" in main menu bar, a popup is added when mouse is over an edge.
  *1/FK (or 1/Col)* designate current display of edge (global or detailed). See Edge menu.  
 
 
-### warning about root & Leaf  
+### Warning about root & Leaf  
 
 In an oriented graph a *root* is a node without incoming edge and a *leaf* a node without outgoing edge.
 For FK the less dependant tables are those who have no FK , ie leaves on graph.  
@@ -95,9 +102,9 @@ For FK the less dependant tables are those who have no FK , ie leaves on graph.
 
 ---
 
-# more on nodes
+# More on tables
 
-### list of nodes (i.e. tables)
+### List of tables
 
 **list** generates a window with nodes of ***current perimeter***   
 *Current perimeter* : all nodes if none selected (like below), only selected nodes otherwise.
@@ -105,25 +112,35 @@ For FK the less dependant tables are those who have no FK , ie leaves on graph.
 <img src = "./img/listNodes.png" width = 380px style="border: 2px solid grey;">   
 
 
-**All columns are sortable by headers**  
-**Left check columns reflects selection and returns with selection if changed**
-**Tables'name are linked to their detailed definition**
-**Trigger numbers are linked to triggers'code**
+- **All columns are sortable by headers**  
+- **Left check columns reflects selection and returns with selection if changed**
+- **Tables'name are linked to their detailed definition**
+- **Trig*ger* numbers are linked to triggers'code**
 
-<img src = "./img/markdownSymbols.png" width = 50px> Download and copy the current table **as markdown text**. 
+<img src = "./img/markdownSymbols.png" width = 100px> These actions are common to all tables :  
+
+  
+- Download table in markdown.   
+- Dowload the table as an excel sheet.    
+- Copy the table into clipboard as a markdown text.  
+
 
 --- 
 
-### access to a table definition 
+### Access to a table definition 
 
 - clic on a displayed table name in a list (nodes or edges list)
 - right-click to open then contextual menu on a node and choose table definition.
  
 <img src = "./img/contextualNodeMenu.png" width ="160px" style="border: 1px solid grey;">
  
-#### display of a table definition 
+ Icons are propagation's command to apply to the selected node. 
+ They are detailed further in *Walk through the model* when they apply to a collection. 
 
-a new tab is open in navigator and show detailed schema informations. 
+
+#### Definition: display details of the selected table 
+
+A new tab is open in navigator and show detailed schema informations. 
 - if any comment in schema, a tip is available.
 - indexes doesn't include PK as it has its own place.
 - constraints list (if any) doesn't include Pk nor indexes. 
@@ -131,27 +148,29 @@ a new tab is open in navigator and show detailed schema informations.
 
 ***Total constraints in DB: PK + Indexes + constraints***
   
-<img src ="./img/tableDetails.png" width = "800px" style="border: 1px solid grey;">
+<img src ="./img/tableDetails.png" width = "100%" style="border: 1px solid grey;">   
 
-<img src ="./img/markdownSymbols.png" height="20px" > Download and copy to get markdown exports.
-<img src ="./img/iconHelp.png" height="20px" > Indicates a comment (from DB) is available (visible at mouse hover). 
+ ***●  Not nullable   /  ○ nullable*** : short representation (used for columns and foreign keys)    
 
-#### table triggers 
+<img src ="../img/commentIcon.png" height="20px" > (when available) Indicates a DB comment visible when staying on at mouse over. 
 
-A new tab open with triggers'list,  allowing to browse the SQL code.  
+<img src ="../img/select/eyeOpen.png" height="20px" > display the 10 first records in a new page.
+
+#### Triggers entry
+
+A new tab opens with triggers'list,  allowing to browse further the SQL code.  
 
 <img src = "./img/triggerMainPage.png" width ="600px" style="border: 1px solid grey;">
 
-<small>*[some docs on FK constraints in SQL ](./moreSQL.md)*</small> 
 
-#### impacted Tables
+#### Impacted Tables
 
 An automatic code analysis search for `UPDATE`, `DELETE`, or `CREATE` operations in triggers and functions.
 
 In the upper sample, the `employee` table appears in *Impacted Tables* because an *UPDATE employee* has been found in the triggers code.
 Note : to get visually new edges that link source table to impacted tables, you must generate them through ***'edges - data model - generate - triggers impact'***
 
-### recursive analysis 
+### Recursive analysis 
 
 If a trigger code calls a function, the code of this function is also parsed.    
 If a function calls another function, the code of this called function is also parsed. 
@@ -181,9 +200,9 @@ CytographDB uses syntaxic color for SQL from a third part.
 
 ---
 
-# more on Edges
+# More on relations (edges)
 
-## list of edges ( foreign key / trigers impacts)
+## List of edges ( foreign key / trigers impacts)
 
 list generates a window with edges of current perimeter.
 Current perimeter : all edges if none selected, only selected edges otherwise.
@@ -191,56 +210,58 @@ Current perimeter : all edges if none selected, only selected edges otherwise.
 <img src ="./img/edgeList1perCol.png" width = "650px">
 
 **FK name**  : in case of a generated edge for trigger impact, the name is the name of the trigger. 
-**col -> col** : depends of the foreign key details which can be set or not on a individual edges basis. If not detailed, the column is empty ( - ).
+**details** : when relations are in detailed mode (see below), column to column matching will be displayed.
+If not detailed, the column is empty ( - ).
 
-## Menu Model and foreign keys details:   
-<img src ="./img/menuModel.png" width = "160">
-
-###  FK  display  
+### Menu Relations and foreign keys details   
+<img src ="./img/rawFKOptions.png" width = "400">
 
 - **raw FK** Default FK presentation : a FK<->1 edge. 
 - **per column** :FK is splitted as one edge per matching columns.
 
-Below labels were displayed for some selected edges.   
-Hover also show details.  
+Below labels were displayed after selecting some relations and using ***Display/Relations labels/Relation name***.  
 
-  clic on Menu ***Edges-details - 1 per FK/ 1 per column***  to change **all** edges at once .
-  clic on Menu ***Edges-label-show***  to see **all** labels at once.
 
 <img src ="./img/edgePerColumn.png" width = "600px" style="border: 1px solid grey;">   
 
-💡You can also flip/flob FK mode  (also flip/flop label view) on an individual edge **with right click submenu**:    
+💡You can also flip/flop FK mode  (also flip/flop label view) on an individual edge **with right click submenu**:    
 <img src ="./img/edgeFlipFlop.png" width = "200px">
 
 --- 
 
-### triggers ... generate impacts
-
-menu: ***Model → triggers  → generate  impacts**
+### Triggers ... generate impacts
+<img src ="./img/menuTriggers.png" width = "350px">
 
 New edges materialize trigger-based relationships (violet below)
 
 <img src ="./img/triggerNetwork.png" width = "350px" style="border: 1px solid grey;">
 
-Labels of new *trigger_impact* edge is the trigger's name.
-
-These edges can be easily selected later through  
-**edges - filter by... native category -  trigger_impact**   
-Or removed directly by : 
-**Edges → Data Model → Triggers  → remove  impacts**
+Labels of new *trigger_impact* edge is the trigger's name.  
+You can remove them from the graph the same way.
 
 --- 
 
-# Walk through the model 
+## Walk through the model 
 
 This kind of directed graph allows to walk through ***table dependencies***.  
 
-## follow & show in any direction  *outgoing / incoming / both*
+
+<img src = "./img/menuFollowReveal.png" width = "280px" style="border: 1px solid grey;">
 
 From some selected nodes, you can navigate in any directions to select neighbours. 
-If the neighbours are hidden, they are autatically brought back to visible. 
 
-### sample 
+
+<img src = "./img/stepByStep.png" width = "100px" style="border: 1px solid grey;"> : Step by step in any direction  *outgoing  / both  / Incoming*
+
+<img src = "./img/treeByTree.png" width = "100px" style="border: 1px solid grey;"> : Automatic propagation in chains selecting *outgoing tree  / both  / Incoming tree*
+
+<img src = "./img/crossAssociation.png" width = "100px" style="border: 1px solid grey;"> An association (two outgoing links) blocks propagation forward and backward. This command will selecting both sides of an already selected association. This allows to pursuit the chains. 
+
+
+
+*Follow & Reveal* : If the neighbours are hidden, they are automatically brought back to visible. 
+
+### Sample 
 
 Starting with *production_line* as the only visible node :
 - a first outgoing clic bring back *factory* 
@@ -248,84 +269,24 @@ Starting with *production_line* as the only visible node :
 
 <img src = "./img/followOut0.png" height = "80" /><img src = "./img/followOut1.png"  height = "100" /><img src = "./img/followOut2.png"  height = "90"  />
 
-### exploring chains backward
+### Exploring chains backward
 
-#### starting from *leaf* 
+#### starting from *company* selected :
 
-By aplying successive **Nodes - Follow & show - Incoming** starting with *company* you got the backward dependencies ( after applying a Dagre layout) : 
+- By applying successive **Nodes - Follow & show - Incoming** starting with *company*    
+- in one shot by using the **incoming tree propagation**    
+
+ you can see the backward dependencies as selected nodes ( here after applying a Dagre layout) : 
 
 <img src = './img/backwardDependency.png' width = "500" >
 
-One can observe that the *product* table is not in the graph as no directed edge linked it as an incoming edge. 
+One can observe that the *product* table is not in the graph as no directed edge linked it as an incoming edge : the line_product association acts as a barrier ( you can jump using cross association)
 
+### Other propagations in menu Model
 
-### the  *association* barriers 
+<img src = './img/otherPropagations.png' width = "400" >
 
-An association has two output links and no incoming.   
-Directed backward walks on a graph allways stop encountering an association.
-
-#### follow & show ... association 
-
-This menu option allows the walk to cross associations by applying a ***follow & show - both*** directions only on associations. 
-
-#### Individual follow actions on a chosen node 
-
-The direction arrows allow to follow edges only for the current node :   
-<img src = "./img/contextualFollow.png" width ="100" style="border: 1px solid grey;">   
-**outgoing(green) |  both |  incoming(red)** 
-
---- 
-### exploring chains forward
-
-#### starting from **leaf** 
-
-***follow & shows ... outgoing*** will stop growing after three calls: 
-
-<img src = "./img/forward0.png" height = "80" /> - <img src = "./img/forward1.png"  height = "100" /> - <img src = "./img/forward2.png"  height = "90"  /> - <img src = "./img/forward3.png" height = "80" />
-
-### follow  *long path dependencies*
-
- This walk follows outgoing edges from table to table to find all the outgoing long paths forward avoiding loops.   
- 💡 start with few nodes, mainly from ***root node***.
-
- If no start nodes are defined, algorithm will try every node which could be expensive for large graph.  
- With the tiny democytoDB we get all paths ( more than two jumps) : 
-
- <img src = "./img/allLongPath.png" width = "360px"/>   
-
- <small>( To facilitate reading, repeated path parts are greyed italic)</small>
- 
- Returning to main graph, all the nodes of all path will be selected. 
- No interest here, but if you start with only *skills* as selected nodes, you will get the following long path : 
-  
-<img src ="./img/longPathGrahList.png" width = "300px" style="border: 1px solid grey;">.  
-    
-And the selected nodes reflect the path : 
-<img src ="./img/longPathGraph.png" width = "300px" style="border: 1px solid grey;">
- 
-This retrieves automatically what was done step by step starting from *skills* with follow outgoing.
-
-
----  
-
-## Exploring chains backward 
-
-## follow incoming and check PK/FK 
-
-This walk follows incoming. It must start from a ***leaf***.   
-It search backward for FK that use exactly all the columns of the PK's source. 
-
-
-In democytodb, starting from the root *company* : 
-
-<img src ="./img/longPathNto1.png" width = "400px" style="border: 1px solid grey;">.  
-And the associated list :   
-<img src ="./img/longPathNto1List.png" width = "400px" style="border: 1px solid grey;">
----
-
-This ends the quick tour.
-See detailed menus for more options. 
-
+Options will be detailed in corresponding menu. 
 
 ---
 

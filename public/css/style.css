@@ -115,7 +115,7 @@ ul#clicEdgeMenu li:hover {
 
 ul#clicNodeMenu .arrows {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   padding: 4px 6px;
   border-top: 1px solid #ccc;
   margin-top: 4px;
@@ -126,8 +126,64 @@ ul#clicNodeMenu.hidden,
 ul#clicEdgeMenu.hidden { display: none; }
 
 
+#clicNodeMenu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#clicNodeMenu .arrows,
+#clicNodeMenu .trees {
+  display: flex;
+  justify-content: center; /* centre horizontalement le groupe */
+  align-items: center;     /* aligne verticalement si besoin */
+  gap: 0px;                /* espace entre les icônes */
+  padding: 6px 0;
+}
+
+#clicNodeMenu img {
+  max-width: 100%;
+  height: auto;
+}
 
 
+.arrows, .trees {
+  display: flex;
+  gap: 0;
+  line-height: 0;
+  font-size: 0;
+  align-self: center;
+}
+
+.arrows img,
+.trees img {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-sizing: border-box;
+}
+
+/* Colle visuellement les images, même si un arrondi ou sous-pixel existe */
+.arrows img + img {
+  margin-left: -1px; /* colle littéralement les boîtes */
+}
+
+.trees img + img {
+  margin-left: -1px; /* colle littéralement les boîtes */
+}
+
+/* effet au survol : plus “brillant” + léger lift (optionnel) */
+#arrowLeft:hover,
+#arrowMiddle:hover,
+#arrowRight:hover,
+#treeLeft:hover,
+#treeMiddle:hover,
+#treeRight:hover {
+  cursor: pointer;
+  background-color: #777;
+  filter: brightness(1.8) saturate(1.5);
+}
 
 
 /* --------------------------------------------------------
@@ -437,5 +493,3 @@ fieldset legend {
 #doc-links{
   font-size: 0.6em;
 }
-
-

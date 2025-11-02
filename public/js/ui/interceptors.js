@@ -29,13 +29,11 @@ import {
   enterFkSynthesisModeForEdges,
 } from "../graph/detailedEdges.js";
 
-import { follow } from "../graph/walker.js";
-import { menuNodes,menuEdges } from "./menus.js";
+import { follow, followTree } from "../graph/walker.js";
+import { menuNodes, menuEdges } from "./menus.js";
 import { setModalInterceptors } from "./modal.js";
 import { NativeCategories, ConstantClass } from "../util/common.js";
 import { showClipReport } from "../util/clipReport.js";
-
-
 
 /*
  all the events set in gui are defined here 
@@ -370,7 +368,7 @@ export function setInterceptors() {
       nodeForInfo.hasClass(NativeCategories.HAS_TRIGGERS)
         ? "list-item"
         : "none";
-clicNodeMenu.classList.remove('hidden');
+    clicNodeMenu.classList.remove("hidden");
     clicNodeMenu.style.display = "block";
   });
 
@@ -476,7 +474,7 @@ clicNodeMenu.classList.remove('hidden');
     const { x, y } = whereClicInContainer(evt.renderedPosition);
     clicEdgeMenu.style.left = `${x - 10}px`;
     clicEdgeMenu.style.top = `${y - 20}px`;
-    clicEdgeMenu.classList.remove('hidden');
+    clicEdgeMenu.classList.remove("hidden");
     clicEdgeMenu.style.display = "block";
   });
 
@@ -603,6 +601,22 @@ clicNodeMenu.classList.remove('hidden');
     commonArrow("both");
   });
 
+
+
+  document.getElementById("treeLeft").addEventListener("click", () => {
+    commonTree("outgoing");
+  });
+
+  document.getElementById("treeRight").addEventListener("click", () => {
+    commonTree("incoming");
+  });
+
+  document.getElementById("treeMiddle").addEventListener("click", () => {
+    commonTree("both");
+  });
+
+
+
   const svg = document.getElementById("follow-graph");
 
   // Clic souris / tactile
@@ -615,7 +629,6 @@ clicNodeMenu.classList.remove('hidden');
     //triggerAction(zone.dataset.action);
   });
 
-
   const svgTree = document.getElementById("tree-follow-graph");
 
   // Clic souris / tactile
@@ -624,10 +637,9 @@ clicNodeMenu.classList.remove('hidden');
     if (!zone || !svgTree.contains(zone)) return;
 
     menuNodes(zone.dataset.action, e);
-
   });
 
-const svgPassThroug = document.getElementById("pass-through-graph");
+  const svgPassThroug = document.getElementById("pass-through-graph");
 
   // Clic souris / tactile
   svgPassThroug.addEventListener("click", (e) => {
@@ -636,8 +648,7 @@ const svgPassThroug = document.getElementById("pass-through-graph");
     menuNodes(zone.dataset.action, e);
   });
 
-
-const svgRelations = document.getElementById("follow-relations");
+  const svgRelations = document.getElementById("follow-relations");
 
   // Clic souris / tactile
   svgRelations.addEventListener("click", (e) => {
@@ -646,21 +657,32 @@ const svgRelations = document.getElementById("follow-relations");
     menuEdges(zone.dataset.action, e);
   });
 
-
-
- 
-
   function commonArrow(direction) {
     // store current selected
     let selectedElements = getCy().elements(":visible:selected");
     selectedElements.unselect();
 
-    // replace by a unique selected node to call follow
+    // nodeForInfo is shared and set by the event as the target
     nodeForInfo.select();
     follow(direction);
     // restore previoous
     selectedElements.select();
   }
+
+  function commonTree(direction) {
+    // store current selected nodes 
+    let selectedElements = getCy().elements(":visible:selected");
+    selectedElements.unselect();
+
+    // nodeForInfo is shared and set by the event as the target
+    nodeForInfo.select();
+    followTree(direction);
+    // restore previous
+    selectedElements.select();
+  }
+
+
+
 
   /*
    menu icons event  

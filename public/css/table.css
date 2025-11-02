@@ -28,6 +28,7 @@
 
   th {
     background-color: #dfdddd;
+        border: 1px solid #bdbbbb;
     text-align: left;
     color: black;
   }
@@ -104,7 +105,9 @@
   font-size: 0.9rem;
   white-space: nowrap;        /* empêche l’élargissement si tu veux des colonnes compactes */
 }
-
+#tableInfo th{
+  border: 1px solid white;
+}
 /* si tu veux permettre les retours à la ligne plutôt que nowrap */
 #tableInfo td.wrap {
   white-space: normal;

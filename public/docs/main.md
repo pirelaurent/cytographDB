@@ -45,9 +45,10 @@ With powerful selection, filtering, and path traversal features—spanning both 
 - ⚪️ [*Main*](./main.md)
 - 🟩 [Quick Tour](./quickTour.md)  
 - 🟨 [Main Menu Bar](./menuBar.md)  
-- 🟦 [Node Menu](./menuNodesSelectHide.md)  
-- 🟥 [Edge Menu](./menuEdgesSelectHide.md)  
-- 🟪 [Model Menu](./menuModelSelectHide.md)
+- 🟨 [Display Menu ](./menuDisplay.md)  
+- 🟨 [Node Menu](./menuNodesSelectHide.md)  
+- 🟨 [Edge Menu](./menuEdgesSelectHide.md)  
+- 🟨 [Model Menu](./menuModelSelectHide.md)
 
 ---
 

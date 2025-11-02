@@ -31,7 +31,6 @@ A click will diplay the last clipped content in a new tab to quickly browse resu
 ---
 
 ## 🔎 Select Mode: OR / AND  
-<img src ="./img/and-or.png" height =40px/>
 
 - **OR (default):** Adds new elements to the current selection.
 - **AND:** Applies the selection **only to already selected elements**, resulting in an AND operation.
@@ -41,7 +40,7 @@ A click will diplay the last clipped content in a new tab to quickly browse resu
 --- 
 
 ## Hover Toggle 
-<img src ="./img/hoverToggle.png" height =35px/>
+<img src ="./img/hoverToggle.png" height =40px/>
 
 Displays element details when the cursor hovers over nodes or edges.
 
@@ -49,16 +48,20 @@ Displays element details when the cursor hovers over nodes or edges.
 
 ### Perimeter of Actions
 
-- If some visible nodes are **selected**, actions apply only to them.
-- If none are selected, actions apply to the entire visible graph.
-
 The status bar shows the current scope with highlighted numbers:
 
- **No selection** → the action applies to all nodes (e.g., 9 in `democytodb`):  
-  <img src= "./img/scope9.png" width = '200px'>
+<img src ="./img/perimeterOfActions.png" width = "300px"/>
 
-  **Selection of 4 nodes** → the action applies only to those 4:  
-  <img src= "./img/scope4.png" width = '200px'>
+Tables - visible: selected elements:3 /all elements:10  (hidden: selected:0 / total hidden:0)  
+Relations -  visible: selected elements:0 /all elements:12  (hidden selected:0 / total hidden:0)  
+
+Actions are applied to current perimeter: 
+- If some visible elements are **selected**, actions apply only to them.
+- If no current selection, actions apply to the entire visible graph.
+
+In the sample :    
+A command on tables will apply to the 3 visible selected.   
+A command on relations will apply to the 12 visible
 
 ---  
 
@@ -127,86 +130,6 @@ If no DB connected, somme actions will have errors or no effects:
 
 
 --- 
-
-# Graphical Options 
-
-You can use the mouse wheel to zoom in and out.  
-💡 **Tip:** Zoom out is centered on the mouse position.  
-
-You can move the graph by holding the left mouse button and dragging the cursor.
-
-### Menu Display
-
- <img src="./img/fitScreenMenu.png">  
- <img src="./img/fitAllSelected.png" width= "130px" > 
-
-- **All:** fit the graph to show all nodes on one screen.
-- **Selected:** fit only the selected nodes.
-
-💡 **Tip:** If the screen is empty, try ***Fit Screen → All*** as your nodes may be far away. 
-
-### <img src="./img/layoutMenu.png"> 
-
-Apply a layout algorithm to reorganize ***the current scope***:  
-- the whole graph if no nodes are selected  
-- only the selected nodes if there is a selection  
-
-Several common algorithms are available at redaction time: 
-<img src = "./img/layouts.png" width = "150"> 
-
-Some may spread nodes outside the screen: use **Fit Screen** or try a different layout.  
-Note: some layout calculations include a random component and may vary with each execution.
-
-If you apply a layout on a subset of nodes, the result will be at unexpected place into the graph. Drag this part using one of selected node.
-
-
-💡 **Tip:** Use **Undo (Ctrl Z)** to restore the previous layout.
-
-
-### Move Elements 
-
-Native Cytoscape actions are available to move nodes:  
-- Left-click and drag a single node manually.  
-- Dragging one of the selected nodes moves the entire selection.  
-
-#### Move... Options
-
-<img src="./img/moveMenu.png"> 
-
-#### Resize...
-
-Expand or shrink the perimeter in different directions: horizontally, vertically, or both.
-
-#### Align...
-
-Arrange nodes within the perimeter along a common axis, horizontal or vertical. 
-
-#### Distribute...
-
-Distribute nodes within the perimeter along a common axis:  
-- **Horizontal:** nodes are equally spaced between the leftmost and rightmost.  
-- **Vertical:** nodes are equally spaced between the topmost and bottommost.  
-
-💡 **Tip:** If the spacing is too tight, move one end and try again.
-
-#### Rotate...
-
-Rotate the nodes in the current perimeter in **15°** increments, either left (counterclockwise) or right (clockwise).  
-Node labels remain **horizontally aligned**.
-
-💡 **Tip:** Mainly used to avoid overlapping labels. 
-
---- 
-## keyboard shortcuts   
-
-- ctrl a: select All 
-- ctrl g: capture graph in a .png file
-- ctrl h: hide not selected
-- ctrl y: redo 
-- ctrl z: undo
-
-
----
 
 ⚪️ [Main](./main.md)  
 

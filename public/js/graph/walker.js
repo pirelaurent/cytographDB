@@ -524,9 +524,9 @@ export function simplifyAssociations() {
   let done = 0;
   nodes.forEach(function (node) {
     let outEdges = node.outgoers("edge");
-    let inEdges = node.incomers("edge");
 
-    if (outEdges.length != 2 || inEdges.length != 0) return;
+    if (!node.hasClass(NativeCategories.ASSOCIATION)) return;
+ 
 
     const elementsToSave = node.closedNeighborhood(); // le nœud + ses edges
     let nodeBackup = elementsToSave.jsons(); // copie profonde des data + style + classes
@@ -544,17 +544,13 @@ export function simplifyAssociations() {
       createEdge(a, b);
       createEdge(b, a)
 
-
-
       // remove old node and links
       node.connectedEdges().remove();
       node.remove();
 
-      // internal function add an edge 
+      // internal function: add an edge 
       function createEdge(a, b) {
-
         let newId = `${a.id()} <<-( ${node.id()} )->${b.id()}`;
-
         // Add the generated edge
 
         getCy().add({
@@ -575,7 +571,7 @@ export function simplifyAssociations() {
 
     }
   });
-  if (done == 0) showAlert("nothing found. Check selected.");
+  if (done == 0) showAlert("nothing to transform (association with two targets).");
 
 
 

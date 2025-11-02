@@ -5,7 +5,6 @@
 ## Status Bar
 
 Displays selected nodes on visible and hidden layers:  
-<img src = "./img/nodeStatusBar.png" width = "200px">  
 
 **0 selected / 10 available** in visible layer  
 (0 selected / 0 available) in hidden layer  
@@ -16,7 +15,7 @@ The perimeter of actions applies to selected nodes if any, or to all nodes if no
 
 ## 🔍 Selection 
 
-### on Screen
+### Selection on Screen
 
 Selections can be made by:  
 - Clicking nodes individually  
@@ -24,23 +23,23 @@ Selections can be made by:
 - **Shift + Click** for multi-selection  
 - Drawing a rectangle over nodes  
 
-### menu Select 
+###  Select 
 
-<img src ="./img/nodeSelect.png" width =150px >
+<img src ="./img/nodeSelect.png" width =300 >
 
-- **None**: clear any selection  (also any click on graph background)
-- **All**: select all visible nodes (also available with `Ctrl A`)  
+- **None**: clear any selection (all black on image) (also any click on graph background)
+- **All**: select all visible nodes (all highlighted on image) (also available with `Ctrl A`)  
 - **Swap selected**: invert the current selection (selected become unselected, and vice versa)  
 
-### menu Hide 
+### Change visibility.  
 
-<img src ="./img/nodeHide.png" width =150px >  
+<img src ="./img/nodeHide.png" width =350 >  
 
+- **Hide selected**: hide selected nodes, keep not selected
+- **Hide Not selected**: keep selected, hide others
+- **Swap** (animated image): swap visible and hidden nodes  
+- **None**: show all nodes, selected or not.   
 
-- **Not selected**: hide everything except selected nodes  (most used option)
-- **Selected**: hide selected nodes  
-- **None**: show all nodes  
-- **Swap**: swap visible and hidden nodes  
 
 💡 **Quick menu Select/Hide** ( right click on background)
 
@@ -50,47 +49,41 @@ Selections can be made by:
 | hide selected | hide not selected | swap hidden | show all |
 
 --- 
+## Filter by
+<img src ="./img/filterBy.png" width =350 > 
 
-### From Selected Edges ...
+### Filter by Table name 
 
-If edges were directly selected, may be the associated nodes are not.  
-
-<img src ="./img/nodeFromEdge.png" width =150px>
-
-This menu works only with previously selected edges.  
-
-- **select source**: select nodes that are the origin of a selected directed edge (FK owner)  
-- **both sides**: select all nodes connected in any manner to a selected edge  
-
-- **select target**: select nodes that are the destination of a selected directed edge  
-
-💡 **use case example** 
-- filter edges by *native category* such as `"triggers generated"`.  
-- apply **From Selected Edges → Both Sides** this highlight a subgraph of source and impacted tables by triggers.  
-
-
-
-
-
----
-
-### Filter By ...
-
-<img src ='./img/filterByMenu.png' width= "150px" >
-
-#### By Name
+A common way to search and select tables by regex on their names.
 
 <img src ='./img/filterByName.png' width= "350px" >
 
-Applies a **regex-based filter** on node labels (e.g., table names). Matching nodes are selected.   
+A **regex-based filter** is applied to table labels.
+
 The stars on the right opens a common regex reminder: 
+
 <img src ='./img/tipRegex.png' width= "300" >
 
 
 ⚠️ **Caution:** Some browsers may show text with autofill but not pass it to the regex.  
-Enter manually or copy/paste your filter.  
+In case of trouble: Enter manually or copy/paste your filter.  
 
-#### Filter by degree 
+### Filter by Column name 
+
+A way to search columns name in all tables that match the input regex. 
+Useful to search tables that have or have not such columns.  
+The matched tables are selected and the columns are listed in the clipReport
+
+#### clipReport 
+
+In main menu bar, the icon of clipReport is higher if there is a report inside :  
+<img src="./img/clipReportIcon.png" width ="60">
+
+Clic on the icon opens a tab with current deposit. In our last case, the list of tables with columns that matched the regex *prod*
+<img src ='./img/selectByColumns.png' width= "360" >
+
+
+### Filter by degree 
 
 Degree is the number of edges belonging to a node. 
 
@@ -102,8 +95,7 @@ By default, the count take care of the reality of a node structure, even if some
 This helps to find temporary orphans, leaf, root but only on current screen 
 
 
-
-#### By Native Category 
+### Filter by Native Category 
 
 <img src ='./img/nodeNativeCategories.png' width= "150px" >  
 
@@ -116,20 +108,20 @@ Native categories are calculated at load time and are available to filter nodes 
 - **All associations**: association tables with only outgoing edges  
 - **Has triggers**: tables with triggers  
 
-#### By Custom Category
+### Filter by Custom Category
 
-Custom categories are added via custom logic. (@see [Customization Options](./customization.md))  
+Custom categories are added via custom logic and depends of the DB in study (@see [Customization Options](./customization.md))  
 
-The filter automatically adapts to the list of custom categories. In `democytodb` there is only one:  
-<img src = "./img/customCategory.png" width ="150px">  
+The filter automatically adapts to the list of custom categories. In `democytodb` there is only one: **product**  
+<img src = "./img/customCategory.png" width ="240">  
 
-This custom ***product*** category is created for demo by the `public/custom/democytodb.js` code:  
+This custom ***product*** category was created for demo by the `public/custom/democytodb.js` code:  
 
 ```js
 if (node.data("label").includes("product")) node.addClass("product");
 ```
 
-A specific layout `  selector: "node.product"`has also been defined in the custom extensions  
+A specific visual layout `selector: "node.product"`has also been defined in the custom extensions that enlarge label for table with this category.
 
 
 #### How to See Categories
@@ -140,31 +132,32 @@ Native and custom categories are displayed while hovering over the node (with *h
 ---
 
 
-### Label 
+### Connected to relations 
 
-<img src = "./img/labelNodes.png" width ="150px">  
+New nodes are selected depending of current selected relations.
 
-- **Show**: default display with table name on node  
-- **Hide**: no label (a single point). Node size is reduced to this point  
+For each currently selected relation (edge) choose nodes in any direction:
 
-#### label hide 
-Below, only *associations* were selected (*Filter by native category → All association*).  
-***Label → Hide*** reduces them visually as small circles.  
-
-<img src = "./img/labelHide.png" width = 300px>  
-
-*(If no nodes are selected, the action applies to all visible nodes).*  
-
-- **Font +/-**: increase or decrease the font size of node labels in the current perimeter
-
-💡 **Tip:** Useful to emphasize certain parts of the graph.  
-
----
-
-### List 
+<img src ="./img/connectedToRelations.png" width =360px>
 
 
-Generates an HTML file with *all or selected* tables, sorted alphabetically.  
+
+- **select source**: select nodes that are the origin of a selected directed edge (FK owner)  
+- **both sides**: select all nodes connected in any manner to a selected edge  
+- **select target**: select nodes that are the destination of a selected directed edge  
+
+💡 **use case example** 
+- filter edges by *native category* such as `"trigger impact"`.  
+- apply **From Selected Edges → Both Sides** this highlight a subgraph of source and impacted tables by triggers.  
+
+
+### List of tables 
+
+- Visible 
+- Selected
+
+
+Generates an HTML file with *all visible or only visible and selected* tables, sorted alphabetically.  
 
 **All headers are sortable** by clicking on the header.  
 
@@ -172,10 +165,10 @@ Generates an HTML file with *all or selected* tables, sorted alphabetically.
 
 #### Chaining to Table Details 
 
-Clic on a table name to open details :  
+Clic on a table name opens details :  
    <img src = "./img/detailsFromList.png" width ="800px" style="border: 2px solid grey;">  
 
-Clicking on a trigger number opens its trigger definition.  
+Clic on a trigger number opens its trigger definition :  
  <img src = "./img/triggersFromList.png" width ="600px">  
 
 #### Close Button 
@@ -191,28 +184,25 @@ Don’t assume your action failed — check your tab list first.
 
 ---
 
-## Follow and Show
+## Follow and Reveal 
 
-### <img src ='./img/nodeFollowAndShowMenu.png' width = "150px" >
+Reveal means that when following a node in the hidden space, this node will be brought back to visible. 
+
+### <img src ='./img/followAndReveal.png' width = "360px" >
 
 These actions follow paths from current nodes visible perimeter and can bring hidden nodes back into view if they are linked.  
 
-- **outgoing**,  **both**, **incoming**:  
-  Start from selected nodes and follow edges in the chosen direction(s). Linked nodes are selected.  
+- **outgoing**,  **both**, **incoming** ***one step*** :   
+  Start from selected nodes and follow relations in the chosen direction(s). Linked nodes are selected.  
   The operation can be repeated to show successive dependencies.  
 
-- **Association**:  
-  When a selected node is an association, reveal and select the nodes on the other side of the association regardless of direction.  
+- **outgoing**,  **both**, **incoming** ***Automatic tree propagation***    
+  Start from selected nodes and follow relations in the chosen direction(s). Linked nodes are selected.  
+  The operation can be repeated to show successive dependencies.  
 
-- **Long paths**:  
-  From a selected node (mainly *leaf nodes*), find paths that involve three or more tables in successive **output direction**.  
-  All paths are calculated and displayed.  
 
-- **PK ← FK chains**:  
-  Follows successive incoming edges from a root node **and** checks that the referencing table’s foreign key **fully covers** all columns of the referenced table’s primary key.  
-  The walk continues as long as this pattern is correct.  
-
- [more details : *Quick Tour* → *Walk the model*](quickTour.md#walk-the-model).  
+- **cross association**:  
+  When a selected node is an association, reveal and select the nodes on the other side of the association regardless of direction.This allows to cross this frontier.
 
 ---
 
@@ -220,7 +210,7 @@ These actions follow paths from current nodes visible perimeter and can bring hi
 
 Permanently removes *selected nodes* from the graph.   
 
-- If only one node is selected, deletion is immediate  
+- If only one node is selected, deletion is immediate . 
   - This allows quick visual cleaning of a graph using keyboard **Backspace**  or **delete**
 - If several nodes are selected, a confirmation is shown:      
 

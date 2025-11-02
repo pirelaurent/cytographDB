@@ -30,7 +30,9 @@ import {
 } from "../graph/detailedEdges.js";
 
 import { follow, followTree } from "../graph/walker.js";
-import { menuNodes, menuEdges } from "./menus.js";
+import { menuEdges } from "./menuEdges.js";
+import { menuNodes } from "./menuNodes.js";
+
 import { setModalInterceptors } from "./modal.js";
 import { NativeCategories, ConstantClass } from "../util/common.js";
 import { showClipReport } from "../util/clipReport.js";

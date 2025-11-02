@@ -68,7 +68,6 @@ ul.menu li:hover > ul.submenu { display: block; }
 /* --- Affichage piloté par JS (classe ou inline style) --- */
 ul.menu.visible,
 ul.submenu.visible,
-.menu-visible { display: block !important; }
 
 /* NB: si ton JS fait element.style.display="block", l'inline gagne aussi. */
 

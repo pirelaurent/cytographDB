@@ -43,12 +43,12 @@ With powerful selection, filtering, and path traversal features—spanning both 
 
 ## Documentation
 - ⚪️ [*Main*](./main.md)
-- 🟩 [Quick Tour](./quickTour.md)  
-- 🟨 [Main Menu Bar](./menuBar.md)  
-- 🟨 [Display Menu ](./menuDisplay.md)  
-- 🟨 [Node Menu](./menuNodesSelectHide.md)  
-- 🟨 [Edge Menu](./menuEdgesSelectHide.md)  
-- 🟨 [Model Menu](./menuModelSelectHide.md)
+- 🟩 [Quick Tour](./quickTour.md#quick-tour)   
+- 🟨 [Main Menu Bar](./menuBar.md#menu-bar)  
+- 🟨 [Display Menu ](./menuDisplay.md#menu-display)  
+- 🟨 [Table Menu](./menuNodesSelectHide.md#menu-tables)       
+- 🟨 [Relation Menu](./menuEdgesSelectHide.md#menu-relations)  
+- 🟨 [Model Menu](./menuModelDoc.md#menu-model)
 
 ---
 

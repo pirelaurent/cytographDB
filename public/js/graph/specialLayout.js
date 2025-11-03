@@ -122,6 +122,8 @@ export function organizeSelectedByDependencyLevels() {
 }
 
 // adapt vertically by categories horizontally
+
+
 export function organizeSelectedByDependencyLevelsWithCategories() {
   let cy = getCy();
 
@@ -139,64 +141,61 @@ export function organizeSelectedByDependencyLevelsWithCategories() {
     return "uncategorized";
   };
 
-  // --- 1) Dependencies only within the selected subgraph
-  const deps = {};
-  selected.forEach((n) => {
-    const id = n.id();
-    deps[id] = n
-      .outgoers("edge")
-      .targets()
-      .filter(":selected")
-      .map((t) => t.id());
-  });
-
-  // --- 2) Compute dependency levels (leaf = 0)
-  const levelMap = {};
-  const visiting = new Set();
-  const levelOf = (id) => {
-    if (levelMap[id] !== undefined) return levelMap[id];
-    if (visiting.has(id)) return 0; // break cycles
-    visiting.add(id);
-    const children = deps[id] || [];
-    levelMap[id] = children.length ? Math.max(...children.map(levelOf)) + 1 : 0;
-    visiting.delete(id);
-    return levelMap[id];
-  };
-  selected.forEach((n) => levelOf(n.id()));
-
-  // --- 3) Group: category -> level -> [nodes]
-  const groups = {};
+  // --- 1) Group selected nodes by category
+  const byCategory = {};
   selected.forEach((n) => {
     const cat = pickCategory(n);
-    const lvl = levelMap[n.id()];
-    groups[cat] ??= {};
-    (groups[cat][lvl] ??= []).push(n);
+    (byCategory[cat] ??= []).push(n);
   });
 
-  // --- 4) Sort nodes alphabetically within each level
-  const nameOf = (n) => n.data("label") ?? n.data("name") ?? n.id();
-  Object.values(groups).forEach((levels) => {
-    Object.keys(levels).forEach((lvl) => {
-      levels[lvl].sort((a, b) => nameOf(a).localeCompare(nameOf(b)));
+  // --- 2) For each category, compute dependencies and levels independently
+  const groups = {};
+  Object.entries(byCategory).forEach(([cat, nodes]) => {
+    const nodeIds = new Set(nodes.map((n) => n.id()));
+
+    // Build deps limited to this category
+    const deps = {};
+    nodes.forEach((n) => {
+      const id = n.id();
+      deps[id] = n
+        .outgoers("edge")
+        .targets()
+        .filter((t) => nodeIds.has(t.id())) // keep only same-category targets
+        .map((t) => t.id());
+    });
+
+    // Compute levels locally
+    const levelMap = {};
+    const visiting = new Set();
+    const levelOf = (id) => {
+      if (levelMap[id] !== undefined) return levelMap[id];
+      if (visiting.has(id)) return 0; // break cycles
+      visiting.add(id);
+      const children = deps[id] || [];
+      levelMap[id] = children.length ? Math.max(...children.map(levelOf)) + 1 : 0;
+      visiting.delete(id);
+      return levelMap[id];
+    };
+    nodes.forEach((n) => levelOf(n.id()));
+
+    // Group by level
+    groups[cat] = {};
+    nodes.forEach((n) => {
+      const lvl = levelMap[n.id()];
+      (groups[cat][lvl] ??= []).push(n);
     });
   });
 
-  // --- 5) Place categories in separated horizontal bands
-  const xSpacing = 200 * categoryOrder.length; // distance between successive levels (columns)
-  const ySpacing = 100; // distance between nodes in a column
-  const categorySpacing = 400; // horizontal gap between categories (bands)
-
+  // --- 3) Layout
+  const xSpacing = 200;
+  const ySpacing = 100;
+  const categorySpacing = 400;
   const padX = 100,
     padY = 100;
   const baseX = cy.extent().x1 + padX;
   const baseY = cy.extent().y1 + padY;
 
-  // Only keep categories that actually have selected nodes
-  const presentCategories = categoryOrder.filter((c) => groups[c]);
-  if (groups["uncategorized"] && !presentCategories.includes("uncategorized")) {
-    presentCategories.push("uncategorized");
-  }
-
+  const presentCategories = Object.keys(groups);
   let currentX = baseX;
 
   presentCategories.forEach((cat) => {
@@ -207,11 +206,40 @@ export function organizeSelectedByDependencyLevelsWithCategories() {
       .map(Number)
       .sort((a, b) => a - b);
 
-    // Place each level as a column within this category band
     levelKeys.forEach((lvl, idx) => {
       const colX = currentX + idx * xSpacing;
-      const nodes = levels[lvl];
+      let nodes = levels[lvl];
+      const nodeIds = new Set(nodes.map((n) => n.id()));
 
+      // Sort nodes within the level by number of incoming edges (fewest first)
+      nodes = nodes.sort((a, b) => {
+        const aIn = a
+          .incomers("edge")
+          .filter((e) => nodeIds.has(e.source().id()))
+          .length;
+        const bIn = b
+          .incomers("edge")
+          .filter((e) => nodeIds.has(e.source().id()))
+          .length;
+        return aIn - bIn;
+      });
+
+      // Optional secondary alphabetical sort
+      const nameOf = (n) => n.data("label") ?? n.data("name") ?? n.id();
+      nodes.sort((a, b) => {
+        const diff =
+          a
+            .incomers("edge")
+            .filter((e) => nodeIds.has(e.source().id()))
+            .length -
+          b
+            .incomers("edge")
+            .filter((e) => nodeIds.has(e.source().id()))
+            .length;
+        return diff !== 0 ? diff : nameOf(a).localeCompare(nameOf(b));
+      });
+
+      // Vertical placement
       const totalHeight = (nodes.length - 1) * ySpacing;
       nodes.forEach((n, j) => {
         const y = baseY + j * ySpacing - totalHeight / 2;
@@ -219,14 +247,14 @@ export function organizeSelectedByDependencyLevelsWithCategories() {
       });
     });
 
-    // advance X by the width of this category (its #levels) plus spacing
+    // Move horizontally to next category band
     const catWidth = (levelKeys.length - 1) * xSpacing;
     currentX += catWidth + categorySpacing;
   });
 
   cy.animate({ fit: { eles: selected, padding: 150 }, duration: 700 });
 
-  // --- 6) Export structure
+  // --- 4) Export for debugging or external use
   const exported = presentCategories.map((cat) => ({
     category: cat,
     levels: Object.keys(groups[cat] || {})
@@ -238,8 +266,5 @@ export function organizeSelectedByDependencyLevelsWithCategories() {
       })),
   }));
 
-  //console.log("Dependency levels by class-category:", exported);
-  const formatedResult = JSON.stringify(exported, null, 2);
-  //console.log("Levels:", formatedResult);
-  return formatedResult;
+  return JSON.stringify(exported, null, 2);
 }

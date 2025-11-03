@@ -328,7 +328,7 @@ const cyStyles = [
     style: {
       "curve-style": "bezier",
       "line-style": "dotted",
-      "target-arrow-shape": "circle",
+      "target-arrow-shape": "triangle",
       "source-arrow-shape": "circle",
       "line-color": "orange",
       "target-arrow-color": "orange",

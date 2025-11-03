@@ -317,7 +317,7 @@ export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
     }
     if (startNodes.length > 30) {
       showAlert(
-        `Many nodes (${startNodes.length}) as starting points. Think about to reduce perimeter by selection next time `
+        `Too many nodes (${startNodes.length}) as starting points. Think about to reduce perimeter by selection next time `
       );
     }
   }

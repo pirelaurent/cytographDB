@@ -1,4 +1,6 @@
-# Quick Tour with *democytodb* model
+# Quick Tour 
+
+**with *democytodb* model**
 
 ## democytodb 
 

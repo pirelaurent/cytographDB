@@ -1,4 +1,4 @@
-# Display menu
+#  Menu Display
 
 ### Global Graphical Options 
 

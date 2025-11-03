@@ -1,4 +1,4 @@
-# Nodes Menu
+# Menu Tables
 
 <img src ="./img/nodesMenu.png" width =200px >
 

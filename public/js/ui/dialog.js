@@ -22,12 +22,18 @@ export function showMultiChoiceDialog(title, message, choices, doc = document) {
   const overlay = doc.createElement("div");
   overlay.className = "overlay";
 
+  // >> Assure l’empilement par-dessus d’éventuels overlays déjà présents
+  overlay.style.position = "fixed";
+  overlay.style.inset = "0";          // remplace top/left/right/bottom: 0
+  overlay.style.zIndex = 10000;       // parent au-dessus
+  overlay.style.background = "rgba(0,0,0,0.2)"; // si tu veux un voile
+
   const dialog = doc.createElement("div");
 
   dialog.style.position = "fixed"; // fixe par rapport à la fenêtre
   dialog.style.top = "20%"; // 20% depuis le haut, donc environ premier tiers
   dialog.style.left = "30%"; // 10% depuis la gauche
-  dialog.style.zIndex = 1000; // au-dessus du contenu
+  dialog.style.zIndex = 10001; // au-dessus du contenu
 
   dialog.style.background = "white";
   dialog.style.padding = "20px";

@@ -4,11 +4,10 @@
 
 import {
   getCy,
-  metrologie,
-  perimeterForNodesSelection,
-  perimeterForEdgesSelection
 } from "../graph/cytoscapeCore.js";
-
+import { metrologie } from '../core/metrology.js';
+import {  perimeterForNodesSelection,
+  perimeterForEdgesSelection } from "../core/perimeter.js";
 import {
   modeSelect,
   AND_SELECTED,
@@ -225,7 +224,7 @@ export function selectByName(pattern, hiddenType) {
   let regex;
   // detect a negative search to check differently
   const hasNegativeLookahead = /(?<!\\)\(\?\!/.test(pattern);
-  
+
   // if a string has not the pattern : it is true 
   // if a string has the pattern: it is false (that it has not the pattern) 
 
@@ -306,7 +305,7 @@ export function selectByName(pattern, hiddenType) {
         let okNode;
 
         if (hasNegativeLookahead) {
-           okNode = true;
+          okNode = true;
           for (const name of columns) {
             const ok = regex.test(name);
             if (!ok) okNode = false; // one has = false that it has not 

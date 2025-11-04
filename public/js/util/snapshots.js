@@ -4,9 +4,9 @@
  redo : ctrl y 
 */
 
-import { restoreProportionalSize } from "./cytoscapeCore.js";
+import { restoreProportionalSize } from "./../core/nodeOps.js";
 
-import { getCy } from "./cytoscapeCore.js";
+import { getCy } from "../graph/cytoscapeCore.js";
 import {trace} from "../util/tracer.js";
 
 export let positionStackUndo = [];

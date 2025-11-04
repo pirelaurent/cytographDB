@@ -1,6 +1,7 @@
 "use strict";
 
-import { getCy, perimeterForNodesAction } from "../graph/cytoscapeCore.js";
+import { getCy } from "../graph/cytoscapeCore.js";
+import {perimeterForNodesAction} from '../core/perimeter.js';
 import { getCustomNodesCategories } from "../filters/categories.js";
 import { showAlert } from "../ui/dialog.js";
 /*

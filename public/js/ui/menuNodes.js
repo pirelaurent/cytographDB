@@ -1,7 +1,7 @@
 "use strict"
 
 import { listNodesToHtml } from "../ui/htmlNodes.js";
-
+import { getCy, } from "../graph/cytoscapeCore.js";
 import {
   follow,
   followCrossAssociations,
@@ -9,21 +9,20 @@ import {
 } from "../graph/walker.js";
 
 import {
-  getCy,
   showAll,
-  restrictToVisible,
   hideSelected,
   hideNotSelected,
   swapHidden,
   selectNodesFromSelectedEdges,
   selectTargetNodesFromSelectedEdges,
   selectSourceNodesFromSelectedEdges,
-  perimeterForNodesSelection,
-} from "../graph/cytoscapeCore.js";
+} from "../core/nodeOps.js";
+
+import { perimeterForNodesSelection, restrictToVisible } from "../core/perimeter.js";
 
 import {
   pushSnapshot,
-} from "../graph/snapshots.js";
+} from "../util/snapshots.js";
 
 import {
   modeSelect,

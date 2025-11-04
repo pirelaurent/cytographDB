@@ -52,7 +52,9 @@ const democytodbModule = {
   */
 
   setLabelAlias() {
-    // Dictionnaire des traductions connues
+
+    // Demo example using a dictionary for english to french aliasing
+
     const EN_FR = {
       authorization: "autorisation",
       company: "entreprise",
@@ -64,9 +66,12 @@ const democytodbModule = {
       product: "produit",
       production_line: "ligne de production",
       skills: "compétences",
-    };
+    }; 
+
+    //act on whole graph
     const cy = getCy();
 
+    // tables demo aliasing EN->FR
     cy.nodes().forEach((node) => {
       const current = node.id();
       let fr = EN_FR[current];
@@ -74,8 +79,34 @@ const democytodbModule = {
         node.data("alias", fr); // set new label
       }
     });
+
+     // relations demo aliasing by collection 
+    cy.edges().forEach((edge) => {
+      const current = edge.data("label");
+
+      // example of collection of relations name to alias
+
+      const DICO_FK = {
+        "authorization_company_id_factory_id_production_line_id_fkey": "autorisation d'accès",
+        "employee_chief_fk": "supérieur hiérarchique",
+        "employee_works_with_fk": "collègue de travail",
+        "factory_company_id_fkey": "usine de l'entreprise",
+        "intervention_factory_id_fkey": "intervention dans l'usine",
+        "line_product_product_id_fkey": "ligne de produit pour",
+        "production_line_factory_id_fkey": "ligne de production de l'usine",
+      };
+      const fr =DICO_FK[current];
+      if(fr) edge.data("alias", fr);//:edge.data("alias",edge.data("label")); // set new label
+
+       //console.log(JSON.stringify(edge.data(),0,2));//PLA
+    }) 
+
+     
+
   },
-}; // module
+} //module
+
+
 /* 
  autoregister the module 
  - by exact name between quotes : registerCustomModule("democytodb", democytodbModule);

@@ -8,29 +8,33 @@
 
 import {
     getCy,
-    labelAlias,
-    labelNodeHide,
+} from "../graph/cytoscapeCore.js";
+
+import {    
     setAndRunLayoutOptions,
-    perimeterForEdgesAction,
-    metrologie,
     distributeNodesHorizontally,
     distributeNodesVertically,
     alignNodesVertically,
     alignNodesHorizontally,
     rotateGraphByDegrees,
-    noProportionalSize,
-    setProportionalNodeSizeByLinks,
-    changeFontSizeEdge,
-    changeFontSizeNode,
-    changePosRelative,
-    labelId,
-} from "../graph/cytoscapeCore.js";
+    changePosRelative,} from "../core/layout.js";
 
+import { changeFontSizeNode,} from '../core/nodeOps.js';
+
+import {    noProportionalSize,
+    setProportionalNodeSizeByLinks,} from '../core/nodeOps.js';
+
+
+import {  
+    changeFontSizeEdge,  labelFKAlias,
+    labelFKId,
+    labelFKHide} from  '../core/edgeOps.js';
+
+import {metrologie} from '../core/metrology.js';
 import {
     pushSnapshot,
-} from "../graph/snapshots.js";
+} from "../util/snapshots.js";
 
-import { ConstantClass } from "../util/common.js";
 
 
 
@@ -156,16 +160,16 @@ export function menuDisplay(option, item, whichClic = "left") {
             break;
         //-------------------------------------------------------- Label
 
-        case "labelAlias":
-            labelAlias();
+        case "labelNodeAlias":
+            labelNodeAlias();
             break;
 
         case "labelNodeHide":
             labelNodeHide();
             break;
 
-        case "labelId":
-            labelId();
+        case "labelNodeId":
+            labelNodeId();
             break;
 
         case "increase-font":
@@ -178,26 +182,18 @@ export function menuDisplay(option, item, whichClic = "left") {
             changeFontSizeNode(24, false);
             break;
 
-        case "labelShow":
-            // Show visible edges, or selected ones if any are selected
-            let edgesToShow = perimeterForEdgesAction();
+    // edge labels        
 
-            for (let edge of edgesToShow) {
-                if (edge.hasClass(ConstantClass.FK_DETAILED)) {
-                    edge.addClass(`${ConstantClass.SHOW_COLUMNS}`);
-                    //labelToShow = ele.data('columnsLabel').replace('\n', "<BR/>");
-                } else {
-                    // FK_SYNTH
-                    edge.addClass(`${ConstantClass.SHOW_LABEL}`);
-                }
-            }
+        case "labelFKAlias":
+            labelFKAlias();
             break;
 
-        case "labelHide":
-            let edgesToHide = perimeterForEdgesAction();
-            edgesToHide.removeClass(
-                `${ConstantClass.SHOW_COLUMNS} ${ConstantClass.SHOW_LABEL}`
-            );
+        case "labelFKHide":
+            labelFKHide();
+            break;
+
+        case "labelFKId":
+            labelFKId();
             break;
 
         case "increase-font-edge":
@@ -235,13 +231,13 @@ function vertiLess() {
  this is not yet used
 */
 export function visibility(option) {
-  if (!cy) return;
-  switch (option) {
-    case "front":
-      bringSelectedToFront();
-      break;
-    case "back":
-      bringSelectedToBack();
-      break;
-  }
+    if (!cy) return;
+    switch (option) {
+        case "front":
+            bringSelectedToFront();
+            break;
+        case "back":
+            bringSelectedToBack();
+            break;
+    }
 }

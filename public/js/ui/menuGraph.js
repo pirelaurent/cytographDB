@@ -5,7 +5,7 @@ import {
     showOverlayWithFiles,
     saveGraphState,
     saveGraphToFile,
-} from "../graph/loadSaveGraph.js";
+} from "../core/loadSaveGraph.js";
 
 import {
     getCy,
@@ -13,7 +13,7 @@ import {
 
 import {
     resetSnapshot,
-} from "../graph/snapshots.js";
+} from "../util/snapshots.js";
 /*
   ---------------------------------- Files menu on top line 
 */

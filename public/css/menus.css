@@ -232,6 +232,7 @@ li[data-category="follow"] > ul.submenu > li:hover {
 #menu-nodes #icon-selectSwap:hover { content: url("/img/select/swapSelected.png"); }
 
 /* idem pour hide/show si tu les utilises */
+
 #menu-nodes #icon-hideSelected:hover   { content: url("/img/select/hideSelected.png"); }
 #menu-nodes #icon-hideNotSelected:hover{ content: url("/img/select/hideNotSelected.png"); }
 #menu-nodes #icon-swapHidden:hover     { content: url("/img/select/hideSwap2.png"); }

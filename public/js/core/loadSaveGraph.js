@@ -7,18 +7,27 @@
 import {
   getCy,
   setCy,
-  initializeGraph,
-  setAndRunLayoutOptions,
-  metrologie,
-  restoreProportionalSize,
-setProportionalNodeSizeByLinks,
-} from "./cytoscapeCore.js";
+} from "../graph/cytoscapeCore.js";
+
+import {  
+  setAndRunLayoutOptions,} from '../core/layout.js';
+
+import {  initializeGraph,} from "../core/initializeGraph.js";
+
+import {
+    restoreProportionalSize,
+  setProportionalNodeSizeByLinks
+} from "../core/nodeOps.js";
+
+
+import {metrologie} from '../core/metrology.js';
+
 
 import {
   enterFkSynthesisMode,
   saveDetailedEdges,
   enterFkDetailedMode,
-} from "./detailedEdges.js";
+} from "../graph/detailedEdges.js";
 
 import { showAlert, showError, showMultiChoiceDialog } from "../ui/dialog.js";
 
@@ -31,7 +40,7 @@ import {
   setPostgresConnected,
 } from "../dbFront/tables.js";
 
-import { popSnapshot, pushSnapshot, resetSnapshot } from "./snapshots.js";
+import { popSnapshot, pushSnapshot, resetSnapshot } from "../util/snapshots.js";
 
 import {
   setNativeNodesCategories,
@@ -55,7 +64,7 @@ export function loadInitialGraph() {
   if (typeof cy !== "undefined" && cy) {
     getCy().elements().remove();
   }
- 
+
   getCustomNodesCategories().clear();
   resetSnapshot();
   waitLoading("⏳ Analyzing DB --> create graph...");
@@ -70,8 +79,8 @@ export function loadInitialGraph() {
   })
     .then((res) => res.json())
     .then((data) => {
-     //pouetPouet(data);//PLA ne ramène pas les colonnes individuelles, juste les labels composites
-     //@todo
+      //pouetPouet(data);//PLA ne ramène pas les colonnes individuelles, juste les labels composites
+      //@todo
       initializeGraph(data);
       if (getCy().nodes().length == 0) {
         showAlert("Empty model");
@@ -81,7 +90,15 @@ export function loadInitialGraph() {
 
       // store details at load time /now generated with details
       saveDetailedEdges();
+    
       enterFkSynthesisMode(true);
+   
+ /*   // verify alias in edges     
+      getCy().edges().forEach((edge) => {
+      console.log(JSON.stringify(edge.data(),0,2));//PLA
+      });
+ */
+
       // moved after reduction to 1 edge per fk
       setNativeNodesCategories();
       hideWaitLoading();
@@ -380,7 +397,7 @@ export function loadGraphFromFile(event) {
         else {
           showAlert(
             `unable to connect <b>${originalDBName}</b><br/>` +
-              `Details: ${result.message}`
+            `Details: ${result.message}`
           );
           // try to connect had failed
           if (currentDBName != null) {
@@ -409,7 +426,7 @@ export function loadGraphFromFile(event) {
                           } else {
                             showAlert(
                               `unable to connect <b>${currentDBName}</b><br/>` +
-                                `Details: ${result.message}`
+                              `Details: ${result.message}`
                             );
                           }
                         }
@@ -459,6 +476,8 @@ function createGraphFromJson(json) {
   setNativeNodesCategories(); // redo categories due to leaf/root change
 
   enforceLabelToAlias(cyData.originalDBName); // despite alias could have been saved in new
+
+
 
   // show in synthetic after saving details
   saveDetailedEdges();
@@ -519,9 +538,9 @@ export async function resetPoolFromFront() {
 
 
 
-function pouetPouet(data) {
+/* function pouetPouet(data) {
   console.log("pouetpouet");//PLA
-  console.log(JSON.stringify(data.edges,0,2)  );//PLA
+  console.log(JSON.stringify(data.edges, 0, 2));//PLA
 
   if (!data.edges || !Array.isArray(data.edges)) {
     console.warn("No edges found in data for classification.");
@@ -529,18 +548,18 @@ function pouetPouet(data) {
   }
 
   data.edges.forEach((edge) => {
-    if (edge.data ) {
+    if (edge.data) {
       const fk = edge.data;
       const classification = classifyForeignKey(fk);
       console.log(classification);
     }
   });
 }
-
+ */
 
 
 // --- Fonction de classification ---
-function classifyForeignKey(fk) {
+export function classifyForeignKey(fk) {
   const required = fk.all_source_not_null === true;
   const identifying = fk.source_columns.every(col =>
     fk.source_table_pk_columns?.includes(col)

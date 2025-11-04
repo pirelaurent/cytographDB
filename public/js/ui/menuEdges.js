@@ -10,14 +10,15 @@ import { sendEdgeListToHtml } from "../ui/htmlEdges.js";
 import {
     simplifyAssociations,
     restoreAssociations,
-} from "../graph/walker.js";
+} from "../graph/walkModel.js";
 
 
 import {
     getCy,
-    selectEdgesBetweenSelectedNodes,
-    metrologie,
 } from "../graph/cytoscapeCore.js";
+
+import {metrologie} from '../core/metrology.js';
+import{selectEdgesBetweenSelectedNodes} from '../core/edgeOps.js'
 
 import {
     enterFkDetailedMode,
@@ -26,7 +27,7 @@ import {
 
 import {
     pushSnapshot,
-} from "../graph/snapshots.js";
+} from "../util/snapshots.js";
 
 import {
     showMultiChoiceDialog,

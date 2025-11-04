@@ -1,35 +1,39 @@
 # Customization
 
-You can enhance your graph for your specific databases by 
-- adding in a module : 
-  - **Custom categories** to enable element filtering
-  - **Custom styles** for tables of standard and custom categories
-  - a list of db names you want to associate with this customization
+## Customization options
+
+You can customize cytographDB for your databases on the following aspects: 
+
+- Establish **custom categories** for your tables 
+  - Allow to extend filter options in cytographDB 
+  - **Custom styles** can be associated with your categories ( colors, shape,..)
+- Establish **Alias name for labelling tables**  
+- Establish **Alias name for labelling relations**
 
 ---
 
 ## Principles
 
-cytographDB scan the directory *custom*, searching for js files and run them.   
-These codes must 
-- create a *module* then 
-- link it to a pattern
+cytographDB scan the directory *custom*, searching for js files and load them as an extension of cytographDB if they match the following constraints:
+
+Such a source code must 
+- declare an internal *module*  `const democytodbModule = { ...}`
+- Register it with a pattern for matching Database names :
   - either exact name: `registerCustomModule("democytodb", democytodbModule);` 
   - either a regex  : `registerCustomModule(/demo.*/, democytodbModule)` 
    
-When a graph is loaded, the app calls two functions expected from the corresponding module:  
+Optionnaly declare and expose any of the three recognized services by cytographDB :  
 
 ```js
-  createCustomCategories(current_db);
-  getCustomStyles(current_db);
+  createCustomCategories(){...}; // add classes to the nodes
+  getCustomStyles(){...}; // return a style 
+  setLabelAlias(){...}; // add alias on nodes or/and on edges
 ```
 
 ### democytodb custom module as an example
 
  *public/custom/democytodb.js*
 ```js
-
-
 
 import {
   getCy,
@@ -75,6 +79,36 @@ const democytodbModule = {
     ];
   },
 };
+
+ setLabelAlias() {
+
+    // Demo example using a dictionary for english to french aliasing
+
+    const EN_FR = {
+      authorization: "autorisation",
+      company: "entreprise",
+      employee: "employé",
+      factory: "usine",
+      intervention: "intervention",
+      line_product: "gamme de produits", // ou "ligne de produit" selon ton contexte
+      parameters: "paramètres",
+      product: "produit",
+      production_line: "ligne de production",
+      skills: "compétences",
+    }; 
+
+    //act on whole graph
+    const cy = getCy();
+
+    // tables demo aliasing EN->FR
+    cy.nodes().forEach((node) => {
+      const current = node.id();
+      let fr = EN_FR[current];
+      if (fr) {
+        node.data("alias", fr); // set new label
+      }
+    });
+
 /* 
  autoregister the module 
  - by exact name between quotes : registerCustomModule("democytodb", democytodbModule);
@@ -120,20 +154,18 @@ It's up to you to organize the saving of your own modules in *custom*.
 
 --- 
 
-## custom documentation 
+## Add your custom documentation 
 
 You can set your owwn documentation under ***custom/docs***.
 
 If any ***index\.md*** is found by cytographdb at startup in this directory,  it will add a secondary link on the right of *documentation* :  
 
-![](./img/customLink.png)
+<img src ="./img/customLink.png" width ="200px"/>
 
-This can give custom details and custom examples. 
+You can give custom details and custom examples. 
 
-For the day, this is not related to any dbName, rather to your own file structure (as it is excluded by gitignore)
+For the day, this custom documentation is not related to any dbName; It depends only of the file in custom/docs (which is excluded in standard cytographDB gitignore)
 
 ---
-
-
 
 - ⚪️ [return to Main](./main.md)

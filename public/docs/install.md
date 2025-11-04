@@ -22,21 +22,29 @@ Install required packages listed in `package.json`:
 npm install
 ```
 
-> If you encounter issues with your repository manager, reset the default registry, then retry. 
->```bash
+Note: **for new version** think about restarting *npm install*
+
+
+
+If you encounter issues with your repository manager, reset the default registry, then retry. 
+```bash
 npm config set registry https://registry.npmjs.org/
->```     
+```     
 
 ## 3️⃣ Database Credentials
 
 Create a `.env` file with your PostgreSQL access information. 
-Can be done by copying ***.env.model*** into a ***.env*** 
+Can be done first by copying ***.env.model*** into a ***.env*** 
+note : *.env* is not saved by git.
 
 ```env
 PGUSER=postgres
 PGHOST=localhost
+# database will be proposed in app 
 PGPASSWORD=postgres
 PGPORT=5432
+# port to run the cytograph server
+CYTOGRAPHPORT=3000
 ```
 
 Ensure your PostgreSQL server is **running and accessible**.
@@ -66,26 +74,26 @@ DB > Create graph from DB >
 ```
 
 You should see the list of available PostgreSQL databases.  
-Choose one DB name to generate its graph.
+Choose one DB to generate its graph.
 
 ---
 
-# Documentation format  
-
+# Documentation : Markdown format  
 
 Install a **markdown plug-in in your navigator** as documentation is in Markdown language. 
 
 This development has used ***Markdown Viewer 5.2***  with the options 
 - *Theme - github* *AUTO*   (for wide tables if any, change to a larger option )
+- *Advances Options* - *Site Access* - ***http://localhost:3000*** (adapt to your port value)
 
 
 ---  
 
-## Optional: Install Demo Database `democytodb`
+## Optional
 
-To test the app as this documentation, use the SQL scripts in `public/docs/sql`.
+### Install Demo Database `democytodb`
 
-### Step 1: Create the Database
+#### Step 1: Create the Database
 
 Run `create_demo_db.sql`:
 
@@ -95,12 +103,13 @@ DROP DATABASE IF EXISTS democytodb;
 CREATE DATABASE democytodb;
 ```
 
-### Step 2: Initialize Schema
+#### Step 2: Initialize Schema
 
 Take source and Run `init_demo_schema.sql` from the same directory.
 
 > Notice that the demo DB is empty. CytographDB operates only on its schema structure.
 
+####  Note: the corresponding SQL scripts are in `public/docs/sql`.
 ---
 
 - ⚪️ [Main](./main.md)

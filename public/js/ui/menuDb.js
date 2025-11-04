@@ -2,7 +2,7 @@
 
 import {
   loadInitialGraph,
-} from "../graph/loadSaveGraph.js";
+} from "../core/loadSaveGraph.js";
 
 import {
   connectToDb,

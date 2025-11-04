@@ -47,7 +47,8 @@ previous edges are deleted
 new created edges are added with the class 'fk_synth'
 */
 
-import { getCy, perimeterForEdgesAction } from "../graph/cytoscapeCore.js";
+import { getCy } from "../graph/cytoscapeCore.js";
+import { perimeterForEdgesAction } from "../core/perimeter.js";
 import { NativeCategories, ConstantClass } from "../util/common.js";
 
 let detailedEdgesArray; // to be able to reverse, store details here
@@ -79,6 +80,7 @@ export function enterFkDetailedModeForEdges(synthEdges) {
         if (synth.hasClass("showLabel"))
           e.addClass(`${ConstantClass.SHOW_COLUMNS}`);
         else e.removeClass(`${ConstantClass.SHOW_COLUMNS}`);
+        
         originalArray.push(e);
       });
   });
@@ -127,7 +129,7 @@ export function cleanDetailedEdgesArray() {
   // as some nodes could have been deleted in fk mode, detailed are not more valid
 
   detailedEdgesArray.forEach((aDetailedEdge) => {
-  
+
     const sourceId = aDetailedEdge.source().id();
     const destId = aDetailedEdge.target().id();
 
@@ -194,7 +196,6 @@ export function enterFkSynthesisModeForEdges(edges) {
     const target = first.data("target");
     const onDelete = first.data("onDelete");
     const onUpdate = first.data("onUpdate");
-
     // synthétique FK nullable if at leeast one element is nullable
     const nullable = edgeGroup.some((e) => e.data("nullable"));
     const labeled = edgeGroup.some((e) =>
@@ -207,6 +208,8 @@ export function enterFkSynthesisModeForEdges(edges) {
         source,
         target,
         label: constraintName,
+        alias: first.data("alias"),
+        _display: first.data("_display"),
         onDelete,
         onUpdate,
         nullable,

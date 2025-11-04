@@ -4,18 +4,17 @@ import {
   findLongOutgoingPaths,
   findPkFkChains,
   ownerShipPerimeter,
-} from "../graph/walker.js";
+} from "../graph/walkModel.js";
 
 import {
   getCy,
-  metrologie,
 } from "../graph/cytoscapeCore.js";
-
+import {metrologie} from '../core/metrology.js';
 import { getCustomNodesCategories } from "../filters/categories.js";
 
 import {
   pushSnapshot,
-} from "../graph/snapshots.js";
+} from "../util/snapshots.js";
 
 import {
   showAlert,

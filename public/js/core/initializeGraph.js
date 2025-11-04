@@ -1,10 +1,46 @@
-"use strict";
+import { getCy } from "../graph/cytoscapeCore.js";
+import {
+  createCustomCategories,
+  getCustomStyles,
+} from "../filters/categories.js";
+import { fillInGuiNodesCustomCategories } from "../ui/custom.js";
+import { getLocalDBName } from "../dbFront/tables.js";
+import {setAndRunLayoutOptions} from "./layout.js";
+import { ConstantClass } from "../util/common.js";
+import { metrologie } from "./metrology.js";
 
-/*
-  basic style for the graph 
-  extended specifically later
-  https://manual.cytoscape.org/en/3.9.1/Styles.html
-*/
+//--------------------------
+export function initializeGraph(data, fromDisk = false) {
+    const cy=getCy();
+  // cy a été créé avec des data vides , mais si on s'en est servi, faut nettoyer
+  if (typeof cy !== "undefined" && cy) {
+    cy.elements().remove();
+  }
+  cy.add(data);
+
+  //console.log(cy.edges()); // on a bien columnsLabel dans data
+
+  let current_db = getLocalDBName();
+
+  // customize nodes**to be moved after reduction
+  //setNativeNodesCategories();
+
+  createCustomCategories(current_db);
+
+  // here ok for alias
+  let moreStyles = getCustomStyles(current_db);
+  let mergedStyles = getCyStyles().concat(moreStyles);
+  cy.style(mergedStyles).update();
+
+  fillInGuiNodesCustomCategories();
+  cy.once("layoutstop", () => { });
+
+  //avoid layout when come from disk
+  if (!fromDisk) {
+    setAndRunLayoutOptions();
+  }
+  metrologie();
+}
 
 export function getCyStyles() {
   return cyStyles;
@@ -274,7 +310,7 @@ const cyStyles = [
     style: {
       label: "data(columnsLabel)",
       "line-style": "dotted",
-      //"line-color": "#aaa",
+  
       "text-rotation": "none", // keep horizontal
       "text-margin-y": -10, // move vertically
       width: 2,
@@ -396,106 +432,120 @@ const cyStyles = [
       "target-arrow-color": "#c770e9",
     },
   },
-/* 
-  // must enforce the color otherwise cytoscape don't fade colored edges
-  {
-    selector: "edge.faded",
-    style: {
-      opacity: 0.4,
-      "line-color": "#ccc",
-      "target-arrow-color": "#ccc",
-      "source-arrow-color": "#ccc",
-      "text-opacity": 0.1,
-    },
-  },
-
-{
-      selector: '.hidden-edge',
-      style: {
-        'opacity': 0,
-        'events': 'no'
-      }
-    },
-
-    // --- Arêtes normales ---
+  /* 
+    // must enforce the color otherwise cytoscape don't fade colored edges
     {
-      selector: 'edge',
+      selector: "edge.faded",
       style: {
-        'width': 1,
-        'line-color': '#aaa',
-        'target-arrow-shape': 'triangle',
-        'target-arrow-color': '#aaa',
-        'curve-style': 'bezier'
-      }
+        opacity: 0.4,
+        "line-color": "#ccc",
+        "target-arrow-color": "#ccc",
+        "source-arrow-color": "#ccc",
+        "text-opacity": 0.1,
+      },
     },
   
+  {
+        selector: '.hidden-edge',
+        style: {
+          'opacity': 0,
+          'events': 'no'
+        }
+      },
+  
+      // --- Arêtes normales ---
+      {
+        selector: 'edge',
+        style: {
+          'width': 1,
+          'line-color': '#aaa',
+          'target-arrow-shape': 'triangle',
+          'target-arrow-color': '#aaa',
+          'curve-style': 'bezier'
+        }
+      },
+    
+  
+    {
+        selector: 'node',
+        style: {
+          'label': 'data(id)',
+          'text-valign': 'center',
+          'text-halign': 'center',
+          'text-wrap': 'wrap',
+          'text-max-width': 100,
+          'text-background-color': '#fff',
+          'text-background-opacity': 0.8,
+          'text-background-padding': 2,
+          'font-size': 10
+        }
+      }, */
+
+  // --- Parents en mode expanded ---
+  {
+    selector: 'node:parent.expanded',
+    style: {
+      'background-color': '#eaf3ff',
+      'border-width': 2,
+      'border-color': '#0077cc',
+      'padding': 20,
+      'compound-sizing-wrt-labels': 'exclude',
+      'text-valign': 'top',
+      'text-halign': 'center',
+      'text-margin-y': -10
+    }
+  },
+
+  // --- Parents en mode collapsed ---
+  {
+    selector: 'node:parent.collapsed',
+    style: {
+      'background-color': '#eaf3ff',
+      'border-width': 2,
+      'border-color': '#0077cc',
+      'width': 90,
+      'height': 60,
+      'padding': 5,
+      'text-valign': 'center',
+      'text-halign': 'center',
+      'compound-sizing-wrt-labels': 'exclude' // 👈 important
+
+    }
+  },
+
+  // --- Enfants cachés mais existants ---
+  {
+    selector: '.hidden-child',
+    style: {
+      'opacity': 0,
+      'text-opacity': 0,
+      'background-opacity': 0,
+      'border-width': 0,
+      'events': 'no'
+    }
+  },
+
+  // --- Arêtes cachées ---
+  {
+    selector: '.hidden-edge',
+    style: {
+      'opacity': 0,
+      'events': 'no'
+    }
+  },
 
   {
-      selector: 'node',
-      style: {
-        'label': 'data(id)',
-        'text-valign': 'center',
-        'text-halign': 'center',
-        'text-wrap': 'wrap',
-        'text-max-width': 100,
-        'text-background-color': '#fff',
-        'text-background-opacity': 0.8,
-        'text-background-padding': 2,
-        'font-size': 10
-      }
-    }, */
-
-    // --- Parents en mode expanded ---
-    {
-      selector: 'node:parent.expanded',
-      style: {
-        'background-color': '#eaf3ff',
-        'border-width': 2,
-        'border-color': '#0077cc',
-        'padding': 20,
-        'compound-sizing-wrt-labels': 'exclude',
-        'text-valign': 'top',
-        'text-halign': 'center',
-        'text-margin-y': -10
-      }
+    selector: `edge.${ConstantClass.SHOW_LABEL}`,
+    style: {
+      "label": "data(_display)",
+      /* future enhancement
+      "source-label": "data(_display)",
+    'text-rotation': 'autorotate',
+    'source-text-offset': 14,               // along the edge from the source
+    'text-margin-y': 8,                     // perpendicular offset
+    'text-outline-width': 2,
+    'text-outline-color': '#fff'  
+    */
     },
-
-    // --- Parents en mode collapsed ---
-    {
-      selector: 'node:parent.collapsed',
-      style: {
-        'background-color': '#eaf3ff',
-        'border-width': 2,
-        'border-color': '#0077cc',
-        'width': 90,
-        'height': 60,
-        'padding': 5,
-        'text-valign': 'center',
-        'text-halign': 'center',
-        'compound-sizing-wrt-labels': 'exclude' // 👈 important
-        
-      }
-    },
-
-    // --- Enfants cachés mais existants ---
-    {
-      selector: '.hidden-child',
-      style: {
-        'opacity': 0,
-        'text-opacity': 0,
-        'background-opacity': 0,
-        'border-width': 0,
-        'events': 'no'
-      }
-    },
-
-    // --- Arêtes cachées ---
-    {
-      selector: '.hidden-edge',
-      style: {
-        'opacity': 0,
-        'events': 'no'
-      }
-    },
-
+  },
 ];

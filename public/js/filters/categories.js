@@ -30,6 +30,7 @@ export function setCustomNodesCategories(someSet) {
  The module must register itself. 
 */
 export function registerCustomModule(dbPattern, moduleObject) {
+
   const pattern =
     dbPattern instanceof RegExp ? dbPattern : new RegExp(`^${dbPattern}$`); // string exacte par défaut
   customModules.push({ pattern, module: moduleObject });
@@ -40,10 +41,15 @@ export function registerCustomModule(dbPattern, moduleObject) {
 */
 
 function getCustomModule(dbName) {
+
   // ⚠️ Avoid regex with  flag "g"
   const entry = customModules.find((e) => e.pattern.test(dbName));
   return entry?.module;
 }
+
+
+
+
 
 let standardCategories = new Set([
   NativeCategories.ORPHAN,
@@ -88,30 +94,26 @@ export function restoreCustomNodesCategories() {
 */
 
 export function createCustomCategories(myCurrentDB) {
-
-
   const mod = getCustomModule(myCurrentDB);
   if (mod?.createCustomCategories) {
     mod.createCustomCategories();
   } else {
     console.log(`No customCategories registered for ${myCurrentDB}`);
   }
-
   // allows to alias the label 
-  if(mod?.setLabelAlias){
-
+  if (mod?.setLabelAlias) {
     mod.setLabelAlias();
   }
+
+
 }
 
-export function enforceLabelToAlias(myCurrentDB){
+export function enforceLabelToAlias(myCurrentDB) {
   const mod = getCustomModule(myCurrentDB);
-  if(mod?.setLabelAlias){
+  if (mod?.setLabelAlias) {
     mod.setLabelAlias();
   }
 }
-
-
 
 
 /*

@@ -5,14 +5,13 @@
 */
 
 import { setPostgresConnected } from "../dbFront/tables.js";
-
+import { getCy } from "../graph/cytoscapeCore.js";
 import {
-  getCy,
   perimeterForNodesSelection,
-  metrologie,
-} from "../graph/cytoscapeCore.js";
+} from "../core/perimeter.js";
 
-import { pushSnapshot } from "../graph/snapshots.js";
+import { metrologie } from '../core/metrology.js';
+import { pushSnapshot } from "../util/snapshots.js";
 /*
  dynamic prompt used for info, alert, error. 
 
@@ -119,7 +118,7 @@ export function showAlert(textAlert) {
   showMultiChoiceDialog("⚠️  Warning", textAlert, [
     {
       label: "OK",
-      onClick: () => {},
+      onClick: () => { },
       isDefault: true,
     },
   ]);
@@ -132,7 +131,7 @@ export function showInfo(textInfo, doc = document) {
     [
       {
         label: "OK",
-        onClick: () => {},
+        onClick: () => { },
         isDefault: true,
       },
     ],
@@ -147,7 +146,7 @@ export function showHelp(title, textInfo, doc = document) {
     [
       {
         label: "OK",
-        onClick: () => {},
+        onClick: () => { },
         isDefault: true,
       },
     ],
@@ -159,7 +158,7 @@ export function showError(textAlert) {
   showMultiChoiceDialog("🚫 Error", textAlert, [
     {
       label: "OK",
-      onClick: () => {},
+      onClick: () => { },
       isDefault: true,
     },
   ]);
@@ -224,16 +223,15 @@ export function promptDatabaseSelectionNear(targetElement) {
     container.style.position = "relative";
 
     //container.appendChild(box);
-     document.body.appendChild(box);
+    document.body.appendChild(box);
 
     // Position
     const rect = targetElement.getBoundingClientRect();
-    const containerRect = container.getBoundingClientRect();
-
-   // box.style.left = `${rect.left - containerRect.left}px`;
-   // box.style.top = `${rect.bottom - containerRect.top}px`;
-box.style.left = `${rect.left}px`;
-box.style.top = `${rect.bottom + window.scrollY}px`;
+    //const containerRect = container.getBoundingClientRect();
+    // box.style.left = `${rect.left - containerRect.left}px`;
+    // box.style.top = `${rect.bottom - containerRect.top}px`;
+    box.style.left = `${rect.left}px`;
+    box.style.top = `${rect.bottom + window.scrollY}px`;
 
     try {
       const res = await fetch("/api/databases");
@@ -341,7 +339,7 @@ export function menuSelectSizeIncoming() {
 export function deleteNodesSelected() {
   let nodesToKill = getCy().nodes(":selected:visible");
 
-  if (nodesToKill.length==0){
+  if (nodesToKill.length == 0) {
     showInfo('Nothing to delete');
     return;
   }
@@ -360,7 +358,7 @@ export function deleteNodesSelected() {
 
       {
         label: "❌ No",
-        onClick: () => {}, // rien
+        onClick: () => { }, // rien
       },
     ]);
   } else {

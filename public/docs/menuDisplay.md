@@ -84,7 +84,7 @@ Labels remain **horizontally aligned**.
 
 --- 
 
-### Table aspect 
+### Table visual aspect 
 
 These actions apply to the current perimeter (selected tables if any, all visible otherwise)
 <img src="./img/tableLabels.png" width="190"> 
@@ -104,15 +104,22 @@ These actions apply to the current perimeter (selected tables if any, all visibl
 - Standard : tables are round rectangles around the labels
 - Proportional ( default) : more degree of relations, more wide is the table on the graph
 
-## Relations aspect
+## Relations visual aspect
 
 ### Relation labels
 
-- Relation name (default)
-- Hide 
+Apply to current edge perimeter :
+<img src="./img/relationsLabel.png" width="240"> 
+
+- Custom Alias : label use 'alias' if set in cutomisation, if not use name
+- Relation name (default) : the name of the FK in database definition
+- Hide : no label on screen 
   
 ### Relations font
 
+Apply to current edge perimeter :
+
+- Enlarge
 - Reduce
 - Restore 
 

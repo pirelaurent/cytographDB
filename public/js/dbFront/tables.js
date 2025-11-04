@@ -10,7 +10,7 @@ import {
 } from "../ui/dialog.js";
 
 import { getCustomNodesCategories } from "../filters/categories.js";
-import { resetSnapshot } from "../graph/snapshots.js";
+import { resetSnapshot } from "../util/snapshots.js";
 
 import { warningOutputHtml,NativeCategories } from "../util/common.js";
 

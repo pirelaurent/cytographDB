@@ -4,14 +4,12 @@
 
 import {
   getCy,
-  metrologie,
   captureGraphAsPng,
-  hideNotSelected,
-  selectAllVisibleNodes,
 } from "../graph/cytoscapeCore.js";
-
-import { popSnapshot, reDoSnapshot } from "../graph/snapshots.js";
-
+import { metrologie } from '../core/metrology.js';
+import { popSnapshot, reDoSnapshot } from "../util/snapshots.js";
+import {  hideNotSelected,
+  selectAllVisibleNodes,} from "../core/nodeOps.js";
 import {
   showAlert,
   menuSelectSizeOutgoing,
@@ -361,9 +359,8 @@ export function setInterceptors() {
     // Poser le menu au-dessus et centré sur le nœud
     const offsetY = 8; // petit décalage
     clicNodeMenu.style.left = `${x - (clicNodeMenu.offsetWidth || 0) / 2}px`;
-    clicNodeMenu.style.top = `${
-      y + 5 - (clicNodeMenu.offsetHeight || 0) - offsetY
-    }px`;
+    clicNodeMenu.style.top = `${y + 5 - (clicNodeMenu.offsetHeight || 0) - offsetY
+      }px`;
 
     //  affichage conditionnel
     document.getElementById("open-trigger").style.display =
@@ -496,9 +493,18 @@ export function setInterceptors() {
       let edges = cy
         .edges(":visible")
         .filter((edge) => edge.data("label") === aLabel);
+      // now using _display to restore label if any
+
+
+      edges.forEach((edge) => {
+            if (!edge.data("_display")) { 
+            edge.data("_display", edgeForInfo.data("label")); }
+      });
       enterFkSynthesisModeForEdges(edges);
     }
   });
+
+  // change label or columns on edge contextual menu
 
   document.getElementById("toggleEdgeLabel").addEventListener("click", () => {
     if (
@@ -510,6 +516,9 @@ export function setInterceptors() {
     } else if (edgeForInfo.hasClass(ConstantClass.FK_DETAILED)) {
       edgeForInfo.toggleClass(ConstantClass.SHOW_COLUMNS);
     }
+
+    if (!edgeForInfo.data("_display")) { 
+      edgeForInfo.data("_display", edgeForInfo.data("label")); }
   });
 
   // trace current selection values

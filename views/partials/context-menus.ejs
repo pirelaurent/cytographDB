@@ -4,15 +4,15 @@
     <li id="open-trigger">⚡ Triggers</li>
 
     <li class="arrows">
-        <img id="arrowLeft" src="/img/arrowLeft.png"  title="Follow outgoing (descendant)">
-        <img id="arrowMiddle" src="/img/arrowMiddle.png"   title="Follow both directions">
+        <img id="arrowLeft" src="/img/arrowLeft.png" title="Follow outgoing (descendant)">
+        <img id="arrowMiddle" src="/img/arrowMiddle.png" title="Follow both directions">
         <img id="arrowRight" src="/img/arrowRight.png" title="Follow incoming (ancestor)">
     </li>
 
     <li class="trees">
-        <img id="treeLeft" src="/img/treeLeft.png"   title="Follow outgoing tree (descendants)">
-        <img id="treeMiddle" src="/img/treeMiddle.png"  title="Follow both directions trees">
-        <img id="treeRight" src="/img/treeRight.png"  title="Follow incoming tree (ancestors)">
+        <img id="treeLeft" src="/img/treeLeft.png" title="Follow outgoing tree (descendants)">
+        <img id="treeMiddle" src="/img/treeMiddle.png" title="Follow both directions trees">
+        <img id="treeRight" src="/img/treeRight.png" title="Follow incoming tree (ancestors)">
     </li>
 </ul>
 
@@ -25,28 +25,29 @@
         <img src="/img/toggle.png" alt="toggle label"> Label
     </li>
 </ul>
-<!-- quick access menu -->
-<div id="quickAccessMenu" class="hidden">
-    <span>
-       
-        <div id="someSelect" style="display:inline-flex;align-items:center;gap:8px; font-size:12px;">
-            <span style="font-size:12px; font-weight:300; color:#666;">select:</span>
-            <img src="/img/select/noneSelected.png" height="30" id="quick_icon-selectNone" title="none">
-            <img src="/img/select/selectAllBright.png" height="30" id="quick_icon-selectAll" title="all">
-            <img src="/img/select/halfSelected.png" height="30" id="quick_icon-selectSwap" title="swap selected">
-        </div><br />
+<!-- 
+quick access menu 
+size in menu.css #quickAccessMenu img { 
+-->
 
-        <div id="someHide" style="display:inline-flex;align-items:center;gap:8px; font-size:12px;">
-            <span style="font-size:12px; font-weight:300; color:#666;">hide:</span>
-            <img src="/img/select/hideSelected.png" height="30" id="quick_icon-hideSelected" title="hide selected">
-            <img src="/img/select/hideNotSelected.png" height="30" id="quick_icon-hideNotSelected"
-                title="hide not selected">
-            <img src="/img/select/hideSwap1.png" height="30" id="quick_icon-swapHidden" title="swap hidden">
-            <img src="/img/select/halfSelected.png" width="30" id="quick_icon-showAll" title="hide none">
 
-        </div>
-        
-    </span>
+<div id="quickAccessMenu">
+    <div id="someSelect" style="display:inline-flex;align-items:center;gap:8px; font-size:12px;">
+
+          <span class="qa-label">select:</span>
+        <img src="/img/select/noneSelected.png"  id="quick_icon-selectNone" title="none">
+        <img src="/img/select/selectAllBright.png" id="quick_icon-selectAll" title="all">
+        <img src="/img/select/halfSelected.png"  id="quick_icon-selectSwap" title="swap selected">
+    </div>
+    <br />
+
+    <div id="someHide" style="display:inline-flex;align-items:center;gap:8px; font-size:12px;">
+          <span class="qa-label">keep:</span>
+        <img src="/img/select/hideSelected.png"  id="quick_icon-hideSelected" title="keep not selected (hide others)">
+        <img src="/img/select/hideNotSelected.png"  id="quick_icon-hideNotSelected" title="keep selected (hide others)">
+        <img src="/img/select/hideSwap1.png"  id="quick_icon-swapHidden" title="swap visible and hidden">
+        <img src="/img/select/halfSelected.png" id="quick_icon-showAll" title="show all nodes">
+    </div>
 </div>
 
-   <div id="waitLoading" style="display: none">⏳ Loading graph...</div>
+<div id="waitLoading" style="display: none">⏳ Loading graph...</div>

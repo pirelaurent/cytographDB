@@ -416,15 +416,14 @@ export function createIconButton(
 }
 
 /*
-@todo take in account root
-
+Show a toast in topbar to inform user
 */
-export function showToast(msg, root = document) {
+export function showToast(msg, root = document, delay = 3500) {
   const toast = root.createElement("div");
   toast.className = "toast";
   toast.textContent = msg;
   root.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 3500);
+  setTimeout(() => toast.remove(), delay);
 }
 
 export function helpRegex() {

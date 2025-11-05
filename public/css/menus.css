@@ -212,19 +212,58 @@ li[data-category="follow"] > ul.submenu > li:hover {
   gap: 6px;
   padding: 4px;
 }
-.icon-actions img,
-#quickAccessMenu img {
-  cursor: pointer;
-  width: 40px;
-  height: 40px;
+
+
+#quickAccessMenu {
+  position: fixed;
+  z-index: 9999;
+  display: none; /* caché par défaut */
+  min-width: 130px;
+  background: #fff;
+  border: 1px solid #333;
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  padding: 6px;
+}
+
+
+.icon-actions img {
+    cursor: pointer;
+  width: 30px;
+  height: 30px;
   border-radius: 3px;
  border: 1px solid #e6e6e6; 
 }
+
+#quickAccessMenu img {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+ border: 1px solid #e6e6e6; 
+}
+
+/* donne la même “boîte” aux libellés */
+#quickAccessMenu .qa-label {
+  display: inline-block;
+  width: 30px;        /* ajuste: 60px ou p.ex. 7ch */
+  box-sizing: border-box;
+  text-align: right;  /* optionnel pour aligner le texte à droite */
+  color: #666;
+  font-weight: 300;
+  font-size: 12px;
+}
+
+
 .icon-actions img:hover,
+
 #quickAccessMenu img:hover {
   background-color: #d7e7f7;
   border-color: #aac6e3;
 }
+
+#quickAccessMenu #quick_icon-selectSwap:hover { content: url("/img/select/swapSelected.png"); }
+#quickAccessMenu #quick_icon-swapHidden:hover     { content: url("/img/select/hideSwap2.png"); }
 
 
 #menu-nodes #icon-selectAll:hover { content: url("/img/select/selectAllBright.png"); }

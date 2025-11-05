@@ -2,20 +2,22 @@
 // Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
 
+import { getCy } from "../graph/cytoscapeCore.js";
+import { metrologie } from "../core/metrology.js";
 import {
-  getCy,
-} from "../graph/cytoscapeCore.js";
-import { metrologie } from '../core/metrology.js';
-import {  perimeterForNodesSelection,
-  perimeterForEdgesSelection } from "../core/perimeter.js";
+  perimeterForNodesSelection,
+  perimeterForEdgesSelection,
+} from "../core/perimeter.js";
 import {
   modeSelect,
   AND_SELECTED,
+  showInfo,
   showAlert,
   showToast,
 } from "../ui/dialog.js";
 
 import { outputMarkdown } from "../util/markdown.js";
+
 
 /*
  modal screens 
@@ -37,7 +39,7 @@ export function setModalInterceptors() {
     .getElementById("byFilterMenu")
     .addEventListener("click", () => openDegreeFilter());
 
-  // leave modal if clic on background
+  // leave modal if click on background
 
   document
     .getElementById("degreeFilter")
@@ -45,7 +47,7 @@ export function setModalInterceptors() {
       if (e.target === this) closeDegreeFilter();
     });
 
-  //close on any clic on background
+  //close on any click on background
   document
     .getElementById("modalDegreeFilterCancel")
     .addEventListener("click", function (e) {
@@ -208,7 +210,10 @@ As modal form is shared
 function modalSelectByName() {
   const val = document.getElementById("modalNameFilterInput").value;
   const cleanVal = val.trim();
-  if (!cleanVal) { /* rien à filtrer */ return; }
+  if (!cleanVal) {
+    showInfo("Nothing in question.") 
+    return;
+  }
   const hiddenType = document.getElementById("modalNameFilterType").value;
   const ok = selectByName(cleanVal, hiddenType);
   if (ok) closeNameFilterModal();
@@ -225,8 +230,8 @@ export function selectByName(pattern, hiddenType) {
   // detect a negative search to check differently
   const hasNegativeLookahead = /(?<!\\)\(\?\!/.test(pattern);
 
-  // if a string has not the pattern : it is true 
-  // if a string has the pattern: it is false (that it has not the pattern) 
+  // if a string has not the pattern : it is true
+  // if a string has the pattern: it is false (that it has not the pattern)
 
   try {
     regex = new RegExp(pattern, "i");
@@ -235,61 +240,106 @@ export function selectByName(pattern, hiddenType) {
     return false;
   }
 
-
-  if (hiddenType === "nodes") {
-    /*
- by name will search in visible and hidden. 
- If found in hidden, bring back these nodes
+  /*
+    Nodes by name 
+      can search in visible and hidden. 
+      If found in hidden, bring back these nodes
 */
-
+  if (hiddenType === "nodes") {
     // perimeter special
-    const withHidden = document.getElementById("searchOnHidden").checked;
+    const withHidden = !document.getElementById("modalRestrictToVisible")
+      .checked;
     let nodes = withHidden ? getCy().nodes() : perimeterForNodesSelection();
-    if (nodes == null) return;
 
-    // un select residual hidden selecteed nodes if any
+    if (nodes.length === 0) {
+      showInfo("no nodes to filter")
+      return;
+    }
+
+    // unselect residual hidden selected nodes if any
     if (withHidden) getCy().$("node:hidden").unselect();
+
+    // Créer une collection vide pour les n}œuds à montrer
+    let toShow = getCy().collection();
 
     nodes.forEach((node) => {
       if (regex.test(node.id())) {
-        node.select(); //add
-      } else {
-        if (modeSelect() == AND_SELECTED) node.unselect();
+        toShow = toShow.add(node); // on prépare les nœuds concernés
       }
-
-      getCy().$("node:selected").show(); //$ for elements( )
-      // show also edges
-      getCy().$("node:selected").connectedEdges().show();
-      // (future compound nodes, show montrer les parents
-      getCy().$("node:selected").ancestors().show();
     });
+
+     showToast(`${toShow.length} results in selection`)
+    // Met à jour la sélection
+
+    if (modeSelect() == AND_SELECTED) {
+      toShow.unselect();
+    } else {
+      toShow.select();
+
+      // Puis on ne montre que la collection calculée :
+      toShow.show();
+
+      // Montrer aussi les arêtes connectées à ces nœuds dans le graphe courant
+      toShow.connectedEdges().show();
+    }
   }
 
-  //
-  if (hiddenType === "edges") {
-    // perimeter
-    const withHidden = document.getElementById("searchOnHidden").checked;
-    let edges = withHidden ? getCy().edges() : perimeterForEdgesSelection();
-    if (edges == null) return;
+  /*
+    Edges by name 
+      can search in visible and hidden. 
+      If found in hidden, bring back corresponding  nodes
+*/
 
-    // un select residual hidden selecteed nodes if any
+  if (hiddenType === "edges") {
+    const withHidden = !document.getElementById("modalRestrictToVisible")
+      .checked;
+    let edges = withHidden ? getCy().edges() : perimeterForEdgesSelection();
+    if (!edges){
+      showInfo ("No edges to filter")
+      return;
+    } 
+
+    // Unselect any hidden edges that may still be selected
     if (withHidden) getCy().$("edge:hidden").unselect();
+
+    // Prepare collection of edges to show
+    let toShowEdges = getCy().collection();
+    let toShowNodes = getCy().collection();
 
     edges.forEach((edge) => {
       if (regex.test(edge.data("label"))) {
-        edge.select(); //add
-      } else {
-        if (modeSelect() == AND_SELECTED) edge.unselect();
+        toShowEdges = toShowEdges.add(edge);
+        // Also prepare linked nodes for visibility
+        toShowNodes = toShowNodes.add(edge.source());
+        toShowNodes = toShowNodes.add(edge.target());
       }
     });
+
+     showToast(`${toShowEdges.length} edges results in selection`)
+
+    if (modeSelect() === AND_SELECTED) {
+      toShowEdges.unselect();
+    } else {
+      // Make linked nodes (and their ancestors if compound nodes) visible first
+      toShowNodes.show();
+      toShowNodes.ancestors().show();
+
+      // Then make edges visible and select them
+      toShowEdges.show();
+      toShowEdges.select();
+    }
   }
+
   /*
-   search by column names
+   search tables by column names
   */
   if (hiddenType === "columns") {
-    const withHidden = document.getElementById("searchOnHidden").checked;
+    const withHidden = !document.getElementById("modalRestrictToVisible")
+      .checked;
     let nodes = withHidden ? getCy().nodes() : perimeterForNodesSelection();
-    if (nodes == null) return;
+    if (nodes == null) {
+      showInfo ("No tables to filter.")
+      return};
 
     // un select residual hidden selecteed nodes if any
     if (withHidden) getCy().$("node:hidden").unselect();
@@ -308,7 +358,7 @@ export function selectByName(pattern, hiddenType) {
           okNode = true;
           for (const name of columns) {
             const ok = regex.test(name);
-            if (!ok) okNode = false; // one has = false that it has not 
+            if (!ok) okNode = false; // one has = false that it has not
           }
         } else {
           // Cas normal : au moins un champ correspond
@@ -329,7 +379,7 @@ export function selectByName(pattern, hiddenType) {
       });
     }); //batch
     getCy().$("node:selected").show();
-    showToast(`${count} found`);
+    showToast(`${count} tables found with such columns`);
     const output = results.join("\n");
 
     outputMarkdown(

@@ -87,18 +87,19 @@ const democytodbModule = {
       // example of collection of relations name to alias
 
       const DICO_FK = {
-        "authorization_company_id_factory_id_production_line_id_fkey": "autorisation d'accès",
-        "employee_chief_fk": "supérieur hiérarchique",
-        "employee_works_with_fk": "collègue de travail",
-        "factory_company_id_fkey": "usine de l'entreprise",
-        "intervention_factory_id_fkey": "intervention dans l'usine",
-        "line_product_product_id_fkey": "ligne de produit pour",
-        "production_line_factory_id_fkey": "ligne de production de l'usine",
+        "fk_auth_comp_emp_fact_prod_line": "autorisation d'accès",
+        "fk_emp_chief": "supérieur hiérarchique",
+        "fk_emp_works_with": "collègue de travail",
+        "fk_fact_comp": "usine de l'entreprise",
+        "fk_line_prod_prod": "intervention dans l'usine",
+        "fk_prod_comp_fact": "ligne de produit pour",
+        "fk_prod_comp_fact": "ligne de production de l'usine",
+        "fk_skills_comp_emp": "a pour compétences"
       };
       const fr =DICO_FK[current];
       if(fr) edge.data("alias", fr);//:edge.data("alias",edge.data("label")); // set new label
 
-       //console.log(JSON.stringify(edge.data(),0,2));//PLA
+      // console.log(JSON.stringify(edge.data(),0,2));//PLA
     }) 
 
      

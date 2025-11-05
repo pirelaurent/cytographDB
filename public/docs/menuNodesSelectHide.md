@@ -79,7 +79,7 @@ The matched tables are selected and the columns are listed in the clipReport
 In main menu bar, the icon of clipReport is higher if there is a report inside :  
 <img src="./img/clipReportIcon.png" width ="60">
 
-Clic on the icon opens a tab with current deposit. In our last case, the list of tables with columns that matched the regex *prod*
+click on the icon opens a tab with current deposit. In our last case, the list of tables with columns that matched the regex *prod*
 <img src ='./img/selectByColumns.png' width= "360" >
 
 
@@ -165,10 +165,10 @@ Generates an HTML file with *all visible or only visible and selected* tables, s
 
 #### Chaining to Table Details 
 
-Clic on a table name opens details :  
+click on a table name opens details :  
    <img src = "./img/detailsFromList.png" width ="800px" style="border: 2px solid grey;">  
 
-Clic on a trigger number opens its trigger definition :  
+click on a trigger number opens its trigger definition :  
  <img src = "./img/triggersFromList.png" width ="600px">  
 
 #### Close Button 

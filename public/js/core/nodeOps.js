@@ -263,7 +263,7 @@ function mapValue(value, inMin, inMax, outMin, outMax) {
 
 // alias nodes 
 export function labelNodeAlias() {
-  const cy = getCY();
+  const cy = getCy();
   cy.batch(() => {
     perimeterForNodesAction().forEach((node) => {
       if (node.data("alias") != null) {
@@ -274,7 +274,7 @@ export function labelNodeAlias() {
 }
 
 export function labelNodeId() {
-  const cy = getCY();
+  const cy = getCy();
   cy.batch(() => {
     perimeterForNodesAction().forEach((node) => {
       node.data("label", node.id());
@@ -284,7 +284,7 @@ export function labelNodeId() {
 
 
 export function labelNodeHide() {
-  const cy = getCY();
+  const cy = getCy();
   cy.batch(() => {
     perimeterForNodesAction().forEach((node) => {
       node.data("label", ".");
@@ -304,7 +304,7 @@ export function bringSelectedToBack() {
 }
 
 export function swapHidden() {
-  const cy = getCY();
+  const cy = getCy();
   pushSnapshot("swapHidden");
   pushSnapshot("swapHidden2");
 

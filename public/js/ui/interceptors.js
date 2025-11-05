@@ -2,14 +2,10 @@
 // Copyright (C) 2025 pep-inno.com
 // This file is part of CytographDB (https://github.com/pirelaurent/cytographdb)
 
-import {
-  getCy,
-  captureGraphAsPng,
-} from "../graph/cytoscapeCore.js";
-import { metrologie } from '../core/metrology.js';
+import { getCy, captureGraphAsPng } from "../graph/cytoscapeCore.js";
+import { metrologie } from "../core/metrology.js";
 import { popSnapshot, reDoSnapshot } from "../util/snapshots.js";
-import {  hideNotSelected,
-  selectAllVisibleNodes,} from "../core/nodeOps.js";
+import { hideNotSelected, selectAllVisibleNodes } from "../core/nodeOps.js";
 import {
   showAlert,
   menuSelectSizeOutgoing,
@@ -40,12 +36,15 @@ import { showClipReport } from "../util/clipReport.js";
 */
 
 export function setInterceptors() {
+
+  
   //--------- set events'trap for cy
 
   setModalInterceptors(); // isolated in module modal.js
 
   getCy().on("mouseover", "node", (evt) => evt.target.addClass("hovered"));
   getCy().on("mouseout", "node", (evt) => evt.target.removeClass("hovered"));
+
 
   /*
    information on mouse over on nodes and edges 
@@ -359,8 +358,9 @@ export function setInterceptors() {
     // Poser le menu au-dessus et centré sur le nœud
     const offsetY = 8; // petit décalage
     clicNodeMenu.style.left = `${x - (clicNodeMenu.offsetWidth || 0) / 2}px`;
-    clicNodeMenu.style.top = `${y + 5 - (clicNodeMenu.offsetHeight || 0) - offsetY
-      }px`;
+    clicNodeMenu.style.top = `${
+      y + 5 - (clicNodeMenu.offsetHeight || 0) - offsetY
+    }px`;
 
     //  affichage conditionnel
     document.getElementById("open-trigger").style.display =
@@ -380,19 +380,14 @@ export function setInterceptors() {
     const { clientX, clientY } = oe;
 
     // positionner le menu en tenant compte du conteneur
-    const rect = getCy().container().getBoundingClientRect();
-    let left = clientX - rect.left;
-    let top = clientY - rect.top;
+
+    let left = clientX;
+    let top = clientY;
 
     // 3) Ajuster pour éviter que le menu sorte du conteneur
     // (attendre display pour mesurer)
+
     quickAccessMenu.style.display = "block";
-    const mw = quickAccessMenu.offsetWidth;
-    const mh = quickAccessMenu.offsetHeight;
-    const maxLeft = rect.width - mw - 4;
-    const maxTop = rect.height - mh - 4;
-    left = Math.min(Math.max(4, left), Math.max(4, maxLeft));
-    top = Math.min(Math.max(4, top), Math.max(4, maxTop));
 
     quickAccessMenu.style.left = `${left}px`;
     quickAccessMenu.style.top = `${top}px`;
@@ -495,10 +490,10 @@ export function setInterceptors() {
         .filter((edge) => edge.data("label") === aLabel);
       // now using _display to restore label if any
 
-
       edges.forEach((edge) => {
-            if (!edge.data("_display")) { 
-            edge.data("_display", edgeForInfo.data("label")); }
+        if (!edge.data("_display")) {
+          edge.data("_display", edgeForInfo.data("label"));
+        }
       });
       enterFkSynthesisModeForEdges(edges);
     }
@@ -517,8 +512,9 @@ export function setInterceptors() {
       edgeForInfo.toggleClass(ConstantClass.SHOW_COLUMNS);
     }
 
-    if (!edgeForInfo.data("_display")) { 
-      edgeForInfo.data("_display", edgeForInfo.data("label")); }
+    if (!edgeForInfo.data("_display")) {
+      edgeForInfo.data("_display", edgeForInfo.data("label"));
+    }
   });
 
   // trace current selection values
@@ -612,8 +608,6 @@ export function setInterceptors() {
     commonArrow("both");
   });
 
-
-
   document.getElementById("treeLeft").addEventListener("click", () => {
     commonTree("outgoing");
   });
@@ -625,8 +619,6 @@ export function setInterceptors() {
   document.getElementById("treeMiddle").addEventListener("click", () => {
     commonTree("both");
   });
-
-
 
   const svg = document.getElementById("follow-graph");
 
@@ -681,7 +673,7 @@ export function setInterceptors() {
   }
 
   function commonTree(direction) {
-    // store current selected nodes 
+    // store current selected nodes
     let selectedElements = getCy().elements(":visible:selected");
     selectedElements.unselect();
 
@@ -691,9 +683,6 @@ export function setInterceptors() {
     // restore previous
     selectedElements.select();
   }
-
-
-
 
   /*
    menu icons event  

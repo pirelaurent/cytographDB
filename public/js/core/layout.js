@@ -1,5 +1,11 @@
 import { getCy } from "../graph/cytoscapeCore.js";
 import {perimeterForNodesAction} from "../core/perimeter.js";
+import { NativeCategories } from "../util/common.js";
+import { showAlert } from "../ui/dialog.js";
+
+
+
+
 
 export function changePosRelative(xFactor, yFactor) {
   // si au moins deux sélectionnés, on les écartent

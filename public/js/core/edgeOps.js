@@ -2,6 +2,7 @@
 import { getCy } from "../graph/cytoscapeCore.js";
 import {perimeterForEdgesAction} from "../core/perimeter.js";
 import { ConstantClass } from "../util/common.js";
+import { showAlert} from "../ui/dialog.js";
 
 // all about edges  (FKs, hide, selection, labels, police).
 

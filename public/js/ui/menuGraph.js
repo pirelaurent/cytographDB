@@ -29,7 +29,7 @@ export function menuGraph(option, item, whichClic = "left") {
                 resetSnapshot();
                 document.getElementById("graphName").value = "";
 
-                // simulate clic on a standard upload zone but hidden
+                // simulate click on a standard upload zone but hidden
                 //document.getElementById("graphUpload").click();
                 const input = document.getElementById("graphUpload");
                 if (input) {

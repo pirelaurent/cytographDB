@@ -4,7 +4,7 @@
 
 ## democytodb 
 
-This very simple DB model was designed for documentation purpose.   
+This very simple DB (Database) model was designed for documentation purpose.   
 To create *democytodb* in your Postgres instance, see the [Installation Guide](./install.md)
 
 ## Initial load of sample *democytodb* 
@@ -16,10 +16,17 @@ To create *democytodb* in your Postgres instance, see the [Installation Guide](.
 
 ## Main menu entries
 
-- Display : all options that will change visual aspects 
+- Display : all options that will change visual options 
 - Tables  : browse, select and manage visibility of tables
-- Relations: browse, select and manage visibility of relations
+- Relations: browse, select and manage visibility of relationships
 - Model : other global actions using the metamodel.  
+
+## Basic selections 
+
+- click on an element (node or edge) to select it 
+- shift click on an element to toggle its selected status 
+- shift click to add or remove more elements in the current selected collection 
+
 
 ## Node = table representation
 
@@ -123,7 +130,7 @@ For FK the less dependant tables are those who have no FK , ie leaves on graph.
 
   
 - Download table in markdown.   
-- Dowload the table as an excel sheet.    
+- Download the table as an excel sheet.    
 - Copy the table into clipboard as a markdown text.  
 
 
@@ -131,7 +138,7 @@ For FK the less dependant tables are those who have no FK , ie leaves on graph.
 
 ### Access to a table definition 
 
-- clic on a displayed table name in a list (nodes or edges list)
+- click on a displayed table name in a list (nodes or edges list)
 - right-click to open then contextual menu on a node and choose table definition.
  
 <img src = "./img/contextualNodeMenu.png" width ="160px" style="border: 1px solid grey;">
@@ -142,10 +149,10 @@ For FK the less dependant tables are those who have no FK , ie leaves on graph.
 
 #### Definition: display details of the selected table 
 
-A new tab is open in navigator and show detailed schema informations. 
+A new tab is open in navigator and show detailed schema information. 
 - if any comment in schema, a tip is available.
-- indexes doesn't include PK as it has its own place.
-- constraints list (if any) doesn't include Pk nor indexes. 
+- indexes don't include the Primay Key (PK).
+- the list of constraints (if any) excludes the primary key and indexes. 
   -  *Unique* or *Exclude* constraints are listed if any.
 
 ***Total constraints in DB: PK + Indexes + constraints***
@@ -177,7 +184,7 @@ Note : to get visually new edges that link source table to impacted tables, you 
 If a trigger code calls a function, the code of this function is also parsed.    
 If a function calls another function, the code of this called function is also parsed. 
 If a function has already been analysed previously, it is not parsed again.   
-The deep of nested calls is limited to 16 to avoid infinite loops in case of recursive code.
+The depth of nested calls is limited to 16 to avoid infinite loops in case of recursive code.
 
 #### Warnings in analysis 
 
@@ -186,7 +193,7 @@ If a sql source uses a interpreted operation with 'EXECUTE someString' it is not
 
 <img src="./img/warningTriggers.png" width = "500px" style="border: 1px solid grey;">
 
-##### Too much warnings case
+##### When there are too many warnings
 
 If you work with a subset of model and ask for impacted tables that involve missing parts, you can get a lot of warnings.   
 The warning window will truncate the list, but **in any case you will find full list into the clipboard**, ready to paste.
@@ -195,7 +202,7 @@ The warning window will truncate the list, but **in any case you will find full 
 
 #### Sample of code view
 
-CytographDB uses syntaxic color for SQL from a third part. 
+CytographDB uses syntax highlighting for SQL from a third part. 
 
 <img src ="./img/function-intervention-code.png" width = "500px" style="border: 1px solid grey;">
 
@@ -204,7 +211,7 @@ CytographDB uses syntaxic color for SQL from a third part.
 
 # More on relations (edges)
 
-## List of edges ( foreign key / trigers impacts)
+## List of edges ( foreign key / triggers impacts)
 
 list generates a window with edges of current perimeter.
 Current perimeter : all edges if none selected, only selected edges otherwise.
@@ -255,9 +262,9 @@ From some selected nodes, you can navigate in any directions to select neighbour
 
 <img src = "./img/stepByStep.png" width = "100px" style="border: 1px solid grey;"> : Step by step in any direction  *outgoing  / both  / Incoming*
 
-<img src = "./img/treeByTree.png" width = "100px" style="border: 1px solid grey;"> : Automatic propagation in chains selecting *outgoing tree  / both  / Incoming tree*
+<img src = "./img/treeByTree.png" width = "100px" style="border: 1px solid grey;"> : Automatically propagates selection through outgoing / both / incoming trees
 
-<img src = "./img/crossAssociation.png" width = "100px" style="border: 1px solid grey;"> An association (two outgoing links) blocks propagation forward and backward. This command will selecting both sides of an already selected association. This allows to pursuit the chains. 
+<img src = "./img/crossAssociation.png" width = "100px" style="border: 1px solid grey;"> An association (two outgoing links) blocks propagation forward and backward. This command will selecting both sides of an already selected association. This allows continue exploring the chains. 
 
 
 
@@ -266,8 +273,8 @@ From some selected nodes, you can navigate in any directions to select neighbour
 ### Sample 
 
 Starting with *production_line* as the only visible node :
-- a first outgoing clic bring back *factory* 
-- a thirs outgoing clic bring back company
+- a first outgoing click bring back *factory* 
+- a third outgoing click bring back company
 
 <img src = "./img/followOut0.png" height = "80" /><img src = "./img/followOut1.png"  height = "100" /><img src = "./img/followOut2.png"  height = "90"  />
 

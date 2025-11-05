@@ -1,10 +1,7 @@
 "use strict"
-
-
 /*
  ----------------------------------  main menu on display actions 
 */
-
 
 import {
     getCy,
@@ -19,9 +16,10 @@ import {
     rotateGraphByDegrees,
     changePosRelative,} from "../core/layout.js";
 
-import { changeFontSizeNode,} from '../core/nodeOps.js';
+import { changeFontSizeNode, labelNodeAlias,labelNodeHide,labelNodeId,} from '../core/nodeOps.js';
 
-import {    noProportionalSize,
+import {    
+    noProportionalSize,
     setProportionalNodeSizeByLinks,} from '../core/nodeOps.js';
 
 
@@ -172,13 +170,13 @@ export function menuDisplay(option, item, whichClic = "left") {
             labelNodeId();
             break;
 
-        case "increase-font":
+        case "increase_font":
             changeFontSizeNode(5);
             break;
-        case "decrease-font":
+        case "decrease_font":
             changeFontSizeNode(-1);
             break;
-        case "restore-font":
+        case "restore_font":
             changeFontSizeNode(24, false);
             break;
 
@@ -196,13 +194,13 @@ export function menuDisplay(option, item, whichClic = "left") {
             labelFKId();
             break;
 
-        case "increase-font-edge":
+        case "increase_font-edge":
             changeFontSizeEdge(5);
             break;
-        case "decrease-font-edge":
+        case "decrease_font-edge":
             changeFontSizeEdge(-1);
             break;
-        case "restore-font-edge":
+        case "restore_font-edge":
             changeFontSizeEdge(18, false);
             break;
     }

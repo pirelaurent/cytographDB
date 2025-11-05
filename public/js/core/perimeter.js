@@ -2,7 +2,7 @@ import {
     getCy,
 }   from "../graph/cytoscapeCore.js";
 
-import { modeSelect, AND_SELECTED } from "../ui/dialog.js";
+import { showAlert,modeSelect, AND_SELECTED } from "../ui/dialog.js";
 
 /*
  fix the perimer of actions
@@ -23,7 +23,9 @@ export function perimeterForNodesAction() {
 }
 
 /*
- acess mode regarding options in menus 
+ Special perimeter taking in account AND operation 
+ if AND the perimeter includes only currently selected nodes 
+ return a cyto collection . could be empty length === 0 
 */
 
 export function perimeterForNodesSelection() {
@@ -31,9 +33,9 @@ export function perimeterForNodesSelection() {
 const cy = getCy();
   let nodes = cy.nodes(":visible");
   // If AND to come restrict to current selected
-  if (modeSelect() == AND_SELECTED) {
+  if (modeSelect() === AND_SELECTED) {
     nodes = cy.nodes(":visible:selected");
-    if (nodes.length == 0) {
+    if (nodes.length === 0) {
       let msg = "Nothing to filter with an AND operation.";
       msg += "<br/>Needs to have already selected nodes.";
       msg += "<br/> ( or change for OR operation )";

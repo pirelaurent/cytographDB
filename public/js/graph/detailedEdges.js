@@ -56,7 +56,6 @@ let detailedEdgesArray; // to be able to reverse, store details here
 // called at startup now as request load details
 export function saveDetailedEdges() {
   detailedEdgesArray = getCy().edges(); // cytoscape collection, not array
-
 }
 
 /*
@@ -70,19 +69,21 @@ export function saveDetailedEdges() {
 
 export function enterFkDetailedModeForEdges(synthEdges) {
   const originalArray = [];
-  synthEdges.forEach((synth) => {
-    detailedEdgesArray
-      .filter((e) => e.data("label") === synth.data("label"))
-      .forEach((e) => {
-        if (synth.hasClass(NativeCategories.TRIGGER_IMPACT)) return;
-        if (synth.selected()) e.select();
-        else e.unselect();
-        if (synth.hasClass("showLabel"))
-          e.addClass(`${ConstantClass.SHOW_COLUMNS}`);
-        else e.removeClass(`${ConstantClass.SHOW_COLUMNS}`);
-        
-        originalArray.push(e);
-      });
+  const cy = getCy();
+  cy.batch(() => {
+    synthEdges.forEach((synth) => {
+      detailedEdgesArray
+        .filter((e) => e.data("label") === synth.data("label"))
+        .forEach((e) => {
+          if (synth.hasClass(NativeCategories.TRIGGER_IMPACT)) return;
+          if (synth.selected()) e.select();
+          else e.unselect();
+          if (synth.hasClass("showLabel"))
+            e.addClass(`${ConstantClass.SHOW_COLUMNS}`);
+          else e.removeClass(`${ConstantClass.SHOW_COLUMNS}`);
+          originalArray.push(e);
+        });
+    });
   });
   // must change an array in a cy collection
   const original = getCy().collection(originalArray); // <- conversion Array -> collection
@@ -127,20 +128,21 @@ export function cleanDetailedEdgesArray() {
   let toDrop = cy.collection();
 
   // as some nodes could have been deleted in fk mode, detailed are not more valid
+  cy.batch(() => {
+    detailedEdgesArray.forEach((aDetailedEdge) => {
+      const sourceId = aDetailedEdge.source().id();
+      const destId = aDetailedEdge.target().id();
 
-  detailedEdgesArray.forEach((aDetailedEdge) => {
-
-    const sourceId = aDetailedEdge.source().id();
-    const destId = aDetailedEdge.target().id();
-
-    if (nodeSet.has(sourceId) && nodeSet.has(destId)) {
-      cy.add(aDetailedEdge);
-    } else {
-      toDrop = toDrop.union(aDetailedEdge);
-      console.log(`missing nodes to restore details ${sourceId} or ${destId}`);
-    }
+      if (nodeSet.has(sourceId) && nodeSet.has(destId)) {
+        cy.add(aDetailedEdge);
+      } else {
+        toDrop = toDrop.union(aDetailedEdge);
+        console.log(
+          `missing nodes to restore details ${sourceId} or ${destId}`
+        );
+      }
+    });
   });
-
   detailedEdgesArray = detailedEdgesArray.difference(toDrop);
 }
 
@@ -226,4 +228,3 @@ export function enterFkSynthesisModeForEdges(edges) {
     });
   });
 }
-

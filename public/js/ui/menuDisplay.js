@@ -1,211 +1,225 @@
-"use strict"
+"use strict";
 /*
  ----------------------------------  main menu on display actions 
 */
 
+import { getCy } from "../graph/cytoscapeCore.js";
+
 import {
-    getCy,
-} from "../graph/cytoscapeCore.js";
+  setAndRunLayoutOptions,
+  distributeNodesHorizontally,
+  distributeNodesVertically,
+  alignNodesVertically,
+  alignNodesHorizontally,
+  rotateGraphByDegrees,
+  changePosRelative,
+} from "../core/layout.js";
 
-import {    
-    setAndRunLayoutOptions,
-    distributeNodesHorizontally,
-    distributeNodesVertically,
-    alignNodesVertically,
-    alignNodesHorizontally,
-    rotateGraphByDegrees,
-    changePosRelative,} from "../core/layout.js";
-
-import { changeFontSizeNode, labelNodeAlias,labelNodeHide,labelNodeId,} from '../core/nodeOps.js';
-
-import {    
-    noProportionalSize,
-    setProportionalNodeSizeByLinks,} from '../core/nodeOps.js';
-
-
-import {  
-    changeFontSizeEdge,  labelFKAlias,
-    labelFKId,
-    labelFKHide} from  '../core/edgeOps.js';
-
-import {metrologie} from '../core/metrology.js';
 import {
-    pushSnapshot,
-} from "../util/snapshots.js";
+  changeFontSizeNode,
+  labelNodeAlias,
+  labelNodeHide,
+  labelNodeId,
+} from "../core/nodeOps.js";
 
+import {
+  noProportionalSize,
+  setProportionalNodeSizeByLinks,
+} from "../core/nodeOps.js";
 
+import {
+  changeFontSizeEdge,
+  labelFKAlias,
+  labelFKId,
+  labelFKHide,
+  labelStandardOrientation,
+  labelAutoRotateOrientation,
+  labelRestoreOrientation,
+} from "../core/edgeOps.js";
 
+import { metrologie } from "../core/metrology.js";
+import { pushSnapshot } from "../util/snapshots.js";
 
 export function menuDisplay(option, item, whichClic = "left") {
-    if (whichClic == "right") return;
-    if (!cy) return;
-    switch (option) {
-        // -------------------------- fitscreen / selected
+  if (whichClic == "right") return;
+  if (!cy) return;
+  switch (option) {
+    // -------------------------- fitscreen / selected
 
-        case "fitScreen":
-            pushSnapshot();
-            getCy().fit();
-            break;
+    case "fitScreen":
+      pushSnapshot();
+      getCy().fit();
+      break;
 
-        case "fitSelected":
-            pushSnapshot();
-            getCy().fit(
-                getCy()
-                    .nodes(":selected")
-                    .union(getCy().nodes(":selected").connectedEdges()),
-                50
-            );
-            break;
+    case "fitSelected":
+      pushSnapshot();
+      getCy().fit(
+        getCy()
+          .nodes(":selected")
+          .union(getCy().nodes(":selected").connectedEdges()),
+        50
+      );
+      break;
 
-        /*
+    /*
       -------------------------- layout options 
     */
 
-        case "cose":
-        case "cose-bilkent":
-        case "grid":
-        case "circle":
-        case "breadthfirst":
-        case "concentric":
-        case "dagre":
-        case "elk":
-            pushSnapshot();
-            setAndRunLayoutOptions(option);
-            break;
+    case "cose":
+    case "cose-bilkent":
+    case "grid":
+    case "circle":
+    case "breadthfirst":
+    case "concentric":
+    case "dagre":
+    case "elk":
+      pushSnapshot();
+      setAndRunLayoutOptions(option);
+      break;
 
-        /*
+    /*
         
       -------------------------- move resize 
     */
-        case "H+":
-            horizMore();
-            break;
+    case "H+":
+      horizMore();
+      break;
 
-        case "H-":
-            horizLess();
-            break;
+    case "H-":
+      horizLess();
+      break;
 
-        case "V+":
-            vertiMore();
-            break;
+    case "V+":
+      vertiMore();
+      break;
 
-        case "V-":
-            vertiLess();
-            break;
+    case "V-":
+      vertiLess();
+      break;
 
-        case "B+":
-            horizMore();
-            vertiMore();
-            break;
+    case "B+":
+      horizMore();
+      vertiMore();
+      break;
 
-        case "B-":
-            horizLess();
-            vertiLess();
-            break;
-        /*
+    case "B-":
+      horizLess();
+      vertiLess();
+      break;
+    /*
       -------------------------- move distribute & align
     */
-        case "distH":
-            pushSnapshot();
-            distributeNodesHorizontally();
-            break;
+    case "distH":
+      pushSnapshot();
+      distributeNodesHorizontally();
+      break;
 
-        case "distV":
-            pushSnapshot();
-            distributeNodesVertically();
-            break;
+    case "distV":
+      pushSnapshot();
+      distributeNodesVertically();
+      break;
 
-        case "alignH":
-            pushSnapshot();
-            alignNodesHorizontally();
-            break;
+    case "alignH":
+      pushSnapshot();
+      alignNodesHorizontally();
+      break;
 
-        case "alignV":
-            pushSnapshot();
-            alignNodesVertically();
-            break;
+    case "alignV":
+      pushSnapshot();
+      alignNodesVertically();
+      break;
 
-        case "rotateL":
-            rotateGraphByDegrees(-7.5);
-            break;
+    case "rotateL":
+      rotateGraphByDegrees(-7.5);
+      break;
 
-        case "rotateR":
-            rotateGraphByDegrees(7.5);
-            break;
+    case "rotateR":
+      rotateGraphByDegrees(7.5);
+      break;
 
-        case "rotate90":
-            rotateGraphByDegrees(90);
-            break;
+    case "rotate90":
+      rotateGraphByDegrees(90);
+      break;
 
-        case "rotate180":
-            rotateGraphByDegrees(180);
-            break;
+    case "rotate180":
+      rotateGraphByDegrees(180);
+      break;
 
-        // not linked to menu.
-        case "separateH":
-            separateCloseNodesHorizontal();
-            break;
-        case "separateV":
-            separateCloseNodesVertical();
-            break;
+    // not linked to menu.
+    case "separateH":
+      separateCloseNodesHorizontal();
+      break;
+    case "separateV":
+      separateCloseNodesVertical();
+      break;
 
-        //-------------- shape
-        case "proportionalSize":
-            setProportionalNodeSizeByLinks();
-            break;
-        case "noProportionalSize":
-            noProportionalSize();
-            break;
-        //-------------------------------------------------------- Label
+    //-------------- shape
+    case "proportionalSize":
+      setProportionalNodeSizeByLinks();
+      break;
+    case "noProportionalSize":
+      noProportionalSize();
+      break;
+    //-------------------------------------------------------- Label
 
-        case "labelNodeAlias":
-            labelNodeAlias();
-            break;
+    case "labelNodeAlias":
+      labelNodeAlias();
+      break;
 
-        case "labelNodeHide":
-            labelNodeHide();
-            break;
+    case "labelNodeHide":
+      labelNodeHide();
+      break;
 
-        case "labelNodeId":
-            labelNodeId();
-            break;
+    case "labelNodeId":
+      labelNodeId();
+      break;
 
-        case "increase_font":
-            changeFontSizeNode(5);
-            break;
-        case "decrease_font":
-            changeFontSizeNode(-1);
-            break;
-        case "restore_font":
-            changeFontSizeNode(24, false);
-            break;
+    case "increase_font":
+      changeFontSizeNode(5);
+      break;
+    case "decrease_font":
+      changeFontSizeNode(-1);
+      break;
+    case "restore_font":
+      changeFontSizeNode(24, false);
+      break;
 
-    // edge labels        
+    // edge labels
 
-        case "labelFKAlias":
-            labelFKAlias();
-            break;
+    case "labelFKAlias":
+      labelFKAlias();
+      break;
 
-        case "labelFKHide":
-            labelFKHide();
-            break;
+    case "labelFKHide":
+      labelFKHide();
+      break;
 
-        case "labelFKId":
-            labelFKId();
-            break;
+    case "labelFKId":
+      labelFKId();
+      break;
 
-        case "increase_font-edge":
-            changeFontSizeEdge(5);
-            break;
-        case "decrease_font-edge":
-            changeFontSizeEdge(-1);
-            break;
-        case "restore_font-edge":
-            changeFontSizeEdge(18, false);
-            break;
-    }
-    // refresh info bar
-    metrologie();
+    case "standardOrientation":
+      labelStandardOrientation();
+      break;
+    case "AutorotateOrientation":
+      labelAutoRotateOrientation();
+      break;
+    case "restoreOrientation":
+      labelRestoreOrientation();
+      break;
+
+    case "increase_font-edge":
+      changeFontSizeEdge(5);
+      break;
+    case "decrease_font-edge":
+      changeFontSizeEdge(-1);
+      break;
+    case "restore_font-edge":
+      changeFontSizeEdge(18, false);
+      break;
+  }
+  // refresh info bar
+  metrologie();
 }
 
 /*
@@ -213,29 +227,29 @@ export function menuDisplay(option, item, whichClic = "left") {
 */
 
 function horizMore() {
-    changePosRelative(1.3, 1);
+  changePosRelative(1.3, 1);
 }
 function horizLess() {
-    changePosRelative(1 / 1.3, 1);
+  changePosRelative(1 / 1.3, 1);
 }
 function vertiMore() {
-    changePosRelative(1, 1.3);
+  changePosRelative(1, 1.3);
 }
 function vertiLess() {
-    changePosRelative(1, 1 / 1.3);
+  changePosRelative(1, 1 / 1.3);
 }
 
 /*
  this is not yet used
 */
 export function visibility(option) {
-    if (!cy) return;
-    switch (option) {
-        case "front":
-            bringSelectedToFront();
-            break;
-        case "back":
-            bringSelectedToBack();
-            break;
-    }
+  if (!cy) return;
+  switch (option) {
+    case "front":
+      bringSelectedToFront();
+      break;
+    case "back":
+      bringSelectedToBack();
+      break;
+  }
 }

@@ -350,7 +350,7 @@ fieldset legend {
   position: fixed;
   top: 10px;
   right: 150px;
-  min-width: 200px;
+  min-width: 100px;
   text-align: center;
 
   /* fond cohérent avec la topbar, mais foncé */

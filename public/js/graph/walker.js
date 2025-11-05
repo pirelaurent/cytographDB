@@ -11,6 +11,7 @@ import {
   showInfo,
   showWaitCursor,
   hideWaitCursor,
+
 } from "../ui/dialog.js";
 
 import { pushSnapshot } from "../util/snapshots.js";
@@ -34,8 +35,8 @@ export function follow(direction = "outgoing") {
   let cy = getCy();
 
   let selectedNodes = cy.nodes(":visible:selected");
-  if (selectedNodes.length === 0) {
-    //selectedNodes = cy.nodes(":visible");
+  let before = selectedNodes.length;
+  if (before === 0) {
     showAlert("no starting nodes to follow.");
     return;
   }
@@ -47,11 +48,7 @@ export function follow(direction = "outgoing") {
   let edgesToShow = new Set();
 
   // allow to find nodes everywhere
-  const allowedNodes = new Set(
-    getCy()
-      .nodes()
-      .map((n) => n.id())
-  );
+  const allowedNodes = new Set(cy.nodes().map((n) => n.id()));
 
   selectedNodes.forEach((node) => {
     const nodeId = node.id();
@@ -96,45 +93,50 @@ export function follow(direction = "outgoing") {
     }
   });
 
-  // propagation of edge selection
-  nodesMarked.forEach((id) => {
-    const node = cy.getElementById(id);
-    node.connectedEdges().forEach((edge) => {
-      if (edgesToShow.has(edge.id())) {
-        revealNeighbor(edge);
-        edge.select();
-      }
+  cy.batch(() => {
+    // propagation of edge selection
+    nodesMarked.forEach((id) => {
+      const node = cy.getElementById(id);
+      node.connectedEdges().forEach((edge) => {
+        if (edgesToShow.has(edge.id())) {
+          revealNeighbor(edge);
+          edge.select();
+        }
+      });
     });
-  });
 
-  // show new nodes and select them
-  nodesMarked.forEach((id) => {
-    const node = cy.getElementById(id);
-    // already done by revealNeighbour node.show();
-    node.select();
-  });
+    // show new nodes and select them
+    nodesMarked.forEach((id) => {
+      const node = cy.getElementById(id);
+      // already done by revealNeighbour node.show();
+      node.select();
+    });
 
-  // Réaffichage des arêtes souhaitées
-  cy.edges().unselect();
-  edgesToShow.forEach((id) => {
-    const edge = cy.getElementById(id);
-    edge.show();
-    edge.select();
-  });
+    // Réaffichage des arêtes souhaitées
+    cy.edges().unselect();
+    edgesToShow.forEach((id) => {
+      const edge = cy.getElementById(id);
+      edge.show();
+      edge.select();
+    });
 
-  // Z-index pour bien mettre en avant la sélection
-  cy.nodes(":selected").css("z-index", 100);
-  cy.nodes(":unselected").css("z-index", 10);
+    // Z-index pour bien mettre en avant la sélection
+    cy.nodes(":selected").css("z-index", 100);
+    cy.nodes(":unselected").css("z-index", 10);
+  });
 
   hideWaitCursor();
 }
-
+/*
+ automatic propagation in tree
+*/
 export function followTree(direction = "outgoing") {
   // not perimeterForNodesAction to avoid full nodes.
   let cy = getCy();
 
   let selectedNodes = cy.nodes(":visible:selected");
-  if (selectedNodes.length === 0) {
+  let before = selectedNodes.length;
+  if (before === 0) {
     //selectedNodes = cy.nodes(":visible");
     showAlert("no starting nodes to follow.");
     return;
@@ -227,7 +229,6 @@ export function downloadJson(jsonObject, filename = "trace.json") {
 }
 */
 
-
 /*
  treedir
 Starts from a node,
@@ -237,7 +238,7 @@ Stops at maxDepth,
 Returns { nodes, edges } for that subgraph.
  */
 
- function treeDir(cy, start, dir, maxDepth = Infinity) {
+function treeDir(cy, start, dir, maxDepth = Infinity) {
   const seen = new Set([start.id()]);
   let keepNodes = cy.collection(start);
   let keepEdges = cy.collection();

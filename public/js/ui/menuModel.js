@@ -1,7 +1,7 @@
 "use strict";
 
 import {
-  findLongOutgoingPaths,
+  findLongPathsOutgoing,
   findPkFkChains,
   ownerShipPerimeter,
 } from "../graph/walkModel.js";
@@ -80,38 +80,13 @@ export function menuModel(option, item, whichClic = "left") {
       ownerShipPerimeter(true);
       break;
 
-    case "findLongOutgoingPaths":
+    case "findLongPathsOutgoing":
       pushSnapshot();
-      findLongOutgoingPaths(getCy());
+      findLongPathsOutgoing(getCy());
       break;
 
     case "findPkFkChains":
       findPkFkChains();
       break;
-
-      /*      showWaitCursor();
-      cy.batch(() => {
-        // regroupement + compactage local
-      buildCompositeGroups(cy);
-
-      // trace of hierarchy before collapsing
-      const hierarchy = buildHierarchyTXT(cy);
-      //console.log(hierarchy);
-      setClipReport("composition", hierarchy);
-
-
-        // tous les composites démarrent en mode "collapsed"
-        cy.nodes(":parent").forEach((p) => collapseComposite(p));
-  
-      });
-      cy.style().update();
-      hideWaitCursor();
-
-
-
-      hideWaitCursor();
-      cy.fit(); */
-
-
   }
 }

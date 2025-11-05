@@ -2,7 +2,11 @@ import { adjustClipReportBtn } from "../util/clipReport.js";
 
 import {getCy} from "../graph/cytoscapeCore.js";
 import{restrictToVisible} from "../core/perimeter.js";
+import { showToast } from "../ui/dialog.js";
 //------------- display counts in menu bar------------
+
+let lastSelectedNodes = 0;
+let lastSelectedEdges = 0;
 
 export function metrologie(where = "") {
   const cy = getCy();
@@ -10,6 +14,14 @@ export function metrologie(where = "") {
   //display some measures
   const wholeNodesVisible = cy.nodes(":visible").length;
   const selectedCountNodesVisible = cy.nodes(":selected:visible").length;
+  let deltaNode = selectedCountNodesVisible- lastSelectedNodes;
+  lastSelectedNodes = selectedCountNodesVisible;
+
+  if (deltaNode >0) showToast(`+${deltaNode} node(s)`);
+
+
+
+
   const wholeNodesHidden = cy.nodes(":hidden").length;
   const selectedCountNodesHidden = cy.nodes(":selected:hidden").length;
   const labelNodes = document.querySelector("#NodesId");
@@ -17,9 +29,23 @@ export function metrologie(where = "") {
   const wholeEdgesVisible = cy.edges(":visible").length;
 
   const selectedCountEdgesVisible = cy.edges(":selected:visible").length;
+  let deltaEdge = selectedCountEdgesVisible-lastSelectedEdges;
+  lastSelectedEdges=selectedCountEdgesVisible;
+
   const wholeEdgesHidden = cy.edges(":hidden").length;
   const selectedCountEdgesHidden = cy.edges(":selected:hidden").length;
   const labelEdges = document.querySelector("#EdgesId");
+
+/*
+ transitoire
+*/
+let deltaInfo="";
+ if (deltaNode >0) deltaInfo=(`+ ${deltaNode} node(s)`);
+ if (deltaEdge>0) deltaInfo+=(` (+ ${deltaEdge} edge(s))`);
+
+if(deltaInfo!="") showToast(deltaInfo);
+
+
   /*
  to obective the perimeter : enhance the number 
  if select = 0 : small font and big font for total  

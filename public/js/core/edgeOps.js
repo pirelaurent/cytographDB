@@ -43,10 +43,7 @@ export function selectEdgesBetweenSelectedNodes() {
       return selectedIds.has(source) && selectedIds.has(target);
     });
 
-  internalEdges.forEach((edge) => {
-    edge.show(); // d'abord visible
-    edge.select(); // ensuite sélectionné
-  });
+  internalEdges.show().select();
 }
 
 function labelFKShow() {
@@ -102,3 +99,17 @@ export function hideDanglingEdges() {
     }
   });
 }
+
+  export function labelStandardOrientation(){
+    let edges=perimeterForEdgesAction();
+    edges.removeClass('labelAbove');
+  }
+  export function labelAutoRotateOrientation(){
+    let edges=perimeterForEdgesAction();
+    edges.addClass('labelAbove');
+  }
+  
+  export function labelRestoreOrientation(){
+    let cy=getCy();
+    cy.edges().removeClass('labelAbove');
+  }

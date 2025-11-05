@@ -8,6 +8,8 @@ import {
   followTree,
 } from "../graph/walker.js";
 
+
+
 import {
   showAll,
   hideSelected,
@@ -28,6 +30,7 @@ import {
   modeSelect,
   AND_SELECTED,
   deleteNodesSelected,
+  showToast,
 } from "./dialog.js";
 
 import { NativeCategories } from "../util/common.js";
@@ -193,46 +196,6 @@ export function menuNodes(option, item, whichClic = "left") {
       }
       break;
 
-    case "nodeIsComposite":
-      getCy().nodes(".composite").select();
-      break;
-
-    /*
-    ------------------------------------------------ custom list 
-    no event . The list had been extended by fillInGuiNodesCustomCategories
-    on each custom entry a click event goes to 
-
-    selectNodesByCustomcategories(key); 
-
-*/
-
-    // ------------------------------------------- Nodes select with edges
-
-    /*    
- case "noEdge":
-      {
-        let nodes = perimeterForNodesSelection();
-        if (nodes == null) return;
-        pushSnapshot();
-        nodes.forEach((node) => {
-          if (
-            node.outgoers("edge").length === 0 &&
-            node.incomers("edge").length === 0
-          )
-            node.select();
-          else {
-            if (modeSelect() == AND_SELECTED) node.unselect();
-          }
-        });
-      }
-      break;
- */
-
-    /*
-    -----------------------   filter by degrees incoming and outgoing 
-      is started by event on the menu item by  byFilterMenu that starts openDegreeFilter()
-*/
-
     //------------------------------------------------ Nodes List
 
     case "listNodesAll":
@@ -244,6 +207,8 @@ export function menuNodes(option, item, whichClic = "left") {
       break;
 
     //------------------------------------------------ Nodes  Follow
+
+
 
     case "followOutgoing":
       follow("outgoing");

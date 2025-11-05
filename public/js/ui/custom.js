@@ -47,11 +47,8 @@ export function fillInGuiNodesCustomCategories() {
 
 function selectNodesByCustomcategories(aCategory) {
   const nodes = perimeterForNodesSelection();
-  nodes.forEach((node) => {
-    if (node.hasClass(aCategory)) {
-      node.select();
-    }
-  });
+  nodes.filter(`.${aCategory}`).select();
+  //filter(`.${aCategory}`) = (node.hasClass(aCategory))
 }
 
 /*
@@ -64,14 +61,20 @@ export function selectEdgesByNativeCategories(aCategory) {
     showToast("nothing to filter");
     return;
   }
-  const count =  getCy().edges(':selected').length;
-  edges.forEach((edge) => {
-    if (edge.hasClass(aCategory)) {
-      edge.select();
-    }
+  //inutile de regarder les selectionner pour éventuellement les reselectionner
+  const toSelect = edges.filter(`.${aCategory}:unselected`);
+  const delta = toSelect.length;
+
+  if (delta === 0) {
+    showToast("nothing new selected");
+    return;
+  }
+
+  cy.batch(() => {
+    toSelect.select();
   });
-  const count2 = getCy().edges(':selected').length;
-      showToast(`${count2-count} more selected`);
+
+  showToast(`${delta} more selected`);
 }
 
 export async function checkForCustomDocs() {

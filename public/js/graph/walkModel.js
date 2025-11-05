@@ -10,7 +10,7 @@ import {
 
 import { setClipReport } from "../util/clipReport.js";
 
-import { setEventMarkdown,  createHeaderMarkdown } from "../util/markdown.js";
+import { setEventMarkdown,  createHeaderMarkdown ,  bandeauMarkdown,} from "../util/markdown.js";
 import {
   restoreProportionalSize,
   hideNotSelectedThenDagre,
@@ -31,7 +31,7 @@ import { NativeCategories } from "../util/common.js";
 /*
  find path . adjust value when calling
 */
-export function findLongOutgoingPaths(cy, minLength = 2, maxDepth = 15) {
+export function findLongPathsOutgoing(cy, minLength = 2, maxDepth = 15) {
 // internal func
 function isSubPath(smaller, larger) {
   for (let i = 0; i <= larger.length - smaller.length; i++) {

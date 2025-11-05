@@ -253,15 +253,12 @@ export function saveGraphState() {
 
 function sendGraphState(filename) {
   // preserve hidden status
-  getCy()
-    .elements()
-    .forEach((ele) => {
-      if (ele.style("display") === "none") {
-        ele.data("hidden", true);
-      } else {
-        ele.removeData("hidden");
-      }
-    });
+const cy = getCy();
+
+cy.batch(() => {
+  cy.$(':hidden').data('hidden', true);     // copy hidden dans une data
+  cy.$(':visible').removeData('hidden');    // remove on visible if any
+});
 
   const graphState = getCy().json(); // Capture the current graph state
 

@@ -2,8 +2,15 @@ import { getCy } from "../graph/cytoscapeCore.js";
 import { NativeCategories } from "../util/common.js";
 import { metrologie } from "../core/metrology.js";
 import { pushSnapshot } from "../util/snapshots.js";
-import { restrictToVisible, perimeterForNodesSelection, perimeterForNodesAction } from "../core/perimeter.js";
+import {
+  restrictToVisible,
+  perimeterForNodesSelection,
+  perimeterForNodesAction,
+} from "../core/perimeter.js";
 
+
+import {    
+    setAndRunLayoutOptions} from "../core/layout.js";
 /*
   full graph visible
 */
@@ -64,7 +71,6 @@ export function selectAllVisibleNodes() {
   metrologie();
 }
 
-
 /*
  node select catch all edges associated.
  To maintain selected edges, store them then restore 
@@ -111,32 +117,33 @@ export function selectTargetNodesFromSelectedEdges() {
   metrologie();
 }
 
-
 export function selectOutputBetween(min, max) {
+  const cy = getCy();
   let nodes = perimeterForNodesSelection();
   if (nodes == null) return;
   pushSnapshot("selectOutputBetween");
+  cy.batch(() => {
+    nodes.forEach((node) => {
+      // Tous les outgoers sortants
+      let outgoingEdges = node.outgoers("edge:visible");
 
-  nodes.forEach((node) => {
-    // Tous les outgoers sortants
-    let outgoingEdges = node.outgoers("edge:visible");
+      // if AND_SELECTED Nodes is the collection of previously selected
+      outgoingEdges = outgoingEdges.filter((edge) => edge.target().visible());
+      const nOutput = outgoingEdges.length;
 
-    // if AND_SELECTED Nodes is the collection of previously selected
-    outgoingEdges = outgoingEdges.filter((edge) => edge.target().visible());
-    const nOutput = outgoingEdges.length;
-
-    // avoid loop in NO output
-    if ((min == 0) & (max == 0)) {
-      var loopEdges = outgoingEdges.filter(function (edge) {
-        return edge.source().id() !== edge.target().id();
-      });
-      var noLoop = loopEdges.length === 0;
-      if (nOutput == 0 || noLoop) node.select();
-    } else {
-      if (nOutput > min && nOutput < max) {
-        node.select();
+      // avoid loop in NO output
+      if ((min == 0) & (max == 0)) {
+        var loopEdges = outgoingEdges.filter(function (edge) {
+          return edge.source().id() !== edge.target().id();
+        });
+        var noLoop = loopEdges.length === 0;
+        if (nOutput == 0 || noLoop) node.select();
+      } else {
+        if (nOutput > min && nOutput < max) {
+          node.select();
+        }
       }
-    }
+    });
   });
 }
 /*
@@ -144,29 +151,32 @@ export function selectOutputBetween(min, max) {
 */
 
 export function selectInputBetween(min, max) {
+  const cy = getCy();
+
   let nodes = perimeterForNodesSelection();
   if (nodes == null) return;
+  cy.batch(() => {
+    nodes.forEach((node) => {
+      let incomingEdges = node.incomers("edge:visible");
+      incomingEdges = incomingEdges.filter((edge) => edge.source().visible());
 
-  nodes.forEach((node) => {
-    let incomingEdges = node.incomers("edge:visible");
-    incomingEdges = incomingEdges.filter((edge) => edge.source().visible());
+      const nInput = incomingEdges.length;
 
-    const nInput = incomingEdges.length;
+      if ((min == 0) & (max == 0)) {
+        // no incoming : avoid loops
+        var loopEdges = incomingEdges.filter(function (edge) {
+          return edge.source().id() !== edge.target().id();
+        });
+        var noLoop = loopEdges.length == 0;
 
-    if ((min == 0) & (max == 0)) {
-      // no incoming : avoid loops
-      var loopEdges = incomingEdges.filter(function (edge) {
-        return edge.source().id() !== edge.target().id();
-      });
-      var noLoop = loopEdges.length == 0;
-
-      if (nInput == 0 || noLoop) node.select();
-    } else {
-      if (nInput > min && nInput < max) {
-        node.select();
+        if (nInput == 0 || noLoop) node.select();
+      } else {
+        if (nInput > min && nInput < max) {
+          node.select();
+        }
       }
-    }
-  });
+    });
+  }); // batch
 }
 
 export function changeFontSizeNode(value, increase = true) {
@@ -249,8 +259,10 @@ export function noProportionalSize() {
 
 export function restoreProportionalSize() {
   const cy = getCy();
-  cy.nodes().forEach((node) => {
-    setProportionalSize(node);
+  cy.batch(() => {
+    cy.nodes().forEach((node) => {
+      setProportionalSize(node);
+    });
   });
 }
 
@@ -261,7 +273,7 @@ function mapValue(value, inMin, inMax, outMin, outMax) {
   return outMin + ratio * (outMax - outMin);
 }
 
-// alias nodes 
+// alias nodes
 export function labelNodeAlias() {
   const cy = getCy();
   cy.batch(() => {
@@ -281,7 +293,6 @@ export function labelNodeId() {
     });
   });
 }
-
 
 export function labelNodeHide() {
   const cy = getCy();
@@ -308,16 +319,15 @@ export function swapHidden() {
   pushSnapshot("swapHidden");
   pushSnapshot("swapHidden2");
 
-
   // 1) calcul de l’état final des nœuds
   const nodesToShow = cy.nodes(":hidden");
   const nodesToHide = cy.nodes(":visible");
 
   // 2) swap des nœuds (en batch pour éviter les recomputes)
-  cy.startBatch();
-  nodesToHide.hide();
-  nodesToShow.show();
-  cy.endBatch();
+  cy.batch(() => {
+    nodesToHide.hide();
+    nodesToShow.show();
+  });
 
   // 3) après le batch, l’état visible() est fiable -> on recalcule les arêtes à montrer
   const edges = cy.edges();

@@ -30,7 +30,6 @@ export function setCustomNodesCategories(someSet) {
  The module must register itself. 
 */
 export function registerCustomModule(dbPattern, moduleObject) {
-
   const pattern =
     dbPattern instanceof RegExp ? dbPattern : new RegExp(`^${dbPattern}$`); // string exacte par défaut
   customModules.push({ pattern, module: moduleObject });
@@ -41,15 +40,10 @@ export function registerCustomModule(dbPattern, moduleObject) {
 */
 
 function getCustomModule(dbName) {
-
   // ⚠️ Avoid regex with  flag "g"
   const entry = customModules.find((e) => e.pattern.test(dbName));
   return entry?.module;
 }
-
-
-
-
 
 let standardCategories = new Set([
   NativeCategories.ORPHAN,
@@ -79,6 +73,7 @@ export function restoreCustomNodesCategories() {
     .forEach((node) => {
       node.classes().forEach((cls) => allClasses.add(cls));
     });
+
   let filtered = new Set(
     [...allClasses].filter(
       (cls) => !standardCategories.has(cls) && !internalCategories.has(cls)
@@ -100,12 +95,10 @@ export function createCustomCategories(myCurrentDB) {
   } else {
     console.log(`No customCategories registered for ${myCurrentDB}`);
   }
-  // allows to alias the label 
+  // allows to alias the label
   if (mod?.setLabelAlias) {
     mod.setLabelAlias();
   }
-
-
 }
 
 export function enforceLabelToAlias(myCurrentDB) {
@@ -114,7 +107,6 @@ export function enforceLabelToAlias(myCurrentDB) {
     mod.setLabelAlias();
   }
 }
-
 
 /*
  associated styles . 
@@ -169,11 +161,12 @@ export function setNativeNodesCategories() {
     NativeCategories.ASSOCIATION,
     NativeCategories.MULTI_ASSOCIATION,
   ];
-  getCy()
-    .nodes()
-    .forEach((node) => {
-      node.removeClass(classesToRemove.join(" "));
+  const cy = getCy();
+  const toRemove = classesToRemove.join(" "); // "cls1 cls2 cls3"
 
+  cy.batch(() => {
+    cy.nodes().removeClass(toRemove);
+    cy.nodes().forEach((node) => {
       if (node.data("triggers")?.length > 0)
         node.addClass(NativeCategories.HAS_TRIGGERS);
 
@@ -183,40 +176,26 @@ export function setNativeNodesCategories() {
       /*
       On a standard graph all nodes without incoming are root. 
       By default, functional root and association come into standard 'root' category.
-      
-
     */
       if (nbIn === 0 && nbOut === 0) {
         // strict definition of a root in a directed graph
         // we prefer to distinguish orphan individually
         node.addClass(NativeCategories.ORPHAN);
-        return;
-      }
-
-      if (nbOut === 0) {
+      } else if (nbOut === 0) {
         node.addClass(NativeCategories.LEAF);
-        return;
-      }
-
-      /* 
-  An association is identified if : 
+      } else if (nbIn === 0 && nbOut === 2 && allColumnsAreFK(node)) {
+        /*  An association is identified if : 
       - it has a minimum of 2 FK
       - it has no other columns than those involved in these FK 
  */
-
-      if (nbIn === 0 && nbOut === 2 && allColumnsAreFK(node)) {
         node.addClass(NativeCategories.ASSOCIATION);
-        return;
       }
-
       // either more than 2 branches , either Two with extra column
-
-      if (nbIn === 0 && nbOut >= 2) {
+      else if (nbIn === 0 && nbOut >= 2) {
         node.addClass(NativeCategories.MULTI_ASSOCIATION);
-        return;
       }
-
       // other case already done
-      if (nbIn === 0) node.addClass(NativeCategories.ROOT);
+      else if (nbIn === 0) node.addClass(NativeCategories.ROOT);
     });
+  });
 }

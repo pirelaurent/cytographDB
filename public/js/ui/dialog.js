@@ -418,13 +418,35 @@ export function createIconButton(
 /*
 Show a toast in topbar to inform user
 */
+let currentToastTimeout = null;
+let currentToastEl = null;
+
 export function showToast(msg, root = document, delay = 3500) {
-  const toast = root.createElement("div");
-  toast.className = "toast";
-  toast.textContent = msg;
-  root.body.appendChild(toast);
-  setTimeout(() => toast.remove(), delay);
+  if (currentToastTimeout) {
+    clearTimeout(currentToastTimeout);
+    currentToastTimeout = null;
+  }
+  if (currentToastEl) {
+    currentToastEl.remove();
+    currentToastEl = null;
+  }
+
+  const el = root.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  el.setAttribute('role', 'status');
+  el.setAttribute('aria-live', 'polite');
+
+  root.body.appendChild(el);
+  currentToastEl = el;
+
+  currentToastTimeout = setTimeout(() => {
+    el.remove();
+    currentToastEl = null;
+    currentToastTimeout = null;
+  }, delay);
 }
+
 
 export function helpRegex() {
   const liste = [

@@ -38,7 +38,7 @@ export function menuEdges(option, item, whichClic = "left") {
   switch (option) {
     case "allEdges": {
       const cy = getCy();
-      const toSelect = cy.edges(':visible:unselected') 
+      const toSelect = cy.edges(":visible:unselected");
       if (toSelect.length === 0) break; // rien à faire → pas de snapshot inutile
       pushSnapshot();
       cy.batch(() => {
@@ -47,25 +47,30 @@ export function menuEdges(option, item, whichClic = "left") {
       break;
     }
 
-    case "noEdges":
+    case "noEdges": {
       pushSnapshot();
-         cy.batch(() => {
-      getCy().edges().unselect();
-            });
-      break;
-
-    case "swapEdges":
-      const visibleEdges = getCy().edges(":visible");
-      pushSnapshot();
-
-      visibleEdges.forEach((edge) => {
-        if (edge.selected()) {
-          edge.unselect();
-        } else {
-          edge.select();
-        }
+      const cy = getCy();
+      cy.batch(() => {
+        getCy().edges().unselect();
       });
       break;
+    }
+
+    case "swapEdges": {
+      const cy = getCy();
+      const visibleEdges = cy.edges(":visible");
+      if (visibleEdges.empty()) return;
+
+      pushSnapshot();
+
+      cy.batch(() => {
+        const toSelect = visibleEdges.filter(":unselected");
+        const toUnselect = visibleEdges.filter(":selected");
+        toSelect.select();
+        toUnselect.unselect();
+      });
+      break;
+    }
 
     case "enterFkSynthesisMode":
       enterFkSynthesisMode(false);

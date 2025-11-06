@@ -355,7 +355,7 @@ export function simplifyAssociations() {
         getCy().add({
           group: "edges",
           data: {
-            id: newId,
+            //id: newId, leave cytoscape generate it's ide
             label: newId,
             source: a.id(),
             target: b.id(),
@@ -370,7 +370,7 @@ export function simplifyAssociations() {
 
     }
   });
-  if (done == 0) showAlert("nothing to transform (association with two targets).");
+  if (done == 0) showAlert("no association (two targets, no extra columns ).");
 
 
 

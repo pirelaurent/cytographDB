@@ -8,9 +8,7 @@ import {
   perimeterForNodesAction,
 } from "../core/perimeter.js";
 
-
-import {    
-    setAndRunLayoutOptions} from "../core/layout.js";
+import { setAndRunLayoutOptions } from "../core/layout.js";
 /*
   full graph visible
 */
@@ -60,14 +58,12 @@ export function hideNotSelectedThenDagre() {
 }
 
 export function selectAllVisibleNodes() {
-  let cy = getCy();
-  if (cy) {
-    cy.batch(() => {
-      pushSnapshot("selectAllVisibleNodes");
-      let nodes = restrictToVisible() ? cy.nodes(":visible") : cy.nodes();
-      nodes.select();
-    });
-  }
+  pushSnapshot();
+  const cy = getCy();
+  let nodes = restrictToVisible() ? cy.nodes(":visible") : cy.nodes();
+  cy.batch(() => {
+    nodes.select();
+  });
   metrologie();
 }
 
@@ -314,6 +310,30 @@ export function bringSelectedToBack() {
   getCy().nodes(":unselected").css("z-index", 10);
 }
 
+export function selectNone() {
+  {
+    const cy = getCy();
+    pushSnapshot();
+    let nodes = restrictToVisible() ? cy.nodes(":visible") : cy.nodes();
+    cy.batch(() => {
+      nodes.unselect();
+    });
+  }
+}
+
+export function swapSelected() {
+  pushSnapshot();
+  const cy = getCy();
+  const nodes = restrictToVisible() ? cy.nodes(":visible") : cy.nodes();
+  cy.batch(() => {
+    const toSelect = nodes.filter(":unselected");
+    const toUnselect = nodes.filter(":selected");
+    toSelect.select();
+    toUnselect.unselect();
+  });
+  metrologie("swapSelected");
+}
+
 export function swapHidden() {
   const cy = getCy();
   pushSnapshot("swapHidden");
@@ -344,5 +364,5 @@ export function swapHidden() {
   // avoid blnak screen
   getCy().fit();
 
-  metrologie();
+  metrologie("swapHidden");
 }

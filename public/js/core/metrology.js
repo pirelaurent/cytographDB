@@ -10,14 +10,16 @@ let lastSelectedEdges = 0;
 
 export function metrologie(where = "") {
   const cy = getCy();
-  if (where) console.log(`Metrologie from ${where}`);
   //display some measures
   const wholeNodesVisible = cy.nodes(":visible").length;
   const selectedCountNodesVisible = cy.nodes(":selected:visible").length;
   let deltaNode = selectedCountNodesVisible- lastSelectedNodes;
   lastSelectedNodes = selectedCountNodesVisible;
 
-  if (deltaNode >0) showToast(`+${deltaNode} node(s)`);
+  if (deltaNode >0) {
+    //console.log(`${deltaNode} in: ${where}`);//PLA
+    showToast(`+${deltaNode} node(s)`);
+  }
 
 
 

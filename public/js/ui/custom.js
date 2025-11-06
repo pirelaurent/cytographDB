@@ -74,7 +74,6 @@ export function selectEdgesByNativeCategories(aCategory) {
     toSelect.select();
   });
 
-  showToast(`${delta} more selected`);
 }
 
 export async function checkForCustomDocs() {

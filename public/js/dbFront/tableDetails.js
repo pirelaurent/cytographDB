@@ -10,17 +10,18 @@ import {
 } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
 import { actionMap, actionTitle } from "../util/common.js";
+
 /*
  get details on a table 
 */
-async function getTableData(tableName) {
+export async function getTableData(tableName) {
+
   try {
     const response = await fetch(`/table/${tableName}`);
     if (!response.ok) {
       throw new Error(` HTTP error ${response.status}`);
     }
     const data = await response.json();
-
 
     return { success: true, data };
   } catch (error) {

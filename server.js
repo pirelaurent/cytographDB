@@ -29,12 +29,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 import pkg from "pg";
 const { Pool } = pkg;
 
+import format from 'pg-format';
+
 import {
   getPoolFor,
   getCurrentPool,
   getCurrentDBName,
   setCurrentDBName,
   resetPool,
+
 } from "./db.js";
 import {
   collectFunctionBodies,
@@ -50,6 +53,7 @@ import {
   triggerQueryOneTable,
   tableCommentQuery,
   reqCheckColumn,
+
 } from "./dbreq.js";
 
 import { encodeCol2Col } from "./public/js/util/common.js";
@@ -81,7 +85,7 @@ app.get("/", (req, res) => {
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-const PORT = process.env.CYTOGRAPHPORT?process.env.CYTOGRAPHPORT:3000;
+const PORT = process.env.CYTOGRAPHPORT ? process.env.CYTOGRAPHPORT : 3000;
 
 
 
@@ -94,7 +98,6 @@ if (!fs.existsSync(GRAPH_DIR)) {
 
 const pkgPath = path.join(__dirname, "package.json");
 
-//console.log(pkgPath)
 const pkgRaw = await readFile(pkgPath, "utf-8");
 const appPkg = JSON.parse(pkgRaw);
 
@@ -103,13 +106,15 @@ app.use(express.static("public"));
 /*
  create a network with tables as nodes and FK as edges
 */
-app.post("/load-from-db", async (req, res) => {
+app.post("/OLDload-from-db", async (req, res) => {
   const { dbName } = req.body;
 
   let client;
   try {
     const pool = getPoolFor(dbName);
     client = await pool.connect();
+
+
 
     // Get column info per table (simplified version)
     const columnMap = {}; // tableName -> array of columns
@@ -213,8 +218,8 @@ app.post("/load-from-db", async (req, res) => {
           target: e.target,
           label: e.constraint_name,
           // we add a visual label to be set on screen with //`${e.source_column} → ${e.target_column}`,
-          columnsLabel: encodeCol2Col(e.source_column, e.target_column), 
-          
+          columnsLabel: encodeCol2Col(e.source_column, e.target_column),
+
           onDelete: e.on_delete, // raw code: 'a', 'c', etc.
           onUpdate: e.on_update, // raw code
           nullable: !e.source_not_null,
@@ -229,7 +234,7 @@ app.post("/load-from-db", async (req, res) => {
           .filter(Boolean) // supprime les chaînes vides
           .join(" "),
       }));
- 
+
     res.json({ nodes, edges: filteredEdges });
 
 
@@ -242,6 +247,322 @@ app.post("/load-from-db", async (req, res) => {
   }
 });
 
+app.post("/load-from-db", async (req, res) => {
+  const { dbName } = req.body;
+
+  let client;
+  try {
+    const pool = getPoolFor(dbName);
+    client = await pool.connect();
+
+    /******************************************************************
+     * 1. RÉCUPÉRER TOUTES LES COLONNES DE TOUTES LES TABLES
+     ******************************************************************/
+    const columnResult = await client.query(`
+      SELECT 
+        c.table_schema,
+        c.table_name,
+        c.column_name,
+        c.data_type,
+        c.is_nullable,
+        pgd.description AS comment
+      FROM information_schema.columns c
+      JOIN information_schema.tables t
+        ON c.table_name = t.table_name
+       AND c.table_schema = t.table_schema
+      LEFT JOIN pg_catalog.pg_statio_all_tables st
+        ON st.relname = c.table_name
+       AND st.schemaname = c.table_schema
+      LEFT JOIN pg_catalog.pg_description pgd
+        ON pgd.objoid = st.relid
+       AND pgd.objsubid = c.ordinal_position
+      WHERE c.table_schema NOT IN ('information_schema')
+        AND c.table_schema NOT LIKE 'pg_%'
+        AND t.table_type = 'BASE TABLE'
+      ORDER BY c.table_schema, c.table_name, c.ordinal_position;
+    `);
+
+    // tableNames sera du style ["production.product", "sales.salesorderheader", ...]
+    const tableNames = [
+      ...new Set(
+        columnResult.rows.map(
+          (r) => `${r.table_schema}.${r.table_name}`
+        )
+      ),
+    ];
+
+
+
+    // columnMap["schema.table"] = [ { column, type, nullable, comment }, ... ]
+    const columnMap = {};
+    for (const row of columnResult.rows) {
+      const fullName = `${row.table_schema}.${row.table_name}`;
+      if (!columnMap[fullName]) columnMap[fullName] = [];
+      columnMap[fullName].push({
+        column: row.column_name,
+        type: row.data_type,
+        nullable: row.is_nullable === "YES",
+        comment: row.comment || null,
+      });
+    }
+
+    /******************************************************************
+     * 2. RÉCUPÉRER LES FOREIGN KEYS ENTRE TOUS LES SCHÉMAS
+     ******************************************************************/
+    const fkResult = await client.query(`
+      SELECT
+        tc.constraint_name,
+        tc.table_schema      AS source_schema,
+        tc.table_name        AS source,
+        kcu.column_name      AS source_column,
+
+        /* nullable info for source column */
+        (SELECT (c.is_nullable = 'NO') AS not_null
+         FROM information_schema.columns c
+         WHERE c.table_schema = tc.table_schema
+           AND c.table_name   = tc.table_name
+           AND c.column_name  = kcu.column_name
+        ) AS source_not_null,
+
+        ccu.table_schema     AS target_schema,
+        ccu.table_name       AS target,
+        ccu.column_name      AS target_column,
+
+        rc.update_rule       AS on_update,
+        rc.delete_rule       AS on_delete
+      FROM information_schema.table_constraints tc
+      JOIN information_schema.key_column_usage kcu
+           ON tc.constraint_name = kcu.constraint_name
+          AND tc.table_schema    = kcu.table_schema
+      JOIN information_schema.referential_constraints rc
+           ON tc.constraint_name = rc.constraint_name
+          AND tc.table_schema    = rc.constraint_schema
+      JOIN information_schema.constraint_column_usage ccu
+           ON ccu.constraint_name  = tc.constraint_name
+          AND ccu.constraint_schema = tc.table_schema
+      WHERE tc.constraint_type = 'FOREIGN KEY'
+        AND tc.table_schema NOT IN ('information_schema')
+        AND tc.table_schema NOT LIKE 'pg_%'
+      ORDER BY source_schema, source, kcu.ordinal_position;
+    `);
+
+    // fkColumnMap["schema.table"] = [ { column, nullable }, ... ]
+    const fkColumnMap = {};
+
+    fkResult.rows.forEach(
+      ({ source_schema, source, source_column, source_not_null }) => {
+        const fullSource = `${source_schema}.${source}`;
+        if (!fkColumnMap[fullSource]) fkColumnMap[fullSource] = [];
+        fkColumnMap[fullSource].push({
+          column: source_column,
+          nullable: !source_not_null, // true si FK nullable
+        });
+      }
+    );
+
+    /******************************************************************
+     * 3. RÉCUPÉRER LES TRIGGERS POUR TOUS LES SCHÉMAS
+     ******************************************************************/
+    // Note: string_agg(event_manipulation) pour avoir INSERT/UPDATE/DELETE
+    const triggerRows = await client.query(`
+      SELECT 
+        t.event_object_schema AS table_schema,
+        t.event_object_table  AS table_name,
+        t.trigger_name,
+        t.action_timing       AS timing,
+        string_agg(t.event_manipulation, ', ') AS triggered_on,
+        t.action_statement    AS definition
+      FROM information_schema.triggers t
+      WHERE t.event_object_schema NOT IN ('information_schema')
+        AND t.event_object_schema NOT LIKE 'pg_%'
+      GROUP BY 
+        t.event_object_schema,
+        t.event_object_table,
+        t.trigger_name,
+        t.action_timing,
+        t.action_statement
+      ORDER BY 
+        t.event_object_schema,
+        t.event_object_table,
+        t.trigger_name;
+    `);
+
+    // Map "schema.table" -> [ { name, on, timing, definition }, ... ]
+    const triggersByTable = new Map();
+
+    for (const row of triggerRows.rows) {
+      const fullName = `${row.table_schema}.${row.table_name}`;
+      const trigger = {
+        name: row.trigger_name,
+        on: row.triggered_on, // "INSERT, UPDATE", etc.
+        timing: row.timing, // BEFORE / AFTER
+        definition: row.definition,
+      };
+
+      if (!triggersByTable.has(fullName)) {
+        triggersByTable.set(fullName, []);
+      }
+      triggersByTable.get(fullName).push(trigger);
+    }
+
+    /******************************************************************
+     * 4. DÉTAILS PAR TABLE (PK, index, commentaire table, FKs structurées)
+     ******************************************************************/
+    async function getTableDetails(client, fullName) {
+
+      const [schema, table] = fullName.split(".");
+
+      // colonnes déjà construites via columnMap, mais tu avais un format plus riche :
+      const columns = columnMap[fullName] || [];
+
+      // commentaire de la table 
+
+      const commentResult = await client.query(
+        `
+  SELECT obj_description(to_regclass($1 || '.' || $2)::oid) AS comment
+  `,
+        [schema, table]
+      );
+      const tableComment =
+        commentResult.rows[0] && commentResult.rows[0].comment
+          ? commentResult.rows[0].comment
+          : null;
+
+      // clé primaire
+
+
+
+      const pkResult = await client.query(
+        `
+        SELECT kcu.column_name
+        FROM information_schema.table_constraints tc
+        JOIN information_schema.key_column_usage kcu
+          ON tc.constraint_name = kcu.constraint_name
+         AND tc.table_schema = kcu.table_schema
+        WHERE tc.constraint_type = 'PRIMARY KEY'
+          AND tc.table_schema = $1
+          AND tc.table_name = $2
+        ORDER BY kcu.ordinal_position;
+        `,
+        [schema, table]
+      );
+      const primaryKey = pkResult.rows.map((r) => r.column_name);
+
+      // indexes
+      // On va interroger pg_indexes
+      const idxResult = await client.query(
+        `
+        SELECT indexname, indexdef
+        FROM pg_indexes
+        WHERE schemaname = $1
+          AND tablename = $2;
+        `,
+        [schema, table]
+      );
+      const indexes = idxResult.rows.map((r) => ({
+        name: r.indexname,
+        def: r.indexdef,
+      }));
+
+      // FKs sortantes structurées pour cette table
+      const fksForThisTable = fkResult.rows
+        .filter(
+          (fk) =>
+            fk.source_schema === schema &&
+            fk.source === table
+        )
+        .map((fk) => ({
+          constraint: fk.constraint_name,
+          column: fk.source_column,
+          target: `${fk.target_schema}.${fk.target}`,
+          targetColumn: fk.target_column,
+          onDelete: fk.on_delete, // e.g. CASCADE, RESTRICT, NO ACTION...
+          onUpdate: fk.on_update,
+          nullable: !fk.source_not_null,
+        }));
+
+      return {
+        columns,
+        foreignKeys: fksForThisTable,
+        primaryKey,
+        comment: tableComment,
+        indexes,
+      };
+    }
+
+    /******************************************************************
+     * 5. CONSTRUIRE LES NODES POUR CYTOSCAPE
+     ******************************************************************/
+    const nodes = [];
+    for (const fullName of tableNames) {
+      const details = await getTableDetails(client, fullName);
+      const trigs = triggersByTable.get(fullName) || [];
+
+      const data = {
+        id: fullName, // "schema.table"
+        label: fullName, // idem pour l'affichage
+        columns: details.columns, // tableau d'objets { column, type, nullable, comment }
+        foreignKeys: details.foreignKeys || [],
+        comment: details.comment,
+        primaryKey: details.primaryKey,
+        indexes: details.indexes,
+        triggers: trigs,
+      };
+
+      nodes.push({ data });
+    }
+
+    /******************************************************************
+     * 6. CONSTRUIRE LES EDGES FK POUR CYTOSCAPE
+     ******************************************************************/
+    const filteredEdges = fkResult.rows
+      .map((e) => {
+        const fullSource = `${e.source_schema}.${e.source}`;
+        const fullTarget = `${e.target_schema}.${e.target}`;
+        return { e, fullSource, fullTarget };
+      })
+      .filter(
+        ({ fullSource, fullTarget }) =>
+          tableNames.includes(fullSource) &&
+          tableNames.includes(fullTarget)
+      )
+      .map(({ e, fullSource, fullTarget }) => ({
+        data: {
+          source: fullSource,
+          target: fullTarget,
+          label: e.constraint_name,
+          columnsLabel: encodeCol2Col(e.source_column, e.target_column),
+          onDelete: e.on_delete, // CASCADE, NO ACTION, etc.
+          onUpdate: e.on_update,
+          nullable: !e.source_not_null,
+        },
+        classes: [
+          "fk_detailed",
+          e.on_delete === "CASCADE" ? "delete_cascade" : "",
+          e.on_delete === "RESTRICT" ? "delete_restrict" : "",
+          !e.source_not_null ? "nullable" : "",
+        ]
+          .filter(Boolean)
+          .join(" "),
+      }));
+
+    /******************************************************************
+     * 7. RÉPONSE
+     ******************************************************************/
+    res.json({ nodes, edges: filteredEdges });
+  } catch (error) {
+    console.error("error loading graph :", error);
+    res.status(500).json({ error: "Error accessing database" });
+  } finally {
+    if (client) client.release();
+  }
+});
+
+
+
+
+
+
 /*
 
 Table details  
@@ -251,25 +572,25 @@ app.get("/table/:name", async (req, res) => {
   const pool = getCurrentPool();
   if (!pool) return res.status(400).send("No DB in place.");
 
-  const table = req.params.name;
+  let fullName = req.params.name;
+  const [schema, table] = fullName.split(".");
 
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
     return res.status(400).json({ error: "Invalid table name format." });
   }
-
   let client;
   try {
     client = await pool.connect();
-
+    const sql = format ('SELECT 1 FROM %I.%I LIMIT 1', schema, table);
     try {
-      await client.query(`SELECT 1 FROM "${table}" LIMIT 1`);
+      await client.query(sql);
     } catch {
       return res
         .status(404)
         .json({ error: `Table '${table}' does not exist.` });
     }
 
-    const details = await getTableDetails(client, table);
+    const details = await getTableDetails(client, fullName);
     //console.log(JSON.stringify(details));//PLA
     res.json(details);
   } catch (error) {
@@ -290,7 +611,10 @@ app.get("/table10rows/:name", async (req, res) => {
   const pool = getCurrentPool();
   if (!pool) return res.status(400).send("No DB in place.");
 
-  const table = req.params.name;
+  let fullName = req.params.name;
+  const [schema, table] = fullName.split(".");
+
+
 
   // Vérifie que le nom de la table est valide (pas d’injection SQL possible)
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
@@ -300,8 +624,10 @@ app.get("/table10rows/:name", async (req, res) => {
   let client;
   try {
     client = await pool.connect();
-    const result = await client.query(`SELECT * FROM "${table}" LIMIT 10`);
-
+    const sql = format ('SELECT * FROM %I.%I LIMIT 10', schema, table);
+    console.log(sql);//PLA
+    const result = await client.query(sql);
+console.log(result.rows);//PLA
     // Important : result.rows contient les données
     return res.json(result.rows);
   } catch (err) {
@@ -625,7 +951,7 @@ app.get("/triggers", async (req, res) => {
             functionName: null,
             impactedTables: [],
             calledFunctions: [],
-            warnings, 
+            warnings,
             error: err.message,
           };
         }
@@ -798,7 +1124,7 @@ app.get("/searchColumn", async (req, res) => {
     // check if tables have the column
 
     if (columnName) {
-      let results = await client.query(reqCheckColumn, [columnName,exists]);
+      let results = await client.query(reqCheckColumn, [columnName, exists]);
 
       let stack = [];
       stack.push(` ## ${results.rows.length} tables that have not a column named "${columnName}"`);

@@ -11,16 +11,17 @@
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.4.5",
     "pg": "^8.10.0",
     "pg-copy-streams": "^6.0.5",
-    "fs-extra": "^11.2.0",
-    "glob": "^10.4.5"
+    "pg-format": "^1.0.4"
   },
   "description": "Tools to analyze and display tables and relationship",
   "devDependencies": {
-    "nodemon": "^3.1.0",
     "@eslint/js": "^9.27.0",
-    "eslint": "^9.27.0"
+    "eslint": "^9.27.0",
+    "nodemon": "^3.1.0"
   },
   "keywords": [],
   "author": "",

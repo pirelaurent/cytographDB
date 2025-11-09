@@ -1,12 +1,15 @@
 
-export let reqFkWithColsOnTable = `
+export const reqFkWithColsOnTable = `
 SELECT json_agg(fk_info) AS foreign_keys
 FROM (
   SELECT
     con.conname AS constraint_name,
+    src_ns.nspname AS source_schema,
     src_table.relname AS source_table,
+    tgt_ns.nspname AS target_schema,
     tgt_table.relname AS target_table,
-    -- 🔍 New : comment on FK
+
+    -- 🔍 Commentaire sur la contrainte FK
     obj_description(con.oid, 'pg_constraint') AS comment,
 
     -- Mapping des colonnes
@@ -41,23 +44,17 @@ FROM (
         AND uniq_con.contype IN ('u', 'p')
         AND uniq_con.conkey = con.confkey
     ) AS is_target_unique,
+
     con.confdeltype AS on_delete,
     con.confupdtype AS on_update
-
-    -- Ajout des types d'action ON DELETE / ON UPDATE a faire en JS
-  -- 'a' THEN 'NO ACTION'
-  -- 'r' THEN 'RESTRICT'
-  -- 'c' THEN 'CASCADE'
-  -- 'n' THEN 'SET NULL'
-  -- 'd' THEN 'SET DEFAULT'
-
   FROM pg_constraint con
   JOIN pg_class src_table ON src_table.oid = con.conrelid
   JOIN pg_namespace src_ns ON src_table.relnamespace = src_ns.oid
   JOIN pg_class tgt_table ON tgt_table.oid = con.confrelid
   JOIN pg_namespace tgt_ns ON tgt_table.relnamespace = tgt_ns.oid
   WHERE con.contype = 'f'
-    AND src_table.relname = $1
+    AND src_ns.nspname = $1
+    AND src_table.relname = $2
 ) fk_info;
 `;
 
@@ -79,31 +76,45 @@ export let reqListOfTables = `
     get details on a specific table 
 */
 
-export let tableColumnsQuery = `
-  SELECT 
+export const tableColumnsQuery = `
+WITH rel AS (
+  SELECT c.oid
+  FROM pg_class c
+  JOIN pg_namespace n ON n.oid = c.relnamespace
+  WHERE n.nspname = $1
+    AND c.relname  = $2
+    AND c.relkind IN ('r','p') -- tables classiques + partitionnées
+  LIMIT 1
+)
+SELECT 
   cols.column_name,
   cols.data_type,
   cols.character_maximum_length,
   cols.is_nullable,
-  col_description(c.oid, cols.ordinal_position) AS comment
+  pgd.description AS comment
 FROM information_schema.columns cols
-JOIN pg_class c ON c.relname = $1 AND c.relkind = 'r'
-WHERE cols.table_name = $1
-  AND cols.table_schema = 'public'  -- adapte si besoin
-  AND cols.table_name = c.relname
+LEFT JOIN rel ON TRUE
+LEFT JOIN pg_description pgd
+  ON pgd.objoid  = rel.oid
+ AND pgd.objsubid = cols.ordinal_position
+WHERE cols.table_schema = $1
+  AND cols.table_name   = $2
 ORDER BY cols.ordinal_position;
+`;
 
-    `;
+
 /*
  get All foreign key in a connected DB 
  with this list edges will be created by caller
 */
 
 
-export let edgesQuery = `
+export const edgesQuery = `
 SELECT
   con.conname AS constraint_name,
+  src_ns.nspname AS source_schema,
   src_table.relname AS source,
+  tgt_ns.nspname AS target_schema,
   tgt_table.relname AS target,
   con.confdeltype AS on_delete,
   con.confupdtype AS on_update,
@@ -122,9 +133,13 @@ JOIN pg_attribute src_col ON src_col.attrelid = src_table.oid AND src_col.attnum
 JOIN pg_attribute tgt_col ON tgt_col.attrelid = tgt_table.oid AND tgt_col.attnum = tgt_cols.attnum
 LEFT JOIN pg_description des ON des.objoid = con.oid AND des.classoid = 'pg_constraint'::regclass
 WHERE con.contype = 'f'
-  AND src_ns.nspname = 'public'
-  AND tgt_ns.nspname = 'public';
-`
+  AND src_ns.nspname NOT LIKE 'pg_%'
+  AND src_ns.nspname <> 'information_schema'
+  AND tgt_ns.nspname NOT LIKE 'pg_%'
+  AND tgt_ns.nspname <> 'information_schema'
+ORDER BY src_ns.nspname, src_table.relname;
+`;
+
 ;
 
 
@@ -132,59 +147,78 @@ WHERE con.contype = 'f'
  get primary keys list 
 */
 
-export let pkQuery = `
-      SELECT 
-  kcu.column_name, 
+export const pkQuery = `
+SELECT 
+  kcu.column_name,
   tc.constraint_name,
   obj_description(pc.oid, 'pg_constraint') AS comment
 FROM information_schema.table_constraints tc
 JOIN information_schema.key_column_usage kcu
   ON kcu.constraint_name = tc.constraint_name
-  AND kcu.table_name = tc.table_name
+ AND kcu.table_schema   = tc.table_schema
+ AND kcu.table_name     = tc.table_name
+JOIN pg_namespace pn
+  ON pn.nspname = tc.table_schema
+JOIN pg_class pc_table
+  ON pc_table.relname = tc.table_name
+ AND pc_table.relnamespace = pn.oid
 JOIN pg_constraint pc
-  ON pc.conname = tc.constraint_name
-  AND pc.contype = 'p'
-  AND pc.conrelid = (quote_ident($1))::regclass
-WHERE tc.table_name = $1
-  AND tc.constraint_type = 'PRIMARY KEY';
+  ON pc.conrelid = pc_table.oid
+ AND pc.contype  = 'p'
+WHERE tc.constraint_type = 'PRIMARY KEY'
+  AND tc.table_schema = $1
+  AND tc.table_name   = $2
+ORDER BY kcu.ordinal_position;
+`;
 
-    `;
 
 /*
  get triggers info globally
 */
 
-export let triggerQuery = `
+export const triggerQuery = `
 SELECT
-    event_object_table AS table_name,
-    trigger_name,
-    string_agg(event_manipulation, ', ') AS triggered_on,
-    action_timing AS timing,
-    action_statement AS definition
-FROM
-    information_schema.triggers
-
+  t.event_object_schema AS table_schema,
+  t.event_object_table  AS table_name,
+  t.trigger_name,
+  string_agg(t.event_manipulation, ', ') AS triggered_on,
+  t.action_timing AS timing,
+  t.action_statement AS definition
+FROM information_schema.triggers t
+WHERE t.event_object_schema NOT IN ('information_schema')
+  AND t.event_object_schema NOT LIKE 'pg_%'
 GROUP BY
-    event_object_table, trigger_name, action_timing, action_statement
+  t.event_object_schema,
+  t.event_object_table,
+  t.trigger_name,
+  t.action_timing,
+  t.action_statement
 ORDER BY
-    trigger_name;
+  t.event_object_schema,
+  t.event_object_table,
+  t.trigger_name;
 `;
 
-export let triggerQueryOneTable = `
+
+export const triggerQueryOneTable = `
 SELECT
-    event_object_table AS table_name,
-    trigger_name,
-    string_agg(event_manipulation, ', ') AS triggered_on,
-    action_timing AS timing,
-    action_statement AS definition
-FROM
-    information_schema.triggers
-WHERE
-    event_object_table = $1
+  t.event_object_schema AS table_schema,
+  t.event_object_table  AS table_name,
+  t.trigger_name,
+  string_agg(t.event_manipulation, ', ') AS triggered_on,
+  t.action_timing AS timing,
+  t.action_statement AS definition
+FROM information_schema.triggers t
+WHERE t.event_object_schema = $1
+  AND t.event_object_table  = $2
 GROUP BY
-    event_object_table, trigger_name, action_timing, action_statement
+  t.event_object_schema,
+  t.event_object_table,
+  t.trigger_name,
+  t.action_timing,
+  t.action_statement
 ORDER BY
-    trigger_name;
+  t.trigger_name;
 `;
 
 
@@ -192,93 +226,80 @@ ORDER BY
 /*
  get functionBody
 */
-
-export let functionBodyQuery =`
+export const functionBodyQuery = `
 SELECT
-      p.oid,
-      p.proname AS name,
-      n.nspname AS schema,
-      p.prokind,                              -- 'f' function, 'p' procedure, 'a' aggregate, 'w' window
-      pg_get_function_identity_arguments(p.oid) AS args,
-      p.prorettype::regtype::text AS return_type
-    FROM pg_proc p
-    JOIN pg_namespace n ON n.oid = p.pronamespace
-    WHERE p.proname = $1
-    ORDER BY n.nspname, p.proname, pg_get_function_identity_arguments(p.oid)
-    LIMIT 1
-`
+  p.oid,
+  p.proname AS name,
+  n.nspname AS schema,
+  p.prokind,                              -- 'f' = function, 'p' = procedure, 'a' = aggregate, 'w' = window
+  pg_get_function_identity_arguments(p.oid) AS args,
+  p.prorettype::regtype::text AS return_type,
+  pg_get_functiondef(p.oid) AS definition  -- 🆕 pour récupérer le corps complet
+FROM pg_proc p
+JOIN pg_namespace n ON n.oid = p.pronamespace
+WHERE n.nspname = $1
+  AND p.proname = $2
+ORDER BY n.nspname, p.proname, pg_get_function_identity_arguments(p.oid)
+LIMIT 1;
+`;
 
 
-export let indexQuery =`
--- indexQuery
+
+
+export const indexQuery = `
+-- indexQuery multi-schéma robuste
 SELECT DISTINCT ON (i.oid)
   i.oid                             AS index_oid,
-  i.relname                         AS indexname,     -- << attendu par ton JS
-  pg_get_indexdef(i.oid)            AS indexdef,      -- << attendu par ton JS
-  obj_description(i.oid,'pg_class') AS comment,       -- << attendu par ton JS
+  i.relname                         AS indexname,      -- nom de l'index
+  pg_get_indexdef(i.oid)            AS indexdef,        -- définition SQL
+  obj_description(i.oid,'pg_class') AS comment,         -- commentaire de l'index
   CASE c.contype
     WHEN 'p' THEN 'PRIMARY KEY'
     WHEN 'u' THEN 'UNIQUE'
     WHEN 'x' THEN 'EXCLUDE'
     ELSE NULL
-  END                               AS constraint_type -- << attendu par ton JS
-, ix.indisprimary                   AS is_primary
-, ix.indisunique                    AS is_unique
+  END                               AS constraint_type, -- type de contrainte
+  ix.indisprimary                   AS is_primary,
+  ix.indisunique                    AS is_unique,
+  nt.nspname                        AS table_schema,
+  t.relname                         AS table_name
 FROM pg_class t
 JOIN pg_namespace nt ON nt.oid = t.relnamespace
 JOIN pg_index ix      ON ix.indrelid = t.oid
 JOIN pg_class i       ON i.oid = ix.indexrelid
-LEFT JOIN pg_constraint c ON c.conindid = i.oid
-WHERE nt.nspname = 'public'
-  AND t.relname  = $1
+LEFT JOIN pg_constraint c 
+  ON c.conindid = i.oid 
+  AND c.conrelid = t.oid
+WHERE nt.nspname = $1      -- schéma
+  AND t.relname  = $2      -- table
+  AND t.relkind IN ('r','p')  -- 'r' = table, 'p' = partition
 ORDER BY i.oid;
-`
-
-
-/*
- get comments on tables 
-*/
-
-export let reqTableComments = `
-  SELECT
-    c.relname AS table_name,
-    obj_description(c.oid) AS comment
-  FROM pg_class c
-  JOIN pg_namespace n ON n.oid = c.relnamespace
-  WHERE c.relkind = 'r'
-    AND n.nspname = 'public'
 `;
+
+
+
 /*
  calls to enrich a single table with comments 
 */
 
 export const tableCommentQuery = `
-  SELECT obj_description(('public.' || $1)::regclass, 'pg_class') AS comment
+SELECT 
+  obj_description(c.oid, 'pg_class') AS comment
+FROM pg_class c
+JOIN pg_namespace n 
+  ON n.oid = c.relnamespace
+WHERE n.nspname = $1
+  AND c.relname = $2
+  AND c.relkind IN ('r','p')  -- 'r' = table ordinaire, 'p' = partition
+LIMIT 1;
+`;
 
-`;
-//
-export const columnCommentsQuery = `
-  SELECT
-    a.attname AS column_name,
-    col_description(a.attrelid, a.attnum) AS comment
-  FROM pg_attribute a
-  JOIN pg_class c ON c.oid = a.attrelid
-  JOIN pg_namespace n ON n.oid = c.relnamespace
-  WHERE c.relname = $1
-    AND n.nspname = 'public'
-    AND a.attnum > 0
-    AND NOT a.attisdropped
-`;
+
 
 /*
  check if identifier are less than 63 for Postgresql
  Not connected to app. Copy and paste directly in your tools
-
-
-
-
 */
-
 
 export let reqSanity63 = `
 -- Check all user-defined identifiers longer than 63 chars
@@ -409,8 +430,13 @@ SELECT
   parent_table
 FROM owned_tree
 ORDER BY path;
-
-
-
 `
-
+/*
+ list of all schela except internals pg & info
+*/
+export let reqSchemaResult =`
+  SELECT schema_name 
+  FROM information_schema.schemata 
+  WHERE schema_name NOT LIKE 'pg_%'
+    AND schema_name != 'information_schema'
+`

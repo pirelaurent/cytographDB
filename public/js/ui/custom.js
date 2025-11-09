@@ -57,6 +57,7 @@ function selectNodesByCustomcategories(aCategory) {
 
 export function selectEdgesByNativeCategories(aCategory) {
   const edges = perimeterForEdgesSelection();
+  const cy =getCy();
   if (edges.length === 0) {
     showToast("nothing to filter");
     return;

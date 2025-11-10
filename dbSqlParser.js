@@ -3,10 +3,15 @@
     allos to get function code 
 */
 
-import { functionBodyQuery } from "./dbreq.js";
 
-export async function getFunctionBody(client, routineName) {
-  const { rows } = await client.query(functionBodyQuery, [routineName]);
+import { loadSQL } from "./public/sqlRequests/sql-loader.js";
+
+export async function getFunctionBody(client, fullTable, routineName) {
+
+  const [schema] = fullTable.split(".")[0];
+
+  const functionBody = await loadSQL('functionBody')
+  const { rows } = await client.query(functionBody, [schema,routineName]);
   const r = rows[0];
   if (!r) {
     return {
@@ -104,11 +109,12 @@ export function extractCalledFunctions(text) {
 
 export async function collectFunctionBodies(
   client,
-  table,
+  fullTableName,
   functionName,
   seen = new Set(),
   depth = 0
 ) {
+  // already seen or too deep
   if (seen.has(functionName) || depth > 15) {
     return { allCodeResult: "", warnings: [] };
   }
@@ -116,12 +122,12 @@ export async function collectFunctionBodies(
 
   let warnings = [];
 
-  const fullResult = await getFunctionBody(client, functionName);
+  const fullResult = await getFunctionBody(client, fullTableName,functionName);
 
   // missing function definition
   if (fullResult.kind === "not_found") {
     let aWarning = {
-      table: table,
+      table: fullTableName,
       function: functionName,
       warn: `"${fullResult.name}" : ${fullResult.kind}`,
     };

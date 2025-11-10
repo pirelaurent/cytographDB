@@ -22,7 +22,6 @@ import fs from "fs";
 import { readFile, readdir } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
-import { getTableDetails } from "./dbUtils.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -46,20 +45,17 @@ import {
   stripSqlComments,
 } from "./dbSqlParser.js";
 
+// dynamic load of sql request 
 import {
-  reqListOfTables,
-  edgesQuery,
-  triggerQuery,
-  triggerQueryOneTable,
-  tableCommentQuery,
-  reqCheckColumn,
-
-} from "./dbreq.js";
+  loadSQL
+}
+  from "./public/sqlRequests/sql-loader.js";
 
 import { encodeCol2Col } from "./public/js/util/common.js";
-import { escapeHtml } from "./public/js/util/formater.js";
+import { getTableDetails } from "./dbDetails.js";
 
 import { exportAll } from "./exportTables.js";
+
 
 console.log("init env");
 // Chargement des variables d'environnement
@@ -106,146 +102,6 @@ app.use(express.static("public"));
 /*
  create a network with tables as nodes and FK as edges
 */
-app.post("/OLDload-from-db", async (req, res) => {
-  const { dbName } = req.body;
-
-  let client;
-  try {
-    const pool = getPoolFor(dbName);
-    client = await pool.connect();
-
-
-
-    // Get column info per table (simplified version)
-    const columnMap = {}; // tableName -> array of columns
-    const columnResult = await client.query(reqListOfTables);
-
-    // separate names in a collection
-    const tableNames = [...new Set(columnResult.rows.map((r) => r.table_name))];
-
-    // dispatch columns in a new dict array
-    columnResult.rows.forEach(({ table_name, column_name }) => {
-      if (!columnMap[table_name]) columnMap[table_name] = [];
-      columnMap[table_name].push(column_name);
-    });
-
-    // Get FK columns per table in another array
-
-    const fkResult = await client.query(edgesQuery);
-    /*
-    //console.log(fkResult);
-    {
-      constraint_name: 'line_product_production_line_id_fkey',
-      source: 'line_product',
-      target: 'production_line',
-      on_delete: 'c',
-      on_update: 'a',
-      comment: null,
-      source_column: 'production_line_id',
-      source_not_null: true
-    },
-    
-    
-    */
-    const fkColumnMap = {}; // tableName -> Set of FK column names
-
-    fkResult.rows.forEach(({ source, source_column, source_not_null }) => {
-      if (!fkColumnMap[source]) fkColumnMap[source] = [];
-      // here true or false on source_not_null
-      fkColumnMap[source].push({
-        column: source_column,
-        nullable: !source_not_null,
-      });
-    });
-
-    // get triggers for all tables
-
-    const triggerRows = await client.query(triggerQuery); // ou client.query...
-
-    //organize per table
-
-    const triggersByTable = new Map();
-
-    for (const row of triggerRows.rows) {
-      const trigger = {
-        name: row.trigger_name,
-        on: row.triggered_on,
-        timing: row.timing,
-        definition: row.definition,
-      };
-
-      if (!triggersByTable.has(row.table_name)) {
-        triggersByTable.set(row.table_name, []);
-      }
-      triggersByTable.get(row.table_name).push(trigger);
-    }
-
-    const nodes = [];
-
-    for (const name of tableNames) {
-      const details = await getTableDetails(client, name);
-      const trigs = triggersByTable.get(name) || [];
-
-      const data = {
-        id: name,
-        label: name, //+ (trigs.length > 0 ? "\n" + "*".repeat(trigs.length) : ""), replaced by icon + data.triggers.length
-        // change : now bring back all infos on columns
-        //columns: details.columns.map((c) => c.column),
-        columns: details.columns,
-        foreignKeys: details.foreignKeys || [], // ex .map(fk => fk.column),
-        comment: details.comment,
-        primaryKey: details.primaryKey,
-        indexes: details.indexes,
-        triggers: trigs,
-      };
-
-      // data.columns is an array of json  { column: 'id', type: 'integer', nullable: 'NO', comment: null }
-      // nodes new fk with all_source_not_null
-      nodes.push({ data });
-    }
-
-    /* 
-     build edges
-     */
-
-    const filteredEdges = fkResult.rows
-      .filter(
-        (e) => tableNames.includes(e.source) && tableNames.includes(e.target)
-      )
-      .map((e) => ({
-        data: {
-          source: e.source,
-          target: e.target,
-          label: e.constraint_name,
-          // we add a visual label to be set on screen with //`${e.source_column} → ${e.target_column}`,
-          columnsLabel: encodeCol2Col(e.source_column, e.target_column),
-
-          onDelete: e.on_delete, // raw code: 'a', 'c', etc.
-          onUpdate: e.on_update, // raw code
-          nullable: !e.source_not_null,
-        },
-        // a no action c: cascade.
-        classes: [
-          "fk_detailed", // one edge per column fk
-          e.on_delete === "c" ? "delete_cascade" : "",
-          e.on_delete === "r" ? "delete_restrict" : "",
-          !e.source_not_null ? "nullable" : "",
-        ]
-          .filter(Boolean) // supprime les chaînes vides
-          .join(" "),
-      }));
-
-    res.json({ nodes, edges: filteredEdges });
-
-
-  } catch (error) {
-    console.error("error loading graph :", error);
-    // Renvoie un statut HTTP 500 (erreur serveur) avec un message lisible
-    res.status(500).json({ error: "Error accessing database" });
-  } finally {
-    if (client) client.release(); // ✅ ici c’est nécessaire
-  }
-});
 
 app.post("/load-from-db", async (req, res) => {
   const { dbName } = req.body;
@@ -258,31 +114,10 @@ app.post("/load-from-db", async (req, res) => {
     /******************************************************************
      * 1. RÉCUPÉRER TOUTES LES COLONNES DE TOUTES LES TABLES
      ******************************************************************/
-    const columnResult = await client.query(`
-      SELECT 
-        c.table_schema,
-        c.table_name,
-        c.column_name,
-        c.data_type,
-        c.is_nullable,
-        pgd.description AS comment
-      FROM information_schema.columns c
-      JOIN information_schema.tables t
-        ON c.table_name = t.table_name
-       AND c.table_schema = t.table_schema
-      LEFT JOIN pg_catalog.pg_statio_all_tables st
-        ON st.relname = c.table_name
-       AND st.schemaname = c.table_schema
-      LEFT JOIN pg_catalog.pg_description pgd
-        ON pgd.objoid = st.relid
-       AND pgd.objsubid = c.ordinal_position
-      WHERE c.table_schema NOT IN ('information_schema')
-        AND c.table_schema NOT LIKE 'pg_%'
-        AND t.table_type = 'BASE TABLE'
-      ORDER BY c.table_schema, c.table_name, c.ordinal_position;
-    `);
+    const allColumnsAllTables = await loadSQL('allColumnsAllTables');
+    const columnResult = await client.query(allColumnsAllTables);
 
-    // tableNames sera du style ["production.product", "sales.salesorderheader", ...]
+    // tableNames like ["production.product", "sales.salesorderheader", ...]
     const tableNames = [
       ...new Set(
         columnResult.rows.map(
@@ -290,8 +125,6 @@ app.post("/load-from-db", async (req, res) => {
         )
       ),
     ];
-
-
 
     // columnMap["schema.table"] = [ { column, type, nullable, comment }, ... ]
     const columnMap = {};
@@ -309,42 +142,8 @@ app.post("/load-from-db", async (req, res) => {
     /******************************************************************
      * 2. RÉCUPÉRER LES FOREIGN KEYS ENTRE TOUS LES SCHÉMAS
      ******************************************************************/
-    const fkResult = await client.query(`
-      SELECT
-        tc.constraint_name,
-        tc.table_schema      AS source_schema,
-        tc.table_name        AS source,
-        kcu.column_name      AS source_column,
-
-        /* nullable info for source column */
-        (SELECT (c.is_nullable = 'NO') AS not_null
-         FROM information_schema.columns c
-         WHERE c.table_schema = tc.table_schema
-           AND c.table_name   = tc.table_name
-           AND c.column_name  = kcu.column_name
-        ) AS source_not_null,
-
-        ccu.table_schema     AS target_schema,
-        ccu.table_name       AS target,
-        ccu.column_name      AS target_column,
-
-        rc.update_rule       AS on_update,
-        rc.delete_rule       AS on_delete
-      FROM information_schema.table_constraints tc
-      JOIN information_schema.key_column_usage kcu
-           ON tc.constraint_name = kcu.constraint_name
-          AND tc.table_schema    = kcu.table_schema
-      JOIN information_schema.referential_constraints rc
-           ON tc.constraint_name = rc.constraint_name
-          AND tc.table_schema    = rc.constraint_schema
-      JOIN information_schema.constraint_column_usage ccu
-           ON ccu.constraint_name  = tc.constraint_name
-          AND ccu.constraint_schema = tc.table_schema
-      WHERE tc.constraint_type = 'FOREIGN KEY'
-        AND tc.table_schema NOT IN ('information_schema')
-        AND tc.table_schema NOT LIKE 'pg_%'
-      ORDER BY source_schema, source, kcu.ordinal_position;
-    `);
+    const allEdgesAllTables = await loadSQL('allEdgesAllTables');
+    const fkResult = await client.query(allEdgesAllTables);
 
     // fkColumnMap["schema.table"] = [ { column, nullable }, ... ]
     const fkColumnMap = {};
@@ -360,32 +159,15 @@ app.post("/load-from-db", async (req, res) => {
       }
     );
 
-    /******************************************************************
-     * 3. RÉCUPÉRER LES TRIGGERS POUR TOUS LES SCHÉMAS
-     ******************************************************************/
-    // Note: string_agg(event_manipulation) pour avoir INSERT/UPDATE/DELETE
-    const triggerRows = await client.query(`
-      SELECT 
-        t.event_object_schema AS table_schema,
-        t.event_object_table  AS table_name,
-        t.trigger_name,
-        t.action_timing       AS timing,
-        string_agg(t.event_manipulation, ', ') AS triggered_on,
-        t.action_statement    AS definition
-      FROM information_schema.triggers t
-      WHERE t.event_object_schema NOT IN ('information_schema')
-        AND t.event_object_schema NOT LIKE 'pg_%'
-      GROUP BY 
-        t.event_object_schema,
-        t.event_object_table,
-        t.trigger_name,
-        t.action_timing,
-        t.action_statement
-      ORDER BY 
-        t.event_object_schema,
-        t.event_object_table,
-        t.trigger_name;
-    `);
+   /*
+    all triggers in one shot and fill in a dictionary
+
+     Note: string_agg(event_manipulation) pour avoir INSERT/UPDATE/DELETE
+*/
+
+
+    const allTriggersAllTables = await loadSQL('allTriggersAllTables');
+    const triggerRows = await client.query(allTriggersAllTables);
 
     // Map "schema.table" -> [ { name, on, timing, definition }, ... ]
     const triggersByTable = new Map();
@@ -404,109 +186,125 @@ app.post("/load-from-db", async (req, res) => {
       }
       triggersByTable.get(fullName).push(trigger);
     }
+    /*
+     all pk in one shot and fill in a dictionary
+    */
+    const allPkAllTables = await loadSQL('allPKAllTables');
+    const pkResult = await client.query(allPkAllTables);
 
-    /******************************************************************
-     * 4. DÉTAILS PAR TABLE (PK, index, commentaire table, FKs structurées)
-     ******************************************************************/
-    async function getTableDetails(client, fullName) {
-
-      const [schema, table] = fullName.split(".");
-
-      // colonnes déjà construites via columnMap, mais tu avais un format plus riche :
-      const columns = columnMap[fullName] || [];
-
-      // commentaire de la table 
-
-      const commentResult = await client.query(
-        `
-  SELECT obj_description(to_regclass($1 || '.' || $2)::oid) AS comment
-  `,
-        [schema, table]
-      );
-      const tableComment =
-        commentResult.rows[0] && commentResult.rows[0].comment
-          ? commentResult.rows[0].comment
-          : null;
-
-      // clé primaire
-
-
-
-      const pkResult = await client.query(
-        `
-        SELECT kcu.column_name
-        FROM information_schema.table_constraints tc
-        JOIN information_schema.key_column_usage kcu
-          ON tc.constraint_name = kcu.constraint_name
-         AND tc.table_schema = kcu.table_schema
-        WHERE tc.constraint_type = 'PRIMARY KEY'
-          AND tc.table_schema = $1
-          AND tc.table_name = $2
-        ORDER BY kcu.ordinal_position;
-        `,
-        [schema, table]
-      );
-      const primaryKey = pkResult.rows.map((r) => r.column_name);
-
-      // indexes
-      // On va interroger pg_indexes
-      const idxResult = await client.query(
-        `
-        SELECT indexname, indexdef
-        FROM pg_indexes
-        WHERE schemaname = $1
-          AND tablename = $2;
-        `,
-        [schema, table]
-      );
-      const indexes = idxResult.rows.map((r) => ({
-        name: r.indexname,
-        def: r.indexdef,
-      }));
-
-      // FKs sortantes structurées pour cette table
-      const fksForThisTable = fkResult.rows
-        .filter(
-          (fk) =>
-            fk.source_schema === schema &&
-            fk.source === table
-        )
-        .map((fk) => ({
-          constraint: fk.constraint_name,
-          column: fk.source_column,
-          target: `${fk.target_schema}.${fk.target}`,
-          targetColumn: fk.target_column,
-          onDelete: fk.on_delete, // e.g. CASCADE, RESTRICT, NO ACTION...
-          onUpdate: fk.on_update,
-          nullable: !fk.source_not_null,
-        }));
-
-      return {
-        columns,
-        foreignKeys: fksForThisTable,
-        primaryKey,
-        comment: tableComment,
-        indexes,
-      };
+    const pkByTable = new Map();
+    for (const row of pkResult.rows) {
+      const fullName = `${row.table_schema}.${row.table_name}`;
+      pkByTable.set(fullName, {
+        name: row.constraint_name,
+        comment: row.comment || null,
+        columns: row.columns, // array ordonnée des colonnes de la PK
+      });
     }
 
+    /*
+      all foreign key in one shot and fill in a dictionary
+    */
+    const allFkSQL = await loadSQL("allFkAllTables");
+    const result = await client.query(allFkSQL);
+
+    const fkByTable = new Map();
+
+    for (const row of result.rows) {
+      const fullName = `${row.source_schema}.${row.source_table}`;
+      const fkInfo = {
+        name: row.constraint_name,
+        comment: row.comment || null,
+        target: `${row.target_schema}.${row.target_table}`,
+        columnMappings: row.column_mappings || [],
+        allSourceNotNull: row.all_source_not_null,
+        isTargetUnique: row.is_target_unique,
+        onDelete: row.on_delete,
+        onUpdate: row.on_update
+      };
+
+      if (!fkByTable.has(fullName)) {
+        fkByTable.set(fullName, []);
+      }
+      fkByTable.get(fullName).push(fkInfo);
+    }
+    // const fks = fkByTable.get('public.orders');
+
+    /*
+      all comments in one shot   in a dictionary
+    */
+    const allCommentsSQL = await loadSQL("allCommentsAllTables");
+    const commentResult = await client.query(allCommentsSQL);
+    const commentsByTable = new Map(); // ou un objet si tu préfères {}
+    for (const row of commentResult.rows) {
+      const fullName = `${row.table_schema}.${row.table_name}`;
+      commentsByTable.set(fullName, row.comment || null);
+    }
+
+    /*
+      all Index in one shot  in a dictionary
+    */
+
+const allIndexesAllTables = await loadSQL("allIndexAllTables");
+const indexResult = await client.query(allIndexesAllTables /*, [schema] si filtré */);
+
+const indexesByTable = new Map();
+
+for (const row of indexResult.rows) {
+  const fullName = `${row.table_schema}.${row.table_name}`;
+  const indexInfo = {
+    name: row.index_name,
+    definition: row.index_def,
+    comment: row.comment || null,
+    constraintType: row.constraint_type || null,
+    isPrimary: row.is_primary,
+    isUnique: row.is_unique,
+  };
+
+  if (!indexesByTable.has(fullName)) {
+    indexesByTable.set(fullName, []);
+  }
+  indexesByTable.get(fullName).push(indexInfo);
+}
+
+// Exemple d’accès :
+// const idx = indexesByTable.get('public.orders');
+// -> tableau d’index de la table orders
+
+
+
+
+
+    /*
+    tableNames like ["production.product", "sales.salesorderheader", ...]
+    columnMap[fullName] = [ { column, type, nullable, comment }, ... ]
+    fkColumnMap["schema.table"] = [ { column, nullable }, ... ]
+    triggersByTable: Map "schema.table" -> [ { name, on, timing, definition }, ... ]
+    pkByTable: Map "schema.table" -> { name, comment, columns }
+    indexesByTable: Map "schema.table" -> [ { name, definition, comment, constraintType }, ... ]
+    commentsByTable: Map "schema.table" -> comment string
+    
+    */
+
+
     /******************************************************************
+     * //avoid this loop PLAPLA 
      * 5. CONSTRUIRE LES NODES POUR CYTOSCAPE
      ******************************************************************/
     const nodes = [];
-    for (const fullName of tableNames) {
-      const details = await getTableDetails(client, fullName);
-      const trigs = triggersByTable.get(fullName) || [];
 
+
+    for (const fullName of tableNames) {
       const data = {
         id: fullName, // "schema.table"
+        // label default with or without schema @todo : user option
         label: fullName, // idem pour l'affichage
-        columns: details.columns, // tableau d'objets { column, type, nullable, comment }
-        foreignKeys: details.foreignKeys || [],
-        comment: details.comment,
-        primaryKey: details.primaryKey,
-        indexes: details.indexes,
-        triggers: trigs,
+        columns: columnMap[fullName], // tableau d'objets { column, type, nullable, comment }
+        foreignKeys: fkColumnMap[fullName]|| [],
+        comment: commentsByTable[fullName]|| [],
+        primaryKey: pkByTable[fullName]|| [],
+        indexes: indexesByTable[fullName]|| [],
+        triggers: triggersByTable[fullName] || [],
       };
 
       nodes.push({ data });
@@ -558,11 +356,6 @@ app.post("/load-from-db", async (req, res) => {
   }
 });
 
-
-
-
-
-
 /*
 
 Table details  
@@ -581,7 +374,7 @@ app.get("/table/:name", async (req, res) => {
   let client;
   try {
     client = await pool.connect();
-    const sql = format ('SELECT 1 FROM %I.%I LIMIT 1', schema, table);
+    const sql = format('SELECT 1 FROM %I.%I LIMIT 1', schema, table);
     try {
       await client.query(sql);
     } catch {
@@ -591,7 +384,8 @@ app.get("/table/:name", async (req, res) => {
     }
 
     const details = await getTableDetails(client, fullName);
-    //console.log(JSON.stringify(details));//PLA
+
+    console.log("retour getTableDetails:",JSON.stringify(details,0,2));//PLA
     res.json(details);
   } catch (error) {
     console.error("Erreur dans /table/:name :", error);
@@ -624,10 +418,9 @@ app.get("/table10rows/:name", async (req, res) => {
   let client;
   try {
     client = await pool.connect();
-    const sql = format ('SELECT * FROM %I.%I LIMIT 10', schema, table);
-    console.log(sql);//PLA
+    const sql = format('SELECT * FROM %I.%I LIMIT 10', schema, table);
     const result = await client.query(sql);
-console.log(result.rows);//PLA
+
     // Important : result.rows contient les données
     return res.json(result.rows);
   } catch (err) {
@@ -653,14 +446,17 @@ app.get("/table_comment/:name", async (req, res) => {
   let client;
   try {
     client = await pool.connect();
-    const table = req.params.name;
-    const result = await client.query(tableCommentQuery, [table]);
+    const fullName = req.params.name;
+    const [schema, table] = fullName.split(".");
+
+    const oneTableComments = await loadSQL('oneTableComments');
+    const result = await client.query(oneTableComments, [schema, table]);
 
     const comment = result.rows[0]?.comment || null;
 
     res.json({ comment }); // Renvoie toujours { comment: string | null }
   } catch (error) {
-    console.error("Erreur dans /table_comment/:name :", error);
+    console.error("Error on  /table_comment/:name :", error);
     res.status(500).json({ error: "Error accessing database." });
   } finally {
     if (client) client.release();
@@ -856,19 +652,20 @@ app.get("/triggers", async (req, res) => {
 
   let client = await pool.connect();
   // get table name in url
-  const table = req.query.table;
-  if (!table) {
+  const fullTable = req.query.table;
+  if (!fullTable) {
     console.error("Missing table parameter");
     return res.status(400).json({ error: "Missing table parameter" });
   }
 
   // search keywords in source code
-
+  const [schema, table] = fullTable.split(".");
   try {
     //const { rows } = await client.query(triggerQuery);
 
     //const filteredTriggers = rows.filter((row) => row.table_name === table);
-    const { rows } = await client.query(triggerQueryOneTable, [table]);
+    const oneTableTriggers = await loadSQL('oneTableTriggers');
+    const { rows } = await client.query(oneTableTriggers, [schema, table]);
     const filteredTriggers = rows;
 
     const enriched = await Promise.all(
@@ -1092,65 +889,6 @@ app.get("/exportAll", async (req, res) => {
     console.error("❌ exportAll failed:", err);
     res.write(`❌ Erreur: ${err.message}\n`);
     res.end();
-  }
-});
-
-
-/*
- specific sanity check experimental 
-
-search column exist or not in tables 
-http://localhost:3000/searchColumns?dbName=perfo7.8.20&columnName=db_version&exists=false
-
-*/
-
-app.get("/searchColumn", async (req, res) => {
-  const { dbName, columnName, exists } = req.query;
-  if (!dbName) {
-    console.error("Missing parameter");
-    return res.status(400).json({ error: "Missing dbName parameters } " });
-  }
-  let client;
-  try {
-    const pool = getPoolFor(dbName);
-    if (!pool) {
-      return res
-        .status(500)
-        .json({ error: "Database connection not initialized." });
-    }
-
-    client = await pool.connect();
-
-    // check if tables have the column
-
-    if (columnName) {
-      let results = await client.query(reqCheckColumn, [columnName, exists]);
-
-      let stack = [];
-      stack.push(` ## ${results.rows.length} tables that have not a column named "${columnName}"`);
-
-      results.rows.forEach((r) => {
-        stack.push(r.tablename);
-      });
-
-      console.log(stack.join("\n"));
-
-
-      const body = stack.map(escapeHtml).join("<br/>");
-      const html = `<!doctype html>
-<html><head><meta charset="utf-8"><title>Report</title></head>
-<body style="font-family:system-ui">${body}</body></html>`;
-
-      res.type("html"); // = Content-Type: text/html; charset=utf-8
-      res.send(html);
-    } else {
-      return res.status(400).json({ error: "Missing columnName parameter" });
-    }
-  } catch (err) {
-    console.error("Error running query:", err);
-    return res.status(500).json({ error: err.message });
-  } finally {
-    if (client) client.release(); // Always release connection
   }
 });
 

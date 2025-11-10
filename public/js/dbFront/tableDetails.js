@@ -12,7 +12,7 @@ import { enableTableSorting } from "../util/sortTable.js";
 import { actionMap, actionTitle } from "../util/common.js";
 
 /*
- get details on a table 
+ get details on a table . shared with table10rows.js
 */
 export async function getTableData(tableName) {
 
@@ -22,7 +22,7 @@ export async function getTableData(tableName) {
       throw new Error(` HTTP error ${response.status}`);
     }
     const data = await response.json();
-
+console.log("data from getTableData:", data);//PLA
     return { success: true, data };
   } catch (error) {
     return { success: false, error };
@@ -52,9 +52,11 @@ whereTitle.innerHTML = `${tableName} ${infoWarning}`;
 document.title = `table ${tableName}`;
 
 // call full info from DB and work once loaded
+
 getTableData(tableName).then((result) => {
   if (result.success) {
     const data = result.data;
+
     if (data.comment) {
       const icon = getCommentIcon(document, data.comment);
       whereTitle.appendChild(icon);
@@ -94,6 +96,7 @@ getTableData(tableName).then((result) => {
       );
     });
 
+    console.log("columns in tabledetails html:", data.columns);
 
     //columns vertically 
     data.columns.forEach((col) => {

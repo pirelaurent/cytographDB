@@ -80,7 +80,7 @@ export function loadInitialGraph() {
     .then((res) => res.json())
     .then((data) => {
       //pouetPouet(data);//PLA ne ramène pas les colonnes individuelles, juste les labels composites
-      //@todo
+      //console.log("data loaded from db:", JSON.stringify(data,0,2)); //PLA
       initializeGraph(data);
       if (getCy().nodes().length == 0) {
         showAlert("Empty model");

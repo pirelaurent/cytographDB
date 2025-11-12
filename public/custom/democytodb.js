@@ -53,8 +53,10 @@ const democytodbModule = {
 
   setLabelAlias() {
 
-    // Demo example using a dictionary for english to french aliasing
+    /*
+    Demo example using a dictionary for english to french aliasing
 
+    */
     const EN_FR = {
       authorization: "autorisation",
       company: "entreprise",
@@ -66,21 +68,25 @@ const democytodbModule = {
       product: "produit",
       production_line: "ligne de production",
       skills: "compétences",
-    }; 
+    };
 
     //act on whole graph
     const cy = getCy();
 
-    // tables demo aliasing EN->FR
+    /*
+     tables demo aliasing EN->FR
+     don't care of schema, change only table name
+    */
     cy.nodes().forEach((node) => {
-      const current = node.id();
-      let fr = EN_FR[current];
+
+      let [, currentTable] = node.id().split('.');
+      let fr = EN_FR[currentTable];
       if (fr) {
         node.data("alias", fr); // set new label
       }
     });
 
-     // relations demo aliasing by collection 
+    // relations demo aliasing by collection 
     cy.edges().forEach((edge) => {
       const current = edge.data("label");
 
@@ -96,13 +102,11 @@ const democytodbModule = {
         "fk_prod_comp_fact": "ligne de production de l'usine",
         "fk_skills_comp_emp": "a pour compétences"
       };
-      const fr =DICO_FK[current];
-      if(fr) edge.data("alias", fr);//:edge.data("alias",edge.data("label")); // set new label
+      const fr = DICO_FK[current];
+      if (fr) edge.data("alias", fr);//:edge.data("alias",edge.data("label")); // set new label
+    })
 
-      // console.log(JSON.stringify(edge.data(),0,2));//PLA
-    }) 
 
-     
 
   },
 } //module

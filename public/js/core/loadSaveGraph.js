@@ -9,18 +9,20 @@ import {
   setCy,
 } from "../graph/cytoscapeCore.js";
 
-import {  
-  setAndRunLayoutOptions,} from '../core/layout.js';
+import {
+  setAndRunLayoutOptions,
+} from '../core/layout.js';
 
-import {  initializeGraph,} from "../core/initializeGraph.js";
+import { initializeGraph, } from "../core/initializeGraph.js";
 
 import {
-    restoreProportionalSize,
-  setProportionalNodeSizeByLinks
+  restoreProportionalSize,
+  setProportionalNodeSizeByLinks,
+  adjustLabelsToCurrentSchemas
 } from "../core/nodeOps.js";
 
 
-import {metrologie} from '../core/metrology.js';
+import { metrologie } from '../core/metrology.js';
 
 
 import {
@@ -79,8 +81,7 @@ export function loadInitialGraph() {
   })
     .then((res) => res.json())
     .then((data) => {
-      //pouetPouet(data);//PLA ne ramène pas les colonnes individuelles, juste les labels composites
-      //console.log("data loaded from db:", JSON.stringify(data,0,2)); //PLA
+  
       initializeGraph(data);
       if (getCy().nodes().length == 0) {
         showAlert("Empty model");
@@ -88,20 +89,18 @@ export function loadInitialGraph() {
         return;
       }
 
+      adjustLabelsToCurrentSchemas(data);
+
       // store details at load time /now generated with details
       saveDetailedEdges();
-    
+      // set default edges in synthetic mode
       enterFkSynthesisMode(true);
-   
- /*   // verify alias in edges     
-      getCy().edges().forEach((edge) => {
-      console.log(JSON.stringify(edge.data(),0,2));//PLA
-      });
- */
+
 
       // moved after reduction to 1 edge per fk
       setNativeNodesCategories();
       hideWaitLoading();
+
       setProportionalNodeSizeByLinks();
       setAndRunLayoutOptions();
 
@@ -253,12 +252,12 @@ export function saveGraphState() {
 
 function sendGraphState(filename) {
   // preserve hidden status
-const cy = getCy();
+  const cy = getCy();
 
-cy.batch(() => {
-  cy.$(':hidden').data('hidden', true);     // copy hidden dans une data
-  cy.$(':visible').removeData('hidden');    // remove on visible if any
-});
+  cy.batch(() => {
+    cy.$(':hidden').data('hidden', true);     // copy hidden dans une data
+    cy.$(':visible').removeData('hidden');    // remove on visible if any
+  });
 
   const graphState = getCy().json(); // Capture the current graph state
 
@@ -532,27 +531,6 @@ export async function resetPoolFromFront() {
   document.getElementById("current-db").innerHTML = "";
   return response.json();
 }
-
-
-
-/* function pouetPouet(data) {
-  console.log("pouetpouet");//PLA
-  console.log(JSON.stringify(data.edges, 0, 2));//PLA
-
-  if (!data.edges || !Array.isArray(data.edges)) {
-    console.warn("No edges found in data for classification.");
-    return;
-  }
-
-  data.edges.forEach((edge) => {
-    if (edge.data) {
-      const fk = edge.data;
-      const classification = classifyForeignKey(fk);
-      console.log(classification);
-    }
-  });
-}
- */
 
 
 // --- Fonction de classification ---

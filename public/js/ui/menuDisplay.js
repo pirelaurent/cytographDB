@@ -19,7 +19,8 @@ import {
   changeFontSizeNode,
   labelNodeAlias,
   labelNodeHide,
-  labelNodeId,
+  labelOnlyName,
+  labelNodeQname,
 } from "../core/nodeOps.js";
 
 import {
@@ -162,6 +163,10 @@ export function menuDisplay(option, item, whichClic = "left") {
       break;
     //-------------------------------------------------------- Label
 
+    case "labelNodeQname":
+      labelNodeQname();
+      break;
+
     case "labelNodeAlias":
       labelNodeAlias();
       break;
@@ -170,8 +175,8 @@ export function menuDisplay(option, item, whichClic = "left") {
       labelNodeHide();
       break;
 
-    case "labelNodeId":
-      labelNodeId();
+    case "labelOnlyName":
+      labelOnlyName();
       break;
 
     case "increase_font":

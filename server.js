@@ -53,7 +53,6 @@ import {
 
 import { encodeCol2Col } from "./public/js/util/common.js";
 import { getTableDetails } from "./dbDetails.js";
-
 import { exportAll } from "./exportTables.js";
 
 
@@ -78,8 +77,8 @@ app.get("/", (req, res) => {
 
 // Middleware to parse JSON bodies
 // Increase payload size limit to 50MB
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use(express.json({ limit: "100mb" }));
+app.use(express.urlencoded({ limit: "100mb", extended: true }));
 
 const PORT = process.env.CYTOGRAPHPORT ? process.env.CYTOGRAPHPORT : 3000;
 
@@ -99,6 +98,8 @@ const appPkg = JSON.parse(pkgRaw);
 
 app.use(express.static("public"));
 
+
+
 /*
  create a network with tables as nodes and FK as edges
 */
@@ -110,6 +111,11 @@ app.post("/load-from-db", async (req, res) => {
   try {
     const pool = getPoolFor(dbName);
     client = await pool.connect();
+
+    // get list of schemas to be set in cytoscape data for future use
+    const allSchemasSQL = await loadSQL('allSchemas');
+    const resultSchemas = await client.query(allSchemasSQL);
+    const schemas = resultSchemas.rows.map((row) => row.schema_name);
 
     /******************************************************************
      * 1. RÉCUPÉRER TOUTES LES COLONNES DE TOUTES LES TABLES
@@ -159,11 +165,11 @@ app.post("/load-from-db", async (req, res) => {
       }
     );
 
-   /*
-    all triggers in one shot and fill in a dictionary
-
-     Note: string_agg(event_manipulation) pour avoir INSERT/UPDATE/DELETE
-*/
+    /*
+     all triggers in one shot and fill in a dictionary
+ 
+      Note: string_agg(event_manipulation) pour avoir INSERT/UPDATE/DELETE
+ */
 
 
     const allTriggersAllTables = await loadSQL('allTriggersAllTables');
@@ -173,11 +179,13 @@ app.post("/load-from-db", async (req, res) => {
     const triggersByTable = new Map();
 
     for (const row of triggerRows.rows) {
+  
       const fullName = `${row.table_schema}.${row.table_name}`;
       const trigger = {
         name: row.trigger_name,
         on: row.triggered_on, // "INSERT, UPDATE", etc.
         timing: row.timing, // BEFORE / AFTER
+        triggered_on: row.triggered_on,
         definition: row.definition,
       };
 
@@ -198,7 +206,7 @@ app.post("/load-from-db", async (req, res) => {
       pkByTable.set(fullName, {
         name: row.constraint_name,
         comment: row.comment || null,
-        columns: row.columns, // array ordonnée des colonnes de la PK
+        columns: row.columns, // sorted array columns of PK
       });
     }
 
@@ -245,31 +253,31 @@ app.post("/load-from-db", async (req, res) => {
       all Index in one shot  in a dictionary
     */
 
-const allIndexesAllTables = await loadSQL("allIndexAllTables");
-const indexResult = await client.query(allIndexesAllTables /*, [schema] si filtré */);
+    const allIndexesAllTables = await loadSQL("allIndexAllTables");
+    const indexResult = await client.query(allIndexesAllTables /*, [schema] si filtré */);
 
-const indexesByTable = new Map();
+    const indexesByTable = new Map();
 
-for (const row of indexResult.rows) {
-  const fullName = `${row.table_schema}.${row.table_name}`;
-  const indexInfo = {
-    name: row.index_name,
-    definition: row.index_def,
-    comment: row.comment || null,
-    constraintType: row.constraint_type || null,
-    isPrimary: row.is_primary,
-    isUnique: row.is_unique,
-  };
+    for (const row of indexResult.rows) {
+      const fullName = `${row.table_schema}.${row.table_name}`;
+      const indexInfo = {
+        name: row.index_name,
+        definition: row.index_def,
+        comment: row.comment || null,
+        constraintType: row.constraint_type || null,
+        isPrimary: row.is_primary,
+        isUnique: row.is_unique,
+      };
 
-  if (!indexesByTable.has(fullName)) {
-    indexesByTable.set(fullName, []);
-  }
-  indexesByTable.get(fullName).push(indexInfo);
-}
+      if (!indexesByTable.has(fullName)) {
+        indexesByTable.set(fullName, []);
+      }
+      indexesByTable.get(fullName).push(indexInfo);
+    }
 
-// Exemple d’accès :
-// const idx = indexesByTable.get('public.orders');
-// -> tableau d’index de la table orders
+    // Exemple d’accès :
+    // const idx = indexesByTable.get('public.orders');
+    // -> tableau d’index de la table orders
 
 
 
@@ -287,26 +295,42 @@ for (const row of indexResult.rows) {
     */
 
 
+
+
+
     /******************************************************************
-     * //avoid this loop PLAPLA 
-     * 5. CONSTRUIRE LES NODES POUR CYTOSCAPE
+     * 5. Construct  NODES FOR CYTOSCAPE
      ******************************************************************/
     const nodes = [];
 
+    /*
+     identify name collisions here if any
+     if two tables with same name in different schema exist a flag duplicateName is set to true
+    */
+    const counts = new Map();
+
+    for (const fullName of tableNames) {
+      const [, table] = fullName.split('.');
+      counts.set(table, (counts.get(table) || 0) + 1);
+    }
+
+    const duplicates = [...counts.entries()]
+      .filter(([_, count]) => count > 1)
+      .map(([table]) => table);
 
     for (const fullName of tableNames) {
       const data = {
         id: fullName, // "schema.table"
+        duplicateName: duplicates.includes(fullName.split('.')[1]),// warn if duplicate table name exists
         // label default with or without schema @todo : user option
         label: fullName, // idem pour l'affichage
         columns: columnMap[fullName], // tableau d'objets { column, type, nullable, comment }
-        foreignKeys: fkColumnMap[fullName]|| [],
-        comment: commentsByTable[fullName]|| [],
-        primaryKey: pkByTable[fullName]|| [],
-        indexes: indexesByTable[fullName]|| [],
-        triggers: triggersByTable[fullName] || [],
+        foreignKeys: fkColumnMap[fullName] || [],
+        comment: commentsByTable[fullName] || [],
+        primaryKey: pkByTable[fullName] || [],
+        indexes: indexesByTable[fullName] || [],
+        triggers: triggersByTable.get(fullName) ?? [],
       };
-
       nodes.push({ data });
     }
 
@@ -345,9 +369,10 @@ for (const row of indexResult.rows) {
       }));
 
     /******************************************************************
-     * 7. RÉPONSE
+     * 7. response JSON  nodes, edges, list of schemas
      ******************************************************************/
-    res.json({ nodes, edges: filteredEdges });
+
+    res.json({ nodes, edges: filteredEdges, schemas: schemas });
   } catch (error) {
     console.error("error loading graph :", error);
     res.status(500).json({ error: "Error accessing database" });
@@ -385,7 +410,6 @@ app.get("/table/:name", async (req, res) => {
 
     const details = await getTableDetails(client, fullName);
 
-    console.log("retour getTableDetails:",JSON.stringify(details,0,2));//PLA
     res.json(details);
   } catch (error) {
     console.error("Erreur dans /table/:name :", error);

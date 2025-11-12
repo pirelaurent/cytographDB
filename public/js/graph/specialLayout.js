@@ -1,7 +1,7 @@
 "use strict";
 
 import { getCy } from "../graph/cytoscapeCore.js";
-import {perimeterForNodesAction} from '../core/perimeter.js';
+import { perimeterForNodesAction } from '../core/perimeter.js';
 import { getCustomNodesCategories } from "../filters/categories.js";
 import { showAlert } from "../ui/dialog.js";
 /*
@@ -125,7 +125,7 @@ export function organizeSelectedByDependencyLevels() {
 // adapt vertically by categories horizontally
 
 
-export function organizeSelectedByDependencyLevelsWithCategories() {
+export function organizeSelectedByDependencyLevelsWithCategories(mode = "custom") {
   let cy = getCy();
 
   const selected = perimeterForNodesAction();
@@ -135,19 +135,39 @@ export function organizeSelectedByDependencyLevelsWithCategories() {
     return;
   }
 
-  // --- 0) Categories come from node classes
-  const categoryOrder = Array.from(getCustomNodesCategories() ?? new Set());
-  const pickCategory = (node) => {
-    for (const c of categoryOrder) if (node.hasClass(c)) return c;
-    return "uncategorized";
-  };
-
-  // --- 1) Group selected nodes by category
   const byCategory = {};
-  selected.forEach((n) => {
-    const cat = pickCategory(n);
-    (byCategory[cat] ??= []).push(n);
-  });
+
+  if (mode === 'custom') {
+    // --- 0) Categories come from node classes
+    const categoryOrder = Array.from(getCustomNodesCategories() ?? new Set());
+    const pickCategory = (node) => {
+      for (const c of categoryOrder) if (node.hasClass(c)) return c;
+      return "uncategorized";
+    };
+    // --- 1) Group selected nodes by category
+    selected.forEach((n) => {
+      const cat = pickCategory(n);
+      (byCategory[cat] ??= []).push(n);
+    });
+  } // mode custom 
+
+  if (mode === 'schema') {
+    // --- 0) Categories come from node classes
+    const categoryOrder = Array.from(getCy().scratch('schemas') ?? new Set());
+    const pickCategory = (node) => {
+      for (const c of categoryOrder) { 
+        if (node.id().split('.')[0] === c) return c; }
+      return "uncategorized";
+    };
+    // --- 1) Group selected nodes by category
+    selected.forEach((n) => {
+      const cat = pickCategory(n);
+      (byCategory[cat] ??= []).push(n);
+    });
+  } // mode schema 
+
+
+
 
   // --- 2) For each category, compute dependencies and levels independently
   const groups = {};

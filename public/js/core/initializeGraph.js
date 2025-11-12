@@ -4,19 +4,23 @@ import {
   getCustomStyles,
 } from "../filters/categories.js";
 import { fillInGuiNodesCustomCategories } from "../ui/custom.js";
+import { fillInGuiNodesSchemasCategories } from "../ui/schemas.js";
 import { getLocalDBName } from "../dbFront/tables.js";
-import {setAndRunLayoutOptions} from "./layout.js";
+import { setAndRunLayoutOptions } from "./layout.js";
 import { getCyStyles } from "../graph/defaultStyles.js";
 import { metrologie } from "./metrology.js";
 
 //--------------------------
 export function initializeGraph(data, fromDisk = false) {
-    const cy=getCy();
+  const cy = getCy();
   // cy a été créé avec des data vides , mais si on s'en est servi, faut nettoyer
   if (typeof cy !== "undefined" && cy) {
     cy.elements().remove();
   }
   cy.add(data);
+  cy.scratch('schemas', data.schemas);
+
+  fillInGuiNodesSchemasCategories()
 
   //console.log(cy.edges()); // on a bien columnsLabel dans data
 
@@ -26,6 +30,7 @@ export function initializeGraph(data, fromDisk = false) {
   //setNativeNodesCategories();
 
   createCustomCategories(current_db);
+
 
   // here ok for alias
   let moreStyles = getCustomStyles(current_db);

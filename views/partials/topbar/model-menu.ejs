@@ -3,11 +3,16 @@
   <div class="menu-wrapper">
     <span class="menu-trigger">Model</span>
     <ul class="menu">
-
       <li data-category="model">Reorganize ...
         <ul class="submenu">
-          <li action="dependencies">by Dependencies</li>
-          <li action="dependenciesPerCustomCategory">By Depencies and custom categories</li>
+          <li action="noCare">by Dependencies
+
+            <ul class="submenu">
+              <li action="dependencies">All tables</li>
+              <li action="dependenciesPerSchema">Splitted by Schemas</li>
+              <li action="dependenciesPerCustomCategory">Splitted by Categories</li>
+            </ul>
+          </li>
         </ul>
       </li>
       <li data-category="model">Propagations ...

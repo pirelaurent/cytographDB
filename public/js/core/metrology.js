@@ -17,7 +17,6 @@ export function metrologie(where = "") {
   lastSelectedNodes = selectedCountNodesVisible;
 
   if (deltaNode >0) {
-    //console.log(`${deltaNode} in: ${where}`);//PLA
     showToast(`+${deltaNode} node(s)`);
   }
 

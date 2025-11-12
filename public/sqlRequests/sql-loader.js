@@ -14,6 +14,6 @@ const __dirname  = dirname(__filename);
 export async function loadSQL(name) {
   let partName = name.endsWith('.sql') ? name : `${name}.sql`;
 
-  console.log(`Loading SQL file: ${partName}`);
+  //console.log(`Loading SQL file: ${partName}`);
   return readFile(join(__dirname, partName), 'utf8');
 }

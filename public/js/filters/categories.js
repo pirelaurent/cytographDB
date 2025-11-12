@@ -167,6 +167,7 @@ export function setNativeNodesCategories() {
   cy.batch(() => {
     cy.nodes().removeClass(toRemove);
     cy.nodes().forEach((node) => {
+
       if (node.data("triggers")?.length > 0)
         node.addClass(NativeCategories.HAS_TRIGGERS);
 

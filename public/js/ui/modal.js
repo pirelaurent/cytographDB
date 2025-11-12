@@ -187,7 +187,8 @@ function openNameFilterModal(event, type) {
   //|| event?.currentTarget?.dataset.category === "nodesName";
 
   if (type === "node") {
-    title.textContent = "Filter tables by name";
+    title.textContent = "Filter tables by current label";
+    title.title = "warn that label may be different : schema.table, table,alias ";
     hiddenType.value = "nodes";
   }
   if (type === "edge") {
@@ -263,7 +264,9 @@ export function selectByName(pattern, hiddenType) {
     let toShow = getCy().collection();
 
     nodes.forEach((node) => {
-      if (regex.test(node.id())) {
+      // change by search on label instead of id if alias exist
+      const nameToCheck = node.data("label");;
+      if (regex.test(nameToCheck)) {
         toShow = toShow.add(node); // on prépare les nœuds concernés
       }
     });

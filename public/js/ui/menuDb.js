@@ -24,7 +24,7 @@ export function menuDb(option, menuItemElement, whichClic = "left") {
   switch (option) {
     case "connectToDb":
 
-alert("connectToDb");
+      //alert("connectToDb");
 
       connectToDb(menuItemElement).catch((err) =>
         showError("connection failed: " + err.message)

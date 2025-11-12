@@ -44,7 +44,8 @@ With powerful selection, filtering, and path traversal features—spanning both 
 
 ## Documentation
 - ⚪️ [*Main*](./main.md)
-- 🟩 [Quick Tour](./quickTour.md#quick-tour)   
+- 🟩 [Quick Tour](./quickTour.md#quick-tour) 
+  - 🔷 [Multi-schemas DB extension](./multi-schemas.md#multi-schemas)  
 - 🟨 [Main Menu Bar](./menuBar.md#menu-bar)  
 - 🟨 [Display Menu ](./menuDisplay.md#menu-display)  
 - 🟨 [Table Menu](./menuNodesSelectHide.md#menu-tables)       

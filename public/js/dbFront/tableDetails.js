@@ -22,7 +22,6 @@ export async function getTableData(tableName) {
       throw new Error(` HTTP error ${response.status}`);
     }
     const data = await response.json();
-console.log("data from getTableData:", data);//PLA
     return { success: true, data };
   } catch (error) {
     return { success: false, error };

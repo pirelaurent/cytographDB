@@ -18,6 +18,7 @@ import {
 
 import {
   showAlert,
+  showInfo,
 } from "./dialog.js";
 
 import {
@@ -66,11 +67,34 @@ export function menuModel(option, item, whichClic = "left") {
           copyToClipboard: true,
           title: "dependencies per category",
         },
-        organizeSelectedByDependencyLevelsWithCategories(), // that select and return MD
+        organizeSelectedByDependencyLevelsWithCategories('custom'), // that select and return MD
         document
       );
       metrologie();
       break;
+
+
+      
+      
+    case "dependenciesPerSchema":
+      if (getCy().scratch('schemas').length == 1) {
+        showInfo(
+          " Only one schema. Same as 'all tables' option");
+      }
+      pushSnapshot();
+      outputMarkdown(
+        {
+          download: false,
+          copyToClipboard: true,
+          title: "dependencies per category",
+        },
+        organizeSelectedByDependencyLevelsWithCategories('schema'), // that select and return MD
+        document
+      );
+      metrologie();
+      break;
+
+
 
     case "ownerShipPerimeter":
       ownerShipPerimeter(false);

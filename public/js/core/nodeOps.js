@@ -1,7 +1,11 @@
+"use strict";
+
 import { getCy } from "../graph/cytoscapeCore.js";
 import { NativeCategories } from "../util/common.js";
 import { metrologie } from "../core/metrology.js";
 import { pushSnapshot } from "../util/snapshots.js";
+
+import { showInfo } from "../ui/dialog.js";
 import {
   restrictToVisible,
   perimeterForNodesSelection,
@@ -271,17 +275,47 @@ function mapValue(value, inMin, inMax, outMin, outMax) {
 
 // alias nodes
 export function labelNodeAlias() {
+
+  let anyFound = false;
+    const cy = getCy();
+    const nodes = perimeterForNodesAction();
+  cy.batch(() => {
+    nodes.forEach((node) => {
+      if (node.data("alias") != null) {
+        node.data("label", node.data("alias"));
+        anyFound = true;
+      }
+    });
+    if (!anyFound) {
+      showInfo ("No alias found.(vSee custom code to set alias for nodes.)");
+    }
+  });
+}
+
+/*
+ node.id() is expected as schema.table 
+ at load time all public.name are labeled with name only except if found another schema
+ */
+
+export function labelOnlyName() {
   const cy = getCy();
   cy.batch(() => {
     perimeterForNodesAction().forEach((node) => {
-      if (node.data("alias") != null) {
-        node.data("label", node.data("alias"));
-      }
+      // keep full qualified name if it's marked as duplicate
+      if (node.data('duplicateName')===true) return;
+       
+        const qName = node.id(); 
+        const lastDot = qName.lastIndexOf('.');
+        const simpleName = lastDot >= 0 ? qName.slice(lastDot + 1) : qName;
+        node.data('label', simpleName); // ensure your stylesheet has label: 'data(label)'
     });
   });
 }
 
-export function labelNodeId() {
+/*
+  set full qualified name (which is the id) as label 
+*/
+export function labelNodeQname() {
   const cy = getCy();
   cy.batch(() => {
     perimeterForNodesAction().forEach((node) => {
@@ -289,6 +323,8 @@ export function labelNodeId() {
     });
   });
 }
+
+
 
 export function labelNodeHide() {
   const cy = getCy();
@@ -365,4 +401,18 @@ export function swapHidden() {
   getCy().fit();
 
   metrologie("swapHidden");
+}
+
+/*
+ deal with schemas 
+If only one, set label to name only
+to name only if multiple schemas will stay with fullName
+*/
+export function adjustLabelsToCurrentSchemas() {
+  const cy = getCy();
+  const schemas = cy.scratch('schemas') || [];
+  if (schemas.length <= 1) {
+    labelOnlyName();
+    return;
+  }
 }

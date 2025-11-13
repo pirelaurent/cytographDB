@@ -1,6 +1,6 @@
 
 import { getCy } from "../graph/cytoscapeCore.js";
-import {perimeterForNodesSelection} from "../core/perimeter.js"
+import { perimeterForNodesSelection } from "../core/perimeter.js"
 /*
  create a list of schemas found in DB
 */
@@ -40,6 +40,30 @@ export function fillInGuiNodesSchemasCategories() {
 */
 
 function selectNodesBySchemas(aSchema) {
- const nodes = perimeterForNodesSelection();
-   nodes.filter(n => n.id().startsWith(`${aSchema}.`)).select() ;
+  const nodes = perimeterForNodesSelection();
+  nodes.filter(n => n.id().startsWith(`${aSchema}.`)).select();
+}
+
+/*
+ return full qualified name against search_path for table name
+*/
+
+export function resolveUnqualified(fullName, searchPath) {
+  const cy = getCy();
+
+  if (fullName.includes(".")) return fullName;
+
+  // Ici tableMap est une vraie Map
+  const tableMap = cy.scratch("tableNameSolver"); // real Map
+  const table = fullName;
+
+  const possibleSchemas = tableMap.get(table) || [];
+
+  for (const sch of searchPath) {
+    if (possibleSchemas.includes(sch)) {
+      return `${sch}.${table}`;
+    }
+  }
+
+  return null;
 }

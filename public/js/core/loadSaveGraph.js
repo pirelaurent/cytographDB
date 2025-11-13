@@ -82,6 +82,7 @@ export function loadInitialGraph() {
     .then((res) => res.json())
     .then((data) => {
   
+
       initializeGraph(data);
       if (getCy().nodes().length == 0) {
         showAlert("Empty model");

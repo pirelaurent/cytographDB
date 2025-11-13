@@ -56,7 +56,8 @@ import { getTableDetails } from "./dbDetails.js";
 import { exportAll } from "./exportTables.js";
 
 
-console.log("init env");
+
+console.log("init environment using .env");
 // Chargement des variables d'environnement
 dotenv.config();
 
@@ -73,6 +74,9 @@ app.use(express.static(path.join(__dirname, "public")));
 app.get("/", (req, res) => {
   res.render("layout", { title: "cytoGraphDB" });
 });
+
+
+
 
 
 // Middleware to parse JSON bodies
@@ -92,11 +96,29 @@ if (!fs.existsSync(GRAPH_DIR)) {
 }
 
 const pkgPath = path.join(__dirname, "package.json");
-
 const pkgRaw = await readFile(pkgPath, "utf-8");
 const appPkg = JSON.parse(pkgRaw);
 
 app.use(express.static("public"));
+
+/* multi schemas : search_path for current connection */
+
+app.get("/search_path", async (req, res) => {
+  const pool = getCurrentPool();
+  if (!pool) return res.status(400).send("No DB in place.");
+  let client;
+  try { 
+    client = await pool.connect();
+    const result = await client.query('SELECT array_to_json(current_schemas(true)) AS sp');
+    const searchPath = result.rows[0].sp; // Array of schema names  
+    res.json({ searchPath });
+  } catch (error) {   
+    console.error("Error fetching search path:", error);
+    res.status(500).json({ error: "Error accessing database." });
+  } finally {
+    if (client) client.release();
+  }
+});
 
 
 
@@ -113,9 +135,35 @@ app.post("/load-from-db", async (req, res) => {
     client = await pool.connect();
 
     // get list of schemas to be set in cytoscape data for future use
-    const allSchemasSQL = await loadSQL('allSchemas');
+
+    const allSchemasSQL = await loadSQL('schemas_list');
     const resultSchemas = await client.query(allSchemasSQL);
     const schemas = resultSchemas.rows.map((row) => row.schema_name);
+
+    // get list of tables in schemas to solve later not qualified names in triggers
+
+ const schemas_tables_list = await loadSQL('schemas_tables_list');
+const res_schemas_tables_list = await client.query(schemas_tables_list);
+
+
+    const tableNameSolver = new Map(); // table → [schemas]
+
+    for (const row of res_schemas_tables_list.rows) {
+      const tbl = row.table_name;
+      const sch = row.table_schema;
+      if (!tableNameSolver.has(tbl)) tableNameSolver.set(tbl, []);
+      tableNameSolver.get(tbl).push(sch);
+    }
+
+
+
+   /*
+    'a' => [ 'pe' ],
+    'address' => [ 'humanresources', 'person' ],
+    'addresstype' => [ 'person' ],
+    ...
+   */
+
 
     /******************************************************************
      * 1. RÉCUPÉRER TOUTES LES COLONNES DE TOUTES LES TABLES
@@ -179,7 +227,7 @@ app.post("/load-from-db", async (req, res) => {
     const triggersByTable = new Map();
 
     for (const row of triggerRows.rows) {
-  
+
       const fullName = `${row.table_schema}.${row.table_name}`;
       const trigger = {
         name: row.trigger_name,
@@ -291,7 +339,8 @@ app.post("/load-from-db", async (req, res) => {
     pkByTable: Map "schema.table" -> { name, comment, columns }
     indexesByTable: Map "schema.table" -> [ { name, definition, comment, constraintType }, ... ]
     commentsByTable: Map "schema.table" -> comment string
-    
+    schemas : schema_tables_list result used to build
+    tableNameSolver: Map table → [schemas]
     */
 
 
@@ -369,10 +418,11 @@ app.post("/load-from-db", async (req, res) => {
       }));
 
     /******************************************************************
-     * 7. response JSON  nodes, edges, list of schemas
+     * 7. response JSON  nodes, edges, list of schemas, list of tables in schemas
      ******************************************************************/
 
-    res.json({ nodes, edges: filteredEdges, schemas: schemas });
+
+    res.json({ nodes, edges: filteredEdges, schemas: schemas ,   tableNameSolver: [...tableNameSolver]});
   } catch (error) {
     console.error("error loading graph :", error);
     res.status(500).json({ error: "Error accessing database" });
@@ -421,19 +471,15 @@ app.get("/table/:name", async (req, res) => {
 
 
 /*
-
 Table details  
-
 */
+
 app.get("/table10rows/:name", async (req, res) => {
   const pool = getCurrentPool();
   if (!pool) return res.status(400).send("No DB in place.");
 
   let fullName = req.params.name;
   const [schema, table] = fullName.split(".");
-
-
-
   // Vérifie que le nom de la table est valide (pas d’injection SQL possible)
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
     return res.status(400).json({ error: "Invalid table name format." });
@@ -456,9 +502,6 @@ app.get("/table10rows/:name", async (req, res) => {
     if (client) client.release();
   }
 });
-
-
-
 
 /*
  comment of one table 
@@ -676,21 +719,23 @@ app.get("/triggers", async (req, res) => {
 
   let client = await pool.connect();
   // get table name in url
-  const fullTable = req.query.table;
-  if (!fullTable) {
+  const fullName = req.query.fullName;
+  if (!fullName) {
     console.error("Missing table parameter");
     return res.status(400).json({ error: "Missing table parameter" });
   }
-
   // search keywords in source code
-  const [schema, table] = fullTable.split(".");
+  const [schema, table] = fullName.split(".");
+
   try {
-    //const { rows } = await client.query(triggerQuery);
 
     //const filteredTriggers = rows.filter((row) => row.table_name === table);
     const oneTableTriggers = await loadSQL('oneTableTriggers');
+
+
     const { rows } = await client.query(oneTableTriggers, [schema, table]);
     const filteredTriggers = rows;
+ 
 
     const enriched = await Promise.all(
       filteredTriggers.map(async (row) => {
@@ -702,15 +747,13 @@ app.get("/triggers", async (req, res) => {
             ),
           ];
           const functionNames = matches.map((m) => m[3]);
-
-          //
           let fullText = row.definition + "\n";
 
           // collect all function codes and add it to main source
 
           for (const functionName of functionNames) {
             const { allCodeResult, warnings: fnWarnings } =
-              await collectFunctionBodies(client, table, functionName);
+              await collectFunctionBodies(client, fullName, functionName);
 
             const body = allCodeResult;
             if (fnWarnings?.length) warnings.push(...fnWarnings);
@@ -725,7 +768,7 @@ app.get("/triggers", async (req, res) => {
 
             if (execMatches.length > 0) {
               let aWarning = {
-                table: table,
+                table: fullName,
                 function: functionName,
                 warn: ` code with "EXECUTE 'someString'" is not sure and was not parsed.  `,
               };
@@ -744,7 +787,7 @@ app.get("/triggers", async (req, res) => {
 
           const impactedTables = [
             ...new Set(
-              extractImpactedTables(cleanedText).filter((t) => t !== table)
+              extractImpactedTables(cleanedText).filter((t) => t !== fullName)
             ),
           ];
 
@@ -915,6 +958,13 @@ app.get("/exportAll", async (req, res) => {
     res.end();
   }
 });
+
+
+
+
+
+
+
 
 // Start the server
 

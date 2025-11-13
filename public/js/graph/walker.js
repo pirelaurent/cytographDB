@@ -6,10 +6,12 @@
  this module is responsible for differents walks into the graph 
 */
 
+import {WARN_TOO_MANY_NODES_FOLLOW} from "../cyto_parameters.js";
+
 import {
-  showAlert,
   showInfo,
   showWaitCursor,
+  showConfirm,
   hideWaitCursor,
 
 } from "../ui/dialog.js";
@@ -20,7 +22,7 @@ import { getCy } from "../graph/cytoscapeCore.js";
 
 import { revealNeighbor } from "../core/layout.js";
 
-import { restrictToVisible } from "../core/perimeter.js";
+import { restrictToVisible, perimeterForNodesAction } from "../core/perimeter.js";
 
 import { NativeCategories } from "../util/common.js";
 
@@ -31,16 +33,20 @@ import { NativeCategories } from "../util/common.js";
 */
 
 export function follow(direction = "outgoing") {
-  // not perimeterForNodesAction to avoid full nodes.
-  let cy = getCy();
-
-  let selectedNodes = cy.nodes(":visible:selected");
+  // perimeterForNodesAction but controlled to avaoid too large set
+  let selectedNodes = perimeterForNodesAction();
   let before = selectedNodes.length;
-  if (before === 0) {
-    showAlert("no starting nodes to follow.");
-    return;
-  }
 
+  if (before > WARN_TOO_MANY_NODES_FOLLOW) {
+    showConfirm(`follow ${before} nodes may be long`, () => {
+      effectiveFollow(direction,selectedNodes);
+    });
+  }
+  else  effectiveFollow(direction,selectedNodes);
+}
+
+function effectiveFollow(direction, selectedNodes) {
+  let cy = getCy();
   showWaitCursor();
   pushSnapshot();
 
@@ -131,16 +137,22 @@ export function follow(direction = "outgoing") {
  automatic propagation in tree
 */
 export function followTree(direction = "outgoing") {
+    // perimeterForNodesAction but controlled to avaoid too large set
+  let selectedNodes = perimeterForNodesAction();
+  let before = selectedNodes.length;
+
+  if (before > WARN_TOO_MANY_NODES_FOLLOW) {
+    showConfirm(`follow ${before} nodes may be long`, () => {
+      effectiveFollowTree(direction,selectedNodes);
+    });
+  }
+  else  effectiveFollowTree(direction,selectedNodes);
+}
+
+
+function effectiveFollowTree(direction, selectedNodes) {
   // not perimeterForNodesAction to avoid full nodes.
   let cy = getCy();
-
-  let selectedNodes = cy.nodes(":visible:selected");
-  let before = selectedNodes.length;
-  if (before === 0) {
-    //selectedNodes = cy.nodes(":visible");
-    showAlert("no starting nodes to follow.");
-    return;
-  }
 
   showWaitCursor();
   pushSnapshot();
@@ -212,12 +224,12 @@ export function followCrossAssociations() {
 
 /*
  partial save for list of chains
-
+ 
 export function downloadJson(jsonObject, filename = "trace.json") {
   const jsonStr = JSON.stringify(jsonObject, null, 2); // indentation
   const blob = new Blob([jsonStr], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-
+ 
   const a = document.createElement("a");
   a.href = url;
   a.download = filename; // nom du fichier proposé
@@ -272,7 +284,7 @@ calls treeDir() once for outgoing,
 calls it again for incoming,
 merges the results,
 and then fades out everything else (.not(keep).addClass("faded")). 
-
+ 
 */
 
 export function straightLineBidirectional(

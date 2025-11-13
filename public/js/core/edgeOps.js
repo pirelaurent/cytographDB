@@ -1,8 +1,9 @@
 
 import { getCy } from "../graph/cytoscapeCore.js";
-import {perimeterForEdgesAction} from "../core/perimeter.js";
+import { perimeterForEdgesAction, perimeterForNodesAction } from "../core/perimeter.js";
 import { ConstantClass } from "../util/common.js";
-import { showAlert} from "../ui/dialog.js";
+import { showAlert,showInfo } from "../ui/dialog.js";
+import { pushSnapshot, popSnapshot } from "../util/snapshots.js";
 
 // all about edges  (FKs, hide, selection, labels, police).
 
@@ -27,12 +28,15 @@ export function changeFontSizeEdge(value, increase = true) {
 */
 
 export function selectEdgesBetweenSelectedNodes() {
-  const selectedNodes = getCy().nodes(":selected");
-  if (selectedNodes.length === 0) {
-    showAlert("no selected nodes to work with.");
+
+  const selectedNodes = perimeterForNodesAction();
+
+  if (selectedNodes.length < 2) {
+    showAlert("not enough selected nodes to work with.");
     return;
   }
 
+  pushSnapshot();
   const selectedIds = new Set(selectedNodes.map((n) => n.id()));
 
   const internalEdges = getCy()
@@ -43,9 +47,14 @@ export function selectEdgesBetweenSelectedNodes() {
       return selectedIds.has(source) && selectedIds.has(target);
     });
 
-  internalEdges.show().select();
-}
 
+  if (internalEdges.length == 0) {
+    popSnapshot();
+    showInfo("no edges found between selected nodes.")
+  } else {
+    internalEdges.select();
+  }
+}
 function labelFKShow() {
   // Show visible edges, or selected ones if any are selected
   let edgesToShow = perimeterForEdgesAction();
@@ -102,16 +111,16 @@ export function hideDanglingEdges() {
   });
 }
 
-  export function labelStandardOrientation(){
-    let edges=perimeterForEdgesAction();
-    edges.removeClass('labelAbove');
-  }
-  export function labelAutoRotateOrientation(){
-    let edges=perimeterForEdgesAction();
-    edges.addClass('labelAbove');
-  }
-  
-  export function labelRestoreOrientation(){
-    let cy=getCy();
-    cy.edges().removeClass('labelAbove');
-  }
+export function labelStandardOrientation() {
+  let edges = perimeterForEdgesAction();
+  edges.removeClass('labelAbove');
+}
+export function labelAutoRotateOrientation() {
+  let edges = perimeterForEdgesAction();
+  edges.addClass('labelAbove');
+}
+
+export function labelRestoreOrientation() {
+  let cy = getCy();
+  cy.edges().removeClass('labelAbove');
+}

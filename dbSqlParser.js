@@ -7,9 +7,7 @@
 import { loadSQL } from "./public/sqlRequests/sql-loader.js";
 
 export async function getFunctionBody(client, fullTable, routineName) {
-
-  const [schema] = fullTable.split(".")[0];
-
+  const [schema,] = fullTable.split(".");
   const functionBody = await loadSQL('functionBody')
   const { rows } = await client.query(functionBody, [schema,routineName]);
   const r = rows[0];

@@ -70,7 +70,11 @@ export function listNodesToHtml(all=true) {
   });
 
   // open new window
+  
   const win = window.open("", "nodeListWindow");
+
+
+
   const doc = win.document;
 
   // ---- HEAD ----

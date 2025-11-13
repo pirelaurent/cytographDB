@@ -9,10 +9,10 @@ import { showAlert,modeSelect, AND_SELECTED } from "../ui/dialog.js";
  if selection : acts on selection
  otherwise acts on all nodes eventually visible only 
 */
-export function perimeterForNodesAction() {
+export function perimeterForNodesAction(restrictToVisibleFlag = true) {
   let nodes;
     const cy = getCy();
-  if (restrictToVisible()) {
+  if (restrictToVisibleFlag) {
     nodes = cy.nodes(":selected:visible");
     if (nodes.length == 0) nodes = cy.nodes(":visible");
   } else {

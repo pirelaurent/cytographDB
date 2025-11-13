@@ -48,7 +48,7 @@
     <script>
         async function loadFunctionCode() {
             const params = new URLSearchParams(window.location.search);
-            const table = params.get("table");
+            const fullName = params.get("fullName");
             const triggerName = params.get("triggerName");
             const name = params.get("name");
 
@@ -56,10 +56,7 @@
     style="cursor: pointer; vertical-align: middle; width: 25px; height: 25px;"
     onclick="window.tryClose()"
     />
-     ${table || "–"} `;
-
-
-
+     ${fullName || "–"} `;
 
             document.getElementById("tableTitle").innerHTML = whereTitle;
             document.getElementById("triggerTitle").textContent = "⚡ " + (triggerName || "–");

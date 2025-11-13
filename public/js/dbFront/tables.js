@@ -12,8 +12,8 @@ import {
 import { getCustomNodesCategories } from "../filters/categories.js";
 import { resetSnapshot } from "../util/snapshots.js";
 
-import { warningOutputHtml,NativeCategories } from "../util/common.js";
-
+import { warningOutputHtml, NativeCategories } from "../util/common.js";
+import { resolveUnqualified } from "../ui/schemas.js";
 
 /*
  as in a new page (and no session) dbname cannot be shared with main
@@ -47,7 +47,7 @@ export function openTable(tableId) {
 export function openTriggerPage(node) {
   if (node.hasClass(NativeCategories.HAS_TRIGGERS)) {
     const table = node.id();
-    const url = `/triggers.html?table=${encodeURIComponent(table)}`;
+    const url = `/triggers.html?fullName=${encodeURIComponent(table)}`;
     window.open(url, "triggers");
   } else {
     showInfo("no triggers on this table.");
@@ -58,7 +58,7 @@ export function openTriggerPage(node) {
  connect to db with graph or only db 
 */
 export function connectToDb(menuItemElement) {
-  
+
   return promptDatabaseSelectionNear(menuItemElement).then((dbName) => {
     if (!dbName) {
       // no selection of db , not an error
@@ -126,16 +126,14 @@ export async function connectToDbByNameWithoutLoading(dbName) {
 }
 
 // about DB through postgres
- let postgresConnected = false;
+let postgresConnected = false;
 // to set from several places
 export function setPostgresConnected() {
   postgresConnected = true;
 }
-export function getPostgresConnected(){
- return postgresConnected;
+export function getPostgresConnected() {
+  return postgresConnected;
 }
-
-
 
 /*
  to keep track of current DB
@@ -185,24 +183,31 @@ export async function generateTriggers(nodes) {
 
   let allWarnings = [];
   for (const aNode of nodesWithTriggers) {
-    let table = aNode.id();
+    let fullName = aNode.id();
     let data;
     try {
-      const response = await fetch(`/triggers?table=${table}`);
+      const response = await fetch(`/triggers?fullName=${fullName}`);
       data = await response.json();
 
       if (!response.ok) {
         throw new Error(`Server responded with status ${response.status}`);
       }
     } catch (error) {
-      console.error(`Error fetching triggers for table ${table}:`, error);
-      showError("Database is not accessible. Please check your connection.");
+      console.error(`Error fetching triggers for table ${fullName}:`, error);
+      showError("Database error. Please check your connection.");
       break; // on peut arrêter la boucle ici si ça ne sert à rien de continuer
     }
     if (!data || data.triggers.length === 0) {
-      showAlert(`no trigger for table ${aNode.id()}.`);
+      showAlert(`no trigger for table ${fullName}.`);
       return;
     }
+
+    // we need to resolve unqualified names in impacted tables
+
+    const response = await fetch(`/search_path`);
+    const spResult = await response.json();
+    const global_search_path = spResult.searchPath;  // Array de strings
+
 
     data.triggers.forEach((t) => {
       // bring back internal errors on parsing sql
@@ -210,14 +215,38 @@ export async function generateTriggers(nodes) {
         allWarnings.push(...t.warnings);
       }
       const triggerName = t.name;
-      const source = t.sourceTable || table; // à adapter si "table" est ailleurs
+
+
+      const source = t.sourceTable || fullName;
       const impactedTables = t.impactedTables || [];
 
+
       impactedTables.forEach((target) => {
+
+        /*
+        target are table names possibly qualified
+        need to resolve unqualified names
+        using the same search path as for functions
+        */
+
+
+        const resolvedTarget = resolveUnqualified(target, global_search_path);
+        if (!resolvedTarget) {
+          allWarnings.push({
+            table: ` ${source}`,
+            function: "trigger impact",
+            warn: `unresolved impact destination :  >  ${target}`,
+          });
+          return; // skip this target
+        }
+
+        target = resolvedTarget;
+
+
+
         const edgeId = triggerName;
 
         const targetNode = getCy().getElementById(target);
-
         const sourceNode = getCy().getElementById(source);
 
         if (targetNode.nonempty() && sourceNode.nonempty()) {
@@ -251,7 +280,7 @@ export async function generateTriggers(nodes) {
 
     getCy().style().update(); // forcer le style
   }
-
+  // once all done show warnings if any
   if (allWarnings.length > 0) {
     showAlert(warningOutputHtml(allWarnings));
   }

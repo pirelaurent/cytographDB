@@ -164,6 +164,30 @@ export function showError(textAlert) {
   ]);
 }
 
+export function showConfirm(textConfirm, onConfirm) {
+
+  showMultiChoiceDialog(" Confirm", textConfirm, 
+    //choices
+
+    [
+      {
+        label: "✅ Yes",
+        onClick: () => {
+          onConfirm();
+        },
+      },
+
+      {
+        label: "❌ No",
+        onClick: () => { }, // rien
+      },
+    ]
+  );
+
+}
+
+
+
 // default const OR_SELECTED = " or_selected";
 export const AND_SELECTED = "AND";
 

@@ -19,7 +19,7 @@ import {
   enterFkSynthesisMode,
 } from "../graph/detailedEdges.js";
 
-import { pushSnapshot } from "../util/snapshots.js";
+import { popSnapshot, pushSnapshot } from "../util/snapshots.js";
 
 import { showMultiChoiceDialog, showAlert } from "./dialog.js";
 
@@ -84,8 +84,7 @@ export function menuEdges(option, item, whichClic = "left") {
         select edges that rely selected nodes 
     */
     case "betweenNodes":
-      pushSnapshot();
-      selectEdgesBetweenSelectedNodes();
+     selectEdgesBetweenSelectedNodes();
       break;
 
     /*

@@ -10,10 +10,10 @@ import { enableTableSorting } from "../util/sortTable.js";
 */
 async function mainTriggers() {
   const params = new URLSearchParams(window.location.search);
-  const table = params.get("table");
+  const fullName = params.get("fullName");
   const content = document.getElementById("content");
 
-  if (!table) {
+  if (!fullName) {
     content.textContent = "Missing table parameter.";
     return;
   }
@@ -22,12 +22,12 @@ async function mainTriggers() {
     <img src="img/closePage.png" alt="Return" title="Close"
          style="cursor:pointer;vertical-align:middle;width:25px;height:25px;"
          onclick="window.tryClose()" />
-    ${table} ⚡
+    ${fullName} ⚡
   `;
-  document.title = `${table} ⚡`;
+  document.title = `${fullName} ⚡`;
 
   // fetch data
-  const response = await fetch(`/triggers?table=${encodeURIComponent(table)}`);
+  const response = await fetch(`/triggers?fullName=${encodeURIComponent(fullName)}`);
   const data = await response.json();
 
   if (!response.ok) {
@@ -73,8 +73,8 @@ async function mainTriggers() {
       t.functionNames && t.functionNames.length
         ? t.functionNames
             .map((fn) => {
-              const url = `/function.html?table=${encodeURIComponent(table)}&triggerName=${encodeURIComponent(t.name)}&name=${encodeURIComponent(fn)}`;
-              return `<a href="${url}" target="functionPage">${fn}</a>`;
+              const url = `/function.html?fullName=${encodeURIComponent(fullName)}&triggerName=${encodeURIComponent(t.name)}&name=${encodeURIComponent(fn)}`;
+              return `<a href="${url}" target="_blank">${fn}</a>`;
             })
             .join(", ")
         : `<code>${t.definition ?? ""}</code>`;
@@ -85,8 +85,8 @@ async function mainTriggers() {
     const calls =
       (t.calledFunctions || [])
         .map((fn) => {
-          const url = `/function.html?table=${encodeURIComponent(table)}&triggerName=${encodeURIComponent(t.name)}&name=${encodeURIComponent(fn)}`;
-          return `<a href="${url}" target="functionPage">${fn}</a>`;
+          const url = `/function.html?fullName=${encodeURIComponent(fullName)}&triggerName=${encodeURIComponent(t.name)}&name=${encodeURIComponent(fn)}`;
+          return `<a href="${url}" target="_blank">${fn}</a>`;
         })
         .join(", ") || "-";
 

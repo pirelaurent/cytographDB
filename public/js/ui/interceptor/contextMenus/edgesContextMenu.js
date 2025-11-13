@@ -50,7 +50,7 @@ export function setEdgeContextMenu() {
     if (!edgeForInfo || edgeForInfo.hasClass(NativeCategories.TRIGGER_IMPACT))
       return;
 
-    let synthEdges = cy.collection([edgeForInfo]);
+    //let synthEdges = cy.collection([edgeForInfo]);
 
     const isSynth = edgeForInfo.hasClass(ConstantClass.FK_SYNTH);
     const label = edgeForInfo.data("label");

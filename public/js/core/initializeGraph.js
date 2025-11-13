@@ -19,6 +19,7 @@ export function initializeGraph(data, fromDisk = false) {
   }
   cy.add(data);
   cy.scratch('schemas', data.schemas);
+  cy.scratch('tableNameSolver', new Map(data.tableNameSolver));
 
   fillInGuiNodesSchemasCategories()
 

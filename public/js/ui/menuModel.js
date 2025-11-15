@@ -43,8 +43,7 @@ export function menuModel(option, item, whichClic = "left") {
       pushSnapshot();
       outputMarkdown(
         {
-          download: false,
-          copyToClipboard: true,
+          ICON_COPY: true,
           title: " dependencies ",
         },
         organizeSelectedByDependencyLevels(), // that return text
@@ -63,8 +62,7 @@ export function menuModel(option, item, whichClic = "left") {
       pushSnapshot();
       outputMarkdown(
         {
-          download: false,
-          copyToClipboard: true,
+          ICON_COPY: true,
           title: "dependencies per category",
         },
         organizeSelectedByDependencyLevelsWithCategories('custom'), // that select and return MD
@@ -84,8 +82,7 @@ export function menuModel(option, item, whichClic = "left") {
       pushSnapshot();
       outputMarkdown(
         {
-          download: false,
-          copyToClipboard: true,
+          ICON_COPY: true,
           title: "dependencies per category",
         },
         organizeSelectedByDependencyLevelsWithCategories('schema'), // that select and return MD

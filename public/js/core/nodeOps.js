@@ -5,7 +5,7 @@ import { NativeCategories } from "../util/common.js";
 import { metrologie } from "../core/metrology.js";
 import { pushSnapshot } from "../util/snapshots.js";
 
-import { showInfo } from "../ui/dialog.js";
+import { showInfo, showToast } from "../ui/dialog.js";
 import {
   restrictToVisible,
   perimeterForNodesSelection,
@@ -276,18 +276,20 @@ function mapValue(value, inMin, inMax, outMin, outMax) {
 // alias nodes
 export function labelNodeAlias() {
 
-  let anyFound = false;
+  let anyFound = 0;
     const cy = getCy();
     const nodes = perimeterForNodesAction();
   cy.batch(() => {
     nodes.forEach((node) => {
       if (node.data("alias") != null) {
         node.data("label", node.data("alias"));
-        anyFound = true;
+        anyFound ++;
       }
     });
-    if (!anyFound) {
-      showInfo ("No alias found.(vSee custom code to set alias for nodes.)");
+    if (anyFound ==0 ) {
+      showInfo ("No alias found.(add custom code to set aliases)");
+    } else {
+      showToast(`${anyFound} nodes' aliases applied.`);
     }
   });
 }

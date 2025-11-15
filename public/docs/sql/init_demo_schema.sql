@@ -1,4 +1,23 @@
 -- -----------------------------
+-- Check BASE
+-- DB created separately 
+--      DROP DATABASE democytoDB;
+--      CREATE DATABASE democytoDB;
+-- 
+-- connect to democytoDB and run this script to create the demo schema
+-- -----------------------------
+DO $$
+BEGIN
+    IF current_database() <> 'democytoDB' THEN
+        RAISE EXCEPTION
+            '❌ bad Database : this script must be executed on democytoDB, Not on  : %',
+            current_database();
+    END IF;
+END;
+$$;
+
+
+-- -----------------------------
 -- DROP EXISTANT (SI REEXECUTION)
 -- -----------------------------
 

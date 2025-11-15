@@ -37,7 +37,8 @@ export function adjustClipReportBtn() {
 */
 function deployClipBtn() {
   let btnImg = document.getElementById("clip-img");
-  btnImg.src = "./img/clipFull.png";
+  // can be called from another document 
+  if (btnImg) btnImg.src = "./img/clipFull.png";
 }
 
 /*
@@ -46,7 +47,7 @@ function deployClipBtn() {
 
 function retractClipBtn() {
   let btnImg = document.getElementById("clip-img");
-  btnImg.src = "./img/clipShort.png";
+   if (btnImg) btnImg.src = "./img/clipShort.png";
 }
 
 /*

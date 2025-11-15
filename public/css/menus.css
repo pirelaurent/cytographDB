@@ -142,10 +142,11 @@ li[data-category="follow"] > ul.submenu > li:hover {
 /* --- Corrige le comportement des séparateurs dans les sous-menus --- */
 .menu .separator,
 .submenu .separator {
+  padding: 0px; /* to overwrite previous in menu*/
   display: block;
   width: calc(100% - 22px);      /* réduit un peu la largeur pour compenser les paddings */
   margin: 4px auto;              /* centre horizontalement */
-  border-top: 1px solid var(--border-color, #bbb);
+  border-top: 1px solid var(--border-color, #d9e2e9);
   pointer-events: none;          /* pas de hover */
   background: transparent;
   line-height: 0;

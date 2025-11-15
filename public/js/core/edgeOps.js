@@ -2,7 +2,7 @@
 import { getCy } from "../graph/cytoscapeCore.js";
 import { perimeterForEdgesAction, perimeterForNodesAction } from "../core/perimeter.js";
 import { ConstantClass } from "../util/common.js";
-import { showAlert,showInfo } from "../ui/dialog.js";
+import { showAlert, showInfo, showToast } from "../ui/dialog.js";
 import { pushSnapshot, popSnapshot } from "../util/snapshots.js";
 
 // all about edges  (FKs, hide, selection, labels, police).
@@ -55,40 +55,55 @@ export function selectEdgesBetweenSelectedNodes() {
     internalEdges.select();
   }
 }
-function labelFKShow() {
-  // Show visible edges, or selected ones if any are selected
-  let edgesToShow = perimeterForEdgesAction();
 
-  for (let edge of edgesToShow) {
-    if (edge.hasClass(ConstantClass.FK_DETAILED)) {
-      edge.addClass(`${ConstantClass.SHOW_COLUMNS}`);
-      //labelToShow = ele.data('columnsLabel').replace('\n', "<BR/>");
-    } else {
-      // FK_SYNTH
-      edge.addClass(`${ConstantClass.SHOW_LABEL}`);
-    }
+function oneLabelPerEdge(edge) {
+  if (edge.hasClass(ConstantClass.FK_DETAILED)) {
+    edge.addClass(`${ConstantClass.SHOW_COLUMNS}`);
+    //labelToShow = ele.data('columnsLabel').replace('\n', "<BR/>");
+  } else {
+    // FK_SYNTH
+    edge.addClass(`${ConstantClass.SHOW_LABEL}`);
   }
 }
 
+/*
+ acts on availables edges in the current perimeter (all visible or selected if any selected)
+*/
 export function labelFKAlias() {
   const cy = getCy();
-  cy.edges().forEach((e) => {
-    const alias = e.data("alias");
-    if (alias) e.data("_display", alias);
-    else e.data("_display", e.data("label"));
+  let aliased = 0;
+  cy.batch(() => {
+    let edgesToShow = perimeterForEdgesAction();
+
+    edgesToShow.forEach((e) => {
+      const alias = e.data("alias");
+      if (alias) {
+        e.data("_display", alias)
+      } else {
+        e.data("_display", e.data("label"));
+      }
+      oneLabelPerEdge(e);
+      aliased += 1;
+
+    });
   });
-  labelFKShow();
+  showToast(`${aliased} edges shown with alias.`);
 }
+
 
 export function labelFKId() {
   const cy = getCy();
-  cy.edges().forEach((e) => {
+
+  cy.batch(() => {
+    let edgesToShow = perimeterForEdgesAction();
+  edgesToShow.forEach((e) => {
     e.data("_display", e.data("label"));
+    oneLabelPerEdge(e);
   });
-  labelFKShow();
+
+});
+  showToast(`${edgesToShow.length} edges shown with standard id.`);
 }
-
-
 
 export function labelFKHide() {
   let edgesToHide = perimeterForEdgesAction();

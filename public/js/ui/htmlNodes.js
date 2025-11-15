@@ -36,10 +36,17 @@ export function listNodesToHtml(all=true) {
     return val !== 0 ? String(val) : "-";
   }
 
+/*
+ prepare data to table output looking at nodes properties 
+*/
+
+
   function rowValuesFromNode(node) {
-    // list of index in node include PK and optional unique constraints
-    // indexes = { name, definition, comment, constraint_type, is_primary?, is_unique? }
-    const realIndexes = (node.data("indexes") || []).filter((ix) => {
+    /*
+    list of index in node include PK and optional unique constraints
+     indexes = { name, definition, comment, constraint_type, is_primary?, is_unique? }
+ */
+   const realIndexes = (node.data("indexes") || []).filter((ix) => {
       const t = (ix.constraint_type || "").toUpperCase(); // 'PRIMARY KEY' | 'UNIQUE' | 'EXCLUDE' | ''
       const isPk = t === "PRIMARY KEY" || ix.is_primary === true;
       const isUnique =
@@ -51,6 +58,12 @@ export function listNodesToHtml(all=true) {
       return !isPk && !isUnique && !isExclude; // retire "&& !isExclude" pour conserver EXCLUDE
     });
 
+/*
+    count foreign keys 
+*/
+
+
+console.log(node.data("foreignKeys"));//PLA
     return [
       // remove the stars from label . leaved * test for old json reloaded 
       node.data("label").replace(/\*/g, "") || "",
@@ -72,11 +85,7 @@ export function listNodesToHtml(all=true) {
   // open new window
   
   const win = window.open("", "nodeListWindow");
-
-
-
   const doc = win.document;
-
   // ---- HEAD ----
   doc.title = "Node List";
 
@@ -176,12 +185,6 @@ export function listNodesToHtml(all=true) {
             tableId
           )}&currentDBName=${encodeURIComponent(getLocalDBName())}`;
           const name = `TableDetails_${tableId}`;
-
-          /*           window.open(
-                      `/table.html?name=${encodeURIComponent(tableId)}&currentDBName=${encodeURIComponent(getLocalDBName())}`,
-                      `TableDetails_${tableId}`
-                    ); 
-          */
           // 1) Tenter de récupérer la fenêtre existante
           let w = window.open("", name);
 

@@ -1,54 +1,82 @@
-SELECT
-  con.conname                      AS constraint_name,
-  src_ns.nspname                   AS source_schema,
-  src_table.relname                AS source_table,
-  tgt_ns.nspname                   AS target_schema,
-  tgt_table.relname                AS target_table,
+SELECT json_agg(fk_info) AS foreign_keys
+FROM (
+  SELECT
+    tc.constraint_name,
+    tc.table_schema AS source_schema,
+    tc.table_name   AS source_table,
 
-  -- 🔍 Commentaire sur la contrainte FK
-  obj_description(con.oid, 'pg_constraint') AS comment,
+    ccu.table_schema AS target_schema,
+    ccu.table_name   AS target_table,
 
-  -- Mapping des colonnes
-  (
-    SELECT json_agg(json_build_object(
-      'source_column', src_col.attname,
-      'source_not_null', src_col.attnotnull,
-      'target_column', tgt_col.attname
-    ) ORDER BY src_key.ordinality)
-    FROM unnest(con.conkey) WITH ORDINALITY AS src_key(attnum, ordinality)
-    JOIN unnest(con.confkey) WITH ORDINALITY AS tgt_key(attnum, ordinality)
-      ON src_key.ordinality = tgt_key.ordinality
-    JOIN pg_attribute src_col
-      ON src_col.attrelid = con.conrelid AND src_col.attnum = src_key.attnum
-    JOIN pg_attribute tgt_col
-      ON tgt_col.attrelid = con.confrelid AND tgt_col.attnum = tgt_key.attnum
-  ) AS column_mappings,
+    -- 🔍 Commentaire FK (si présent)
+    obj_description(pgcon.oid, 'pg_constraint') AS comment,
 
-  -- Toutes les colonnes source sont-elles NOT NULL ?
-  (
-    SELECT bool_and(src_col.attnotnull)
-    FROM unnest(con.conkey) AS conkey(attnum)
-    JOIN pg_attribute src_col
-      ON src_col.attrelid = con.conrelid AND src_col.attnum = conkey.attnum
-  ) AS all_source_not_null,
+    -- 🧩 Column mappings (comme la 1ère requête)
+    (
+      SELECT json_agg(
+        json_build_object(
+          'source_column', kcu.column_name,
+          'source_not_null', (col.is_nullable = 'NO'),
+          'target_column', ccu2.column_name
+        ) ORDER BY kcu.ordinal_position
+      )
+      FROM information_schema.key_column_usage kcu
+      JOIN information_schema.constraint_column_usage ccu2
+           ON ccu2.constraint_name = kcu.constraint_name
+          AND ccu2.constraint_schema = kcu.constraint_schema
+      JOIN information_schema.columns col
+           ON col.table_schema = kcu.table_schema
+          AND col.table_name   = kcu.table_name
+          AND col.column_name  = kcu.column_name
+      WHERE kcu.constraint_name = tc.constraint_name
+        AND kcu.constraint_schema = tc.table_schema
+    ) AS column_mappings,
 
-  -- Les colonnes cibles correspondent-elles à une UNIQUE/PK ?
-  EXISTS (
-    SELECT 1
-    FROM pg_constraint uniq_con
-    WHERE uniq_con.conrelid = con.confrelid
-      AND uniq_con.contype IN ('u', 'p')
-      AND uniq_con.conkey   = con.confkey
-  ) AS is_target_unique,
+    -- ✔ Toutes les colonnes source NOT NULL ?
+    (
+      SELECT bool_and(col.is_nullable = 'NO')
+      FROM information_schema.key_column_usage kcu
+      JOIN information_schema.columns col
+           ON col.table_schema = kcu.table_schema
+          AND col.table_name   = kcu.table_name
+          AND col.column_name  = kcu.column_name
+      WHERE kcu.constraint_name = tc.constraint_name
+        AND kcu.constraint_schema = tc.table_schema
+    ) AS all_source_not_null,
 
-  -- Types d’action ON DELETE / ON UPDATE
-  con.confdeltype AS on_delete,
-  con.confupdtype AS on_update
-FROM pg_constraint con
-JOIN pg_class src_table ON src_table.oid = con.conrelid
-JOIN pg_namespace src_ns ON src_ns.oid = src_table.relnamespace
-JOIN pg_class tgt_table ON tgt_table.oid = con.confrelid
-JOIN pg_namespace tgt_ns ON tgt_ns.oid = tgt_table.relnamespace
-WHERE con.contype = 'f'
-  AND src_ns.nspname NOT IN ('pg_catalog', 'information_schema')
-ORDER BY src_ns.nspname, src_table.relname, con.conname;
+    -- ✔ Les colonnes cibles sont-elles PK/UNIQUE ?
+    EXISTS (
+      SELECT 1
+      FROM information_schema.table_constraints tc2
+      JOIN information_schema.key_column_usage kcu2
+           ON tc2.constraint_name = kcu2.constraint_name
+          AND tc2.constraint_schema = kcu2.constraint_schema
+      WHERE tc2.table_schema = ccu.table_schema
+        AND tc2.table_name   = ccu.table_name
+        AND tc2.constraint_type IN ('PRIMARY KEY', 'UNIQUE')
+        AND tc2.constraint_name = (
+          SELECT constraint_name
+          FROM information_schema.constraint_column_usage
+          WHERE table_schema = ccu.table_schema
+            AND table_name   = ccu.table_name
+            AND column_name  = ccu.column_name
+            LIMIT 1
+        )
+    ) AS is_target_unique,
+
+    rc.delete_rule AS on_delete,
+    rc.update_rule AS on_update
+
+  FROM information_schema.table_constraints tc
+  JOIN information_schema.referential_constraints rc
+       ON tc.constraint_name = rc.constraint_name
+      AND tc.constraint_schema = rc.constraint_schema
+  JOIN information_schema.constraint_column_usage ccu
+       ON ccu.constraint_name = tc.constraint_name
+      AND ccu.constraint_schema = tc.constraint_schema
+  JOIN pg_constraint pgcon
+       ON pgcon.conname = tc.constraint_name
+  WHERE tc.constraint_type = 'FOREIGN KEY'
+    AND tc.table_schema NOT IN ('information_schema')
+    AND tc.table_schema NOT LIKE 'pg_%'
+) fk_info;

@@ -107,12 +107,12 @@ app.get("/search_path", async (req, res) => {
   const pool = getCurrentPool();
   if (!pool) return res.status(400).send("No DB in place.");
   let client;
-  try { 
+  try {
     client = await pool.connect();
     const result = await client.query('SELECT array_to_json(current_schemas(true)) AS sp');
     const searchPath = result.rows[0].sp; // Array of schema names  
     res.json({ searchPath });
-  } catch (error) {   
+  } catch (error) {
     console.error("Error fetching search path:", error);
     res.status(500).json({ error: "Error accessing database." });
   } finally {
@@ -142,8 +142,8 @@ app.post("/load-from-db", async (req, res) => {
 
     // get list of tables in schemas to solve later not qualified names in triggers
 
- const schemas_tables_list = await loadSQL('schemas_tables_list');
-const res_schemas_tables_list = await client.query(schemas_tables_list);
+    const schemas_tables_list = await loadSQL('schemas_tables_list');
+    const res_schemas_tables_list = await client.query(schemas_tables_list);
 
 
     const tableNameSolver = new Map(); // table → [schemas]
@@ -157,12 +157,12 @@ const res_schemas_tables_list = await client.query(schemas_tables_list);
 
 
 
-   /*
-    'a' => [ 'pe' ],
-    'address' => [ 'humanresources', 'person' ],
-    'addresstype' => [ 'person' ],
-    ...
-   */
+    /*
+     'a' => [ 'pe' ],
+     'address' => [ 'humanresources', 'person' ],
+     'addresstype' => [ 'person' ],
+     ...
+    */
 
 
     /******************************************************************
@@ -262,12 +262,18 @@ const res_schemas_tables_list = await client.query(schemas_tables_list);
       all foreign key in one shot and fill in a dictionary
     */
     const allFkSQL = await loadSQL("allFkAllTables");
-    const result = await client.query(allFkSQL);
+    const resultFk = await client.query(allFkSQL);
+
+    console.log(JSON.stringify(resultFk, 0, 2));//PLA
+
 
     const fkByTable = new Map();
+    // get the array of FK
+    const fkRows = resultFk.rows[0]?.foreign_keys ?? [];
 
-    for (const row of result.rows) {
+    for (const row of fkRows) {
       const fullName = `${row.source_schema}.${row.source_table}`;
+
       const fkInfo = {
         name: row.constraint_name,
         comment: row.comment || null,
@@ -422,7 +428,7 @@ const res_schemas_tables_list = await client.query(schemas_tables_list);
      ******************************************************************/
 
 
-    res.json({ nodes, edges: filteredEdges, schemas: schemas ,   tableNameSolver: [...tableNameSolver]});
+    res.json({ nodes, edges: filteredEdges, schemas: schemas, tableNameSolver: [...tableNameSolver] });
   } catch (error) {
     console.error("error loading graph :", error);
     res.status(500).json({ error: "Error accessing database" });
@@ -735,7 +741,7 @@ app.get("/triggers", async (req, res) => {
 
     const { rows } = await client.query(oneTableTriggers, [schema, table]);
     const filteredTriggers = rows;
- 
+
 
     const enriched = await Promise.all(
       filteredTriggers.map(async (row) => {

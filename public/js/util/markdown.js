@@ -4,17 +4,30 @@ import { showError, showToast } from "../ui/dialog.js";
 import { setClipReport } from "./clipReport.js";
 import { exportXlsx } from "./excel.js";
 
-
-
-
 /*
  create a document part to set in place the icons for download and copy/paste in markdown
  The result must be appended in place by the caller 
-
- RootMd is used when several Md Icons are on the same page 
+ icon_id is used to distinguish several Md Icons on the same page 
  */
 
-export function bandeauMarkdown(doc, rootMd = "") {
+export const ICON_MARKDOWN = "mkDownload";
+export const ICON_COPY = "mkCopy";
+export const ICON_EXCEL = "xlsDownload";
+
+/*
+ create a line with icons for output 
+ To rely events to right icon (can have several on same page) give an identifier 
+ Default options : all icons
+*/
+
+export function bandeauMarkdown(doc, icon_id = "", opts) {
+
+  if (!opts) opts = {
+    ICON_COPY: true,
+    ICON_MARKDOWN: true,
+    ICON_EXCEL: true
+  }
+
   const base = doc.baseURI; // base de la nouvelle fenêtre
   const url = (p) => new URL(p, base).href;
 
@@ -24,73 +37,73 @@ export function bandeauMarkdown(doc, rootMd = "") {
   actions.setAttribute("aria-label", "Actions Markdown");
 
   // markdown Download
-  const imgDl = doc.createElement("img");
-  imgDl.id = rootMd + "mkDownload";
-  imgDl.src = url("./img/mkDownload.png");
-  imgDl.alt = "Download Markdown";
-  imgDl.title = "download Markdown";
-  imgDl.height = 20;
-   imgDl.width = 28;
-  imgDl.setAttribute("aria-hidden", "true");
-  imgDl.style.cursor = "pointer";
-  actions.appendChild(imgDl);
+  if (opts.ICON_MARKDOWN) {
+    const imgDl = doc.createElement("img");
+    imgDl.id = icon_id + ICON_MARKDOWN;
+    imgDl.src = url("./img/mkDownload.png");
+    imgDl.alt = "Download Markdown";
+    imgDl.title = "ownload Markdown";
+    imgDl.height = 20;
+    imgDl.width = 28;
+    imgDl.setAttribute("aria-hidden", "true");
+    imgDl.style.cursor = "pointer";
+    actions.appendChild(imgDl);
+  }
 
   // csv Download
-  const imgCsv = doc.createElement("img");
-  imgCsv.id = rootMd + "xlsDownload";
-  imgCsv.src = url("./img/xlsDownload.png");
-  imgCsv.alt = "Download CSV";
-  imgCsv.title = "download CSV";
-  imgCsv.height = 20;
-  imgCsv.width = 28;
-  imgCsv.setAttribute("aria-hidden", "true");
-  imgCsv.style.cursor = "pointer";
-  actions.appendChild(imgCsv);
-
+  if (opts.ICON_EXCEL==true) {
+    const imgXls = doc.createElement("img");
+    imgXls.id = icon_id + ICON_EXCEL;
+    imgXls.src = url("./img/xlsDownload.png");
+    imgXls.alt = "Download XLS";
+    imgXls.title = "download XLS";
+    imgXls.height = 20;
+    imgXls.width = 28;
+    imgXls.setAttribute("aria-hidden", "true");
+    imgXls.style.cursor = "pointer";
+    actions.appendChild(imgXls);
+  }
 
   // Copy
-  const imgCp = doc.createElement("img");
-  imgCp.id = rootMd + "mdCopy";
-  imgCp.src = url("./img/clipboardCopy.png");
-  imgCp.alt = "Copy markdown to clipboard";
-  imgCp.title = "Copy markdown to clipboard";
-  imgCp.height = 20;
-  imgCp.width = 20  ;
-  imgCp.setAttribute("aria-hidden", "true");
-  imgCp.style.cursor = "pointer";
-  actions.appendChild(imgCp);
-
+  if (opts.ICON_COPY) {
+    const imgCp = doc.createElement("img");
+    imgCp.id = icon_id + ICON_COPY;
+    imgCp.src = url("./img/clipboardCopy.png");
+    imgCp.alt = "Copy markdown to clipboard";
+    imgCp.title = "Copy markdown to clipboard";
+    imgCp.height = 20;
+    imgCp.width = 20;
+    imgCp.setAttribute("aria-hidden", "true");
+    imgCp.style.cursor = "pointer";
+    actions.appendChild(imgCp);
+  }
   return actions;
 }
 
 /*
   weave the event with markdown icons for any named table .
-  Use same rootMd as the one used in bandeau
+  Use same icon_id as the one used in bandeau
 
 */
 
-export function setEventMarkdown(doc, tableName, title, rootMd = "") {
+export function setEventMarkdown(doc, tableName, title, icon_id = "") {
 
-  doc.getElementById(rootMd + "mdCopy")?.addEventListener("click", async () => {
+  doc.getElementById(icon_id + ICON_COPY)?.addEventListener("click", async () => {
     htmlTableToMarkdown(
       tableName,
       {
-        download: false,
-        xlsDownload: false,
-        copyToClipboard: true,
+        ICON_COPY: true,
       },
       title,
       doc
     );
   });
 
-  doc.getElementById(rootMd + "xlsDownload")?.addEventListener("click", async () => {
+  doc.getElementById(icon_id + ICON_EXCEL)?.addEventListener("click", async () => {
     htmlTableToMarkdown(
       tableName,
       {
-        download: false,
-        xlsDownload: true,
-        copyToClipboard: false,
+        ICON_EXCEL: true,
         filename: `columns_${tableName || "table"}.xlsx`,
       },
       title,
@@ -99,13 +112,11 @@ export function setEventMarkdown(doc, tableName, title, rootMd = "") {
   });
 
 
-  doc.getElementById(rootMd + "mkDownload")?.addEventListener("click", () => {
+  doc.getElementById(icon_id + ICON_MARKDOWN)?.addEventListener("click", () => {
     htmlTableToMarkdown(
       tableName,
       {
-        download: true,
-        xlsDownload: false,
-        copyToClipboard: false,
+        ICON_MARKDOWN: true,
         filename: `columns_${tableName || "table"}.md`,
       },
       title,
@@ -116,8 +127,8 @@ export function setEventMarkdown(doc, tableName, title, rootMd = "") {
 
 /*
  general output  Html to markdown
-
- fileName : the futur .md downloaded file 
+note: tableId is the identifier of the table in html not a js table
+ fileName : the future .md downloaded file 
  tableId : a tag in the html <table id = 'my Id'>
 */
 
@@ -128,7 +139,7 @@ export function htmlTableToMarkdown(
   title,
   root = document
 ) {
-  //console.log("htmlTableToMarkdown", tableId, opts);
+
   const el = root.getElementById(tableId);
   if (!el) {
     showError(`Table with id="${tableId}" not found`);
@@ -190,12 +201,12 @@ export function htmlTableToMarkdown(
   let cells;
 
 
-  if (opts.xlsDownload) {
+  if (opts.ICON_EXCEL) {
     headerCells = Array.from(headRows[0].cells).map((c) =>
       escapeCellXls(getCellContent(c))
     );
     allXlsRows.push(headerCells);
-   
+
     // lines corps
     bodyLines = bodyRows.map((tr) => {
       cells = Array.from(tr.cells).map((c) =>
@@ -207,7 +218,7 @@ export function htmlTableToMarkdown(
     exportXlsx(allXlsRows, filename)
   }
   else {
-    headerCells = Array.from(headRows[0].cells).map((c) => 
+    headerCells = Array.from(headRows[0].cells).map((c) =>
       escapeCellMk(getCellContent(c))
     );
     headerLine = `| ${headerCells.join(" | ")} |`;
@@ -234,19 +245,19 @@ export function outputMarkdown(opts = {}, tableText, root) {
   // output .md : file or clipboard
   let filename = opts.filename ?? `default.md`;
 
-  if (opts.copyToClipboard) {
+  if (opts.ICON_COPY) {
     const tableWin = root.defaultView || window;
     tableWin.navigator.clipboard?.writeText(tableText).catch((err) => {
       console.error("Clipboard copy failed:", err);
     });
     //showInfo(" content copied in clipboard !", root);
     // also set in internal report 
-    const title = opts.title ? opts.title : "no title"; 
+    const title = opts.title ? opts.title : "no title";
     setClipReport(title, tableText);
     showToast(`content copied in clipboard and clipReport! (${title})`, root);
   }
   let blob;
-  if (opts.download === true) {
+  if (opts.ICON_MARKDOWN) {
     blob = new Blob([tableText], { type: "text/markdown" });
     startDownload();
   }
@@ -277,7 +288,7 @@ export function createHeaderMarkdown(doc) {
   h3.id = "columnNumber";
   h3.className = "section-title";
   h3.textContent = ""; // Columns in table details, no name here
- const wrap = doc.createElement("div");
+  const wrap = doc.createElement("div");
   wrap.className = "section-actions";
   h3.appendChild(wrap);
   header.appendChild(h3);

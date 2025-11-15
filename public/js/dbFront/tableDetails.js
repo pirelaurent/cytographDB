@@ -7,6 +7,10 @@ import {
   bandeauMarkdown,
   setEventMarkdown,
   outputMarkdown,
+  ICON_MARKDOWN,
+  ICON_COPY,
+
+
 } from "../util/markdown.js";
 import { enableTableSorting } from "../util/sortTable.js";
 import { actionMap, actionTitle } from "../util/common.js";
@@ -22,6 +26,8 @@ export async function getTableData(tableName) {
       throw new Error(` HTTP error ${response.status}`);
     }
     const data = await response.json();
+
+
     return { success: true, data };
   } catch (error) {
     return { success: false, error };
@@ -70,7 +76,7 @@ getTableData(tableName).then((result) => {
     const columnNumber = document.getElementById("columnNumber");
     columnNumber.innerHTML += `<small>(${data.columns.length})</small>`;
     // add markdown in same div
-     sectionHeader = columnNumber.closest(".section-header");
+    sectionHeader = columnNumber.closest(".section-header");
 
     let actions = sectionHeader.querySelector(".section-actions");
     if (!actions) {
@@ -79,7 +85,7 @@ getTableData(tableName).then((result) => {
       sectionHeader.appendChild(actions);
     }
 
-     markdown = bandeauMarkdown(document, "forColTable");
+    markdown = bandeauMarkdown(document, "forColTable");
     actions.appendChild(markdown);
 
 
@@ -94,8 +100,6 @@ getTableData(tableName).then((result) => {
         `TableDetails10rows_${tableName}`
       );
     });
-
-    console.log("columns in tabledetails html:", data.columns);
 
     //columns vertically 
     data.columns.forEach((col) => {
@@ -188,7 +192,7 @@ Primary key
     /*
 
 foreign keys 
-
+ it's not a table. adjust markdown/slx 
 
     //  foreign keys  X-A-Y   FK:  A-AX  A-AY
     //   A*B*	plusieurs A pour plusieurs B	A.id et B.id non uniques
@@ -200,6 +204,7 @@ foreign keys
 
     const fkDiv = document.getElementById("foreignKeysContainer");
     const fkNumber = document.getElementById("fkNumber");
+    const FOR_FK = "forFK"
 
     fkNumber.innerHTML += `<small>(${data.foreignKeys.length})</small>`;
 
@@ -209,34 +214,51 @@ foreign keys
       const frag = document.createDocumentFragment();
 
       sectionHeader = fkNumber.closest(".section-header");
-      markdown = bandeauMarkdown(document, "forFK");
+      markdown = bandeauMarkdown(document, `${FOR_FK}`,{ICON_COPY: true, ICON_MARKDOWN: true});
       sectionHeader.appendChild(markdown);
 
       //specific event for FK in markdown
       document
-        .getElementById("forFKmdCopy")
-        ?.addEventListener("click", async () =>
+        .getElementById(`${FOR_FK}${ICON_COPY}`)
+        ?.addEventListener("click", async () => {
           outputMarkdown(
             {
-              download: false,
-              copyToClipboard: true,
+              ICON_COPY: true,
             },
-            fkToMd(tableName, data.foreignKeys)
+            fkToMd(tableName, data.foreignKeys),
+            document
           )
+        }
         );
 
       document
-        .getElementById("forFKmdDownload")
-        ?.addEventListener("click", async () =>
+        .getElementById(`${FOR_FK}${ICON_MARKDOWN}`)
+        ?.addEventListener("click", async () => {
           outputMarkdown(
             {
-              download: true,
-              copyToClipboard: false,
+              ICON_MARKDOWN: true,
             },
-            fkToMd(tableName, data.foreignKeys)
+            fkToMd(tableName, data.foreignKeys),
+            document
           )
+        }
+        );
+/*
+      document
+        .getElementById(`${FOR_FK}${ICON_EXCEL}`)
+        ?.addEventListener("click", async () => {
+          // direct call to the export for table 
+          htmlTableToMarkdown( 'pouet',{
+            ICON_EXCEL: true
+          }, `${tableName}_fk`, document)
+        }
         );
 
+*/
+
+      /*
+       create data to export 
+      */
       data.foreignKeys.forEach((fk) => {
         // if no action, no output
 
@@ -332,7 +354,8 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
 
     const indexNumber = document.getElementById("indexNumber");
     sectionHeader = indexNumber.closest(".section-header");
-    markdown = bandeauMarkdown(document, "forIndex");
+    const FOR_INDEX = "for_index";
+    markdown = bandeauMarkdown(document, FOR_INDEX);
     sectionHeader.appendChild(markdown);
 
     // Partitionning
@@ -354,26 +377,26 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
 
     //specific event for FK in markdown
     document
-      .getElementById("forIndexmdCopy")
+      .getElementById(FOR_INDEX + ICON_COPY)
       ?.addEventListener("click", async () =>
         outputMarkdown(
           {
-            download: false,
-            copyToClipboard: true,
+            ICON_COPY: true,
           },
-          indexToMd(tableName, primary, uniqueOrExclude, pure)
+          indexToMd(tableName, primary, uniqueOrExclude, pure),
+          document
         )
       );
 
     document
-      .getElementById("forIndexmdDownload")
+      .getElementById(FOR_INDEX + ICON_MARKDOWN)
       ?.addEventListener("click", async () =>
         outputMarkdown(
           {
-            download: true,
-            copyToClipboard: false,
+            ICON_MARKDOWN: true,
           },
-          indexToMd(tableName, primary, uniqueOrExclude, pure)
+          indexToMd(tableName, primary, uniqueOrExclude, pure),
+          document
         )
       );
 
@@ -401,8 +424,8 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
           indicator = "(uniq constraint)";
         }
         titleDiv.innerHTML = `${idx.name}${indicator ?? ""} ${idx.comment
-            ? `<span class="comment-icon" style="cursor:help" title="${idx.comment}"></span>`
-            : ""
+          ? `<span class="comment-icon" style="cursor:help" title="${idx.comment}"></span>`
+          : ""
           }`;
         block.appendChild(titleDiv);
         //

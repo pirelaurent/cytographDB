@@ -387,8 +387,7 @@ export function selectByName(pattern, hiddenType) {
 
     outputMarkdown(
       {
-        download: false,
-        copyToClipboard: true,
+        ICON_COPY: true,
         title: `search columm with ${pattern}`,
       },
       output, // that return text

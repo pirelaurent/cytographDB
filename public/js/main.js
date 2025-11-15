@@ -34,7 +34,8 @@ import { setCy } from "./graph/cytoscapeCore.js";
 
 export function main() {
   console.log("start of application cytographDB");
-  // autre layout
+
+  // autre layout indépendant
   cytoscape.use(cytoscapeDagre);
   
   setCy(cytoscape({

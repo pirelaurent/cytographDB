@@ -1,0 +1,297 @@
+init environment using .env
+Server started.App now available on http://localhost:3033
+[
+  {
+    "constraint_name": "fk_fact_comp",
+    "source_schema": "public",
+    "source_table": "factory",
+    "target_schema": "public",
+    "target_table": "company",
+    "comment": null,
+    "column_mappings": [
+      {
+        "source_column": "company_id",
+        "source_not_null": true,
+        "target_column": "id"
+      }
+    ],
+    "all_source_not_null": true,
+    "is_target_unique": false,
+    "on_delete": "c",
+    "on_update": "a"
+  },
+  {
+    "constraint_name": "fk_prod_comp_fact",
+    "source_schema": "public",
+    "source_table": "production_line",
+    "target_schema": "public",
+    "target_table": "factory",
+    "comment": null,
+    "column_mappings": [
+      {
+        "source_column": "company_id",
+        "source_not_null": true,
+        "target_column": "company_id"
+      },
+      {
+        "source_column": "factory_id",
+        "source_not_null": true,
+        "target_column": "id"
+      }
+    ],
+    "all_source_not_null": true,
+    "is_target_unique": false,
+    "on_delete": "a",
+    "on_update": "a"
+  },
+  {
+    "constraint_name": "fk_line_prod_comp_fact_prod_line",
+    "source_schema": "public",
+    "source_table": "line_product",
+    "target_schema": "public",
+    "target_table": "production_line",
+    "comment": null,
+    "column_mappings": [
+      {
+        "source_column": "company_id",
+        "source_not_null": true,
+        "target_column": "company_id"
+      },
+      {
+        "source_column": "factory_id",
+        "source_not_null": true,
+        "target_column": "factory_id"
+      },
+      {
+        "source_column": "production_line_id",
+        "source_not_null": true,
+        "target_column": "id"
+      }
+    ],
+    "all_source_not_null": true,
+    "is_target_unique": false,
+    "on_delete": "c",
+    "on_update": "a"
+  },
+  {
+    "constraint_name": "fk_line_prod_prod",
+    "source_schema": "public",
+    "source_table": "line_product",
+    "target_schema": "public",
+    "target_table": "product",
+    "comment": null,
+    "column_mappings": [
+      {
+        "source_column": "product_id",
+        "source_not_null": true,
+        "target_column": "id"
+      }
+    ],
+    "all_source_not_null": true,
+    "is_target_unique": false,
+    "on_delete": "c",
+    "on_update": "a"
+  },
+  {
+    "constraint_name": "fk_comp_fact",
+    "source_schema": "public",
+    "source_table": "employee",
+    "target_schema": "public",
+    "target_table": "factory",
+    "comment": null,
+    "column_mappings": [
+      {
+        "source_column": "company_id",
+        "source_not_null": true,
+        "target_column": "company_id"
+      },
+      {
+        "source_column": "factory_id",
+        "source_not_null": true,
+        "target_column": "id"
+      }
+    ],
+    "all_source_not_null": true,
+    "is_target_unique": false,
+    "on_delete": "a",
+    "on_update": "a"
+  },
+  {
+    "constraint_name": "fk_emp_works_with",
+    "source_schema": "public",
+    "source_table": "employee",
+    "target_schema": "public",
+    "target_table": "employee",
+    "comment": "Reflexive FK: employee works with another.",
+    "column_mappings": [
+      {
+        "source_column": "works_with_company_id",
+        "source_not_null": false,
+        "target_column": "company_id"
+      },
+      {
+        "source_column": "works_with_id",
+        "source_not_null": false,
+        "target_column": "id"
+      }
+    ],
+    "all_source_not_null": false,
+    "is_target_unique": false,
+    "on_delete": "n",
+    "on_update": "a"
+  },
+  {
+    "constraint_name": "fk_emp_chief",
+    "source_schema": "public",
+    "source_table": "employee",
+    "target_schema": "public",
+    "target_table": "employee",
+    "comment": "Reflexive FK: employee's chief.",
+    "column_mappings": [
+      {
+        "source_column": "chief_company_id",
+        "source_not_null": false,
+        "target_column": "company_id"
+      },
+      {
+        "source_column": "chief_id",
+        "source_not_null": false,
+        "target_column": "id"
+      }
+    ],
+    "all_source_not_null": false,
+    "is_target_unique": false,
+    "on_delete": "n",
+    "on_update": "a"
+  },
+  {
+    "constraint_name": "fk_skills_comp_emp",
+    "source_schema": "public",
+    "source_table": "skills",
+    "target_schema": "public",
+    "target_table": "employee",
+    "comment": null,
+    "column_mappings": [
+      {
+        "source_column": "company_id",
+        "source_not_null": true,
+        "target_column": "company_id"
+      },
+      {
+        "source_column": "employee_id",
+        "source_not_null": true,
+        "target_column": "id"
+      }
+    ],
+    "all_source_not_null": true,
+    "is_target_unique": false,
+    "on_delete": "a",
+    "on_update": "a"
+  },
+  {
+    "constraint_name": "fk_auth_comp_emp_fact_prod_line",
+    "source_schema": "public",
+    "source_table": "authorization",
+    "target_schema": "public",
+    "target_table": "employee",
+    "comment": null,
+    "column_mappings": [
+      {
+        "source_column": "company_id",
+        "source_not_null": true,
+        "target_column": "company_id"
+      },
+      {
+        "source_column": "employee_id",
+        "source_not_null": true,
+        "target_column": "id"
+      }
+    ],
+    "all_source_not_null": true,
+    "is_target_unique": false,
+    "on_delete": "c",
+    "on_update": "a"
+  },
+  {
+    "constraint_name": "fk_auth_comp_fact_prod_line",
+    "source_schema": "public",
+    "source_table": "authorization",
+    "target_schema": "public",
+    "target_table": "production_line",
+    "comment": null,
+    "column_mappings": [
+      {
+        "source_column": "company_id",
+        "source_not_null": true,
+        "target_column": "company_id"
+      },
+      {
+        "source_column": "factory_id",
+        "source_not_null": true,
+        "target_column": "factory_id"
+      },
+      {
+        "source_column": "production_line_id",
+        "source_not_null": true,
+        "target_column": "id"
+      }
+    ],
+    "all_source_not_null": true,
+    "is_target_unique": false,
+    "on_delete": "c",
+    "on_update": "a"
+  },
+  {
+    "constraint_name": "fk_int_comp_emp",
+    "source_schema": "public",
+    "source_table": "intervention",
+    "target_schema": "public",
+    "target_table": "employee",
+    "comment": null,
+    "column_mappings": [
+      {
+        "source_column": "company_id",
+        "source_not_null": true,
+        "target_column": "company_id"
+      },
+      {
+        "source_column": "employee_id",
+        "source_not_null": true,
+        "target_column": "id"
+      }
+    ],
+    "all_source_not_null": true,
+    "is_target_unique": false,
+    "on_delete": "c",
+    "on_update": "a"
+  },
+  {
+    "constraint_name": "fk_int_comp_fact_prod_line",
+    "source_schema": "public",
+    "source_table": "intervention",
+    "target_schema": "public",
+    "target_table": "production_line",
+    "comment": null,
+    "column_mappings": [
+      {
+        "source_column": "company_id",
+        "source_not_null": true,
+        "target_column": "company_id"
+      },
+      {
+        "source_column": "factory_id",
+        "source_not_null": true,
+        "target_column": "factory_id"
+      },
+      {
+        "source_column": "production_line_id",
+        "source_not_null": true,
+        "target_column": "id"
+      }
+    ],
+    "all_source_not_null": true,
+    "is_target_unique": false,
+    "on_delete": "c",
+    "on_update": "a"
+  }
+]

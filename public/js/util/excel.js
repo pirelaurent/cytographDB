@@ -1,3 +1,10 @@
+/*
+  export a table in excel. 
+  Page must have loaded the lib 
+    <script src="/js/external/xlsx.full.min.js"></script>
+
+*/
+
 export function exportXlsx(rows, filename = "export.xlsx") {
   // 1. Création du workbook et de la feuille
   const wb = XLSX.utils.book_new();

@@ -18,20 +18,12 @@ export function initializeGraph(data, fromDisk = false) {
     cy.elements().remove();
   }
 
-console.log(JSON.stringify(data,0,2));//PLA
+
 
   cy.add(data);
   // store schemas info in scratch pad 
   cy.scratch('schemas', data.schemas);
   cy.scratch('tableNameSolver', new Map(data.tableNameSolver));
-
-//PLA check 
-cy.nodes().forEach((n)=>{
-console.log(n.data()['foreignKeys']);
-console.log('-----------------------')
-});
-
-
 
 
   fillInGuiNodesSchemasCategories()

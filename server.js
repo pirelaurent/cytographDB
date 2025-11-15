@@ -51,7 +51,7 @@ import {
 }
   from "./public/sqlRequests/sql-loader.js";
 
-import { encodeCol2Col } from "./public/js/util/common.js";
+
 import { getTableDetails } from "./dbDetails.js";
 import { exportAll } from "./exportTables.js";
 
@@ -155,8 +155,6 @@ app.post("/load-from-db", async (req, res) => {
       tableNameSolver.get(tbl).push(sch);
     }
 
-
-
     /*
      'a' => [ 'pe' ],
      'address' => [ 'humanresources', 'person' ],
@@ -193,29 +191,9 @@ app.post("/load-from-db", async (req, res) => {
       });
     }
 
-    /******************************************************************
-     * 2. RÉCUPÉRER LES FOREIGN KEYS ENTRE TOUS LES SCHÉMAS
-     ******************************************************************/
-    const allEdgesAllTables = await loadSQL('allEdgesAllTables');
-    const fkResult = await client.query(allEdgesAllTables);
-
-    // fkColumnMap["schema.table"] = [ { column, nullable }, ... ]
-    const fkColumnMap = {};
-
-    fkResult.rows.forEach(
-      ({ source_schema, source, source_column, source_not_null }) => {
-        const fullSource = `${source_schema}.${source}`;
-        if (!fkColumnMap[fullSource]) fkColumnMap[fullSource] = [];
-        fkColumnMap[fullSource].push({
-          column: source_column,
-          nullable: !source_not_null, // true si FK nullable
-        });
-      }
-    );
 
     /*
-     all triggers in one shot and fill in a dictionary
- 
+     all triggers in one shot and fill in a dictionary 
       Note: string_agg(event_manipulation) pour avoir INSERT/UPDATE/DELETE
  */
 
@@ -259,19 +237,21 @@ app.post("/load-from-db", async (req, res) => {
     }
 
     /*
-      all foreign key in one shot and fill in a dictionary
+      
+    all foreign keys in one shot and fill in a dictionary
+
     */
     const allFkSQL = await loadSQL("allFkAllTables");
     const resultFk = await client.query(allFkSQL);
 
-    console.log(JSON.stringify(resultFk, 0, 2));//PLA
-
-
     const fkByTable = new Map();
     // get the array of FK
-    const fkRows = resultFk.rows[0]?.foreign_keys ?? [];
+    const Fk_array = resultFk.rows[0]?.foreign_keys ?? [];
 
-    for (const row of fkRows) {
+    //console.log("allFkAllTables results");//pla
+    console.log(JSON.stringify(Fk_array, 0, 2));//PLA
+
+    for (const row of Fk_array) {
       const fullName = `${row.source_schema}.${row.source_table}`;
 
       const fkInfo = {
@@ -333,10 +313,6 @@ app.post("/load-from-db", async (req, res) => {
     // const idx = indexesByTable.get('public.orders');
     // -> tableau d’index de la table orders
 
-
-
-
-
     /*
     tableNames like ["production.product", "sales.salesorderheader", ...]
     columnMap[fullName] = [ { column, type, nullable, comment }, ... ]
@@ -380,7 +356,10 @@ app.post("/load-from-db", async (req, res) => {
         // label default with or without schema @todo : user option
         label: fullName, // idem pour l'affichage
         columns: columnMap[fullName], // tableau d'objets { column, type, nullable, comment }
-        foreignKeys: fkColumnMap[fullName] || [],
+
+        //foreignKeys: fkColumnMap[fullName] || [],
+        foreignKeys: fkByTable.get(fullName) ?? [],
+
         comment: commentsByTable[fullName] || [],
         primaryKey: pkByTable[fullName] || [],
         indexes: indexesByTable[fullName] || [],
@@ -392,36 +371,51 @@ app.post("/load-from-db", async (req, res) => {
     /******************************************************************
      * 6. CONSTRUIRE LES EDGES FK POUR CYTOSCAPE
      ******************************************************************/
-    const filteredEdges = fkResult.rows
-      .map((e) => {
-        const fullSource = `${e.source_schema}.${e.source}`;
-        const fullTarget = `${e.target_schema}.${e.target}`;
-        return { e, fullSource, fullTarget };
+    const filteredEdges = Fk_array
+      .map((fk) => {
+        const fullSource = `${fk.source_schema}.${fk.source_table}`;
+        const fullTarget = `${fk.target_schema}.${fk.target_table}`;
+        return { fk, fullSource, fullTarget };
       })
       .filter(
         ({ fullSource, fullTarget }) =>
           tableNames.includes(fullSource) &&
           tableNames.includes(fullTarget)
       )
-      .map(({ e, fullSource, fullTarget }) => ({
-        data: {
-          source: fullSource,
-          target: fullTarget,
-          label: e.constraint_name,
-          columnsLabel: encodeCol2Col(e.source_column, e.target_column),
-          onDelete: e.on_delete, // CASCADE, NO ACTION, etc.
-          onUpdate: e.on_update,
-          nullable: !e.source_not_null,
-        },
-        classes: [
-          "fk_detailed",
-          e.on_delete === "CASCADE" ? "delete_cascade" : "",
-          e.on_delete === "RESTRICT" ? "delete_restrict" : "",
-          !e.source_not_null ? "nullable" : "",
-        ]
-          .filter(Boolean)
-          .join(" "),
-      }));
+      .map(({ fk, fullSource, fullTarget }) => {
+        // 👉 Construire le label colonnes : MULTI-COLONNES POSSIBLE !
+        // (ex : "a → b, c → d")
+/*         const columnsLabel = fk.column_mappings
+          .map((m) => encodeCol2Col(m.source_column, m.target_column))
+          .join(", ");
+ */
+        return {
+          data: {
+            source: fullSource,
+            target: fullTarget,
+            label: fk.constraint_name,
+            fkColumns:fk.column_mappings,
+            onDelete: fk.on_delete,
+            onUpdate: fk.on_update,
+
+            // plusieurs colonnes → nullable seulement si l’une est nullable
+            nullable: !fk.all_source_not_null,
+          },
+          // now columns details are in array behind
+          classes: [
+            "fk_synth",
+            fk.on_delete === "CASCADE" ? "delete_cascade" : "",
+            fk.on_delete === "RESTRICT" ? "delete_restrict" : "",
+            !fk.all_source_not_null ? "nullable" : "",
+          ]
+            .filter(Boolean)
+            .join(" "),
+        };
+      });
+
+
+
+
 
     /******************************************************************
      * 7. response JSON  nodes, edges, list of schemas, list of tables in schemas
@@ -966,6 +960,14 @@ app.get("/exportAll", async (req, res) => {
 });
 
 
+/*
+ popup list of nodes 
+*/
+app.get("/nodes-list", (req, res) => {
+    res.render("nodes-list", {
+        dbName: req.query.currentDBName || ""
+    });
+});
 
 
 

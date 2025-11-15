@@ -27,7 +27,7 @@ import { metrologie } from '../core/metrology.js';
 
 import {
   enterFkSynthesisMode,
-  saveDetailedEdges,
+  saveOriginalEdges,
   enterFkDetailedMode,
 } from "../graph/detailedEdges.js";
 
@@ -92,9 +92,10 @@ export function loadInitialGraph() {
       adjustLabelsToCurrentSchemas(data);
 
       // store details at load time /now generated with details
-      saveDetailedEdges();
-      // set default edges in synthetic mode
-      enterFkSynthesisMode(true);
+      // by defaukt graph is in synthetic mode 
+      saveOriginalEdges();
+ 
+  
 
 
       // moved after reduction to 1 edge per fk
@@ -476,7 +477,8 @@ function createGraphFromJson(json) {
 
 
   // show in synthetic after saving details
-  saveDetailedEdges();
+  saveOriginalEdges();
+  //PLA no more 
   enterFkSynthesisMode(true);
   /*
 

@@ -1,366 +1,52 @@
 /*
- generated html here entirely 
-
- ( a another way  was tried with table.html and tabledetails.js )
+ html is rendered by nodes-list.ejs filled in by modes-list.js
 */
 "use strict";
 import { getCy } from "../graph/cytoscapeCore.js";
-import { showAlert } from "./dialog.js";
 import { getLocalDBName } from "../dbFront/tables.js";
-import {setEventMarkdown,createHeaderMarkdown } from "../util/markdown.js";
-
-import {createIconButton} from "../ui/dialog.js";
 
 
+export function listNodesToHtml(all = true) {
+  // gie access to  cy to the popup
+  window.getCy = () => getCy();
 
-
-/*
- generate a page with nodes list in a new tab
-*/
-export function listNodesToHtml(all=true) {
-  let nodes;
-  // perimeter
-
-  nodes = all? getCy().nodes(':visible'):getCy().nodes(":selected:visible");
-
-
-  if (nodes.length == 0) {
-    showAlert(
-      "no nodes to list in current perimeter. <br/> Check your selection. "
-    );
-    return;
-  }
-
-  // helpers
-  function zeroBlank(val) {
-    return val !== 0 ? String(val) : "-";
-  }
-
-/*
- prepare data to table output looking at nodes properties 
-*/
-
-
-  function rowValuesFromNode(node) {
-    /*
-    list of index in node include PK and optional unique constraints
-     indexes = { name, definition, comment, constraint_type, is_primary?, is_unique? }
- */
-   const realIndexes = (node.data("indexes") || []).filter((ix) => {
-      const t = (ix.constraint_type || "").toUpperCase(); // 'PRIMARY KEY' | 'UNIQUE' | 'EXCLUDE' | ''
-      const isPk = t === "PRIMARY KEY" || ix.is_primary === true;
-      const isUnique =
-        t === "UNIQUE" ||
-        ix.is_unique === true ||
-        /create\s+unique\s+index/i.test(ix.definition || "");
-      const isExclude = t === "EXCLUDE"; // mets false si tu veux les garder
-
-      return !isPk && !isUnique && !isExclude; // retire "&& !isExclude" pour conserver EXCLUDE
-    });
-
-/*
-    count foreign keys 
-*/
-
-
-console.log(node.data("foreignKeys"));//PLA
-    return [
-      // remove the stars from label . leaved * test for old json reloaded 
-      node.data("label").replace(/\*/g, "") || "",
-      zeroBlank(node.data("columns")?.length || 0),
-      zeroBlank(realIndexes?.length || 0),
-      zeroBlank(node.data("foreignKeys")?.length || 0),
-      zeroBlank(node.incomers("edge")?.length || 0),
-      zeroBlank(node.data("triggers")?.length || 0),
-    ];
-  }
-
-  // tri initial par label (comme avant)
-  const sortedNodes = nodes.sort((a, b) => {
-    const labelA = a.data("label") || "";
-    const labelB = b.data("label") || "";
-    return labelA.localeCompare(labelB);
-  });
-
-  // open new window
-  
-  const win = window.open("", "nodeListWindow");
-  const doc = win.document;
-  // ---- HEAD ----
-  doc.title = "Node List";
-
-  // meta charset
-  const meta = doc.createElement("meta");
-  meta.setAttribute("charset", "UTF-8");
-  doc.head.appendChild(meta);
-
-  // styles
-  const base = window.location.origin;
-
-  const link = doc.createElement("link");
-  link.rel = "stylesheet";
-  link.href = base+"/css/style.css";
-  doc.head.appendChild(link);
-
-  const link2 = doc.createElement("link");
-  link2.rel = "stylesheet";
-  link2.href = base+"/css/table.css";
-  doc.head.appendChild(link2);
-
-  // ---- BODY HtmL----
-
-  const body = doc.body;
-  body.className = "doc-table";
-  body.textContent = ""; // nettoie le body
-
-  // titre + bouton close
-  const h2 = doc.createElement("h2");
-
-  const closeNodeImg = createIconButton(doc, {
-    src: "img/closePage.png",
-    alt: "Return",
-    title: "Close",
-    onClick: () => {
-      const ids = getCheckedIds(doc);
-      window.applySelectionFromPopup?.(ids);
-      win.close();
-    },
-  });
-  h2.appendChild(closeNodeImg);
-
-  h2.appendChild(
-    doc.createTextNode(` Nodes (${sortedNodes.length} in current perimeter)`)
-  );
-  body.appendChild(h2);
-
-  const header = createHeaderMarkdown(doc);
-  body.appendChild(header);
-
-  // table
-  const table = doc.createElement("table");
-  const tableName = "tableNodes";
-  table.id = tableName;
-
-  const thead = doc.createElement("thead");
-  const thr = doc.createElement("tr");
-  ["  ", "Table", "Cols", "Index", "FK →", "← in", "Trig"].forEach((h) => {
-    const th = doc.createElement("th");
-    th.textContent = h;
-    thr.appendChild(th);
-  });
-  thead.appendChild(thr);
-  table.appendChild(thead);
-
-  const tbody = doc.createElement("tbody");
-  table.appendChild(tbody);
-  body.appendChild(table);
-
-  // fill in lines
-  for (const node of sortedNodes) {
-    const tr = doc.createElement("tr");
-
-    const tdCheck = doc.createElement("td");
-    const id = node.id();
-    const cb = doc.createElement("input");
-    cb.type = "checkbox";
-    cb.id = "cb_" + id;
-    cb.name = "nodeIds";
-    cb.value = id;
-    cb.checked = !!node.selected();
-    cb.classList.add("nodeChk");
-    tdCheck.appendChild(cb);
-    tr.appendChild(tdCheck);
-
-    const vals = rowValuesFromNode(node);
-    vals.forEach((val, idx) => {
-      const td = doc.createElement("td");
-
-      if (idx === 0) {
-        td.className = "asc";
-        td.style.cursor = "pointer";
-        td.addEventListener("click", () => {
-          const tableId = node.data("id"); // ou 'label' si c'est ça l'identifiant
-          //const localDBName = window.localDBName || ""; // si défini globalement
-          const url = `/table.html?name=${encodeURIComponent(
-            tableId
-          )}&currentDBName=${encodeURIComponent(getLocalDBName())}`;
-          const name = `TableDetails_${tableId}`;
-          // 1) Tenter de récupérer la fenêtre existante
-          let w = window.open("", name);
-
-          if (w && !w.closed) {
-            // Mise à jour de l’URL au cas où + focus
-            try {
-              if (w.location.href !== url) w.location.href = url;
-              w.focus();
-            } catch {
-              // Fallback si cross-origin ou autre
-              w = window.open(url, name);
-              if (w) w.focus();
-            }
-          } else {
-            // 2) Sinon, on l’ouvre puis focus
-            w = window.open(url, name);
-            if (w) w.focus();
-          }
-        });
-      } else if (idx === 5 && val !== "-" && !isNaN(Number(val))) {
-        // Dernière colonne (triggers) si c'est bien un nombre
-        td.className = "num";
-        td.style.cursor = "pointer";
-        td.addEventListener("click", () => {
-          const tableName = node.data("label").replace(/\*/g, "");
-          const url = `/triggers.html?table=${encodeURIComponent(tableName)}`;
-          window.open(url, `triggers of ${tableName}`);
-        });
-      } else {
-        td.className = "num";
-        td.style.cursor = "default";
-      }
-
-      td.textContent = val;
-      tr.appendChild(td);
-    });
-    tbody.appendChild(tr);
-  }
-    // set markdown
-    const db = getLocalDBName();
-    let title = db? "nodes list extract from "+db:"nodes list extract"
-    
-    setEventMarkdown(doc,tableName,title);
-
-
-  // ---- sort by a clic ----
-  function sortTable(tableEl, col, numeric = false) {
-    const tbodyEl = tableEl.querySelector("tbody");
-    const rows = Array.from(tbodyEl.querySelectorAll("tr"));
-    const ths = tableEl.querySelectorAll("th");
-    const th = ths[col];
-    const isAsc = !th.classList.contains("sort-asc");
-
-    // reset classes
-    ths.forEach((h) => h.classList.remove("sort-asc", "sort-desc"));
-    th.classList.add(isAsc ? "sort-asc" : "sort-desc");
-
-    rows.sort((a, b) => {
-      const aCell = a.children[col];
-      const bCell = b.children[col];
-
-      // 1) Si la colonne contient des checkboxes, on trie dessus
-      const aCb = aCell.querySelector('input[type="checkbox"]');
-      const bCb = bCell.querySelector('input[type="checkbox"]');
-      if (aCb && bCb) {
-        // false < indeterminate < true
-        const val = (cb) => (cb.indeterminate ? 0.5 : cb.checked ? 1 : 0);
-        const cmp = val(aCb) - val(bCb);
-
-        // isAsc === true : non cochées -> au début ; false : cochées -> au début
-        return isAsc ? cmp : -cmp;
-      }
-
-      let aText = a.children[col].textContent.trim();
-      let bText = b.children[col].textContent.trim();
-
-      if (numeric) {
-        const toNum = (v) => (v === "-" ? 0 : Number(v));
-        const an = toNum(aText);
-        const bn = toNum(bText);
-        return isAsc ? an - bn : bn - an;
-      } else {
-        const cmp = aText.localeCompare(bText, undefined, {
-          numeric: true,
-          sensitivity: "base",
-        });
-        return isAsc ? cmp : -cmp;
+  // Callback for popup return result . lust be set before the page
+  window.applySelectionFromPopup = (ids) => {
+    const cy = getCy();
+    cy.batch(() => {
+      cy.elements().unselect();
+      if (ids?.length) {
+        cy.$(
+          ids
+            .map((id) => `#${CSS.escape(id)}`)
+            .join(",")
+        ).select();
       }
     });
+  };
 
-    rows.forEach((r) => tbodyEl.appendChild(r));
-  }
+  //  ask server to open the popup 
 
-  const numericCols = [2, 3, 4, 5]; //between the 0..5 cols
-  doc.querySelectorAll(`#${tableName} th`).forEach((th, index) => {
-    if (index === 0) addInvertToggle(table, 0, doc);
-    if (index === 1) th.classList.add("sort-asc");
+  const db = getLocalDBName();
+  const url = `/nodes-list?currentDBName=${encodeURIComponent(db)}&scope=${all ? "all" : "selected"}`;
+  const name = "nodeListWindow";
 
-    th.addEventListener("click", () => {
-      sortTable(table, index, numericCols.includes(index));
-    });
-  });
+  let win = window.open("", name);
 
-  // get checked box values
-  function getCheckedIds(root = document, selector = "") {
-    const scope = selector ? `${selector} ` : "";
-    return Array.from(
-      root.querySelectorAll(`${scope}input[type="checkbox"]:checked`)
-    )
-      .map((cb) => cb.value || cb.id || null) // valeur si définie, sinon id
-      .filter(Boolean)
-      .map((v) => (v.startsWith("cb_") ? v.slice(3) : v)); // optionnel: retire le préfixe cb_
-  }
-
-  function addInvertToggle(table, colIndex, doc = document) {
-    const th = table.tHead?.rows?.[0]?.cells?.[colIndex];
-    if (!th) return;
-
-    const btn = doc.createElement("button");
-    btn.type = "button";
-    btn.title = "Inverser les coches";
-    btn.setAttribute("aria-label", "Inverser les coches");
-    // look minimal
-    btn.style.padding = "2px";
-    btn.style.marginLeft = "6px";
-    btn.style.border = "none";
-    btn.style.background = "transparent";
-    btn.style.cursor = "pointer";
-    btn.style.lineHeight = "0"; // compact
-
-    // --- icône ---
-    const img = doc.createElement("img");
-    img.src = "./img/toggle.png"; // ⇐ ton image
-    img.alt = ""; // décoratif (aria-label sur le bouton)
-    img.width = 20; // ajuste la taille
-    img.height = 20;
-    img.draggable = false;
-
-    btn.appendChild(img);
-
-    // Inversion sur clic (sans déclencher le tri)
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const tbody = table.tBodies[0];
-      const selector = `tr td:nth-child(${
-        colIndex + 1
-      }) input[type="checkbox"]`;
-      tbody.querySelectorAll(selector).forEach((cb) => {
-        if (cb.disabled) return;
-        cb.indeterminate = false;
-        cb.checked = !cb.checked;
-        // propage un vrai changement si ton code écoute 'change'
-        cb.dispatchEvent(new Event("change", { bubbles: true }));
-      });
-    });
-
-    th.appendChild(btn);
+  if (win && !win.closed) {
+    try {
+      if (win.location.href !== url) win.location.href = url;
+      win.focus();
+    } catch {
+      win = window.open(url, name);
+      if (win) win.focus();
+    }
+  } else {
+    win = window.open(url, name);
+    if (win) win.focus();
   }
 }
 
-/*
- callback from the generated page 
-*/
-
-window.applySelectionFromPopup = function (ids) {
-  //console.log("[parent] ids reçus du popup:", ids);
-
-  const cy = getCy();
-  cy.batch(() => {
-    cy.elements().unselect();
-    if (ids?.length)
-      cy.$(ids.map((id) => `#${CSS.escape(id)}`).join(",")).select();
-  });
-};
 
 
 

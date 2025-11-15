@@ -35,7 +35,7 @@ More, the server has added the class .fk_detailed to every edge
 
 For presentation purpose, 
 At startup, the graph is reduced to simple FK by calling 
-      saveDetailedEdges();  that store current details 
+      saveOriginalEdges();  that store current details 
       enterFkSynthesisMode(); that reduce the graph to simple edges
 
       it creates an dict of constraints and for each constraint an array of edges.
@@ -49,13 +49,14 @@ new created edges are added with the class 'fk_synth'
 
 import { getCy } from "../graph/cytoscapeCore.js";
 import { perimeterForEdgesAction } from "../core/perimeter.js";
-import { NativeCategories, ConstantClass } from "../util/common.js";
+import { NativeCategories, ConstantClass, encodeCol2Col } from "../util/common.js";
+import { labelFKId } from "../core/edgeOps.js";
 
-let detailedEdgesArray; // to be able to reverse, store details here
+let edgesArrayOnInitialLoad; // to be able to reverse, store details here
 
 // called at startup now as request load details
-export function saveDetailedEdges() {
-  detailedEdgesArray = getCy().edges(); // cytoscape collection, not array
+export function saveOriginalEdges() {
+  edgesArrayOnInitialLoad = getCy().edges(); // cytoscape collection, not array
 }
 
 /*
@@ -67,12 +68,60 @@ export function saveDetailedEdges() {
  global : false from menu 
 */
 
+
 export function enterFkDetailedModeForEdges(synthEdges) {
+  const cy = getCy();
+
+  cy.batch(() => {
+
+    synthEdges.forEach(edge => {
+      const fkCols = edge.data("fkColumns");
+      console.log(JSON.stringify(edge.data(), 0, 2));//PLA
+      const src = edge.data("source");
+      const tgt = edge.data("target");
+      const fkName = edge.data("fkName");
+      const showLabel = edge.hasClass(ConstantClass.SHOW_LABEL);
+
+      // supprimer edge synthèse
+      edge.remove();
+
+      // recréer n edges détaillés
+      fkCols.forEach((col, idx) => {
+        const columnLabel = encodeCol2Col(col.source_column, col.target_column);
+
+        const newEdge = cy.add({
+          group: "edges",
+          data: {
+            //leave id automatic to avoid conflicts
+            label: columnLabel,
+            source: src,
+            target: tgt,
+            fkName,
+            fkColumn: col,         // 1 seul couple source/target
+            mode: "detailed",
+          }
+        });
+  
+          newEdge.addClass(ConstantClass.FK_DETAILED);
+          if (showLabel) {
+          newEdge.addClass(ConstantClass.SHOW_COLUMNS);
+          newEdge.addClass(ConstantClass.SHOW_LABEL);
+        }
+      });
+    });
+  });
+      labelFKId();
+}
+
+
+/* export function OLDenterFkDetailedModeForEdges(synthEdges) {
   const originalArray = [];
   const cy = getCy();
+
   cy.batch(() => {
     synthEdges.forEach((synth) => {
-      detailedEdgesArray
+
+      edgesArrayOnInitialLoad
         .filter((e) => e.data("label") === synth.data("label"))
         .forEach((e) => {
           if (synth.hasClass(NativeCategories.TRIGGER_IMPACT)) return;
@@ -81,6 +130,7 @@ export function enterFkDetailedModeForEdges(synthEdges) {
           if (synth.hasClass("showLabel"))
             e.addClass(`${ConstantClass.SHOW_COLUMNS}`);
           else e.removeClass(`${ConstantClass.SHOW_COLUMNS}`);
+          console.log(e.id() + " pla" + e.data("label"));//PLA
           originalArray.push(e);
         });
     });
@@ -91,7 +141,7 @@ export function enterFkDetailedModeForEdges(synthEdges) {
     synthEdges.remove();
     getCy().add(original);
   });
-}
+} */
 
 /*
     restore details from a synth edge 
@@ -99,7 +149,6 @@ export function enterFkDetailedModeForEdges(synthEdges) {
 
 export function enterFkDetailedMode(global = true) {
   let synthEdges;
-
   if (global) {
     synthEdges = getCy().edges(".fk_synth");
   } else {
@@ -108,7 +157,6 @@ export function enterFkDetailedMode(global = true) {
 
   // if no edge to restore
   if (synthEdges.length == 0) return false;
-
   enterFkDetailedModeForEdges(synthEdges);
 }
 
@@ -117,7 +165,7 @@ export function enterFkDetailedMode(global = true) {
  We can clean obsolete details here .
 */
 
-export function cleanDetailedEdgesArray() {
+export function cleanedgesArrayOnInitialLoad() {
   // note all valid ids
 
   const cy = getCy();
@@ -129,7 +177,7 @@ export function cleanDetailedEdgesArray() {
 
   // as some nodes could have been deleted in fk mode, detailed are not more valid
   cy.batch(() => {
-    detailedEdgesArray.forEach((aDetailedEdge) => {
+    edgesArrayOnInitialLoad.forEach((aDetailedEdge) => {
       const sourceId = aDetailedEdge.source().id();
       const destId = aDetailedEdge.target().id();
 
@@ -143,7 +191,7 @@ export function cleanDetailedEdgesArray() {
       }
     });
   });
-  detailedEdgesArray = detailedEdgesArray.difference(toDrop);
+  edgesArrayOnInitialLoad = edgesArrayOnInitialLoad.difference(toDrop);
 }
 
 /*

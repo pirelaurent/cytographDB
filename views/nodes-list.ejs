@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Nodes List</title>
+
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/table.css" />
+  <script src="/js/external/xlsx.full.min.js"></script>
+  
+  <script type="module" src="/js/ui/nodes-list.js"></script>
+</head>
+
+<body class="doc-table" data-db-name="<%= dbName %>">
+
+  <h2>
+    <button id="btnApplyAndClose"
+            type="button"
+            title="Close"
+            style="border:none;background:transparent;cursor:pointer;">
+        <img src="img/closePage.png" alt="Return" title="Close"
+      style="cursor: pointer; vertical-align: middle; width: 25px; height: 25px;" onclick="window.tryClose()" />
+    </button>
+
+    Nodes list
+  </h2>
+
+  <table id="tableNodes">
+    <thead>
+      <tr>
+        <th> </th>
+        <th>Table</th>
+        <th>Cols</th>
+        <th>Index</th>
+        <th>FK →</th>
+        <th>← in</th>
+        <th>Trig</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+</body>
+</html>

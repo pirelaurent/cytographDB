@@ -93,15 +93,14 @@ export function labelFKAlias() {
 
 export function labelFKId() {
   const cy = getCy();
-
-  cy.batch(() => {
     let edgesToShow = perimeterForEdgesAction();
-  edgesToShow.forEach((e) => {
-    e.data("_display", e.data("label"));
-    oneLabelPerEdge(e);
-  });
+  cy.batch(() => {
+    edgesToShow.forEach((e) => {
+      e.data("_display", e.data("label"));
+      oneLabelPerEdge(e);
+    });
 
-});
+  });
   showToast(`${edgesToShow.length} edges shown with standard id.`);
 }
 

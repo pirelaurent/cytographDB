@@ -2,7 +2,7 @@
 
 import {
   loadInitialGraph,
-} from "../core/loadSaveGraph.js";
+} from "../loadSave/fromDB.js";
 
 import {
   connectToDb,
@@ -20,11 +20,9 @@ import { getLocalDBName } from "../dbFront/tables.js";
 */
 export function menuDb(option, menuItemElement, whichClic = "left") {
 
-  if (whichClic == "right") return;
+  if (whichClic == "right") return; // FOR FUTURE PARAMETERS 
   switch (option) {
     case "connectToDb":
-
-      //alert("connectToDb");
 
       connectToDb(menuItemElement).catch((err) =>
         showError("connection failed: " + err.message)

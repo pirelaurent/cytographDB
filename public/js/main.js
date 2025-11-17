@@ -18,7 +18,7 @@
 
 import { loadCustomModules } from "./customModulesIndex.js";
 
-import {linkToUi} from "./core/loadSaveGraph.js";
+
 import { addCustomDocLink} from "./ui/custom.js"
 import { setInterceptors } from "./ui/interceptor/core.js";
 import {initMenus} from "./ui/menus.js"
@@ -54,7 +54,7 @@ export function main() {
   setInterceptors();
   initMenus();
   cytogaphdb_version();
-  linkToUi();
+
 } // main
 /*
  run main once dom is loaded 

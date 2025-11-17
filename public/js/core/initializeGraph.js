@@ -25,10 +25,7 @@ export function initializeGraph(data, fromDisk = false) {
   cy.scratch('schemas', data.schemas);
   cy.scratch('tableNameSolver', new Map(data.tableNameSolver));
 
-
   fillInGuiNodesSchemasCategories()
-
-  //console.log(cy.edges()); // on a bien columnsLabel dans data
 
   let current_db = getLocalDBName();
 

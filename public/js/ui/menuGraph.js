@@ -1,11 +1,8 @@
 "use strict";
 
-import {
-    loadGraphState,
-    showOverlayWithFiles,
-    saveGraphState,
-    saveGraphToFile,
-} from "../core/loadSaveGraph.js";
+import {loadGraphNamedFromServer, saveGraphNamedToServer,showFilesListInOverlay} from "../loadSave/fromServer.js";
+import { saveGraphToJson} from "../loadSave/fromJson.js"
+
 
 import {
     getCy,
@@ -45,21 +42,21 @@ export function menuGraph(option, item, whichClic = "left") {
 
             break;
         case "localDownload":
-            saveGraphToFile();
+            saveGraphToJson();
             break;
 
         case "pick":
             resetSnapshot();
-            showOverlayWithFiles();
+            showFilesListInOverlay();
             break;
 
         case "saveToServer":
-            saveGraphState();
+            saveGraphNamedToServer();
             break;
 
         case "loadFromServer":
             resetSnapshot();
-            loadGraphState();
+            loadGraphNamedFromServer();
 
             break;
     } //switch

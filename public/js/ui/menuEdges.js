@@ -98,7 +98,7 @@ export function menuEdges(option, item, whichClic = "left") {
         return;
       }
       pushSnapshot();
-      nodesOut.outgoers("edge").select();
+      nodesOut.outgoers("edge").select().show();
       nodesOut.outgoers("edge").addClass("outgoing");
       break;
 
@@ -109,7 +109,7 @@ export function menuEdges(option, item, whichClic = "left") {
         return;
       }
       pushSnapshot();
-      nodesIn.incomers("edge:visible").select();
+      nodesIn.incomers("edge:visible").select().show();
       nodesIn.incomers("edge:visible").addClass("incoming");
       break;
 

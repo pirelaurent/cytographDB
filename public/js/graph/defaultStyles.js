@@ -183,16 +183,16 @@ const cyStyles = [
     },
   },
 
-        {
-        selector: "node.doubleSelect",
-        style: {
-          "border-width": 4,
-          "border-color": "yellow",
-          "border-style": "double",
-          "background-color": "violet",
-          color: "black",
-        },
-      },
+  {
+    selector: "node.doubleSelect",
+    style: {
+      "border-width": 4,
+      "border-color": "yellow",
+      "border-style": "double",
+      "background-color": "violet",
+      color: "black",
+    },
+  },
 
   /*
   --------------- edges
@@ -281,23 +281,23 @@ const cyStyles = [
     },
   },
 
-{
-  selector: 'edge.showLabel.labelAbove',
-  style: {
-    'text-rotation': 'autorotate',
-    // when autorotate is on, margin-x is along the edge,
-    // margin-y is perpendicular to the edge.
-    'text-margin-y': -10   // try -6..-12 to taste
-  }
-},
+  {
+    selector: 'edge.showLabel.labelAbove',
+    style: {
+      'text-rotation': 'autorotate',
+      // when autorotate is on, margin-x is along the edge,
+      // margin-y is perpendicular to the edge.
+      'text-margin-y': -10   // try -6..-12 to taste
+    }
+  },
 
 
   {
     selector: "edge.showColumns",
     style: {
-      label: "data(columnsLabel)",
+      label: "data(label)",
       "line-style": "dotted",
-  
+
       "text-rotation": "none", // keep horizontal
       "text-margin-y": -10, // move vertically
       width: 2,
@@ -310,15 +310,15 @@ const cyStyles = [
     },
   },
 
-{
-  selector: 'edge.showColumns.labelAbove',
-  style: {
-    'text-rotation': 'autorotate',
-    // when autorotate is on, margin-x is along the edge,
-    // margin-y is perpendicular to the edge.
-    'text-margin-y': -10   // try -6..-12 to taste
-  }
-},
+  {
+    selector: 'edge.showColumns.labelAbove',
+    style: {
+      'text-rotation': 'autorotate',
+      // when autorotate is on, margin-x is along the edge,
+      // margin-y is perpendicular to the edge.
+      'text-margin-y': -10   // try -6..-12 to taste
+    }
+  },
 
   {
     selector: "edge.internal",

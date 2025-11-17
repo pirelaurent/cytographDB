@@ -249,7 +249,7 @@ app.post("/load-from-db", async (req, res) => {
     const Fk_array = resultFk.rows[0]?.foreign_keys ?? [];
 
     //console.log("allFkAllTables results");//pla
-    console.log(JSON.stringify(Fk_array, 0, 2));//PLA
+    //console.log(JSON.stringify(Fk_array, 0, 2));//PLA
 
     for (const row of Fk_array) {
       const fullName = `${row.source_schema}.${row.source_table}`;
@@ -371,6 +371,7 @@ app.post("/load-from-db", async (req, res) => {
     /******************************************************************
      * 6. CONSTRUIRE LES EDGES FK POUR CYTOSCAPE
      ******************************************************************/
+    
     const filteredEdges = Fk_array
       .map((fk) => {
         const fullSource = `${fk.source_schema}.${fk.source_table}`;
@@ -383,18 +384,14 @@ app.post("/load-from-db", async (req, res) => {
           tableNames.includes(fullTarget)
       )
       .map(({ fk, fullSource, fullTarget }) => {
-        // 👉 Construire le label colonnes : MULTI-COLONNES POSSIBLE !
-        // (ex : "a → b, c → d")
-/*         const columnsLabel = fk.column_mappings
-          .map((m) => encodeCol2Col(m.source_column, m.target_column))
-          .join(", ");
- */
+
         return {
           data: {
+            constraint_name: fk.constraint_name, // label can change in 1/Col mode 
             source: fullSource,
             target: fullTarget,
             label: fk.constraint_name,
-            fkColumns:fk.column_mappings,
+            fkColumns:fk.column_mappings, // in initial parse array are allowed
             onDelete: fk.on_delete,
             onUpdate: fk.on_update,
 
@@ -414,7 +411,7 @@ app.post("/load-from-db", async (req, res) => {
       });
 
 
-
+console.log(JSON.stringify(filteredEdges,0,2));
 
 
     /******************************************************************

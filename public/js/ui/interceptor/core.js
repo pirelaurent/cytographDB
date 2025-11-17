@@ -10,6 +10,8 @@ import {
   helpRegex,
 } from "../dialog.js";
 
+import { loadGraphFromJsonFile } from "../../loadSave/fromJson.js";
+
 import { setModalInterceptors } from "../modal.js";
 import { showClipReport } from "../../util/clipReport.js";
 import { setHoverInterceptors } from "./hover.js";
@@ -31,6 +33,7 @@ export function setInterceptors() {
   setQuickAccessMenu();
   setKeyboardInterceptors();
   setMainBarInterceptors();
+  linkUploadToUi();
 
 
 /*
@@ -169,3 +172,15 @@ function isCtrl(evt) {
     return { x, y };
   }
     
+
+/*
+link button upload  to gui
+*/
+ function linkUploadToUi() {
+  const input = document.getElementById("graphUpload");
+  if (input) {
+    input.addEventListener("change", loadGraphFromJsonFile);
+  } else {
+    console.warn("graphUpload input not found");
+  }
+}

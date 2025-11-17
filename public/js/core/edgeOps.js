@@ -57,13 +57,7 @@ export function selectEdgesBetweenSelectedNodes() {
 }
 
 function oneLabelPerEdge(edge) {
-  if (edge.hasClass(ConstantClass.FK_DETAILED)) {
-    edge.addClass(`${ConstantClass.SHOW_COLUMNS}`);
-    //labelToShow = ele.data('columnsLabel').replace('\n', "<BR/>");
-  } else {
-    // FK_SYNTH
     edge.addClass(`${ConstantClass.SHOW_LABEL}`);
-  }
 }
 
 /*
@@ -138,3 +132,22 @@ export function labelRestoreOrientation() {
   let cy = getCy();
   cy.edges().removeClass('labelAbove');
 }
+
+
+/* --- Fonction de classification ---
+export function classifyForeignKey(fk) {
+  const required = fk.all_source_not_null === true;
+  const identifying = fk.source_columns.every(col =>
+    fk.source_table_pk_columns?.includes(col)
+  );
+  const deleteRule = fk.delete_rule?.toUpperCase() || '';
+
+  if (identifying && required && deleteRule === 'CASCADE') {
+    return 'composition';
+  } else if (required && !identifying) {
+    return 'association';
+  } else {
+    return 'simple_link';
+  }
+}
+  */

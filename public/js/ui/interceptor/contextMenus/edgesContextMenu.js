@@ -61,12 +61,12 @@ export function setEdgeContextMenu() {
         enterFkDetailedModeForEdges(cy.collection(edgeForInfo));
       } else {
         // Switch back to synth mode for all visible edges sharing the same label
-        const edges = cy.$(`edge:visible[label = "${label}"]`);
+        //const edges = cy.$(`edge:visible[label = "${label}"]`);
 
         // Set _display for those missing it
-        edges.filter("[!_display]").data("_display", label);
+        //edges.filter("[!_display]").data("_display", label);
 
-        enterFkSynthesisModeForEdges(edges);
+        enterFkSynthesisModeForEdges(edgeForInfo);
       }
     });
   });

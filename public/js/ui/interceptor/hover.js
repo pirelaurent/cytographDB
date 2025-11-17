@@ -87,11 +87,12 @@ export function  setHoverInterceptors(){
     // ele is edge
     else {
       let edge = ele;
-      let labelToShow = ele.data("label");
+      let labelToShow='';
 
       if (edge.hasClass(`${ConstantClass.FK_DETAILED}`)) {
-        labelToShow += "<BR/>" + ele.data("columnsLabel");
+        labelToShow += "(" + ele.data("constraint_name")+")<BR/>";
       }
+      labelToShow += ele.data("_display");
 
       const label = labelToShow;
       const classList = edge.classes(); // c'est une cytoscape collection

@@ -42,6 +42,8 @@ export function fillInGuiNodesSchemasCategories() {
 function selectNodesBySchemas(aSchema) {
   const nodes = perimeterForNodesSelection();
   nodes.filter(n => n.id().startsWith(`${aSchema}.`)).select();
+  nodes.filter(':visible:unselected').addClass('faded')
+  nodes.filter(':selected').removeClass('faded');
 }
 
 /*

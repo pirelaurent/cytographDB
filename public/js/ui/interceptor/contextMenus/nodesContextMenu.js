@@ -219,11 +219,13 @@ const svgRelations = document.getElementById("follow-relations");
       menuNodes("swapSelected");
     });
 
+
   document
     .getElementById("quick_icon-hideSelected")
     .addEventListener("click", () => {
       menuNodes("hideSelected");
     });
+
 
   document
     .getElementById("quick_icon-hideNotSelected")

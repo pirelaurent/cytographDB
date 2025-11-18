@@ -42,7 +42,7 @@ export function main() {
     container: document.getElementById("cy"),
     elements: [],
     boxSelectionEnabled: true, // ✅ OBLIGATOIRE pour pouvoir draguer
-    autounselectify: false, // ✅ Permet sélection multiple
+    autounselectify: false, // too complicated to do by ourself
     wheelSensitivity: 0.5, // Valeur par défaut = 1
       minZoom: 0.001,
       maxZoom: 1.2,  // avoid fit to go beyonsd

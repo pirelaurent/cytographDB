@@ -12,20 +12,20 @@ import {
 import { getCy } from "../graph/cytoscapeCore.js";
 
 import { metrologie } from "../core/metrology.js";
-import { selectEdgesBetweenSelectedNodes } from "../core/edgeOps.js";
+import { selectEdgesBetweenSelectedNodes,selectEdgesByNativeCategories } from "../core/edgeOps.js";
 
 import {
   enterFkDetailedMode,
   enterFkSynthesisMode,
 } from "../graph/detailedEdges.js";
 
-import { popSnapshot, pushSnapshot } from "../util/snapshots.js";
+import { pushSnapshot } from "../util/snapshots.js";
 
 import { showMultiChoiceDialog, showAlert } from "./dialog.js";
 
 import { getLocalDBName } from "../dbFront/tables.js";
 import { createCustomCategories } from "../filters/categories.js";
-import { selectEdgesByNativeCategories } from "./custom.js";
+
 
 /*
   //------------------------------------------------------------------menu edges relays 

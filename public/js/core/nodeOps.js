@@ -17,12 +17,13 @@ import { setAndRunLayoutOptions } from "../core/layout.js";
   full graph visible
 */
 export function showAll() {
-  getCy().nodes().show();
-  getCy().edges().show();
+  const cy = getCy();
+  cy.nodes().show();
+  cy.edges().show();
   document.getElementById("cy").style.backgroundColor = "white";
 
   requestAnimationFrame(() => {
-    getCy().fit();
+    cy.fit();
   });
 
   metrologie();
@@ -31,7 +32,7 @@ export function showAll() {
 export function hideSelected() {
   const cy = getCy();
   pushSnapshot("hideSelected");
-  let nodesToHide = getCy().nodes(":selected");
+  let nodesToHide = cy.nodes(":selected");
   nodesToHide.hide();
   // nodesToHide.unselect();
   cy.fit(cy.nodes(":visible"), 30); // padding 30px
@@ -39,25 +40,27 @@ export function hideSelected() {
 }
 
 export function hideNotSelected() {
+    const cy = getCy();
   pushSnapshot("hideNotSelected");
-  getCy()
+  cy
     .nodes(":visible")
     .filter(function (node) {
       return !node.selected();
     })
     .hide();
-  getCy().fit(); //cy.nodes(":visible"), 50); // padding 30px
+  cy.fit(); //cy.nodes(":visible"), 50); // padding 30px
   metrologie();
 }
 
 export function hideNotSelectedThenDagre() {
-  {
+    const cy = getCy();
+
     hideNotSelected();
     // cannot reorg if too few nodes
-    if (getCy().nodes(":selected:visible").length > 3) {
+    if (cy.nodes(":selected:visible").length > 3) {
       setAndRunLayoutOptions("dagre");
     }
-  }
+  
   metrologie();
 }
 
@@ -92,15 +95,23 @@ export function selectNodesFromSelectedEdges() {
   metrologie();
 }
 
+// visual helper to share
+function adjustFaded(){
+  const cy=getCy();
+  cy.nodes(':visible:selected').removeClass('faded');
+  cy.nodes(':unselected').addClass('faded');
+}
+
 export function selectSourceNodesFromSelectedEdges() {
   pushSnapshot("selectSourceNodesFromSelectedEdges");
   const cy = getCy();
   const srcNodes = cy
     .edges(":selected:visible")
     .sources() // récupère tous les nodes source
-    .filter(":visible"); // garde seulement les visibles (comme ton code)
+    .filter(":visible"); // garde seulement les visibles 
 
   srcNodes.select();
+  adjustFaded()
   metrologie();
 }
 
@@ -114,6 +125,7 @@ export function selectTargetNodesFromSelectedEdges() {
     .filter(":visible");
 
   tgtNodes.select();
+  adjustFaded();
   metrologie();
 }
 
@@ -121,6 +133,7 @@ export function selectOutputBetween(min, max) {
   const cy = getCy();
   let nodes = perimeterForNodesSelection();
   if (nodes == null) return;
+
   pushSnapshot("selectOutputBetween");
   cy.batch(() => {
     nodes.forEach((node) => {
@@ -145,12 +158,13 @@ export function selectOutputBetween(min, max) {
       }
     });
   });
+    adjustFaded();
 }
 /*
  select nodes with incoming edges between min max
 */
 
-export function selectInputBetween(min, max) {
+/* export function selectInputBetween(min, max) {
   const cy = getCy();
 
   let nodes = perimeterForNodesSelection();
@@ -177,7 +191,7 @@ export function selectInputBetween(min, max) {
       }
     });
   }); // batch
-}
+} */
 
 export function changeFontSizeNode(value, increase = true) {
   let selectedNodes = perimeterForNodesAction();
@@ -339,13 +353,15 @@ export function labelNodeHide() {
 
 //-------------------
 export function bringSelectedToFront() {
-  getCy().nodes(":selected").css("z-index", 100);
-  getCy().nodes(":unselected").css("z-index", 10);
+    const cy = getCy();
+  cy.nodes(":selected").css("z-index", 100);
+  cy.nodes(":unselected").css("z-index", 10);
 }
 
 export function bringSelectedToBack() {
-  getCy().nodes(":selected").css("z-index", 0);
-  getCy().nodes(":unselected").css("z-index", 10);
+    const cy = getCy();
+  cy.nodes(":selected").css("z-index", 0);
+  cy.nodes(":unselected").css("z-index", 10);
 }
 
 export function selectNone() {
@@ -400,7 +416,7 @@ export function swapHidden() {
   edgesToShow.show();
 
   // avoid blnak screen
-  getCy().fit();
+  cy.fit();
 
   metrologie("swapHidden");
 }

@@ -126,6 +126,7 @@ function modalDegreeFilter() {
   let nodes;
   nodes = perimeterForNodesSelection();
   if (!degreeRestrictToVisible) nodes = cy.nodes();
+
   // nodes = degreeRestrictToVisible?cy.nodes(":visible"):cy.nodes();
 
   // if at least one input go on
@@ -152,11 +153,13 @@ function modalDegreeFilter() {
         let allOk = true;
         if (logicAnd === "AND") allOk = outOk && inOk;
         else allOk = outOk || inOk;
+
         if (allOk) {
           n.select();
           if (!degreeRestrictToVisible) n.show();
         }
       });
+      cy.nodes(':visible:unselected').addClass('faded');
     });
   }
   // exit
@@ -227,6 +230,7 @@ function modalSelectByName() {
 
 */
 export function selectByName(pattern, hiddenType) {
+  const cy =getCy();
   let regex;
   // detect a negative search to check differently
   const hasNegativeLookahead = /(?<!\\)\(\?\!/.test(pattern);
@@ -250,7 +254,7 @@ export function selectByName(pattern, hiddenType) {
     // perimeter special
     const withHidden = !document.getElementById("modalRestrictToVisible")
       .checked;
-    let nodes = withHidden ? getCy().nodes() : perimeterForNodesSelection();
+    let nodes = withHidden ? cy.nodes() : perimeterForNodesSelection();
 
     if (nodes.length === 0) {
       showInfo("no nodes to filter")
@@ -258,10 +262,10 @@ export function selectByName(pattern, hiddenType) {
     }
 
     // unselect residual hidden selected nodes if any
-    if (withHidden) getCy().$("node:hidden").unselect();
+    if (withHidden) cy.$("node:hidden").unselect();
 
     // Créer une collection vide pour les n}œuds à montrer
-    let toShow = getCy().collection();
+    let toShow =  cy.collection();
 
     nodes.forEach((node) => {
       // change by search on label instead of id if alias exist
@@ -279,11 +283,15 @@ export function selectByName(pattern, hiddenType) {
     } else {
       toShow.select();
 
-      // Puis on ne montre que la collection calculée :
+      // show in case some selected were hidden
       toShow.show();
 
-      // Montrer aussi les arêtes connectées à ces nœuds dans le graphe courant
+      // in case edge are not visibles
       toShow.connectedEdges().show();
+
+      // set temporarily other faded
+      cy.nodes(":visible").addClass('faded');
+      toShow.removeClass('faded');
     }
   }
 
@@ -296,18 +304,18 @@ export function selectByName(pattern, hiddenType) {
   if (hiddenType === "edges") {
     const withHidden = !document.getElementById("modalRestrictToVisible")
       .checked;
-    let edges = withHidden ? getCy().edges() : perimeterForEdgesSelection();
+    let edges = withHidden ? cy.edges() : perimeterForEdgesSelection();
     if (!edges){
       showInfo ("No edges to filter")
       return;
     } 
 
     // Unselect any hidden edges that may still be selected
-    if (withHidden) getCy().$("edge:hidden").unselect();
+    if (withHidden) cy.$("edge:hidden").unselect();
 
     // Prepare collection of edges to show
-    let toShowEdges = getCy().collection();
-    let toShowNodes = getCy().collection();
+    let toShowEdges = cy.collection();
+    let toShowNodes = cy.collection();
 
     edges.forEach((edge) => {
       if (regex.test(edge.data("label"))) {
@@ -339,17 +347,17 @@ export function selectByName(pattern, hiddenType) {
   if (hiddenType === "columns") {
     const withHidden = !document.getElementById("modalRestrictToVisible")
       .checked;
-    let nodes = withHidden ? getCy().nodes() : perimeterForNodesSelection();
+    let nodes = withHidden ? cy.nodes() : perimeterForNodesSelection();
     if (nodes == null) {
       showInfo ("No tables to filter.")
       return};
 
     // un select residual hidden selecteed nodes if any
-    if (withHidden) getCy().$("node:hidden").unselect();
+    if (withHidden) cy.$("node:hidden").unselect();
     let results = [];
     let count = 0;
 
-    getCy().batch(() => {
+    cy.batch(() => {
       nodes.forEach((node) => {
         let cases = [];
         // temporary patch for json reloaded
@@ -381,7 +389,9 @@ export function selectByName(pattern, hiddenType) {
         }
       });
     }); //batch
-    getCy().$("node:selected").show();
+
+    cy.$("node:selected").show(); // aka cy.nodes(":selected")
+    cy.nodes(":visible:unselected").addClass('faded');
     showToast(`${count} tables found with such columns`);
     const output = results.join("\n");
 
@@ -397,6 +407,6 @@ export function selectByName(pattern, hiddenType) {
     return true;
   }
 
-  getCy().$("edge:selected").show(); //$ for elements( )
+  cy.$("edge:selected").show(); //$ for elements( )
   return true;
-}
+} // edge part

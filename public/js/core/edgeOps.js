@@ -134,6 +134,35 @@ export function labelRestoreOrientation() {
 }
 
 
+/*
+  discrete native categories are set in index.html with dedicated actions 
+*/
+
+export function selectEdgesByNativeCategories(aCategory) {
+  const edges = perimeterForEdgesSelection();
+  const cy =getCy();
+  if (edges.length === 0) {
+    showToast("nothing to filter");
+    return;
+  }
+  //inutile de regarder les selectionnés pour éventuellement les reselectionner
+  const toSelect = edges.filter(`.${aCategory}:unselected`);
+  const delta = toSelect.length;
+
+  if (delta === 0) {
+    showToast("nothing new selected");
+    return;
+  }
+
+  cy.batch(() => {
+    toSelect.select();
+  });
+
+}
+
+
+
+
 /* --- Fonction de classification ---
 export function classifyForeignKey(fk) {
   const required = fk.all_source_not_null === true;

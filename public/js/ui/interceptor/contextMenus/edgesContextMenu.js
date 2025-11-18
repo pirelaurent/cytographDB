@@ -20,7 +20,7 @@ export function setEdgeContextMenu() {
 
   /*
        contextual menu for edge 
-      */
+  */
 
   let edgeForInfo;
   const clicEdgeMenu = document.getElementById("clicEdgeMenu");
@@ -53,7 +53,6 @@ export function setEdgeContextMenu() {
     //let synthEdges = cy.collection([edgeForInfo]);
 
     const isSynth = edgeForInfo.hasClass(ConstantClass.FK_SYNTH);
-    const label = edgeForInfo.data("label");
 
     cy.batch(() => {
       if (isSynth) {

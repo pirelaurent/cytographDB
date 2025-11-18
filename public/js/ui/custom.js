@@ -48,35 +48,11 @@ export function fillInGuiNodesCustomCategories() {
 
 function selectNodesByCustomcategories(aCategory) {
   const nodes = perimeterForNodesSelection();
-  nodes.filter(`.${aCategory}`).select();
-  //filter(`.${aCategory}`) = (node.hasClass(aCategory))
+  nodes.filter(`.${aCategory}`).select(); 
+  //filter(`.${aCategory}`) means (node.hasClass(aCategory))
+  nodes.filter(':unselected').addClass('faded');
 }
 
-/*
-  discrete native categories are set in index.html with dedicated actions 
-*/
-
-export function selectEdgesByNativeCategories(aCategory) {
-  const edges = perimeterForEdgesSelection();
-  const cy =getCy();
-  if (edges.length === 0) {
-    showToast("nothing to filter");
-    return;
-  }
-  //inutile de regarder les selectionner pour éventuellement les reselectionner
-  const toSelect = edges.filter(`.${aCategory}:unselected`);
-  const delta = toSelect.length;
-
-  if (delta === 0) {
-    showToast("nothing new selected");
-    return;
-  }
-
-  cy.batch(() => {
-    toSelect.select();
-  });
-
-}
 
 export async function checkForCustomDocs() {
   try {

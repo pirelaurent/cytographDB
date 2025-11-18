@@ -36,43 +36,44 @@ export function setInterceptors() {
   linkUploadToUi();
 
 
-/*
- isolation of main bar events 
-*/
-  function setMainBarInterceptors(){
+  /*
+   isolation of main bar events 
+  */
+  function setMainBarInterceptors() {
 
-  // action for button undo
-  document.getElementById("undo-btn").addEventListener("click", () => {
-    popSnapshot("undo button");
-  });
 
-  // action for clipReprot
-  document.getElementById("clip-btn").addEventListener("click", () => {
-    showClipReport();
-  });
+    // action for button undo
+    document.getElementById("undo-btn").addEventListener("click", () => {
+      popSnapshot("undo button");
+    });
 
-  // show red when AND selection
+    // action for clipReprot
+    document.getElementById("clip-btn").addEventListener("click", () => {
+      showClipReport();
+    });
 
-  const select = document.getElementById("modeSelect");
-  select.addEventListener("change", function () {
+    // show red when AND selection
+
+    const select = document.getElementById("modeSelect");
+    select.addEventListener("change", function () {
+      if (select.value === "AND") {
+        select.classList.add("AND-select");
+      } else {
+        select.classList.remove("AND-select");
+      }
+    });
+
+    // Facultatif : appliquer au chargement si nécessaire
     if (select.value === "AND") {
       select.classList.add("AND-select");
-    } else {
-      select.classList.remove("AND-select");
     }
-  });
-
-  // Facultatif : appliquer au chargement si nécessaire
-  if (select.value === "AND") {
-    select.classList.add("AND-select");
-  } 
   }
 
 
   // clic hors éléments
   getCy().on("tap", function (event) {
     if (event.target === getCy()) {
-      getCy().elements().unselect();
+      //getCy().elements().unselect(); // auto by cy 
       getCy().elements().removeClass("faded start-node");
 
       getCy().edges(":selected").removeClass("internal outgoing incoming");
@@ -83,24 +84,24 @@ export function setInterceptors() {
     }
   });
 
-// Pour un EVENT Cytoscape (evt) ou DOM (MouseEvent/PointerEvent/KeyboardEvent)
-function isCtrl(evt) {
-  // Sur les events Cytoscape, l'event natif est dans evt.originalEvent
-  const e = evt && evt.originalEvent ? evt.originalEvent : evt;
+  // Pour un EVENT Cytoscape (evt) ou DOM (MouseEvent/PointerEvent/KeyboardEvent)
+  function isCtrl(evt) {
+    // Sur les events Cytoscape, l'event natif est dans evt.originalEvent
+    const e = evt && evt.originalEvent ? evt.originalEvent : evt;
 
-  // 1) Flags standards
-  if (e && (e.ctrlKey || e.metaKey)) return true;
+    // 1) Flags standards
+    if (e && (e.ctrlKey || e.metaKey)) return true;
 
-  // 2) Fallback robuste (certains browsers/événements tactiles)
-  if (e && typeof e.getModifierState === 'function') {
-    return e.getModifierState('Control') || e.getModifierState('Meta');
+    // 2) Fallback robuste (certains browsers/événements tactiles)
+    if (e && typeof e.getModifierState === 'function') {
+      return e.getModifierState('Control') || e.getModifierState('Meta');
+    }
+
+    // 3) Par défaut
+    return false;
   }
 
-  // 3) Par défaut
-  return false;
-}
-
- let ctrlPressed =false;
+  let ctrlPressed = false;
   let previousSelection = null; //shared between start and end 
   getCy().on("boxstart", (e) => {
     //pushSnapshot('boxStart');
@@ -108,7 +109,7 @@ function isCtrl(evt) {
     if (ctrlPressed) {
       previousSelection = getCy().elements(":selected"); // snapshot AVANT
       //console.log('boxstart '+previousSelection.length)
-    previousSelection.unselect().addClass('doubleSelect');
+      previousSelection.unselect().addClass('doubleSelect');
       //console.log("Marqués doubleSelect:", previousSelection.length);
     }
   });
@@ -159,24 +160,24 @@ function isCtrl(evt) {
 } // setInterceptor
 
 
-    
-      /*
-    useful to position contextual menu in current container
-     */
 
-  export function whereClicInContainer(renderedPos) {
-    const containerRect = getCy().container().getBoundingClientRect();
-    // real pos in window
-    const x = containerRect.left + renderedPos.x;
-    const y = containerRect.top + renderedPos.y;
-    return { x, y };
-  }
-    
+/*
+useful to position contextual menu in current container
+*/
+
+export function whereClicInContainer(renderedPos) {
+  const containerRect = getCy().container().getBoundingClientRect();
+  // real pos in window
+  const x = containerRect.left + renderedPos.x;
+  const y = containerRect.top + renderedPos.y;
+  return { x, y };
+}
+
 
 /*
 link button upload  to gui
 */
- function linkUploadToUi() {
+function linkUploadToUi() {
   const input = document.getElementById("graphUpload");
   if (input) {
     input.addEventListener("change", loadGraphFromJsonFile);

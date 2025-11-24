@@ -371,7 +371,7 @@ app.post("/load-from-db", async (req, res) => {
     /******************************************************************
      * 6. CONSTRUIRE LES EDGES FK POUR CYTOSCAPE
      ******************************************************************/
-    
+
     const filteredEdges = Fk_array
       .map((fk) => {
         const fullSource = `${fk.source_schema}.${fk.source_table}`;
@@ -391,7 +391,7 @@ app.post("/load-from-db", async (req, res) => {
             source: fullSource,
             target: fullTarget,
             label: fk.constraint_name,
-            fkColumns:fk.column_mappings, // in initial parse array are allowed
+            fkColumns: fk.column_mappings, // in initial parse array are allowed
             onDelete: fk.on_delete,
             onUpdate: fk.on_update,
 
@@ -411,7 +411,7 @@ app.post("/load-from-db", async (req, res) => {
       });
 
 
-console.log(JSON.stringify(filteredEdges,0,2));
+    //console.log(JSON.stringify(filteredEdges, 0, 2)); //PLA
 
 
     /******************************************************************
@@ -725,29 +725,28 @@ app.get("/triggers", async (req, res) => {
   const [schema, table] = fullName.split(".");
 
   try {
-
     //const filteredTriggers = rows.filter((row) => row.table_name === table);
     const oneTableTriggers = await loadSQL('oneTableTriggers');
-
-
+    // return the definition of triiger : 'create trigger etc.'
     const { rows } = await client.query(oneTableTriggers, [schema, table]);
     const filteredTriggers = rows;
 
-
     const enriched = await Promise.all(
       filteredTriggers.map(async (row) => {
+        const triggerDef = row.definition;
+        stripSqlComments(triggerDef);
         let warnings = [];
         try {
           const matches = [
-            ...row.definition.matchAll(
+            ...triggerDef.matchAll(
               /\b(EXECUTE|PERFORM)\s+(FUNCTION|PROCEDURE)?\s*([a-zA-Z_][\w]*)/gi
             ),
           ];
           const functionNames = matches.map((m) => m[3]);
-          let fullText = row.definition + "\n";
 
-          // collect all function codes and add it to main source
 
+          // collect all function codes and add it to a global source
+          let fullText = "";
           for (const functionName of functionNames) {
             const { allCodeResult, warnings: fnWarnings } =
               await collectFunctionBodies(client, fullName, functionName);
@@ -776,8 +775,8 @@ app.get("/triggers", async (req, res) => {
               const dynamicExec = execMatches.map((m) => m[1].trim());
               console.log(dynamicExec);
             }
-            // append
-            fullText += body + "\n";
+            // Don't append, every action must be in afunction 
+            fullText = body + "\n";
           }
 
           const cleanedText = stripSqlComments(fullText);
@@ -961,9 +960,9 @@ app.get("/exportAll", async (req, res) => {
  popup list of nodes 
 */
 app.get("/nodes-list", (req, res) => {
-    res.render("nodes-list", {
-        dbName: req.query.currentDBName || ""
-    });
+  res.render("nodes-list", {
+    dbName: req.query.currentDBName || ""
+  });
 });
 
 

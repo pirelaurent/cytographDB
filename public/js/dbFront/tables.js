@@ -19,7 +19,7 @@ import { resolveUnqualified } from "../ui/schemas.js";
  as in a new page (and no session) dbname cannot be shared with main
  This info is furnished into the url 
 */
-export function openTable(tableId) {
+export function openTable(tableId,hasTriggers=false) {
   if (!postgresConnected) {
     showError("no connection to database. Connect first to the original DB");
     return;
@@ -30,15 +30,10 @@ export function openTable(tableId) {
   // checkWithCurrent_db();
 
   window.open(
-    `/table.html?name=${tableId}&currentDBName=${localDBName}`,
+    `/table.html?name=${tableId}&hasTriggers=${hasTriggers}&currentDBName=${localDBName}`,
     `TableDetails_${tableId}`
   );
 }
-
-
-
-
-
 
 /*
  fill in a visual page for triggers details

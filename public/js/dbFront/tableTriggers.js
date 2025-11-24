@@ -72,11 +72,11 @@ async function mainTriggers() {
     const fnLink =
       t.functionNames && t.functionNames.length
         ? t.functionNames
-            .map((fn) => {
-              const url = `/function.html?fullName=${encodeURIComponent(fullName)}&triggerName=${encodeURIComponent(t.name)}&name=${encodeURIComponent(fn)}`;
-              return `<a href="${url}" target="_blank">${fn}</a>`;
-            })
-            .join(", ")
+          .map((fn) => {
+            const url = `/function.html?fullName=${encodeURIComponent(fullName)}&triggerName=${encodeURIComponent(t.name)}&name=${encodeURIComponent(fn)}`;
+            return `<a href="${url}" target="_blank">${fn}</a>`;
+          })
+          .join(", ")
         : `<code>${t.definition ?? ""}</code>`;
 
     const impacted =

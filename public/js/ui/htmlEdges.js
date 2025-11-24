@@ -213,7 +213,7 @@ export function sendEdgeListToHtml(selectedOnly = false) {
 
   {
     const th = doc.createElement("th");
-    th.textContent = "FK name";
+    th.textContent = "Edge name";
     thr.appendChild(th);
   }
 

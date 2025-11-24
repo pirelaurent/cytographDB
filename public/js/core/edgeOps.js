@@ -1,6 +1,6 @@
 
 import { getCy } from "../graph/cytoscapeCore.js";
-import { perimeterForEdgesAction, perimeterForNodesAction } from "../core/perimeter.js";
+import { perimeterForEdgesAction,   perimeterForEdgesSelection,perimeterForNodesAction } from "../core/perimeter.js";
 import { ConstantClass } from "../util/common.js";
 import { showAlert, showInfo, showToast } from "../ui/dialog.js";
 import { pushSnapshot, popSnapshot } from "../util/snapshots.js";
@@ -139,6 +139,7 @@ export function labelRestoreOrientation() {
 */
 
 export function selectEdgesByNativeCategories(aCategory) {
+
   const edges = perimeterForEdgesSelection();
   const cy =getCy();
   if (edges.length === 0) {
@@ -157,7 +158,7 @@ export function selectEdgesByNativeCategories(aCategory) {
   cy.batch(() => {
     toSelect.select();
   });
-
+metrologie();
 }
 
 

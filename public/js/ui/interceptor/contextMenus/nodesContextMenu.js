@@ -71,7 +71,7 @@ export function setNodeContextMenu() {
     clicNodeMenu.style.display = "block";
   });
   document.getElementById("open-table").addEventListener("click", () => {
-    openTable(nodeForInfo.id());
+    openTable(nodeForInfo.id(), nodeForInfo.hasClass(NativeCategories.HAS_TRIGGERS));
     //openTable10rows(nodeForInfo.id())
   });
 

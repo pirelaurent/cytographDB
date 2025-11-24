@@ -1,6 +1,6 @@
 /*
     parse a PSQL code to find function and tables 
-    allos to get function code 
+    alloWs to get function code 
 */
 
 
@@ -97,7 +97,7 @@ export function extractCalledFunctions(text) {
         "max",
         "array",
         "coalesce",
-      ].includes(fn.toLowerCase()) // avoid PLA
+      ].includes(fn.toLowerCase()) // avoid MAJ
   );
 }
 
@@ -112,6 +112,8 @@ export async function collectFunctionBodies(
   seen = new Set(),
   depth = 0
 ) {
+
+
   // already seen or too deep
   if (seen.has(functionName) || depth > 15) {
     return { allCodeResult: "", warnings: [] };
@@ -144,7 +146,7 @@ export async function collectFunctionBodies(
       // recurse with collected calls
       const subResult = await collectFunctionBodies(
         client,
-        table,
+        fullTableName,
         subFn,
         seen,
         depth + 1
@@ -158,7 +160,7 @@ export async function collectFunctionBodies(
     // not 'not found' , not a function, not a procedure
    
     let aWarning = {
-      table: table,
+      table: fullTableName,
       function: functionName,
       warn: `"${fullResult.name}" : ${fullResult.kind}`,
     };

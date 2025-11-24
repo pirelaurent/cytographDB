@@ -18,8 +18,6 @@ export function initializeGraph(data, fromDisk = false) {
     cy.elements().remove();
   }
 
-
-
   cy.add(data);
   // store schemas info in scratch pad 
   cy.scratch('schemas', data.schemas);

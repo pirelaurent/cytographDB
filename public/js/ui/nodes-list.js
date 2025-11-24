@@ -1,6 +1,6 @@
-import {setEventMarkdown,createHeaderMarkdown } from "../util/markdown.js";
+import { setEventMarkdown, createHeaderMarkdown } from "../util/markdown.js";
 import { getLocalDBName } from "../dbFront/tables.js";
-import {enableTableSorting} from  "../util/sortTable.js";
+import { enableTableSorting } from "../util/sortTable.js";
 
 console.log("Pop-up JS loaded 🚀");
 
@@ -14,14 +14,14 @@ const dbName = document.body.dataset.dbName || "";
 const scope = new URLSearchParams(window.location.search).get("scope");
 
 // 🌟 1) HEADER MARKDOWN
-  const header = createHeaderMarkdown(document);
-  // par exemple : l’insérer juste après le <h2>
-  const h2 = document.querySelector("h2");
-  if (h2 && header) {
+const header = createHeaderMarkdown(document);
+// par exemple : l’insérer juste après le <h2>
+const h2 = document.querySelector("h2");
+if (h2 && header) {
     h2.insertAdjacentElement("afterend", header);
-  } else if (header) {
+} else if (header) {
     document.body.prepend(header);
-  }
+}
 
 
 
@@ -122,15 +122,15 @@ document.getElementById("btnApplyAndClose").addEventListener("click", () => {
 });
 
 // set markdown
-    const db = getLocalDBName();
-    let title = db? "nodes list extract from "+db:"nodes list extract"
-    
-    setEventMarkdown(document,"tableNodes",title);  // the id in nodes-list.ejs
+const db = getLocalDBName();
+let title = db ? "nodes list extract from " + db : "nodes list extract"
+
+setEventMarkdown(document, "tableNodes", title);  // the id in nodes-list.ejs
 
 const table = document.getElementById("tableNodes");
 
 enableTableSorting("tableNodes", document, {
-  columns:[1, 2, 3, 4, 5, 6]
+    columns: [1, 2, 3, 4, 5, 6]
 });
 
 

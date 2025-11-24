@@ -42,7 +42,7 @@ Start of specific <script src =  from table.html.
 
 const params = new URLSearchParams(window.location.search);
 const tableName = params.get("name");
-
+const hasTriggers = params.get("hasTriggers") === 'true';
 //reused var for markdown
 
 let colBody, markdown, sectionHeader;
@@ -214,7 +214,7 @@ foreign keys
       const frag = document.createDocumentFragment();
 
       sectionHeader = fkNumber.closest(".section-header");
-      markdown = bandeauMarkdown(document, `${FOR_FK}`,{ICON_COPY: true, ICON_MARKDOWN: true});
+      markdown = bandeauMarkdown(document, `${FOR_FK}`, { ICON_COPY: true, ICON_MARKDOWN: true });
       sectionHeader.appendChild(markdown);
 
       //specific event for FK in markdown
@@ -243,18 +243,18 @@ foreign keys
           )
         }
         );
-/*
-      document
-        .getElementById(`${FOR_FK}${ICON_EXCEL}`)
-        ?.addEventListener("click", async () => {
-          // direct call to the export for table 
-          htmlTableToMarkdown( 'pouet',{
-            ICON_EXCEL: true
-          }, `${tableName}_fk`, document)
-        }
-        );
-
-*/
+      /*
+            document
+              .getElementById(`${FOR_FK}${ICON_EXCEL}`)
+              ?.addEventListener("click", async () => {
+                // direct call to the export for table 
+                htmlTableToMarkdown( 'pouet',{
+                  ICON_EXCEL: true
+                }, `${tableName}_fk`, document)
+              }
+              );
+      
+      */
 
       /*
        create data to export 
@@ -483,6 +483,15 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
       });
     } else {
       uniqueContainer.textContent = "No other constraints";
+    }
+
+    const url = `/triggers.html?fullName=${encodeURIComponent(tableName)}`;
+    if (hasTriggers) {
+      triggerContainer.innerHTML = `<a href=${url}>⚡ see details</a>`
+    }
+    else {
+      triggerContainer.textContent = 'no triggers.'
+
     }
   } else {
     console.error("Error on load :", result.error);

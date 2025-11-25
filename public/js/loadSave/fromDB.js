@@ -2,7 +2,6 @@
 
 import {
   getCy,
-  setCy,
 } from "../graph/cytoscapeCore.js";
 
 import {
@@ -12,47 +11,29 @@ import {
 import { initializeGraph, } from "../core/initializeGraph.js";
 
 import {
-  restoreProportionalSize,
   setProportionalNodeSizeByLinks,
   adjustLabelsToCurrentSchemas
 } from "../core/nodeOps.js";
 
-
+import {reapplyDynamicWidth} from '../graph/defaultStyles.js';
 import { metrologie } from '../core/metrology.js';
 
-
-import {
-  enterFkSynthesisMode,
-
-  enterFkDetailedMode,
-} from "../graph/detailedEdges.js";
-
-import { showAlert, showError, showMultiChoiceDialog } from "../ui/dialog.js";
+import { showAlert } from "../ui/dialog.js";
 
 import { trace } from "../util/tracer.js";
 
 import {
   getLocalDBName,
-  setLocalDBName,
-  connectToDbByNameWithoutLoading,
-  setPostgresConnected,
 } from "../dbFront/tables.js";
 
-import { popSnapshot, pushSnapshot, resetSnapshot } from "../util/snapshots.js";
+import { resetSnapshot } from "../util/snapshots.js";
 
 import {
   setNativeNodesCategories,
   getCustomNodesCategories,
-  restoreCustomNodesCategories,
-  enforceLabelToAlias,
 } from "../filters/categories.js";
 
 import { waitLoading,hideWaitLoading } from "../util/popupWait.js";
-
-import { resetPoolFromFront } from "../dbFront/frontToDb.js";
-
-
-
 
 /*
     Once connected to a DB, analyse model and create graph    
@@ -104,6 +85,8 @@ export function loadInitialGraph() {
 
       setProportionalNodeSizeByLinks();
       setAndRunLayoutOptions();
+      // width adjustment for node in basic shape
+      reapplyDynamicWidth(getCy());
 
       getCy().fit();
       // traiter les données pour le graph, par ex : getCy().add(data)

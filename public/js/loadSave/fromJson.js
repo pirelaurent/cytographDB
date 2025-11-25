@@ -1,9 +1,30 @@
+import { getCy } from "../graph/cytoscapeCore.js";
+
+import { getSavedSyntheticFkOriginal, setSavedSyntheticFkOriginal } from "../graph/detailedEdges.js";
+import { getLocalDBName } from "../dbFront/tables.js";
+import { trace } from "../util/tracer.js";
+import { connectToDbByNameWithoutLoading, setPostgresConnected, setLocalDBName, resetPoolFromFront } from "../dbFront/tables.js";
+import { resetSnapshot } from "../util/snapshots.js";
+import { restoreCustomNodesCategories, setNativeNodesCategories, enforceLabelToAlias } from "../filters/categories.js";
+import { metrologie } from "../core/metrology.js";
+import { reapplyDynamicWidth } from '../graph/defaultStyles.js';
+import { showAlert, showMultiChoiceDialog } from "../ui/dialog.js";
+import {
+  restoreProportionalSize,
+} from "../core/nodeOps.js"
+
 /*
  download and upload JSON from local disk 
-
 */
 
 export function saveGraphToJson() {
+
+  if (getCy().nodes().length === 0) {
+    showAlert("Empty graph");
+    return;
+
+  }
+
   let filenameInput = document.getElementById("graphName");
   let filename = filenameInput.value.trim();
 
@@ -27,23 +48,27 @@ export function saveGraphToJson() {
   });
 
   /*
-   temporarily switch to detail mode to save graph with full info
+   in V4 the detailed edges are preserved. if any Origina FK they are in a savedSyntheticFkOriginal 
   */
 
-  pushSnapshot("saveGraphToJson");
 
-  enterFkDetailedMode(true);
+  // transform map to be exported
+  const savedSyntheticFkOriginalObj = Object.fromEntries(getSavedSyntheticFkOriginal());
+
+
+
   // then save graph on file
   const json = {
     ...getCy().json(),
     originalDBName: getLocalDBName(),
+    savedSyntheticFkOriginal: savedSyntheticFkOriginalObj
   };
 
   const blob = new Blob([JSON.stringify(json, null, 2)], {
     type: "application/json",
   });
 
-  popSnapshot("saveGraphToJson-exit");
+
 
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -67,20 +92,27 @@ function createGraphFromJson(json) {
   const cyData = { ...json };
 
   let cy = getCy();
-  cy.json(cyData);
-
   cy.batch(() => {
+    cy.json(cyData);
+
+    // restore the saved map of original Fk when some edges were saved detailed 
+    const syntheticObj = cyData.savedSyntheticFkOriginal;
+    setSavedSyntheticFkOriginal(new Map(Object.entries(syntheticObj)));
+    // clean up once done
+    delete cyData.savedSyntheticFkOriginal;
+
+
     cy.elements("[hidden]").hide(); // data(hidden)=true → hide()
     cy.elements().not("[hidden]").show(); // le reste → show()
+
+
+    restoreProportionalSize();
+    resetSnapshot();
+    restoreCustomNodesCategories();
+    setNativeNodesCategories(); // redo categories due to leaf/root change
+    enforceLabelToAlias(cyData.originalDBName); // despite alias could have been saved in new
+    reapplyDynamicWidth(cy);// to have basic shapes
   });
-
-  restoreProportionalSize();
-  resetSnapshot();
-  restoreCustomNodesCategories();
-  setNativeNodesCategories(); // redo categories due to leaf/root change
-
-  enforceLabelToAlias(cyData.originalDBName); // despite alias could have been saved in new
-
   /*
 
 ne change pas les roots et leaf malgré le change dans les classes

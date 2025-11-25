@@ -505,3 +505,13 @@ fieldset legend {
   font-size: 0.6em;
 }
 
+/* used in list of edges */
+th.sort-asc::after {
+  content: " ▲";
+  font-size: 0.8em;
+}
+
+th.sort-desc::after {
+  content: " ▼";
+  font-size: 0.8em;
+}

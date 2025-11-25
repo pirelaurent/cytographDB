@@ -1,5 +1,5 @@
 
-import { ConstantClass } from "../util/common.js";
+import {SHOW_LABEL} from "../util/constant.js"
 
 /*
  the cytoscape styles. 
@@ -9,6 +9,19 @@ import { ConstantClass } from "../util/common.js";
 export function getCyStyles() {
   return cyStyles;
 }
+
+/*
+  function becomes widt: "fn" in a cy.json. 
+  Must be restore manually
+*/
+export function reapplyDynamicWidth(cy) {
+  cy.style()
+    .selector('node')
+    .style('width', node => (node.data('label') || '').length * 12)
+    .update();
+}
+
+
 
 const cyStyles = [
   // ------------ global helper
@@ -36,19 +49,29 @@ const cyStyles = [
       //x'text-margin-y': 20,
 
       "text-wrap": "wrap",
-      /* to have back white under label 
-    'text-background-color': '#fff',
+      /* to have back white under label*/
+    'text-background-color': '#ffffff',
     'text-background-opacity': 0.5,
     'text-background-shape': 'roundrectangle',
     'text-background-padding': 0,
-*/
+     //'text-border-width':2,
+     //'text-border-color': '#333',
+     // 'text-border-opacity': 1,
 
       "font-size": "24px",
-      padding: "2px",
-      "text-max-width": 200,
-      width: "40px", //PLA ne change rien
+      "padding": "2px",
+      //"text-max-width": 300,
+
+      'text-valign': 'center',
+      // will be set relative to label by reapplyDynamicWidth
+      'width': 100,
+      'padding-left': 5,
+      'padding-right': 5,
+      'padding-top': 5,
+      'padding-bottom': 5,
+      /*width: "40px", //PLA ne change rien
       height: "40px",
-      width: "label",
+      width: "label",*/
       /* overwritten into proportionalSizeNodeSizeByLinks 
       "min-width": 40,
       "min-height": 20,
@@ -97,7 +120,7 @@ const cyStyles = [
       shape: "triangle",
       color: "#222",
       width: 40,
-      height: 34, // equilateral (Math.sqrt(3) / 2) * L;
+      height: 45, // equilateral (Math.sqrt(3) / 2) * L;
       "background-color": "lime",
     },
   },
@@ -107,8 +130,8 @@ const cyStyles = [
     style: {
       shape: "round-triangle",
       color: "#000000",
-      //width: 20,
-      //height: 45,
+      width: 20,
+      height: 45,
       //"border-color": "DarkTurquoise",
       "background-color": "red",
     },
@@ -532,7 +555,7 @@ const cyStyles = [
   },
 
   {
-    selector: `edge.${ConstantClass.SHOW_LABEL}`,
+    selector: `edge.${SHOW_LABEL}`,
     style: {
       "label": "data(_display)",
       /* future enhancement

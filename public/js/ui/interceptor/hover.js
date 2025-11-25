@@ -1,7 +1,8 @@
 
-import { getCy, captureGraphAsPng } from "../../graph/cytoscapeCore.js";
+import { getCy } from "../../graph/cytoscapeCore.js";
 import { internalCategories } from "../../filters/categories.js";
-import { NativeCategories, ConstantClass } from "../../util/common.js";
+import { NativeCategories } from "../../util/common.js";
+import {FK_DETAILED, FK_SYNTH} from "../../util/constant.js";
 
  /*
    information on mouse over on nodes and edges 
@@ -89,7 +90,7 @@ export function  setHoverInterceptors(){
       let edge = ele;
       let labelToShow='';
 
-      if (edge.hasClass(`${ConstantClass.FK_DETAILED}`)) {
+      if (edge.hasClass(`${FK_DETAILED}`)) {
         labelToShow += "(" + ele.data("constraint_name")+")<BR/>";
       }
       labelToShow += ele.data("_display");
@@ -112,10 +113,10 @@ export function  setHoverInterceptors(){
         filteredClasses.forEach((cls) => {
           // simplify visual edge mode
           switch (cls) {
-            case `${ConstantClass.FK_DETAILED}`:
+            case `${FK_DETAILED}`:
               allInfos.push(`1/Col`);
               break;
-            case `${ConstantClass.FK_SYNTH}`:
+            case `${FK_SYNTH}`:
               allInfos.push(`1/FK`);
               break;
             default:

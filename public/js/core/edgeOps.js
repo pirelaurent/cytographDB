@@ -1,7 +1,8 @@
 
 import { getCy } from "../graph/cytoscapeCore.js";
-import { perimeterForEdgesAction,   perimeterForEdgesSelection,perimeterForNodesAction } from "../core/perimeter.js";
-import { ConstantClass } from "../util/common.js";
+import { perimeterForEdgesAction, perimeterForEdgesSelection, perimeterForNodesAction } from "../core/perimeter.js";
+
+import { SHOW_LABEL, SHOW_COLUMNS } from "../util/constant.js"
 import { showAlert, showInfo, showToast } from "../ui/dialog.js";
 import { pushSnapshot, popSnapshot } from "../util/snapshots.js";
 
@@ -57,7 +58,7 @@ export function selectEdgesBetweenSelectedNodes() {
 }
 
 function oneLabelPerEdge(edge) {
-    edge.addClass(`${ConstantClass.SHOW_LABEL}`);
+  edge.addClass(`${SHOW_LABEL}`);
 }
 
 /*
@@ -87,7 +88,7 @@ export function labelFKAlias() {
 
 export function labelFKId() {
   const cy = getCy();
-    let edgesToShow = perimeterForEdgesAction();
+  let edgesToShow = perimeterForEdgesAction();
   cy.batch(() => {
     edgesToShow.forEach((e) => {
       e.data("_display", e.data("label"));
@@ -101,7 +102,7 @@ export function labelFKId() {
 export function labelFKHide() {
   let edgesToHide = perimeterForEdgesAction();
   edgesToHide.removeClass(
-    `${ConstantClass.SHOW_COLUMNS} ${ConstantClass.SHOW_LABEL}`
+    `${SHOW_COLUMNS} ${SHOW_LABEL}`
   );
 }
 
@@ -141,7 +142,7 @@ export function labelRestoreOrientation() {
 export function selectEdgesByNativeCategories(aCategory) {
 
   const edges = perimeterForEdgesSelection();
-  const cy =getCy();
+  const cy = getCy();
   if (edges.length === 0) {
     showToast("nothing to filter");
     return;
@@ -158,7 +159,7 @@ export function selectEdgesByNativeCategories(aCategory) {
   cy.batch(() => {
     toSelect.select();
   });
-metrologie();
+  metrologie();
 }
 
 

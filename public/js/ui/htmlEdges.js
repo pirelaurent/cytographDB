@@ -5,23 +5,20 @@
 */
 "use strict";
 import { getCy } from "../graph/cytoscapeCore.js";
-
 import { showAlert } from "./dialog.js";
-
 import { getLocalDBName } from "../dbFront/tables.js";
-
-import { setEventMarkdown,createHeaderMarkdown } from "../util/markdown.js";
-
+import { setEventMarkdown, createHeaderMarkdown } from "../util/markdown.js";
 import { createIconButton } from "../ui/dialog.js";
-
-import { ConstantClass, actionMap } from "../util/common.js";
+import { actionMap } from "../util/common.js";
+import {searchFkOriginal} from"../graph/detailedEdges.js";
+import {FK_DETAILED} from "../util/constant.js"
 
 /*
  edges list 
 */
 export function sendEdgeListToHtml(selectedOnly = false) {
 
-  let edges = selectedOnly?getCy().edges(":selected:visible"):getCy().edges(":visible");
+  let edges = selectedOnly ? getCy().edges(":selected:visible") : getCy().edges(":visible");
 
   if (edges.length === 0) {
     showAlert("no edges to list.");
@@ -75,18 +72,23 @@ export function sendEdgeListToHtml(selectedOnly = false) {
     const sourceName = cleanLabel(nodeSource.data("label") || e.source().id());
     const targetName = cleanLabel(nodeDest.data("label") || e.target().id());
 
-    // an edge is an fk and hold its name
-    const fkLabel = e.data("label") || "";
+    // an edge is an fk and hold its name,
+    let fkLabel = e.data("label") || "";
+    let columns = "";
+    // but e.data("label already on details") : search clone in backup
+    if (e.hasClass(`${FK_DETAILED}`)) {
+      const cloneId = e.data("originalId");
+      const clone = searchFkOriginal(cloneId);
+      fkLabel = clone.label;
+        //column label is already A col -> B col
+      columns = { label: e.data("label") || "", nullable: e.data("nullable")}
+    }
+
     // current state of edge : global or detailed
     const fk_on_delete = e.data("onDelete");
     const fk_on_update = e.data("onUpdate");
 
-
-    const columns = e.hasClass(`${ConstantClass.FK_DETAILED}`)
-      ? { label: e.data("columnsLabel") || "", nullable: e.data("nullable") }
-      : "";
-
-    /*
+    /* for understanding : 
         console.log(JSON.stringify(e.source().data("foreignKeys")));
         let sourceData = [
           {
@@ -361,6 +363,8 @@ export function sendEdgeListToHtml(selectedOnly = false) {
       tr.appendChild(tdNullable);
 
       // --- Columns ---
+  console.log('-------------------PLA')
+console.log(columns);//PLA
 
       const tdCols = doc.createElement("td");
       tdCols.className = "text";
@@ -384,6 +388,9 @@ export function sendEdgeListToHtml(selectedOnly = false) {
       }
     }
   );
+
+
+
 
   const db = getLocalDBName();
   let title = db ? `list of FK from ${db}` : "list of FK";

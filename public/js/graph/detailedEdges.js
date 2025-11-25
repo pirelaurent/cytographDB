@@ -52,8 +52,8 @@ new created edges are added with the class 'fk_synth'
 
 import { getCy } from "../graph/cytoscapeCore.js";
 import { perimeterForEdgesAction } from "../core/perimeter.js";
-import { ConstantClass, encodeCol2Col } from "../util/common.js";
-
+import {  encodeCol2Col } from "../util/common.js";
+import {SHOW_LABEL,FK_DETAILED} from "../util/constant.js"
 
 
 /*
@@ -64,6 +64,13 @@ import { ConstantClass, encodeCol2Col } from "../util/common.js";
 
 let savedSyntheticFkOriginal = new Map();
 
+export function getSavedSyntheticFkOriginal(){
+  return savedSyntheticFkOriginal;
+}
+
+export function setSavedSyntheticFkOriginal(synthetic){
+  savedSyntheticFkOriginal = synthetic;
+}
 
 function saveFkOriginal(id, edge) {
   const data = edge.data();
@@ -74,7 +81,8 @@ function saveFkOriginal(id, edge) {
     target: data.target,
     constraint_name: data.constraint_name,
     label: data.label,
-    fkColumns: JSON.stringify(data.fkColumns), // <<<<<< SERIALISATION
+   // fkColumns: JSON.stringify(data.fkColumns), // <<<<<< SERIALISATION
+    fkColumns: data.fkColumns, // TEST NO SERIALISATION
     onDelete: data.onDelete,
     onUpdate: data.onUpdate,
     nullable: data.nullable,
@@ -85,7 +93,7 @@ function saveFkOriginal(id, edge) {
   savedSyntheticFkOriginal.set(id, clone);
 }
 
-function searchFkOriginal(someId) {
+export function searchFkOriginal(someId) {
   return savedSyntheticFkOriginal.get(someId)
 }
 
@@ -133,7 +141,7 @@ export function enterFkDetailedModeForEdges(synthEdges) {
       saveFkOriginal(originalId, edge);
 
       const fkCols = edge.data("fkColumns");
-      const showLabel = edge.hasClass(ConstantClass.SHOW_LABEL);
+      const showLabel = edge.hasClass(SHOW_LABEL);
 
       // 🔥 IMPORTANT : utiliser les data() pour source/target
       const src = edge.data("source");
@@ -155,8 +163,11 @@ export function enterFkDetailedModeForEdges(synthEdges) {
           }
         });
 
-        newEdge.addClass(`${ConstantClass.FK_DETAILED}`);
-        if (showLabel) newEdge.addClass(`${ConstantClass.SHOW_LABEL}`);
+        newEdge.addClass(`${FK_DETAILED}`);
+        if (showLabel) newEdge.addClass(`${SHOW_LABEL}`);
+        //propagate the status 
+        if (edge.selected()) newEdge.select();
+
       });
       edge.remove();
     });
@@ -174,9 +185,9 @@ export function enterFkDetailedModeForEdges(synthEdges) {
 export function enterFkSynthesisMode(global = true) {
   let edges;
   if (global) {
-    edges = getCy().edges(`.${ConstantClass.FK_DETAILED}`);
+    edges = getCy().edges(`.${FK_DETAILED}`);
   } else {
-    edges = perimeterForEdgesAction().filter(`.${ConstantClass.FK_DETAILED}`);
+    edges = perimeterForEdgesAction().filter(`.${FK_DETAILED}`);
   }
   if (edges.length == 0) {
     return false;
@@ -188,12 +199,12 @@ export function enterFkSynthesisMode(global = true) {
 
 /*
  from a bucket of detailed edges, find those from same origin (via same label)
- Take the first to be root ot the refactored simple edge 
+ Take the first to be root of the refactored simple edge 
 */
 
 export function enterFkSynthesisModeForEdges(edges) {
   // be sure of detailed selection
-  edges = edges.filter(e => e.hasClass(`${ConstantClass.FK_DETAILED}`));
+  edges = edges.filter(e => e.hasClass(`${FK_DETAILED}`));
   if (edges.length === 0) {
     console.log('no selection');
     return;
@@ -213,7 +224,7 @@ export function enterFkSynthesisModeForEdges(edges) {
     const src = edgeAny.data("source");
     const tgt = edgeAny.data("target");
 
-    // 🔥 NE SURTOUT PAS filtrer par constraint_name
+    // get all sibling detailed
     const detailed = cy.edges().filter(e =>
       e.data("originalId") === originalId &&
       e.data("source") === src &&
@@ -228,14 +239,16 @@ export function enterFkSynthesisModeForEdges(edges) {
         target: originalData.target,
         constraint_name: originalData.constraint_name,
         label: originalData.label,
-        fkColumns: JSON.parse(originalData.fkColumns), // <<<<<< DESERIALISATION
+
+        //fkColumns: JSON.parse(originalData.fkColumns), // <<<<<< DESERIALISATION
+fkColumns: originalData.fkColumns, // <<<<<< TEST NO DESERIALISATION
+
         onDelete: originalData.onDelete,
         onUpdate: originalData.onUpdate,
         nullable: originalData.nullable,
         alias: originalData.alias,
         label: originalData.label,
         _display: originalData._display ?? originalData.label,
-
       };
 
       /* create clean edge */
@@ -245,14 +258,19 @@ export function enterFkSynthesisModeForEdges(edges) {
       });
 
       restored.addClass(originalData.classes);
+      // retract copy clone
       deleteFkOrigin(originalId);
+      // propagete selection 
+      const allSelected = detailed.every(edge => edge.selected());
+      if (allSelected) restored.select();
+      const allLabeled = detailed.every(edge =>edge.hasClass(SHOW_LABEL));
+      if (allLabeled) restored.addClass((SHOW_LABEL));
     }
+    // finally remove teh detailed previously created 
 
     detailed.remove();
   });
 }
-
-
 
 
 export function logEdge(edge, label = '') {

@@ -1,6 +1,7 @@
 import { getCy } from "../../../graph/cytoscapeCore.js";
 import { metrologie } from "../../../core/metrology.js";
-import { NativeCategories, ConstantClass } from "../../../util/common.js";
+import { NativeCategories } from "../../../util/common.js";
+import {SHOW_LABEL,SHOW_COLUMNS, FK_DETAILED, FK_SYNTH} from "../../../util/constant.js"
 
 import {
   enterFkDetailedModeForEdges,
@@ -52,7 +53,7 @@ export function setEdgeContextMenu() {
 
     //let synthEdges = cy.collection([edgeForInfo]);
 
-    const isSynth = edgeForInfo.hasClass(ConstantClass.FK_SYNTH);
+    const isSynth = edgeForInfo.hasClass(FK_SYNTH);
 
     cy.batch(() => {
       if (isSynth) {
@@ -75,12 +76,12 @@ export function setEdgeContextMenu() {
   document.getElementById("toggleEdgeLabel").addEventListener("click", () => {
     if (
       edgeForInfo.hasClass(NativeCategories.TRIGGER_IMPACT) ||
-      edgeForInfo.hasClass(ConstantClass.FK_SYNTH) ||
+      edgeForInfo.hasClass(FK_SYNTH) ||
       edgeForInfo.hasClass(NativeCategories.SIMPLIFIED)
     ) {
-      edgeForInfo.toggleClass(`${ConstantClass.SHOW_LABEL}`);
-    } else if (edgeForInfo.hasClass(ConstantClass.FK_DETAILED)) {
-      edgeForInfo.toggleClass(ConstantClass.SHOW_COLUMNS);
+      edgeForInfo.toggleClass(`${SHOW_LABEL}`);
+    } else if (edgeForInfo.hasClass(FK_DETAILED)) {
+      edgeForInfo.toggleClass(SHOW_COLUMNS);
     }
 
     if (!edgeForInfo.data("_display")) {

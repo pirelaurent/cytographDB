@@ -11,12 +11,6 @@ export const NativeCategories = {
   SIMPLIFIED: "simplified",
 };
 
-export const ConstantClass = {
-  FK_DETAILED: "fk_detailed", //Shown as 1/Col
-  FK_SYNTH: "fk_synth", //Shown as 1/FK
-  SHOW_LABEL: "showLabel",
-  SHOW_COLUMNS: "showColumns",
-};
 
 /*
     some function to share betwwen back and front to avoid distorsion

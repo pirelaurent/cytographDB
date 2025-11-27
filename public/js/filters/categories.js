@@ -6,7 +6,15 @@ import { getCy } from "../graph/cytoscapeCore.js";
 
 import { fillInGuiNodesCustomCategories } from "../ui/custom.js";
 
-import { NativeCategories } from "../util/common.js";
+import {   
+  ORPHAN,
+  ROOT,
+  LEAF,
+  ASSOCIATION,
+  ASX,
+  MULTIASSOCIATION,
+  HAS_TRIGGERS, 
+} from "../util/constants.js";
 
 /*
  adaptation to specific database 
@@ -46,12 +54,12 @@ function getCustomModule(dbName) {
 }
 
 let standardCategories = new Set([
-  NativeCategories.ORPHAN,
-  NativeCategories.ROOT,
-  NativeCategories.LEAF,
-  NativeCategories.ASSOCIATION,
-  NativeCategories.MULTI_ASSOCIATION,
-  NativeCategories.HAS_TRIGGERS,
+  ORPHAN,
+  ROOT,
+  LEAF,
+  ASSOCIATION,
+  MULTIASSOCIATION,
+  HAS_TRIGGERS,
 ]);
 
 // if we don't want to sse these class in hover , fill in internalCategories
@@ -131,8 +139,9 @@ function allColumnsAreFK(node) {
   const fkGroups = node.data("foreignKeys") || [];
   const fkSourceCols = new Set();
 
-  // Récupérer toutes les colonnes sources des FK
+  // get all source columns of FK
   fkGroups.forEach((fk) => {
+    // in raw data  returns columnMappings 
     (fk.column_mappings || []).forEach((mapping) => {
       if (mapping.source_column) {
         fkSourceCols.add(mapping.source_column);
@@ -140,13 +149,13 @@ function allColumnsAreFK(node) {
     });
   });
 
-  // Récupérer toutes les colonnes du node
+  // get all columns of table 
   const allColumns = (node.data("columns") || []).map((col) => col.column);
 
-  // Vérifier s'il existe une colonne qui n'est pas dans fkSourceCols
+  // Is there an extra column outside of fkSourceCols
   const hasNonFK = allColumns.some((col) => !fkSourceCols.has(col));
 
-  return !hasNonFK; // true si toutes les colonnes sont des FK
+  return !hasNonFK; // true si all cols are in FKs false otherwise
 }
 
 /*
@@ -156,10 +165,10 @@ function allColumnsAreFK(node) {
 export function setNativeNodesCategories() {
   // due to relaod of previously misannotated node in stored json
   const classesToRemove = [
-    NativeCategories.LEAF,
-    NativeCategories.ROOT,
-    NativeCategories.ASSOCIATION,
-    NativeCategories.MULTI_ASSOCIATION,
+    LEAF,
+    ROOT,
+    ASSOCIATION,
+    MULTIASSOCIATION,
   ];
   const cy = getCy();
   const toRemove = classesToRemove.join(" "); // "cls1 cls2 cls3"
@@ -169,7 +178,7 @@ export function setNativeNodesCategories() {
     cy.nodes().forEach((node) => {
 
       if (node.data("triggers")?.length > 0)
-        node.addClass(NativeCategories.HAS_TRIGGERS);
+        node.addClass(HAS_TRIGGERS);
 
       const nbOut = node.outdegree();
       const nbIn = node.indegree();
@@ -181,22 +190,20 @@ export function setNativeNodesCategories() {
       if (nbIn === 0 && nbOut === 0) {
         // strict definition of a root in a directed graph
         // we prefer to distinguish orphan individually
-        node.addClass(NativeCategories.ORPHAN);
+        node.addClass(ORPHAN);
       } else if (nbOut === 0) {
-        node.addClass(NativeCategories.LEAF);
-      } else if (nbIn === 0 && nbOut === 2 && allColumnsAreFK(node)) {
-        /*  An association is identified if : 
-      - it has a minimum of 2 FK
-      - it has no other columns than those involved in these FK 
- */
-        node.addClass(NativeCategories.ASSOCIATION);
+        node.addClass(LEAF);
+      } else if (nbIn === 0 && nbOut === 2 ) {
+          node.addClass(ASSOCIATION);
+          // if local property it is an association round-rectangle ASX
+        if(!allColumnsAreFK(node)) node.addClass(ASX);   
       }
       // either more than 2 branches , either Two with extra column
-      else if (nbIn === 0 && nbOut >= 2) {
-        node.addClass(NativeCategories.MULTI_ASSOCIATION);
+      else if (nbIn === 0 && nbOut > 2) {
+        node.addClass(MULTIASSOCIATION);
       }
       // other case already done
-      else if (nbIn === 0) node.addClass(NativeCategories.ROOT);
+      else if (nbIn === 0) node.addClass(ROOT);
     });
   });
 }

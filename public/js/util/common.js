@@ -1,17 +1,5 @@
 "use strict";
 
-export const NativeCategories = {
-  ASSOCIATION: "association",
-  MULTI_ASSOCIATION: "multiAssociation",
-  HAS_TRIGGERS: "hasTriggers",
-  TRIGGER_IMPACT: "trigger_impact",
-  ORPHAN: "orphan",
-  ROOT: "root",
-  LEAF: "leaf",
-  SIMPLIFIED: "simplified",
-};
-
-
 /*
     some function to share betwwen back and front to avoid distorsion
 */

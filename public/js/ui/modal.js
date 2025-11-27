@@ -215,7 +215,7 @@ function modalSelectByName() {
   const val = document.getElementById("modalNameFilterInput").value;
   const cleanVal = val.trim();
   if (!cleanVal) {
-    showInfo("Nothing in question.") 
+    showInfo("Nothing in question.")
     return;
   }
   const hiddenType = document.getElementById("modalNameFilterType").value;
@@ -230,9 +230,11 @@ function modalSelectByName() {
 
 */
 export function selectByName(pattern, hiddenType) {
-  const cy =getCy();
+  const cy = getCy();
   let regex;
+
   // detect a negative search to check differently
+
   const hasNegativeLookahead = /(?<!\\)\(\?\!/.test(pattern);
 
   // if a string has not the pattern : it is true
@@ -265,7 +267,7 @@ export function selectByName(pattern, hiddenType) {
     if (withHidden) cy.$("node:hidden").unselect();
 
     // Créer une collection vide pour les n}œuds à montrer
-    let toShow =  cy.collection();
+    let toShow = cy.collection();
 
     nodes.forEach((node) => {
       // change by search on label instead of id if alias exist
@@ -275,7 +277,7 @@ export function selectByName(pattern, hiddenType) {
       }
     });
 
-     showToast(`${toShow.length} results in selection`)
+    showToast(`${toShow.length} results in selection`)
     // Met à jour la sélection
 
     if (modeSelect() == AND_SELECTED) {
@@ -305,10 +307,10 @@ export function selectByName(pattern, hiddenType) {
     const withHidden = !document.getElementById("modalRestrictToVisible")
       .checked;
     let edges = withHidden ? cy.edges() : perimeterForEdgesSelection();
-    if (!edges){
-      showInfo ("No edges to filter")
+    if (!edges) {
+      showInfo("No edges to filter")
       return;
-    } 
+    }
 
     // Unselect any hidden edges that may still be selected
     if (withHidden) cy.$("edge:hidden").unselect();
@@ -326,7 +328,7 @@ export function selectByName(pattern, hiddenType) {
       }
     });
 
-     showToast(`${toShowEdges.length} edges results in selection`)
+    showToast(`${toShowEdges.length} edges results in selection`)
 
     if (modeSelect() === AND_SELECTED) {
       toShowEdges.unselect();
@@ -349,8 +351,9 @@ export function selectByName(pattern, hiddenType) {
       .checked;
     let nodes = withHidden ? cy.nodes() : perimeterForNodesSelection();
     if (nodes == null) {
-      showInfo ("No tables to filter.")
-      return};
+      showInfo("No tables to filter.")
+      return
+    };
 
     // un select residual hidden selecteed nodes if any
     if (withHidden) cy.$("node:hidden").unselect();
@@ -364,15 +367,19 @@ export function selectByName(pattern, hiddenType) {
         const columns = node.data().columns.map((c) => c.column ?? c);
 
         let okNode;
-
+        /*
+         in case has NOT a column named 'xxxx' 
+         set table as true by default  
+         then if any match set table as false : it is not true that it has not xxxx
+        */
         if (hasNegativeLookahead) {
           okNode = true;
           for (const name of columns) {
             const ok = regex.test(name);
-            if (!ok) okNode = false; // one has = false that it has not
+            if (!ok) okNode = false;
           }
         } else {
-          // Cas normal : au moins un champ correspond
+          // standard case : at least one column match
           const anyMatch = columns.some((name) => {
             const m = regex.test(name);
             if (m) cases.push(name);
@@ -380,6 +387,9 @@ export function selectByName(pattern, hiddenType) {
           });
           okNode = anyMatch;
         }
+
+        // results
+
         if (okNode) {
           count += 1;
           results.push(`${node.id()} :  ${cases.join(" , ")} `);
@@ -388,10 +398,11 @@ export function selectByName(pattern, hiddenType) {
           if (modeSelect() == AND_SELECTED) node.unselect();
         }
       });
-    }); //batch
 
-    cy.$("node:selected").show(); // aka cy.nodes(":selected")
-    cy.nodes(":visible:unselected").addClass('faded');
+      cy.$("node:selected").show(); // aka cy.nodes(":selected")
+      cy.nodes(":visible:unselected").addClass('faded');
+    }); //batch
+    
     showToast(`${count} tables found with such columns`);
     const output = results.join("\n");
 

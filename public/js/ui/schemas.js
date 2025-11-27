@@ -50,17 +50,18 @@ function selectNodesBySchemas(aSchema) {
  return full qualified name against search_path for table name
 */
 
-export function resolveUnqualified(fullName, searchPath) {
+export function resolveUnqualified(fullName) {
   const cy = getCy();
 
   if (fullName.includes(".")) return fullName;
 
   // Ici tableMap est une vraie Map
   const tableMap = cy.scratch("tableNameSolver"); // real Map
+   let searchPath = cy.scratch("global_search_path")
+
   const table = fullName;
-
   const possibleSchemas = tableMap.get(table) || [];
-
+ // adapt to first match in order defined by searchpath
   for (const sch of searchPath) {
     if (possibleSchemas.includes(sch)) {
       return `${sch}.${table}`;

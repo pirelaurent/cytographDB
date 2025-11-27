@@ -1,8 +1,8 @@
 
 import { getCy } from "../../graph/cytoscapeCore.js";
 import { internalCategories } from "../../filters/categories.js";
-import { NativeCategories } from "../../util/common.js";
-import {FK_DETAILED, FK_SYNTH} from "../../util/constant.js";
+import { HAS_TRIGGERS } from "../../util/constants.js";
+import {FK_DETAILED, FK_SYNTH} from "../../util/constants.js";
 
  /*
    information on mouse over on nodes and edges 
@@ -45,7 +45,7 @@ export function  setHoverInterceptors(){
       if (filteredClasses.length > 0) {
         filteredClasses.forEach((cls) => {
           switch (cls) {
-            case NativeCategories.HAS_TRIGGERS:
+            case HAS_TRIGGERS:
               allInfos.push(`${cls}(${node.data().triggers.length})`);
               break;
             default:

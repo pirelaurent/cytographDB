@@ -12,7 +12,8 @@ import {
 import { getCustomNodesCategories } from "../filters/categories.js";
 import { resetSnapshot } from "../util/snapshots.js";
 
-import { warningOutputHtml, NativeCategories } from "../util/common.js";
+import { warningOutputHtml } from "../util/common.js";
+import { HAS_TRIGGERS, TRIGGER_IMPACT } from "../util/constants.js";
 import { resolveUnqualified } from "../ui/schemas.js";
 
 /*
@@ -40,7 +41,7 @@ export function openTable(tableId,hasTriggers=false) {
 */
 
 export function openTriggerPage(node) {
-  if (node.hasClass(NativeCategories.HAS_TRIGGERS)) {
+  if (node.hasClass(HAS_TRIGGERS)) {
     const table = node.id();
     const url = `/triggers.html?fullName=${encodeURIComponent(table)}`;
     window.open(url, "triggers");
@@ -170,6 +171,7 @@ export async function generateTriggers(nodes) {
     showAlert("no table with triggers in selection.");
     return;
   }
+  
   // clean if any
 
   removeTriggers();
@@ -199,9 +201,9 @@ export async function generateTriggers(nodes) {
 
     // we need to resolve unqualified names in impacted tables
 
-    const response = await fetch(`/search_path`);
+ /*    const response = await fetch(`/search_path`);
     const spResult = await response.json();
-    const global_search_path = spResult.searchPath;  // Array de strings
+    const global_search_path = spResult.searchPath;  // Array de strings */
 
 
     data.triggers.forEach((t) => {
@@ -225,7 +227,7 @@ export async function generateTriggers(nodes) {
         */
 
 
-        const resolvedTarget = resolveUnqualified(target, global_search_path);
+        const resolvedTarget = resolveUnqualified(target);//, global_search_path);
         if (!resolvedTarget) {
           allWarnings.push({
             table: ` ${source}`,
@@ -236,9 +238,7 @@ export async function generateTriggers(nodes) {
         }
 
         target = resolvedTarget;
-
-
-
+        // now qualified names 
         const edgeId = triggerName;
 
         const targetNode = getCy().getElementById(target);
@@ -257,7 +257,7 @@ export async function generateTriggers(nodes) {
               },
             });
 
-            edge.addClass(NativeCategories.TRIGGER_IMPACT);
+            edge.addClass(TRIGGER_IMPACT);
 
             edge.show();
             sourceNode.show();

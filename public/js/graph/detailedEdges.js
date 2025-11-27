@@ -53,7 +53,7 @@ new created edges are added with the class 'fk_synth'
 import { getCy } from "../graph/cytoscapeCore.js";
 import { perimeterForEdgesAction } from "../core/perimeter.js";
 import {  encodeCol2Col } from "../util/common.js";
-import {SHOW_LABEL,FK_DETAILED} from "../util/constant.js"
+import {SHOW_LABEL,FK_DETAILED} from "../util/constants.js"
 
 
 /*

@@ -2,7 +2,7 @@
 import { getCy } from "../graph/cytoscapeCore.js";
 import { perimeterForEdgesAction, perimeterForEdgesSelection, perimeterForNodesAction } from "../core/perimeter.js";
 
-import { SHOW_LABEL, SHOW_COLUMNS } from "../util/constant.js"
+import { SHOW_LABEL, SHOW_COLUMNS } from "../util/constants.js"
 import { showAlert, showInfo, showToast } from "../ui/dialog.js";
 import { pushSnapshot, popSnapshot } from "../util/snapshots.js";
 

@@ -76,9 +76,6 @@ app.get("/", (req, res) => {
 });
 
 
-
-
-
 // Middleware to parse JSON bodies
 // Increase payload size limit to 50MB
 app.use(express.json({ limit: "100mb" }));
@@ -124,6 +121,7 @@ app.get("/search_path", async (req, res) => {
 
 /*
  create a network with tables as nodes and FK as edges
+ Add schemas in model
 */
 
 app.post("/load-from-db", async (req, res) => {
@@ -134,34 +132,85 @@ app.post("/load-from-db", async (req, res) => {
     const pool = getPoolFor(dbName);
     client = await pool.connect();
 
-    // get list of schemas to be set in cytoscape data for future use
+    let warnings = [];
 
+    /*
+     get list of all schemas to be set in cytoscape data for future use
+     but some schema can exist only for views. 
+     => We will reduce schemaslater to have only schemas with table
+    */
     const allSchemasSQL = await loadSQL('schemas_list');
     const resultSchemas = await client.query(allSchemasSQL);
-    const schemas = resultSchemas.rows.map((row) => row.schema_name);
+    let schemas = resultSchemas.rows.map((row) => row.schema_name);
 
     // get list of tables in schemas to solve later not qualified names in triggers
 
     const schemas_tables_list = await loadSQL('schemas_tables_list');
     const res_schemas_tables_list = await client.query(schemas_tables_list);
-
-
-    const tableNameSolver = new Map(); // table → [schemas]
-
-    for (const row of res_schemas_tables_list.rows) {
-      const tbl = row.table_name;
-      const sch = row.table_schema;
-      if (!tableNameSolver.has(tbl)) tableNameSolver.set(tbl, []);
-      tableNameSolver.get(tbl).push(sch);
-    }
-
     /*
-     'a' => [ 'pe' ],
-     'address' => [ 'humanresources', 'person' ],
-     'addresstype' => [ 'person' ],
-     ...
+        map to be able to recreate a full qaulified name only from a table name
+        in triggers code, table name are not fuly qualified so we need to detect risks: 
+        If the same table name exists into 2 or more schemas: (the schema list is an array) 
+          the method resolveUnqualified will use global_search_path to search in order 
+    This globalSearchPath must be defined in the DB, we look at this. 
+    If not, in case of duplicate risk, we create a false globalSearchPath in the order of schemas list. 
     */
 
+    const tableNameSolver = new Map(); // table → [schemas]
+    // check duplicate 
+    let duplicateTableName = false;
+    const duplicateNames = [];
+    //check useful schemas 
+    let usedSchemas = new Set();
+    // lopp and create dictionary 
+    for (const row of res_schemas_tables_list.rows) {
+      const tbl = row.table_name;
+      const sch = row.schema_name;
+      usedSchemas.add(sch);
+      if (!tableNameSolver.has(tbl)) {
+        tableNameSolver.set(tbl, []);
+        tableNameSolver.get(tbl).push(sch); //first time 
+      } else {
+        tableNameSolver.get(tbl).push(sch);
+        duplicateTableName = true;
+        let danger ="/ ";
+        (tableNameSolver.get(tbl)).forEach(element => {
+          danger += `${element}.${tbl} / `
+        });
+        duplicateNames.push(danger);
+      }
+    }
+
+    // reduce schemas to only used schema for tables 
+    schemas = [...usedSchemas];
+
+    /*
+     check if there is a defined search path in postgres (must be ...)
+    */
+    const rqSearchPath = await loadSQL('searchPath');
+    const spResult = await client.query(rqSearchPath);
+    const searchPath = spResult.rows[0].sp;
+    let global_search_path = searchPath;
+
+    // if there is no searchPath (other than a single default) : warn if duplicate names 
+    if ((searchPath.length === 1) & duplicateTableName) {
+
+      const texte = duplicateNames
+        .map((elem) => `[${elem}]`)
+        .join('<BR/>');
+
+      warnings.push(`
+        Duplicate table names and no search path<br/>
+        ${texte}<br/>
+       Default searchpath set as alphabetical order of schemas
+      `)
+      // also in os console       
+      console.log(warnings);
+
+      // list of schemas is alphabetic by construction . Use it
+      global_search_path = schemas;
+
+    }
 
     /******************************************************************
      * 1. RÉCUPÉRER TOUTES LES COLONNES DE TOUTES LES TABLES
@@ -258,7 +307,7 @@ app.post("/load-from-db", async (req, res) => {
         name: row.constraint_name,
         comment: row.comment || null,
         target: `${row.target_schema}.${row.target_table}`,
-        columnMappings: row.column_mappings || [],
+        column_mappings: row.column_mappings || [],
         allSourceNotNull: row.all_source_not_null,
         isTargetUnique: row.is_target_unique,
         onDelete: row.on_delete,
@@ -323,6 +372,8 @@ app.post("/load-from-db", async (req, res) => {
     commentsByTable: Map "schema.table" -> comment string
     schemas : schema_tables_list result used to build
     tableNameSolver: Map table → [schemas]
+    global_search_path : search path if necessary or set alphabetic
+    warnings : to have view in user screen later
     */
 
 
@@ -391,7 +442,7 @@ app.post("/load-from-db", async (req, res) => {
             source: fullSource,
             target: fullTarget,
             label: fk.constraint_name,
-            fkColumns: fk.column_mappings, // in initial parse array are allowed
+            fkColumns: fk.column_mappings, // an initial parse array are allowed
             onDelete: fk.on_delete,
             onUpdate: fk.on_update,
 
@@ -411,15 +462,18 @@ app.post("/load-from-db", async (req, res) => {
       });
 
 
-    //console.log(JSON.stringify(filteredEdges, 0, 2)); //PLA
-
-
     /******************************************************************
      * 7. response JSON  nodes, edges, list of schemas, list of tables in schemas
      ******************************************************************/
 
-
-    res.json({ nodes, edges: filteredEdges, schemas: schemas, tableNameSolver: [...tableNameSolver] });
+    res.json({
+      nodes,
+      edges: filteredEdges,
+      schemas: schemas,
+      tableNameSolver: [...tableNameSolver],
+      global_search_path: global_search_path,
+      warnings:warnings
+    });
   } catch (error) {
     console.error("error loading graph :", error);
     res.status(500).json({ error: "Error accessing database" });

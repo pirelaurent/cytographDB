@@ -48,7 +48,7 @@ export function enableTableSorting(tableId, doc = document, options = {}) {
     }
 
     th.classList.add("sortable");
-    th.title ||= "Cliquer pour trier";
+    th.title ||= "Click to sort";
 
     th.addEventListener("click", () => {
       const tbody = table.tBodies[0] || table;

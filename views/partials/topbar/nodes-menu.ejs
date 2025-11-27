@@ -64,19 +64,24 @@
 
       <li class="separator"></li>
       <li data-category="follow">Follow & Reveal ...
+        
         <ul class="submenu">
           <li title="follow on one level">
-            <svg id="follow-graph" width="180" height="48" viewBox="0 20 200 60">
+
+            <svg id="follow-graph" width="150" height="50" viewBox="0 20 200 60">
               <!-- outgoing -->
               <g class="zone outgoing" data-action="followOutgoing" role="button" tabindex="0"
                 aria-label="Follow outgoing" cursor="pointer" pointer-events="bounding-box">
                 <title>Follow outgoing edges and show target nodes</title>
+
                 <rect class="zone-bg" x="10" y="35" width="90" height="30" rx="6" ry="6" fill="transparent">
                   <title>Follow outgoing edges and show target nodes</title>
                 </rect>
+
                 <circle cx="30" cy="50" r="11" fill="#6cc644" stroke="#FFFF00">
                   <title>Follow outgoing</title>
                 </circle>
+
                 <line x1="100" y1="50" x2="42" y2="50" stroke="#6cc644" stroke-width="2" marker-end="url(#arrow-green)">
                   <title>Follow outgoing</title>
                 </line>
@@ -93,7 +98,6 @@
                 <rect x="88" y="38" width="24" height="24" rx="4" ry="4" fill="#AAA" stroke="#666" stroke-width="2" />
 
                 <title>Follow both</title>
-
               </g>
 
               <!-- incoming -->
@@ -126,7 +130,8 @@
             </svg>
           </li>
           <li title="follow on several levels">
-            <svg id="tree-follow-graph" width="180" height="50" viewBox="0 20 200 60">
+            
+            <svg id="tree-follow-graph" width="150" height="50" viewBox="0 20 200 60">
               <!-- OUTGOING TREE -->
               <g class="zone outgoing-tree" data-action="followOutgoingTree" role="button" tabindex="0"
                 aria-label="Follow outgoing tree" cursor="pointer" pointer-events="bounding-box">
@@ -187,10 +192,10 @@
                 </marker>
               </defs>
             </svg>
-
           </li>
+          
           <li title="cross over associations">
-            <svg id="pass-through-graph" width="180" height="60" viewBox="0 20 200 60">
+            <svg id="pass-through-graph" width="150" height="50" viewBox="0 20 200 60">
               <defs>
                 <!-- Pointe verte orientée automatiquement selon le sens de la ligne -->
                 <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"

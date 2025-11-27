@@ -487,7 +487,7 @@ Si tu as un index supplémentaire sur le même ensemble de colonnes que la PK ma
 
     const url = `/triggers.html?fullName=${encodeURIComponent(tableName)}`;
     if (hasTriggers) {
-      triggerContainer.innerHTML = `<a href=${url}>⚡ see details</a>`
+      triggerContainer.innerHTML = `<a href=${url}>⚡ see triggers details</a>`
     }
     else {
       triggerContainer.textContent = 'no triggers.'

@@ -1,6 +1,6 @@
 import { getCy } from "../graph/cytoscapeCore.js";
 import {perimeterForNodesAction} from "../core/perimeter.js";
-import { NativeCategories } from "../util/common.js";
+import { ROOT } from "../util/constants.js";
 import { showAlert } from "../ui/dialog.js";
 
 
@@ -295,7 +295,7 @@ export function setAndRunLayoutOptions(option) {
         take all visible 
       */
     case "breadthfirst":
-      const rootNodes = selectedNodes.filter(`.${NativeCategories.ROOT}`);
+      const rootNodes = selectedNodes.filter(`.${ROOT}`);
 
       Object.assign(layoutOptions, {
         direction: "upward",

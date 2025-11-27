@@ -1,5 +1,5 @@
 
-import {SHOW_LABEL} from "../util/constant.js"
+import {SHOW_LABEL} from "../util/constants.js"
 
 /*
  the cytoscape styles. 
@@ -69,9 +69,6 @@ const cyStyles = [
       'padding-right': 5,
       'padding-top': 5,
       'padding-bottom': 5,
-      /*width: "40px", //PLA ne change rien
-      height: "40px",
-      width: "label",*/
       /* overwritten into proportionalSizeNodeSizeByLinks 
       "min-width": 40,
       "min-height": 20,
@@ -145,13 +142,28 @@ const cyStyles = [
       //height:40,
       "border-color": "#8a615a",
       "background-color": "#FFB3A7",
-      // "border-style": "dotted",
+      "border-style": "dotted",
     },
   },
+{
+    selector: "node.association._extended",
+    style: {
+      shape: "ellipse",
+      color: "#222",
+      //width:40,
+      //height:40,
+      "border-color": "#111111",
+      "border-width": 2,
+      "background-color": "#FFB3A7",
+      "border-style": "solid",
+    },
+  },
+  
   {
     selector: "node.multiAssociation",
     style: {
-      shape: "ellipse",
+      shape: "round-rectangle",
+      "border-radius": 999,
       "border-color": "#8a615a",
       "background-color": "#ffb3a7",
       "border-width": 6,

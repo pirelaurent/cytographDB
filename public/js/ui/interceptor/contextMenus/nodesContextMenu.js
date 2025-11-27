@@ -6,7 +6,7 @@ import { openTable, openTriggerPage } from "../../../dbFront/tables.js";
 import { follow, followTree } from "../../../graph/walker.js";
 import { showAlert } from "../../dialog.js";
 import { metrologie } from "../../../core/metrology.js";
-import { NativeCategories } from "../../../util/common.js";
+import { HAS_TRIGGERS } from "../../../util/constants.js";
 import {whereClicInContainer} from "../core.js";
 export function setNodeContextMenu() {
 
@@ -64,14 +64,14 @@ export function setNodeContextMenu() {
 
     //  affichage conditionnel
     document.getElementById("open-trigger").style.display =
-      nodeForInfo.hasClass(NativeCategories.HAS_TRIGGERS)
+      nodeForInfo.hasClass(HAS_TRIGGERS)
         ? "list-item"
         : "none";
     clicNodeMenu.classList.remove("hidden");
     clicNodeMenu.style.display = "block";
   });
   document.getElementById("open-table").addEventListener("click", () => {
-    openTable(nodeForInfo.id(), nodeForInfo.hasClass(NativeCategories.HAS_TRIGGERS));
+    openTable(nodeForInfo.id(), nodeForInfo.hasClass(HAS_TRIGGERS));
     //openTable10rows(nodeForInfo.id())
   });
 

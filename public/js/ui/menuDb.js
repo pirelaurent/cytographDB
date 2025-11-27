@@ -7,14 +7,15 @@ import {
 import {
   connectToDb,
   setLocalDBName,
+  resetPoolFromFront,
 } from "../dbFront/tables.js";
-
 
 import {
   showError,
 } from "./dialog.js";
 
 import { getLocalDBName } from "../dbFront/tables.js";
+import { getCy } from "../graph/cytoscapeCore.js" ;      
 /*
   ----------------------------------menu for db access and files 
 */
@@ -48,5 +49,16 @@ export function menuDb(option, menuItemElement, whichClic = "left") {
         })
         .catch((err) => showError("loadFromDB: " + err.message));
       break;
+
+    case "reset":
+      const cy = getCy();
+      // reset existing
+      if (typeof cy !== "undefined" && cy) {
+        cy.elements().remove();
+      }
+      resetPoolFromFront();
+
+      break;
+
   }
 }

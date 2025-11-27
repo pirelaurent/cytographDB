@@ -113,12 +113,12 @@ li[data-category="follow"] > ul.submenu {
   align-items: center;           /* centre horizontalement les SVG */
   justify-content: center;
   gap: -2px;                      /* petit espace entre les lignes */
-  padding: 2px;
+  padding: 1px;
   border: 1px solid #aab;        /* encadré global */
-  border-radius: 6px;
+  border-radius: 3px;
   background-color: #fff;
   box-shadow: 1px 2px 6px rgba(0,0,0,0.1);
-  min-width: 160px;
+  min-width: 120px;
 }
 
 /* chaque ligne (li) avec SVG : encadré léger et centrage interne */
@@ -126,7 +126,7 @@ li[data-category="follow"] > ul.submenu > li {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2px;
+  padding: 0px;
   border: 1px solid #ccd;
   border-radius: 2px;
   background-color: #f8fafc;
@@ -135,7 +135,12 @@ li[data-category="follow"] > ul.submenu > li {
 
 li[data-category="follow"] > ul.submenu > li:hover {
   background-color: #eaf3fa;
-  transform: scale(1.06);
+  /*transform: scale(1.06);*/
+}
+
+li[data-category="follow"] > ul.submenu svg {
+  width: 140px;
+  height: 40px;
 }
 
 
@@ -247,7 +252,7 @@ li[data-category="follow"] > ul.submenu > li:hover {
 /* donne la même “boîte” aux libellés */
 #quickAccessMenu .qa-label {
   display: inline-block;
-  width: 30px;        /* ajuste: 60px ou p.ex. 7ch */
+  width: 38px;        /* ajuste: 60px ou p.ex. 7ch */
   box-sizing: border-box;
   text-align: right;  /* optionnel pour aligner le texte à droite */
   color: #666;

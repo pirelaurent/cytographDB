@@ -114,8 +114,8 @@ export function showMultiChoiceDialog(title, message, choices, doc = document) {
  more friendly alert 
 */
 
-export function showAlert(textAlert) {
-  showMultiChoiceDialog("⚠️  Warning", textAlert, [
+export function showAlert(textAlert,title="") {
+  showMultiChoiceDialog("⚠️  Warning "+title, textAlert, [
     {
       label: "OK",
       onClick: () => { },

@@ -11,7 +11,7 @@ import { setEventMarkdown, createHeaderMarkdown } from "../util/markdown.js";
 import { createIconButton } from "../ui/dialog.js";
 import { actionMap } from "../util/common.js";
 import {searchFkOriginal} from"../graph/detailedEdges.js";
-import {FK_DETAILED} from "../util/constant.js"
+import {FK_DETAILED} from "../util/constants.js"
 
 /*
  edges list 
@@ -363,9 +363,6 @@ export function sendEdgeListToHtml(selectedOnly = false) {
       tr.appendChild(tdNullable);
 
       // --- Columns ---
-  console.log('-------------------PLA')
-console.log(columns);//PLA
-
       const tdCols = doc.createElement("td");
       tdCols.className = "text";
       if (columns != "") {

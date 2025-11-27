@@ -25,7 +25,7 @@ import { perimeterForEdgesAction, perimeterForNodesAction } from "../core/perime
 
 import { enableTableSorting } from "../util/sortTable.js";
 import { createIconButton } from "../ui/dialog.js";
-import { NativeCategories } from "../util/common.js";
+import { SIMPLIFIED,ASSOCIATION } from "../util/constants.js";
 
 
 /*
@@ -324,7 +324,7 @@ export function simplifyAssociations() {
   nodes.forEach(function (node) {
     let outEdges = node.outgoers("edge");
 
-    if (!node.hasClass(NativeCategories.ASSOCIATION)) return;
+    if (!node.hasClass(ASSOCIATION)) return;
 
 
     const elementsToSave = node.closedNeighborhood(); // le nœud + ses edges
@@ -363,14 +363,14 @@ export function simplifyAssociations() {
             backup: nodeBackup,
             simplified_association: true,
           },
-          classes: NativeCategories.SIMPLIFIED,
+          classes: SIMPLIFIED,
         });
       }//createEdge
 
 
     }
   });
-  if (done == 0) showAlert("no association (two targets, no extra columns ).");
+  if (done == 0) showAlert("no simple association <br/>(two targets, no private columns outside FK cols )");
 
 
 
@@ -384,7 +384,7 @@ export function simplifyAssociations() {
 export function restoreAssociations() {
   const visibleEdges = perimeterForEdgesAction();
   const simplifiedEdges = visibleEdges.filter((edge) =>
-    edge.hasClass(NativeCategories.SIMPLIFIED)
+    edge.hasClass(SIMPLIFIED)
   );
   if (simplifiedEdges.length === 0) return;
 

@@ -21,6 +21,7 @@ export function initializeGraph(data, fromDisk = false) {
   cy.add(data);
   // store schemas info in scratch pad 
   cy.scratch('schemas', data.schemas);
+  cy.scratch('global_search_path', data.global_search_path)
   cy.scratch('tableNameSolver', new Map(data.tableNameSolver));
 
   fillInGuiNodesSchemasCategories()

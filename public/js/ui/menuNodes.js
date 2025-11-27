@@ -29,7 +29,14 @@ import { pushSnapshot } from "../util/snapshots.js";
 
 import { modeSelect, AND_SELECTED, deleteNodesSelected } from "./dialog.js";
 
-import { NativeCategories } from "../util/common.js";
+import {
+  ORPHAN,
+  ROOT,
+  LEAF,
+  ASSOCIATION,
+  MULTIASSOCIATION,
+  HAS_TRIGGERS,
+} from "../util/constants.js";
 
 /*
   ------------------------------------- Nodes 
@@ -37,7 +44,13 @@ import { NativeCategories } from "../util/common.js";
 */
 export function menuNodes(option, item, whichClic = "left") {
   if (whichClic == "right") return;
+
+    // shared var for this menu options
+    const cy = getCy();
+    let nodes;
+
   switch (option) {
+
     //-------- Nodes Select
 
     case "all":
@@ -75,7 +88,7 @@ export function menuNodes(option, item, whichClic = "left") {
       swapHidden();
       break;
 
-    
+
 
     // -----------------------------------------Nodes filter by
 
@@ -83,104 +96,97 @@ export function menuNodes(option, item, whichClic = "left") {
 
     // --------------- native categories
 
+
+
+
     case "nodeIsOrphan":
-      {
-        let nodes = perimeterForNodesSelection();
+
+        nodes = perimeterForNodesSelection();
         if (nodes.length === 0) return;
-        nodes.filter(`.${NativeCategories.ORPHAN}`).select();
-           nodes.filter(':selected').removeClass('faded');
-      nodes.filter(':unselected').addClass('faded');
-      }
+        nodes.filter(`.${ORPHAN}`).select();
+        nodes.filter(':selected').removeClass('faded');
+        nodes.filter(':unselected').addClass('faded');
 
       break;
 
-    case "nodeIsRoot": {
-      const cy = getCy();
-      const nodes = perimeterForNodesSelection();
+    case "nodeIsRoot":
+     
+      nodes = perimeterForNodesSelection();
       if (!nodes || nodes.empty()) return;
 
       cy.batch(() => {
         nodes
           .filter(n =>
-            n.hasClass(NativeCategories.ROOT) &&
-            !n.hasClass(NativeCategories.ASSOCIATION) &&
-            !n.hasClass(NativeCategories.MULTI_ASSOCIATION)
+            n.hasClass(ROOT)
           )
           .select();
+
+        nodes.filter(':selected').removeClass('faded');
+        nodes.filter(':unselected').addClass('faded');
       });
-       nodes.filter(':selected').removeClass('faded');
-      nodes.filter(':unselected').addClass('faded');
       break;
-    }
+    
 
 
     case "nodeIsLeaf":
-      {
-        const cy = getCy();
-        let nodes = perimeterForNodesSelection();
+  
+         nodes = perimeterForNodesSelection();
         if (nodes == null) return;
         if (nodes.length === 0) return;
         cy.batch(() => {
-          nodes.filter(`.${NativeCategories.LEAF}`).select();
+          nodes.filter(`.${LEAF}`).select();
           nodes.filter(':selected').removeClass('faded');
-      nodes.filter(':unselected').addClass('faded');
+          nodes.filter(':unselected').addClass('faded');
         });
-
-      }
-
+      
       break;
 
     case "nodeIsAssociation":
-      {
-        const cy = getCy();
-        let nodes = perimeterForNodesSelection();
+  
+         nodes = perimeterForNodesSelection();
         if (nodes.length === 0) return;
         cy.batch(() => {
-          nodes.filter(`.${NativeCategories.ASSOCIATION}`).select();
+          nodes.filter(`.${ASSOCIATION}`).select();
+            nodes.filter(':selected').removeClass('faded');
+        nodes.filter(':unselected').addClass('faded');
         });
-           nodes.filter(':selected').removeClass('faded');
-      nodes.filter(':unselected').addClass('faded');
-      }
-
+  
       break;
 
-    case "nodeIsMultiAssociation": {
-      const cy = getCy();
-      let nodes = perimeterForNodesSelection();
+    case "nodeIsMultiAssociation": 
+      nodes = perimeterForNodesSelection();
       if (!nodes?.empty) nodes = cy.collection(nodes);
       if (!nodes || nodes.empty()) return;
 
       cy.batch(() => {
+       // same as  nodes.filter(`.${MULTIASSOCIATION}`).select();
         nodes
           .filter(n =>
-            n.hasClass(NativeCategories.MULTI_ASSOCIATION) ||
-            n.hasClass(NativeCategories.ASSOCIATION)
+            n.hasClass(MULTIASSOCIATION)
           )
           .select();
-      });
       nodes.filter(':selected').removeClass('faded');
       nodes.filter(':unselected').addClass('faded');
+      });
+
       break;
-    }
 
 
     case "nodeHasTriggers":
-      const cy = getCy();
-      {
-        let nodes = perimeterForNodesSelection();
+
+   
+         nodes = perimeterForNodesSelection();
         if (nodes.length === 0) return;
         cy.batch(() => {
-          nodes.filter(`.${NativeCategories.HAS_TRIGGERS}`).select();
+          nodes.filter(`.${HAS_TRIGGERS}`).select();
           nodes.filter(':unselected').addClass('faded');
         });
-      }
 
       break;
 
     case "looping":
-      {
-        const cy = getCy();
-        let nodes = perimeterForNodesSelection();
+  
+       nodes = perimeterForNodesSelection();
 
         if (nodes == null) return;
         pushSnapshot();
@@ -193,13 +199,14 @@ export function menuNodes(option, item, whichClic = "left") {
         cy.batch(() => {
           if (modeSelect() == AND_SELECTED) nodes.unselect();
           nodesWithSelfLoop.select();
+          nodes.filter(':selected').removeClass('faded');
+          nodes.filter(':unselected').addClass('faded');
         });
-      }
-      nodes.filter(':selected').removeClass('faded');
-      nodes.filter(':unselected').addClass('faded');
+      
+ 
       break;
 
-//------------------------------------- nodes from selected  edges
+    //------------------------------------- nodes from selected  edges
 
     case "selectSourceNodes":
       selectSourceNodesFromSelectedEdges();

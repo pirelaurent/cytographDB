@@ -9,16 +9,16 @@ import {
 } from '../core/layout.js';
 
 import { initializeGraph, } from "../core/initializeGraph.js";
+import { showAlert } from "../ui/dialog.js";
 
 import {
   setProportionalNodeSizeByLinks,
   adjustLabelsToCurrentSchemas
 } from "../core/nodeOps.js";
 
-import {reapplyDynamicWidth} from '../graph/defaultStyles.js';
+import { reapplyDynamicWidth } from '../graph/defaultStyles.js';
 import { metrologie } from '../core/metrology.js';
 
-import { showAlert } from "../ui/dialog.js";
 
 import { trace } from "../util/tracer.js";
 
@@ -33,7 +33,7 @@ import {
   getCustomNodesCategories,
 } from "../filters/categories.js";
 
-import { waitLoading,hideWaitLoading } from "../util/popupWait.js";
+import { waitLoading, hideWaitLoading } from "../util/popupWait.js";
 
 /*
     Once connected to a DB, analyse model and create graph    
@@ -69,6 +69,21 @@ export function loadInitialGraph() {
     .then((res) => res.json())
     .then((data) => {
 
+      // inform user from server warnings 
+
+      if (data.warnings.length > 0) {
+        let msg ="";
+        for (let aWarn of data.warnings) {
+          msg += aWarn;
+          msg+="<BR/>"
+        }
+        showAlert(msg,'on model')
+        delete data.warnings; // useless for cyto
+      }
+
+      // transform data in graph 
+
+
       initializeGraph(data);
       if (getCy().nodes().length == 0) {
         showAlert("Empty model");
@@ -79,7 +94,7 @@ export function loadInitialGraph() {
       adjustLabelsToCurrentSchemas(data);
 
       // by default graph is in synthetic mode 
-      
+
       setNativeNodesCategories();
       hideWaitLoading();
 

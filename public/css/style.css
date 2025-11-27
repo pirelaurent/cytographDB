@@ -97,14 +97,15 @@ ul#clicEdgeMenu {
   list-style: none;
   padding: 4px 0;
   margin: 0;
-  min-width: 160px;
+  min-width: 140px;
   z-index: 8000;             /* au-dessus du graphe et du topbar */
   box-shadow: 2px 2px 8px rgba(0,0,0,.15);
 }
 
 ul#clicNodeMenu li,
 ul#clicEdgeMenu li {
-  padding: 5px 10px;
+  padding: 5px 5px;
+  max-height: 30px;
   cursor: pointer;
 }
 

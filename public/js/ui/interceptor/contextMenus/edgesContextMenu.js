@@ -1,7 +1,7 @@
 import { getCy } from "../../../graph/cytoscapeCore.js";
 import { metrologie } from "../../../core/metrology.js";
-import { NativeCategories } from "../../../util/common.js";
-import {SHOW_LABEL,SHOW_COLUMNS, FK_DETAILED, FK_SYNTH} from "../../../util/constant.js"
+import { SIMPLIFIED, TRIGGER_IMPACT } from "../../../util/constants.js";
+import {SHOW_LABEL,SHOW_COLUMNS, FK_DETAILED, FK_SYNTH} from "../../../util/constants.js"
 
 import {
   enterFkDetailedModeForEdges,
@@ -30,7 +30,7 @@ export function setEdgeContextMenu() {
     edgeForInfo = evt.target;
     const option = document.getElementById("toggleEdgeDetails");
     option.classList.remove("hidden");
-    if (edgeForInfo.hasClass(NativeCategories.TRIGGER_IMPACT)) {
+    if (edgeForInfo.hasClass(TRIGGER_IMPACT)) {
       option.classList.add("hidden");
     }
 
@@ -48,7 +48,7 @@ export function setEdgeContextMenu() {
   document.getElementById("toggleEdgeDetails").addEventListener("click", () => {
     const cy = getCy();
 
-    if (!edgeForInfo || edgeForInfo.hasClass(NativeCategories.TRIGGER_IMPACT))
+    if (!edgeForInfo || edgeForInfo.hasClass(TRIGGER_IMPACT))
       return;
 
     //let synthEdges = cy.collection([edgeForInfo]);
@@ -75,9 +75,9 @@ export function setEdgeContextMenu() {
 
   document.getElementById("toggleEdgeLabel").addEventListener("click", () => {
     if (
-      edgeForInfo.hasClass(NativeCategories.TRIGGER_IMPACT) ||
+      edgeForInfo.hasClass(TRIGGER_IMPACT) ||
       edgeForInfo.hasClass(FK_SYNTH) ||
-      edgeForInfo.hasClass(NativeCategories.SIMPLIFIED)
+      edgeForInfo.hasClass(SIMPLIFIED)
     ) {
       edgeForInfo.toggleClass(`${SHOW_LABEL}`);
     } else if (edgeForInfo.hasClass(FK_DETAILED)) {

@@ -24,7 +24,7 @@ import { revealNeighbor } from "../core/layout.js";
 
 import { restrictToVisible, perimeterForNodesAction } from "../core/perimeter.js";
 
-import { NativeCategories } from "../util/common.js";
+import { SIMPLIFIED } from "../util/constants.js";
 
 //------------------------
 
@@ -62,7 +62,7 @@ function effectiveFollow(direction, selectedNodes) {
     if (direction === "outgoing" || direction === "both") {
       node
         .outgoers("edge")
-        .filter((e) => !e.hasClass(NativeCategories.SIMPLIFIED))
+        .filter((e) => !e.hasClass(SIMPLIFIED))
         .forEach((edge) => {
           const target = edge.target();
           if (allowedNodes.has(target.id())) {
@@ -75,7 +75,7 @@ function effectiveFollow(direction, selectedNodes) {
     if (direction === "incoming" || direction === "both") {
       node
         .incomers("edge")
-        .filter((e) => !e.hasClass(NativeCategories.SIMPLIFIED))
+        .filter((e) => !e.hasClass(SIMPLIFIED))
         .forEach((edge) => {
           const source = edge.source();
           if (allowedNodes.has(source.id())) {
@@ -87,7 +87,7 @@ function effectiveFollow(direction, selectedNodes) {
       // simplified association edge : no functional direction
       node
         .connectedEdges()
-        .filter((e) => e.hasClass(NativeCategories.SIMPLIFIED))
+        .filter((e) => e.hasClass(SIMPLIFIED))
         .forEach((edge) => {
           const other =
             edge.source().id() === nodeId ? edge.target() : edge.source();

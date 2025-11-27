@@ -1,7 +1,7 @@
 "use strict";
 
 import { getCy } from "../graph/cytoscapeCore.js";
-import { NativeCategories } from "../util/common.js";
+import { LEAF, ROOT, ASSOCIATION, MULTIASSOCIATION } from "../util/constants.js";
 import { metrologie } from "../core/metrology.js";
 import { pushSnapshot } from "../util/snapshots.js";
 
@@ -228,7 +228,7 @@ function setProportionalSize(node) {
   const size = mapValue(degree, 1, 40, 40, 100);
 
   // leave as is in cyStyles
-  if (node.hasClass(NativeCategories.LEAF)) {
+  if (node.hasClass(LEAF)) {
     node.style({
       width: size,
       height: size * 0.866, // equilateral (Math.sqrt(3) / 2) * L;
@@ -238,9 +238,9 @@ function setProportionalSize(node) {
 
   // muliple check for compatibility with stored json
   if (
-    node.hasClass(NativeCategories.ROOT) &&
-    !node.hasClass(NativeCategories.ASSOCIATION) &&
-    !node.hasClass(NativeCategories.MULTI_ASSOCIATION)
+    node.hasClass(ROOT) &&
+    !node.hasClass(ASSOCIATION) &&
+    !node.hasClass(MULTIASSOCIATION)
   ) {
     node.style({
       width: 20,

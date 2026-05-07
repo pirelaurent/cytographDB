@@ -1,40 +1,41 @@
 # Customization
 
-## Customization options
+## Customization Options
 
-You can customize cytographDB for your databases on the following aspects: 
+You can customize **CytographDB** for your databases in the following ways:
 
-- Establish **custom categories** for your tables 
-  - Allow to extend filter options in cytographDB 
-  - **Custom styles** can be associated with your categories ( colors, shape,..)
-- Establish **Alias name for labelling tables**  
-- Establish **Alias name for labelling relations**
+- **Define custom categories** for your tables
+  - Extends filtering options in CytographDB
+  - **Apply custom styles** to categories (colors, shapes, etc.)
+- **Define alias names** for labeling tables
+- **Define alias names** for labeling relations
 
 ---
 
 ## Principles
 
-cytographDB scan the directory *custom*, searching for js files and load them as an extension of cytographDB if they match the following constraints:
+CytographDB **scans** the *custom* directory for JavaScript files and loads them as extensions **if they meet these requirements**:
 
-Such a source code must 
-- declare an internal *module*  `const democytodbModule = { ...}`
-- Register it with a pattern for matching Database names :
-  - either exact name: `registerCustomModule("democytodb", democytodbModule);` 
-  - either a regex  : `registerCustomModule(/demo.*/, democytodbModule)` 
-   
-Optionnaly declare and expose any of the three recognized services by cytographDB :  
+The source code must:
+- Declare an internal module: `const democytodbModule = { ... }`
+- Register it with a pattern to match database names:
+  - Exact name: `registerCustomModule("democytodb", democytodbModule);`
+  - Regex: `registerCustomModule(/demo.*/, democytodbModule);`
+
+Optionally, expose any of the three services recognized by CytographDB:
 
 ```js
-  createCustomCategories(){...}; // add classes to the nodes
-  getCustomStyles(){...}; // return a style 
-  setLabelAlias(){...}; // add alias on nodes or/and on edges
+createCustomCategories(){...}; // Adds classes to nodes
+getCustomStyles(){...}; // Returns a style
+setLabelAlias(){...}; // Adds aliases to nodes and/or edges
 ```
 
-### democytodb custom module as an example
+---
 
- *public/custom/democytodb.js*
+## **democytodb** Custom Module Example
+
+*public/custom/democytodb.js*
 ```js
-
 import {
   getCy,
 } from "../js/graph/cytoscapeCore.js"
@@ -42,28 +43,28 @@ import {
 import { registerCustomModule, getCustomNodesCategories } from "../js/filters/categories.js";
 
 /*----------------------------------------------
-  module name
+  Module name
 */
 const democytodbModule = {
   /*
-    define specfic properties to this DB nodes
+    Define specific properties for this DB nodes
   */
   createCustomCategories() {
-    // categories for nodes 
+    // Categories for nodes
     getCy().nodes().forEach((node) => {
-      /* 
-        add custom category (class in cyto) that allows filter
-        for visual effect set a style in getCustomStyles
+      /*
+        Adds a custom category (Cytoscape class) that enables filtering
+        For visual effects, set a style in getCustomStyles
       */
       if (node.data("label").includes("product")) node.addClass("product");
     });
-    // register the category 
+    // Register the category
     getCustomNodesCategories().add("product");
   },
 
   /*----------------------------------------------
-  GUI aspects
-  method returns a json defining new style for the 'myClass' set in createCustomCategories  
+  UI Aspects
+  Returns a JSON object defining styles for classes set in createCustomCategories
   */
 
   getCustomStyles() {
@@ -78,94 +79,92 @@ const democytodbModule = {
       },
     ];
   },
-};
 
- setLabelAlias() {
-
-    // Demo example using a dictionary for english to french aliasing
-
+  setLabelAlias() {
+    // Demo example: English-to-French aliasing
     const EN_FR = {
       authorization: "autorisation",
       company: "entreprise",
       employee: "employé",
       factory: "usine",
       intervention: "intervention",
-      line_product: "gamme de produits", // ou "ligne de produit" selon ton contexte
+      line_product: "gamme de produits",
       parameters: "paramètres",
       product: "produit",
       production_line: "ligne de production",
       skills: "compétences",
-    }; 
+    };
 
-    //act on whole graph
+    // Acts on the whole graph
     const cy = getCy();
 
-    // tables demo aliasing EN->FR
+    // Demonstrates EN→FR table aliasing
     cy.nodes().forEach((node) => {
       const current = node.id();
       let fr = EN_FR[current];
       if (fr) {
-        node.data("alias", fr); // set new label
+        node.data("alias", fr); // Set new label
       }
     });
+  },
 
-/* 
- autoregister the module 
- - by exact name between quotes : registerCustomModule("democytodb", democytodbModule);
- - with a regex to match several names with same module 
- */
-registerCustomModule(/democyto.*/, democytodbModule);
+  /*
+   Auto-register the module:
+   - By exact name: registerCustomModule("democytodb", democytodbModule);
+   - By regex: to match multiple database names with the same module
+  */
 
+  registerCustomModule(/democyto.*/, democytodbModule);
+};
 ```
 
+---
 
+## Steps to Create Your Own Custom Module
 
-##  Steps to create your own Custom Module
-
-1. **Create a `myModule.js` file**  
+1. **Create a `myModule.js` file**
    Use `democytodb.js` as a reference template.
-
-   Don't forget to link this module to your dbNames.
+   **Remember to link the module to your database names.**
 
     ```js
     registerCustomModule("myExactlyNamedDBtest", myModule);
     // or regex
     registerCustomModule(/myDB.*/, myModule);
-    
     ```
 
-2. **put the file in** `public/custom`
+2. **Place the file in** `public/custom`
 
-To verify : 
-At startup a log in the navigator console show loaded custom modules : ```[custom] loaded : /custom/democytodb.js```
+To verify:
+At startup, the browser console logs loaded custom modules: `[custom] loaded: /custom/democytodb.js`
 
-#### Note : 
+#### Note:
 
-This custom folder is excluded in the github reference from version control to protect user-specific code.
-It's up to you to organize the saving of your own modules in *custom*. 
+The *custom* folder is **excluded from Git** (via `.gitignore`) to protect user-specific code.
+**You must organize and back up your own modules** in this folder.
 
-  `.gitignore` Rule:
+`.gitignore` Rule:
 
-``` bash
-# Optional: exclude custom modules except for democytodb.js
+```bash
+# Optionally exclude custom modules except for democytodb.js
 /public/custom/*
 !/public/custom/democytodb.js
 ```
 
---- 
+---
 
-## Add your custom documentation 
+## Add Your Custom Documentation
 
-You can set your owwn documentation under ***custom/docs***.
+You can set **your own documentation** under *custom/docs*.
 
-If any ***index\.md*** is found by cytographdb at startup in this directory,  it will add a secondary link on the right of *documentation* :  
+If CytographDB finds an ***index.md*** file in this directory at startup, it adds a **secondary link** to the right of *Documentation*:
 
-<img src ="./img/customLink.png" width ="200px"/>
+<img src="./img/customLink.png" width="200px" style="display: block; margin: 0 auto;"/>
 
-You can give custom details and custom examples. 
+You can provide custom details and examples.
 
-For the day, this custom documentation is not related to any dbName; It depends only of the file in custom/docs (which is excluded in standard cytographDB gitignore)
+Currently, this custom documentation is **not tied to a specific database name**.
+It depends **only** on the files in `custom/docs` (which is excluded by CytographDB's `.gitignore`).
 
 ---
 
-- ⚪️ [return to Main](./main.md)
+- ⚪️ [Return to Main](./main.md)

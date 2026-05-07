@@ -1,14 +1,18 @@
 # Regex Quick Help
 
+---
+
 ## Basics
 
-* **Anchors:** `^` start, `$` end
+* **Anchors:** `^` (start), `$` (end)
 * **Quantifiers:** `*` (0+), `+` (1+), `?` (0/1), `{m,n}`
 * **Character classes:** `\d` digits, `\w` word (letters/digits/`_`), `\s` whitespace, `.` any char
-* **Negated class:** `[^…]` everything except…
+* **Negated class:** `[^…]` (matches everything **except** the specified characters)
 * **Groups:** `( … )` capture, `(?: … )` non-capturing
 * **Alternation:** `A|B` (A or B)
 * **Word boundaries:** `\b` word edge, `\B` non-edge
+
+---
 
 ## JavaScript Flags
 
@@ -18,7 +22,7 @@
 * `u` Unicode (better with emojis/accents, enables `\p{…}`)
 * `s` dotAll (`.` matches newlines)
 
-> Tip: Prefer `u` when dealing with accents/emoji or using `\p{L}`, `\p{N}`, etc.
+> **Tip:** Prefer `u` when dealing with accents/emoji or using `\p{L}`, `\p{N}`, etc.
 
 ---
 
@@ -30,19 +34,19 @@
 tenant
 ```
 
-### 2) Does **not** contain “tenant”
+### 2) Does **not** contain "tenant"
 
-``` 
+```
 ^(?!.*tenant).*$
 ```
 
 * Allow empty string:
 
-``` js
+```js
 ^(?!.*tenant).*$
 ```
 
-### 3) Whole word “tenant” (avoid “lieutenant”)
+### 3) Whole word "tenant" (avoid "lieutenant")
 
 ```
 \btenant\b
@@ -113,6 +117,8 @@ Unicode version (needs `u` flag):
 
 ## Node & Browser Usage
 
+---
+
 ### Testing a string
 
 ```js
@@ -149,8 +155,8 @@ const out = str.replace(/\btenant\b/gi, 'user');
 
 ## Tips & Pitfalls
 
-* **Escape specials** when building from user input:
-  `.[*+?^${}()|[\]\\` → use:
+* **Always escape special characters** when building regex from user input:
+  `. [*+?^${}()|[\]\` → use:
 
   ```js
   const escapeRx = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -169,13 +175,10 @@ const out = str.replace(/\btenant\b/gi, 'user');
 ## Quick Copy Block (for your UI)
 
 * **Contains:** `tenant`
-* **Doesn’t contain “tenant”:** `^(?!.*tenant).+$`
+* **Doesn’t contain "tenant":** `^(?!.*tenant).+$`
 * **Whole word:** `\btenant\b`
 * **Starts / Ends:** `^prefix` · `suffix$`
 * **One of:** `\b(foo|bar|baz)\b`
 * **Exclude words:** `^(?!.*\b(foo|bar)\b).+$`
 * **Letters & spaces (Unicode):** `^\p{L}[\p{L}' -]*$` *(use flag `u`)*
 * **Escape a dot:** `file\.json`
-
----
-

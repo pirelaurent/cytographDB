@@ -1,136 +1,144 @@
-#  Menu Display
+# Menu Display
 
-### Global Graphical Options 
+### Global Graphical Options
 
-You can use the mouse wheel to zoom in and out.  
-💡 **Tip:** Zoom out is centered on the mouse position.  
+You can use the mouse wheel to zoom in and out.
+💡 **Tip:** Zoom out is centered on the mouse position.
 
 You can move the graph by holding the left mouse button and dragging the cursor.
-You can select a bunch by drawing a rectangle with the mouse. 
+You can **select multiple elements** by drawing a rectangle with the mouse.
+
+---
 
 ## Menu Display
 
-<img src="./img/menuDisplay.png" width = "190"/>    
+<img src="./img/menuDisplay.png" width="190" style="display: block; margin: 0 auto;"/>
 
-### Fit screen
-- **All:** fit the graph to show all nodes on one screen.
-- **Selected:** fit only the selected nodes.
+### Fit Screen
+- **All:** Fit the graph to show all nodes on one screen.
+- **Selected:** Fit only the selected nodes.
 
-💡 **Tip:** If the screen appears empty, try ***Fit Screen → All*** as your nodes may be far away. 
+💡 **Tip:** If the screen appears empty, try ***Fit Screen → All*** as your nodes may be far away.
+
+---
 
 ### Layout
 
-Apply a layout algorithm to reorganize ***the current scope***:  
-- the whole graph if no nodes are selected  
-- only the selected nodes if there is a selection  
+Apply a layout algorithm to reorganize **the current scope**:
+- The **entire graph** if no nodes are selected
+- Only the **selected nodes** if a selection exists
 
-Several common algorithms are available at redaction time: 
-<img src = "./img/layouts.png" width = "100"> 
+Several common algorithms are available **at the time of writing**:
 
-Some may spread nodes outside the screen: use **Fit Screen** or try a different layout.  
-Note: some layout calculations include a random component and may vary with each execution.
+<img src="./img/layouts.png" width="100" style="display: block; margin: 0 auto;"/>
 
-If you apply a layout only on a subset of nodes:
-- the result graph will be positionned depending of involved nodes.
-- It should be at an unexpected place into the graph. 
-- Drag the reorganized selection where you need to have it.
+Some may spread nodes outside the screen: use **Fit Screen** or try a different layout.
+Note: Some layout calculations include a random component and may vary with each execution.
 
+If you apply a layout to only a **subset of nodes**:
+- The resulting graph is positioned **based on the involved nodes**.
+- It **may appear in an unexpected location** in the graph.
 
-💡 **Tip:** Use **Undo (Ctrl Z)** to restore the previous layout.
+💡 **Tip:** Use **Undo (Ctrl+Z)** to restore the previous layout.
 
+---
 
 ### Reorganize
 
-
-Native Cytoscape actions are available to move nodes:  
-- Left-click and drag a single node manually.  
-- Dragging one of the selected nodes moves the entire selection.  
+Native Cytoscape actions are available to move nodes:
+- Left-click and drag a single node manually.
+- Dragging one of the selected nodes moves the entire selection.
 
 #### Move... Options
 
-<img src="./img/reorganize.png" width="190"> 
+<img src="./img/reorganize.png" width="190" style="display: block; margin: 0 auto;"/>
 
 #### Resize...
 
-Expand or shrink the perimeter in different directions: 
-- horizontally
-- both directions
-- vertically
+Expand or shrink the perimeter in different directions:
+- Horizontally
+- Both directions
+- Vertically
 
 #### Align...
-Align nodes of the current perimeter along a common axis
-- horizontally
-- vertically
 
+Align nodes of the current perimeter along a common axis:
+- Horizontally
+- Vertically
 
 #### Distribute...
 
-Distribute nodes within the perimeter along a common axis:  
-- **Horizontally:** nodes are equally spaced between the leftmost and rightmost.  
-- **Vertically:** nodes are equally spaced between the topmost and bottommost.  
+Distribute nodes within the perimeter along a common axis:
+- **Horizontally:** Nodes are equally spaced between the leftmost and rightmost.
+- **Vertically:** Nodes are equally spaced between the topmost and bottommost.
 
 💡 **Tip:** If the spacing is too tight, move one node further and try again.
 
 #### Rotate...
 
-- left  : rotate 15° counterclockwise
-- right : rotate 15° clockwise
-- 90°   : clockwise
-- 180°  : clockwise 
+- **Left**: Rotate 15° counterclockwise
+- **Right**: Rotate 15° clockwise
+- **90°**: Rotate 90° clockwise
+- **180°**: Rotate 180° clockwise
 
 Labels remain **horizontally aligned**.
 
-💡 **Tip:** Mainly used to avoid overlapping labels. 
+💡 **Tip:** Mainly used to avoid overlapping labels.
 
---- 
+---
 
-### Table visual aspect 
+### Table Visual Aspect
 
-These actions apply to the current perimeter (selected tables if any, all visible otherwise)
-<img src="./img/tableLabels.png" width="190"> 
+These actions apply to the **current perimeter** (selected tables if any, otherwise all visible tables):
 
-- Custom alias : if exist, replace Table name by a custom label set in Custom module options
-- Table name : set the label with the table's name in DB. (default)
-- Hide : no label on the graph. 
+<img src="./img/tableLabels.png" width="190" style="display: block; margin: 0 auto;"/>
 
-### Table font 
+- **Custom alias**: If set, replaces table name with a custom label (defined in **Customization** options)
+- **Table name**: Sets the label to the table's name from the database (default)
+- **Hide**: Removes the label from the graph
 
-- Enlarge
-- Reduce
-- Restore 
-
-### Table shape 
-
-- Standard : tables are round rectangles around the labels
-- Proportional ( default) : more degree of relations, more wide is the table on the graph
-
-## Relations visual aspect
-
-### Relation labels
-
-Apply to current edge perimeter :
-<img src="./img/relationsLabel.png" width="240"> 
-
-- Custom Alias : label use 'alias' if set in cutomisation, if not use name
-- Relation name (default) : the name of the FK in database definition
-- Hide : no label on screen 
-  
-### Relations font
-
-Apply to current edge perimeter :
+### Table Font
 
 - Enlarge
 - Reduce
-- Restore 
+- Restore
 
---- 
-## keyboard shortcuts   
+### Table Shape
 
-- ctrl a: select All 
-- ctrl g: capture graph in a .png file
-- ctrl h: hide not selected
-- ctrl y: redo 
-- ctrl z: undo
+- **Standard**: Tables are round rectangles around the labels
+- **Proportional** (default): The wider the table, the more relations it has in the graph
 
---- 
-⚪️ [Main](./main.md)  
+---
+
+## Relations Visual Aspect
+
+### Relation Labels
+
+Apply to current edge perimeter:
+
+<img src="./img/relationsLabel.png" width="240" style="display: block; margin: 0 auto;"/>
+
+- **Custom Alias**: Uses the alias (if set in **Customization**), otherwise uses the FK name
+- **Relation name (default)**: Uses the FK name as defined in the database
+- **Hide**: Removes the label from the screen
+
+### Relations Font
+
+Apply to current edge perimeter:
+- Enlarge
+- Reduce
+- Restore
+
+---
+
+## Keyboard Shortcuts
+
+- **Ctrl+A**: Select all
+- **Ctrl+G**: Capture graph as PNG
+- **Ctrl+H**: Hide unselected
+- **Ctrl+Y**: Redo
+- **Ctrl+Z**: Undo
+
+---
+
+- ⚪️ [Main](./main.md)

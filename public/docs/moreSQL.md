@@ -1,18 +1,20 @@
-# SQL 
+# SQL
 
-## `ON DELETE` / `ON UPDATE` Options in PostgreSQL foreign keys
+---
+
+## `ON DELETE` / `ON UPDATE` Options in PostgreSQL Foreign Keys
 
 When a **foreign key** (`FOREIGN KEY`) is defined in a table, you can specify how it should behave in case of **deletion** (`DELETE`) or **update** (`UPDATE`) of the referenced primary key.
 
 Here are the possible options:
 
-| Code | Action        | Description                                                                 |
-|------|---------------|-----------------------------------------------------------------------------|
-| `a`  | NO ACTION     | **Default**. Prevents the action if it violates referential integrity, but the check is deferred until the end of the statement. |
-| `r`  | RESTRICT      | Immediately prevents delete/update if dependent rows exist.                |
-| `c`  | CASCADE       | Automatically deletes or updates dependent rows.                           |
-| `n`  | SET NULL      | Sets the foreign key columns to `NULL` in dependent rows.                  |
-| `d`  | SET DEFAULT   | Replaces the foreign key with its default value in dependent rows.         |
+| Code | Action | Description |
+|------|--------|-------------|
+| `a` | NO ACTION | **Default**. Prevents the action if it violates referential integrity, but the check is deferred until the end of the statement. |
+| `r` | RESTRICT | Immediately prevents delete/update if dependent rows exist. |
+| `c` | CASCADE | Automatically deletes or updates dependent rows. |
+| `n` | SET NULL | Sets the foreign key columns to `NULL` in dependent rows. |
+| `d` | SET DEFAULT | Replaces the foreign key with its default value in dependent rows. |
 
 ### Examples:
 
@@ -22,24 +24,29 @@ FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
 
 -- Prevent deleting a customer if orders still reference them
 FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE RESTRICT
+```
+
+---
 
 ## 🆚 `RESTRICT` vs `NO ACTION` in PostgreSQL
 
-### Both avoid a delete of parent if there is any child but with subtil differences
+### Both prevent parent deletion if children exist, but with **subtle** differences
 
-| Aspect                      | `RESTRICT`                                          | `NO ACTION`                                           |
-|----------------------------|-----------------------------------------------------|--------------------------------------------------------|
-| **Verification timing**    | Immediately, at the time of the statement           | At the end of the statement or transaction             |
-| **DEFERRABLE support**     | ❌ Not deferrable                                   | ✅ Can be used with `DEFERRABLE INITIALLY DEFERRED`    |
-| **Common use**             | Strict, instant constraint enforcement              | Allows for more flexible, transaction-level enforcement |
-| **Behavior in multi-step transactions** | Fails early if child rows exist              | Allows changes if child rows are removed before commit |
-| **Typical result**         | Same as `NO ACTION` if constraints are not deferred | Same as `RESTRICT` in most simple cases                |
+| Aspect | `RESTRICT` | `NO ACTION` |
+|--------|------------|-------------|
+| **Timing** | **Immediate** (at statement execution) | **Deferred** (end of statement/transaction) |
+| **DEFERRABLE support** | ❌ Not deferrable | ✅ Can be used with `DEFERRABLE INITIALLY DEFERRED` |
+| **Common use** | Strict, instant constraint enforcement | Allows for more flexible, transaction-level enforcement |
+| **Behavior in multi-step transactions** | **Fails immediately** if child rows exist | **Allows** changes if child rows are removed **before commit** |
+| **Typical result** | Same as `NO ACTION` if constraints are not deferred | Same as `RESTRICT` in most simple cases |
+
+---
 
 ## Consequences of `ON DELETE CASCADE` in PostgreSQL
 
 Using `ON DELETE CASCADE` on a foreign key constraint means that when a row in the **parent table** is deleted, all related rows in the **child table** are **automatically deleted** as well.
 
-### 🔄 What happens
+### 🔄 What Happens
 
 - The deletion **propagates** from the parent table to all child tables with `ON DELETE CASCADE`.
 - It can affect **multiple levels** if cascading constraints are defined transitively.
@@ -77,8 +84,8 @@ CREATE TABLE orders (
 
 -- Deleting a customer will automatically delete their orders
 DELETE FROM customers WHERE id = 42;
-``` 
----  
+```
 
+---
 
 - ⚪️ [Main](./main.md)

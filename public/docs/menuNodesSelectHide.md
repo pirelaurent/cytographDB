@@ -1,224 +1,242 @@
 # Menu Tables
 
-<img src ="./img/nodesMenu.png" width =200px >
-
-## Status Bar
-
-Displays selected nodes on visible and hidden layers:  
-
-**0 selected / 10 available** in visible layer  
-(0 selected / 0 available) in hidden layer  
-
-The perimeter of actions applies to selected nodes if any, or to all nodes if no selection.  
+<img src="./img/nodesMenu.png" width="200px" style="display: block; margin: 0 auto;"/>
 
 ---
 
-## 🔍 Selection 
+## Status Bar
+
+Displays selected nodes on visible and hidden layers:
+
+**0 selected / 10 available** in visible layer
+(0 selected / 0 available) in hidden layer
+
+The **perimeter of actions** applies to:
+- Selected nodes (if any)
+- **All nodes** if no selection exists
+
+---
+
+## 🔍 Selection
 
 ### Selection on Screen
 
-Selections can be made by:  
-- Clicking nodes individually  
-  - Clicking outside any element removes the current selection  
-- **Shift + Click** for multi-selection  
-- Drawing a rectangle over nodes  
+Selections can be made by:
+- Click a node to select it
+  - Click **outside any element** to clear the selection
+- **Shift+Click**: Toggle selection for a node
+- **Drag a rectangle**: Select multiple nodes
 
-###  Select 
+---
 
-<img src ="./img/nodeSelect.png" width =300 >
+### Select
 
-- **None**: clear any selection (all black on image) (also any click on graph background)
-- **All**: select all visible nodes (all highlighted on image) (also available with `Ctrl A`)  
-- **Swap selected**: invert the current selection (selected become unselected, and vice versa)  
+<img src="./img/nodeSelect.png" width="300" style="display: block; margin: 0 auto;"/>
 
-### Change visibility.  
+- **None**: Clear **all selections** (also: click on the graph background)
+- **All**: Select **all visible nodes** (shortcut: **Ctrl+A**)
+- **Swap Selected**: **Invert** the current selection
 
-<img src ="./img/nodeHide.png" width =350 >  
+---
 
-- **Hide selected**: hide selected nodes, keep not selected
-- **Hide Not selected**: keep selected, hide others
-- **Swap** (animated image): swap visible and hidden nodes  
-- **None**: show all nodes, selected or not.   
+### Change Visibility
 
+<img src="./img/nodeHide.png" width="350" style="display: block; margin: 0 auto;"/>
 
-💡 **Quick menu Select/Hide** ( right click on background)
+- **Hide Selected**: Hide selected nodes
+- **Hide Unselected**: Hide **unselected** nodes
+- **Swap** (animated image): **Toggle** visible and hidden nodes
+- **Show All**: Make **all nodes visible**
 
-<img src ="./img/quickSelectHide.png" width =150px >  
+💡 **Quick Select/Hide Menu** (right-click on background):
 
-| unselect all nodes | select all nodes | swap selection |  
-| hide selected | hide not selected | swap hidden | show all |
+<img src="./img/quickSelectHide.png" width="150px" style="display: block; margin: 0 auto;"/>
 
---- 
-## Filter by
-<img src ="./img/filterBy.png" width =350 > 
+| Unselect All | Select All | Swap Selection |
+|--------------|-------------|-----------------|
+| Hide Selected | Hide Unselected | Swap Hidden | Show All |
 
-### Filter by Table name 
+---
 
-A common way to search and select tables by regex on their names.
+## Filter By
 
-<img src ='./img/filterByName.png' width= "350px" >
+<img src="./img/filterBy.png" width="350" style="display: block; margin: 0 auto;"/>
+
+---
+
+### Filter by Table Name
+
+**Search and select tables** by name using a **regex**.
+
+<img src='./img/filterByName.png' width="350px" style="display: block; margin: 0 auto;"/>
 
 A **regex-based filter** is applied to table labels.
 
-The stars on the right opens a common regex reminder: 
+The **⭐ icon** on the right opens a **regex quick reference**:
 
-<img src ='./img/tipRegex.png' width= "300" >
+<img src='./img/tipRegex.png' width="300" style="display: block; margin: 0 auto;"/>
 
+⚠️ **Caution:** Browser **autofill may not pass** text to the regex.
+**Solution:** Enter manually or copy/paste your filter.
 
-⚠️ **Caution:** Some browsers may show text with autofill but not pass it to the regex.  
-In case of trouble: Enter manually or copy/paste your filter.  
+---
 
-### Filter by Column name 
+### Filter by Column Name
 
-A way to search columns name in all tables that match the input regex. 
-Useful to search tables that have or have not such columns.  
-The matched tables are selected and the columns are listed in the clipReport
+**Search for column names** across all tables using a regex.
+Useful to find tables **that contain (or lack) specific columns**.
+Matching tables are **selected**, and their columns are listed in **clipReport**.
 
-#### clipReport 
+#### clipReport
 
-In main menu bar, the icon of clipReport is higher if there is a report inside :  
-<img src="./img/clipReportIcon.png" width ="60">
+In the main menu bar, the **clipReport icon** is **highlighted** if a report is available:
+<img src="./img/clipReportIcon.png" width="60" style="display: block; margin: 0 auto;"/>
 
-click on the icon opens a tab with current deposit. In our last case, the list of tables with columns that matched the regex *prod*
-<img src ='./img/selectByColumns.png' width= "360" >
+Click the icon to open a tab with the current content. In the column filter example, the list of tables with columns that matched the regex *prod*:
+<img src='./img/selectByColumns.png' width="360" style="display: block; margin: 0 auto;"/>
 
+---
 
-### Filter by degree 
+### Filter by Degree
 
-Degree is the number of edges belonging to a node. 
+**Degree** is the number of **edges connected to a node**.
 
-<img src ='./img/filterByDegree.png' width= "300px" >
+<img src='./img/filterByDegree.png' width="300px" style="display: block; margin: 0 auto;"/>
 
-By default, the count take care of the reality of a node structure, even if some edges are hidden on screen. 
+By default, the count **reflects the actual node structure**, **even if some edges are hidden** on screen.
 
-*count only visible edges* modify this behavior by restricting search to visible edges.    
-This helps to find temporary orphans, leaf, root but only on current screen 
+**Count only visible edges**: Restricts the count to **visible edges only**.
+This helps find **temporary orphans, leaves, or roots** — but **only on the current screen**.
 
+---
 
-### Filter by Native Category 
+### Filter by Native Category
 
-<img src ='./img/nodeNativeCategories.png' width= "150px" >  
+<img src='./img/nodeNativeCategories.png' width="150px" style="display: block; margin: 0 auto;"/>
 
-Native categories are calculated at load time and are available to filter nodes with any database.  
+**Native categories** are **calculated at load time** and **available for filtering** on any database.
 
-- **Orphan**: isolated table, no outgoing or incoming edge  
-- **Root**: table without outgoing edge (no FK), one or more incoming edges  
-- **Leaf**: table without incoming edge (never referenced)  
-- **Dry association**: association table with two links and no private column (MxN relation)  
-- **All associations**: association tables with only outgoing edges  
-- **Has triggers**: tables with triggers  
+- **Orphan**: Isolated table (no incoming **or** outgoing edges)
+- **Root**: Table **with no outgoing edges** (no FKs) but **one or more incoming edges**
+- **Leaf**: Table **with no incoming edges** (never referenced)
+- **Dry Association**: Association table **with two links and no private columns** (M:N relationship)
+- **All Associations**: Association tables **with only outgoing edges**
+- **Has Triggers**: Tables **with triggers**
+
+---
 
 ### Filter by Custom Category
 
-Custom categories are added via custom logic and depends of the DB in study (@see [Customization Options](./customization.md))  
+**Custom categories** are added **via custom logic** and **depend on the database** under analysis (see [Customization Options](./customization.md)).
 
-The filter automatically adapts to the list of custom categories. In `democytodb` there is only one: **product**  
-<img src = "./img/customCategory.png" width ="240">  
+The filter automatically adapts to the list of custom categories. In **democytodb**, there is only one: **product**
+<img src="./img/customCategory.png" width="240" style="display: block; margin: 0 auto;"/>
 
-This custom ***product*** category was created for demo by the `public/custom/democytodb.js` code:  
+This custom **product** category was created for demo by the `public/custom/democytodb.js` code:
 
 ```js
 if (node.data("label").includes("product")) node.addClass("product");
 ```
 
-A specific visual layout `selector: "node.product"`has also been defined in the custom extensions that enlarge label for table with this category.
-
+A specific visual layout `selector: "node.product"` has also been defined in the custom extensions that enlarge labels for tables with this category.
 
 #### How to See Categories
 
-Native and custom categories are displayed while hovering over the node (with *hover* option on):  
-<img src = "./img/nativeAndCustomHover.png">  
+**Native and custom categories** are displayed **on hover** (when the **hover option** is enabled):
+<img src="./img/nativeAndCustomHover.png" style="display: block; margin: 0 auto;"/>
 
 ---
 
+### Connected to Relations
 
-### Connected to relations 
+Nodes are **selected based on the currently selected relations**.
 
-New nodes are selected depending of current selected relations.
+For each **selected relation (edge)**, select nodes in **any direction**:
 
-For each currently selected relation (edge) choose nodes in any direction:
+<img src="./img/connectedToRelations.png" width="360px" style="display: block; margin: 0 auto;"/>
 
-<img src ="./img/connectedToRelations.png" width =360px>
+- **Select Source**: Select nodes that are the **origin** of a selected edge (**FK owner**)
+- **Both Sides**: Select **all nodes** connected to a selected edge
+- **Select Target**: Select nodes that are the **destination** of a selected edge
 
-
-
-- **select source**: select nodes that are the origin of a selected directed edge (FK owner)  
-- **both sides**: select all nodes connected in any manner to a selected edge  
-- **select target**: select nodes that are the destination of a selected directed edge  
-
-💡 **use case example** 
-- filter edges by *native category* such as `"trigger impact"`.  
-- apply **From Selected Edges → Both Sides** this highlight a subgraph of source and impacted tables by triggers.  
-
-
-### List of tables 
-
-- Visible 
-- Selected
-
-
-Generates an HTML file with *all visible or only visible and selected* tables, sorted alphabetically.  
-
-**All headers are sortable** by clicking on the header.  
-
-<img src = "./img/listNodes.png" width = 360px style="border: 2px solid grey;">  
-
-#### Chaining to Table Details 
-
-click on a table name opens details :  
-   <img src = "./img/detailsFromList.png" width ="800px" style="border: 2px solid grey;">  
-
-click on a trigger number opens its trigger definition :  
- <img src = "./img/triggersFromList.png" width ="600px">  
-
-#### Close Button 
-
-<img src = "./img/closeButton.png" width ="50px" >
-
-Closes the current browser tab : that will return to main graph. 
-**If selected option had been changed in the list, changes will apply to graph  **
-
-💡 **Tip: don't forget to close tab**  
->If you don’t, a later call to the same named tab will update it as expected, it blinks **BUT** it will not come to front (standard security reasons).  
-Don’t assume your action failed — check your tab list first. 
+💡 **Use Case Example**:
+Filter edges by **native category** (e.g., `"trigger_impact"`).
+Then apply **From Selected Edges → Both Sides** to **highlight** a subgraph of **source and impacted tables** by triggers.
 
 ---
 
-## Follow and Reveal 
+### List of Tables
 
-Reveal means that when following a node in the hidden space, this node will be brought back to visible. 
+- **Visible**
+- **Selected**
 
-### <img src ='./img/followAndReveal.png' width = "360px" >
+Generates an **HTML file** with:
+- All visible tables **or**
+- Only **selected** visible tables
+(sorted alphabetically).
 
-These actions follow paths from current nodes visible perimeter and can bring hidden nodes back into view if they are linked.  
+**All headers are sortable** (click to sort).
 
-- **outgoing**,  **both**, **incoming** ***one step*** :   
-  Start from selected nodes and follow relations in the chosen direction(s). Linked nodes are selected.  
-  The operation can be repeated to show successive dependencies.  
+<img src="./img/listNodes.png" width="360px" style="display: block; margin: 0 auto; border: 2px solid grey;"/>
 
-- **outgoing**,  **both**, **incoming** ***Automatic tree propagation***    
-  Start from selected nodes and follow relations in the chosen direction(s). Linked nodes are selected.  
-  The operation can be repeated to show successive dependencies.  
+#### Chaining to Table Details
 
+Click a **table name** to open its **details**:
+<img src="./img/detailsFromList.png" width="800px" style="display: block; margin: 0 auto; border: 2px solid grey;"/>
 
-- **cross association**:  
-  When a selected node is an association, reveal and select the nodes on the other side of the association regardless of direction.This allows to cross this frontier.
+Click a **trigger count** to open its **trigger definition**:
+<img src="./img/triggersFromList.png" width="600px" style="display: block; margin: 0 auto;"/>
 
----
+#### Close Button
 
-### Delete 
+<img src="./img/closeButton.png" width="50px" style="display: block; margin: 0 auto;"/>
 
-Permanently removes *selected nodes* from the graph.   
+**Closes** the current browser tab and **returns to the main graph**.
+**If selections were modified** in the list, **changes will apply to the graph**.
 
-- If only one node is selected, deletion is immediate . 
-  - This allows quick visual cleaning of a graph using keyboard **Backspace**  or **delete**
-- If several nodes are selected, a confirmation is shown:      
-
-<img src = "./img/deleteNodes.png" width = 230px style="border: 2px solid grey;">   
-
-💡 **Tip:** The same action can be performed using **Backspace**.  
-💡 **Tip:** Use <img src ="../img/rollback2.png" height =20px/> **Undo** to restore an accidental deletion.  
+💡 **Tip: Remember to close the tab**
+If you don't, a later call to the same tab **will update it** (it blinks), **but it won't come to the front** (due to browser security).
+**Check your tab list** before assuming the action failed.
 
 ---
 
-⚪️ [Main](./main.md)  
+## Follow and Reveal
+
+**Reveal** means that when following a node in the hidden space, this node will be **brought back to visible**.
+
+### <img src='./img/followAndReveal.png' width="360px" style="display: block; margin: 0 auto;"/>
+
+These actions **follow paths** from the **current visible nodes** and can **restore hidden nodes** if they are linked.
+
+- **Outgoing / Both / Incoming (One Step)**:
+  Start from selected nodes and follow relations in the chosen direction(s).
+  **Linked nodes are selected**.
+  The operation can be **repeated** to reveal **successive dependencies**.
+
+- **Outgoing / Both / Incoming (Automatic Tree Propagation)**:
+  Start from selected nodes and **automatically follow** relations in the chosen direction(s).
+  **All reachable nodes are selected**.
+
+- **Cross Association**:
+  If a selected node is an **association**, **reveal and select** the nodes on the **other side** of the association (regardless of direction).
+  This **allows crossing the association boundary**.
+
+**Follow & Reveal**: If neighbors are **hidden**, they are **automatically restored** to visible.
+
+---
+
+### Delete
+
+**Permanently removes** selected nodes from the graph.
+
+- If **only one node** is selected, it is **deleted immediately** (useful for quick cleanup with **Backspace** or **Delete**)
+- If **multiple nodes** are selected, a **confirmation dialog** appears:
+
+<img src="./img/deleteNodes.png" width="230px" style="display: block; margin: 0 auto; border: 2px solid grey;"/>
+
+💡 **Tip:** Use **Backspace** or **Delete** for the same action.
+💡 **Tip:** Use <img src="../img/rollback2.png" height="20px" style="display: inline-block; vertical-align: middle;"/> **Undo (Ctrl+Z)** to restore accidental deletions.
+
+---
+
+- ⚪️ [Main](./main.md)

@@ -1,231 +1,229 @@
 # Menu Relations
 
-<img src = "./img/edgesMenu.png" width = "160px">  
+<img src="./img/edgesMenu.png" width="160px" style="display: block; margin: 0 auto;"/>
 
 ---
+
 ## Status Bar
 
-Displays selected relations on visible and hidden layers:  
+Displays selected relations on visible and hidden layers:
 
-**0 selected / 12 available** in visible layer  
-(0 selected / 0 available) in hidden layer  
+**0 selected / 12 available** in visible layer
+(0 selected / 0 available) in hidden layer
 
-The perimeter of actions applies to selected relations if any, or to all nodes if no selection.  
+The **perimeter of actions** applies to selected relations (if any), **or to all edges** if no selection exists.
 
 ---
 
 ## 🔍 Selection on Screen
 
-Selections can be made by:  
-- Clicking edges individually  
-  - Clicking outside any element removes the current selection  
-- **Shift + Click** for multi-selection  
-- Edges are also selected with nodes when drawing a rectangle (**Shift + drag**) on the graph  
+Selections can be made by:
+- Click an edge to select it
+  - Click **outside any element** to clear the selection
+- **Shift+Click**: Multi-select edges
+- Edges are also selected with nodes when drawing a rectangle (**Shift + drag**) on the graph
 
 ---
 
-## Change selection ...
+## Change Selection...
 
-- **None**: deselect all edges  
-- **All**: select all visible edges  
-- **Swap**: invert current edge selection  
+- **None**: Deselect all edges
+- **All**: Select all visible edges
+- **Swap**: Invert current edge selection
 
-💡 **Tip:** Selected edges have dashed lines. 
-
----
-
-## Change visibility ...
-
-<img src ="./img/edgeHide.png" width =150px >   
-
-
-- **Hide Selected** → hide selected edges 
-- **Hide Not selected** → hide all edges except selected  
-- **Swap** → invert visible and hidden edges  
-- **Show all** → no more hidden edges, all visible
+💡 **Tip:** Selected edges appear as **dashed lines**.
 
 ---
 
-## Filter by 
+## Change Visibility...
 
-<img src = "./img/edgeFilter.png" width = 150px>  
+<img src="./img/edgeHide.png" width="150px" style="display: block; margin: 0 auto;"/>
+
+- **Hide Selected**: Hides selected edges
+- **Hide Unselected**: Hides all **unselected** edges
+- **Swap**: Inverts visible and hidden edges
+- **Show All**: Makes **all edges visible**
+
+---
+
+## Filter By
+
+<img src="./img/edgeFilter.png" width="150px" style="display: block; margin: 0 auto;"/>
 
 ### By Name
 
-<img src ='./img/filterByEdgeName.png' width= "300px" >
+<img src='./img/filterByEdgeName.png' width="300px" style="display: block; margin: 0 auto;"/>
 
-Applies a **regex-based filter** on edge labels (e.g., FK names). Matching edges are selected.  
+Applies a **regex-based filter** to edge labels (e.g., FK names). Matching edges are **selected**.
 
-⚠️ **Caution:** Autofill with some browsers may display text with no effect.  
-Enter manually or copy/paste your filter or add a space after autofill.
-
-### By native categories 
-
-<img src ='./img/filterByNativeCategories.png' width= "200" >
-
-Relations can be tagged with categories (one can see with hover on).  
-The filter search a category and select the corresponding relations.
-As selections are cumulative selection can be made with several categories.(OR) 
-
-- select by Trigger impacts has effect only if these relations have been generated (see Modify relations)
-- select by Simplified associations has effect only if these relations have been generated.(see Modifiy relations)
+⚠️ **Caution:** Browser autofill may **not pass** text to the filter.
+**Solution:** Enter manually, copy/paste, or add a space after autofill.
 
 ---
 
-## Connected to table ... 
+### By Native Categories
 
-### Relations of selected nodes 
+<img src='./img/filterByNativeCategories.png' width="200" style="display: block; margin: 0 auto;"/>
 
-<img src ="./img/edgeFromNode.png" width =200px />    
+Relations can be tagged with categories (visible on hover).
+The filter **searches for a category** and selects matching edges.
+**Selections are cumulative** (OR logic with multiple categories).
 
-The selection of relations is guided by the current tables' selection.  
-A yellow rectangle represents a selected table.
-
-The first choice has three choices (below incoming edges): 
-- outgoing relations ( this table *references*) 
-- both sides
-- incoming relations (this table is *referenced*).  
-  
-<img src ="./img/connectedToRight.png" width =200px />    
- 
-
-💡 **Tip:** These edge selections do not affect node selection — a selected edge may connect to only one selected node.  
-
-### Relations between pairs of selected tables 
-
-  
-<img src ="./img/connectedBetween.png" width =180 />  
-
-Illustration of *between* below (three nodes were previously selected):  
-<img src = "./img/edgeConnectingNodes.png" width = 250px>   
+- **Trigger impacts**: Only works if these edges were generated (see **Modify Relations**)
+- **Simplified associations**: Only works if these edges were generated (see **Modify Relations**)
 
 ---
 
-## List of relations 
+## Connected to Table...
 
+### Relations of Selected Nodes
 
-Generates an HTML file with details of edges in the current perimeter.  
+<img src="./img/edgeFromNode.png" width="200px" style="display: block; margin: 0 auto;"/>
 
-The **Source**, **Target**, and **FK** headers allow sorting.  
+The selection of relations is **guided by the current table selection**.
+A **yellow rectangle** indicates a selected table.
 
-#### Mode *One edge per FK* 
+The first choice has three options (below incoming edges):
+- **Outgoing relations**: This table **references** other tables
+- **Both sides**: All connected relations
+- **Incoming relations**: This table is **referenced** by other tables
 
-<img src="./img/edgesList.png" width="700px" style="border: 1px solid grey;"/>  
+<img src="./img/connectedToRight.png" width="200px" style="display: block; margin: 0 auto;"/>
 
- ***●  Not nullable   /  ○ nullable*** : short representation (used for columns and foreign keys)  
-
-#### Mode *One edge per Column*  
-
-For edges in mode *1 edge per column* the list show corresponding columns names on successive lines.    
-In a mixed mode some using individual changes, some edges can stay in 1 per FK as below (partial)   
-
-<img src="./img/edgesListPerColumn.png" width="750px" style="border: 1px solid grey;"/>  
-
---- 
-
-## Modify relations 
-
-These entries modify the manner the relations are established.  
-
-<img src = "./img/edgeModifyRelations.png" width = 250px>  
-
-### Detailed level 
-
-- **raw FK** : standard display one FK = one Edge 
-- **perColumn** : one attribute of FK matching one attribute of destination = one Edge 
-
-### Triggers impacts 
-
-**Identify triggers and scan function code to identify C(R)UD operations managed by the trigger.**  
-
-- **generate** : the code of selected tables with trigger is analyzed to detect action on another table. 
-- **remove** : generated triggers'impacts are deleted from graph.
-
-
-The action adds **oriented edges** from the trigger’s source table to the **impacted tables**.  
-Trigger impact edges:  
-- have special style  
-- are labbled with the trigger’s name  
-- Have native category `trigger_impact` that alloww to filter them later ( native category )  
-
-
-<img src="./img/triggerHover.png" width="250px" style="border: 1px solid grey;"/>  
-
-
-### Transform associations
-
-- **Pass through** : 
-  - Remove the table of association 
-  - Create a double link A->B, B->A betwwen the two tables associated. 
-  - These links allow the propagation of the *dependencies* in the graph
-- **Restore associations** : re-establish the original association with its two FK
-
-
-<img src="./img/passThrough0.png" width="250px" style="border: 1px solid grey;"/>  
-<img src="./img/passThrough1.png" width="245px" style="border: 1px solid grey;"/>   
-
-
-
-Note: Transform associations can be applied : 
-- only in mode one FK = one Edge for associations.
-- only on simple association ( no extra columns, only two relations)
-
---- 
-
-
-## Labels 
-
-As actions that change the display, Relations'label can be changed globally in *menu display*. 
-
-Labels of relations are :  
-- Common edges: 
-  - mode raw FK : the foreign key name in the DB
-  - mode 1 per column: the source attribute -> destination attribute
-- Trigger impact edges: the trigger name in DB
-- Simplified association A with two links : B<-(A)->C
-  -   Label first pass through : B <– (A) –>> C  
-  -   Label second pass through :C <– (A) –>> B  
-
-#### Illustration 
-
-From top to bottom :
-- 3 labels of FK in mode 1 per column
-- 2 labels of the transformed association
-- 1 standard label with the name of the FK
-- 1 label with the name of the trigger for the generated trigger impacts
-
-<img src = "./img/edgeLabelsPanel.png" width = 400px style="border: 2px solid grey;">  
-
-
-#### Quick actions on the relation under cursor
-
-With previous menus entries,  actions apply to the current edge perimeter (selected edges if any, all if no selection). 
-
-A contextual menu on an edge by right clic allow individuals switches 
-- to change the detailed level of this relation
-- to show its label or not  
-- 
-<img src = "./img/edgeFlipFlop.png" width = "200px">
-
-Note: to apply globally labels'option see in menu display. 
+💡 **Tip:** These edge selections **do not affect node selection** — a selected edge may connect to **only one selected node**.
 
 ---
 
-### Delete 
+### Relations Between Pairs of Selected Tables
 
-Permanently removes selected edges from the graph.  
+<img src="./img/connectedBetween.png" width="180" style="display: block; margin: 0 auto;"/>
 
-- If only one edge is selected, deletion is immediate  
-  - This allows quick visual cleaning of a graph using **Backspace**  
-- If several edges are selected, a confirmation is shown:      
+Illustration of *between* below (three nodes were previously selected):
+<img src="./img/edgeConnectingNodes.png" width="250px" style="display: block; margin: 0 auto;"/>
 
-<img src = "./img/deleteEdges.png" width = 230px style="border: 2px solid grey;">  
+---
 
-💡 **Tip:** Use **Backspace** as a shortcut.  
-💡 **Tip:** <img src ="../img/rollback2.png" height =20px/> **Undo** restores an accidental deletion. 
+## List of Relations
 
+Generates an **HTML file** with details of edges in the **current perimeter**.
 
---- 
+The **Source**, **Target**, and **FK** headers allow sorting.
 
-⚪️ [Main](./main.md)  
+### Mode: *One Edge per FK*
 
+<img src="./img/edgesList.png" width="700px" style="display: block; margin: 0 auto; border: 1px solid grey;"/>
+
+**● Not nullable / ○ Nullable**: Short representation (used for columns and foreign keys)
+
+---
+
+### Mode: *One Edge per Column*
+
+For edges in **1 edge per column** mode, the list **shows** corresponding column names on successive lines.
+In a mixed mode, some using individual changes, some edges can stay in 1 per FK as below (partial):
+
+<img src="./img/edgesListPerColumn.png" width="750px" style="display: block; margin: 0 auto; border: 1px solid grey;"/>
+
+---
+
+## Modify Relations
+
+These options **modify how relations are displayed**.
+
+<img src="./img/edgeModifyRelations.png" width="250px" style="display: block; margin: 0 auto;"/>
+
+### Detail Level
+
+- **Raw FK** (Default): Standard display (one FK = one edge)
+- **Per Column**: One edge **per matching column pair** (source attribute → destination attribute)
+
+---
+
+### Trigger Impacts
+
+**Identifies triggers** and scans function code to detect **CRUD operations** managed by the trigger.
+
+- **Generate**: The code of selected tables with triggers is analyzed to detect actions on other tables.
+- **Remove**: Deletes generated trigger impact edges from the graph.
+
+The action adds **directed edges** from the trigger's source table to the **impacted tables**.
+Trigger impact edges:
+- Have a **special style**
+- Are **labeled** with the trigger's name
+- Have the native category `trigger_impact`, **allowing** you to filter them later
+
+<img src="./img/triggerHover.png" width="250px" style="display: block; margin: 0 auto; border: 1px solid grey;"/>
+
+---
+
+### Transform Associations
+
+- **Pass Through**:
+  - Removes the **association table**
+  - Creates a **double link** (A→B, B→A) between the two associated tables
+  - These links **enable dependency propagation** in the graph
+- **Restore Associations**: Re-establishes the **original association** with its two foreign keys
+
+<img src="./img/passThrough0.png" width="250px" style="display: block; margin: 0 auto; border: 1px solid grey;"/>
+<img src="./img/passThrough1.png" width="245px" style="display: block; margin: 0 auto; border: 1px solid grey;"/>
+
+**Note:** Transform associations can be applied:
+- Only in **1 FK = 1 Edge** mode for associations
+- Only on **simple associations** (no extra columns, only two relations)
+
+---
+
+## Labels
+
+As actions that change the display, **relation labels** can be changed globally in **Menu Display**.
+
+Labels of relations are:
+- **Common edges**:
+  - **Raw FK mode**: The foreign key name from the database
+  - **1 edge per column mode**: `source_attribute → destination_attribute`
+- **Trigger impact edges**: The trigger name from the database
+- **Simplified association** (A with two links: B and C):
+  - **Label first pass-through**: `B ← (A) → C`
+  - **Label second pass-through**: `C ← (A) → B`
+
+### Illustration
+
+From top to bottom:
+- 3 labels of FK in **1 edge per column** mode
+- 2 labels of the **transformed association**
+- 1 standard label with the **FK name**
+- 1 label with the **trigger name** for generated trigger impacts
+
+<img src="./img/edgeLabelsPanel.png" width="400px" style="display: block; margin: 0 auto; border: 2px solid grey;"/>
+
+---
+
+### Quick Actions on the Relation Under Cursor
+
+With the previous menu options, **actions apply to the current edge perimeter** (selected edges if any, **all edges otherwise**).
+
+A **context menu** on an edge (**right-click**) allows **individual toggles**:
+- To change the **detail level** of this relation
+- To show its label or not
+
+<img src="./img/edgeFlipFlop.png" width="200px" style="display: block; margin: 0 auto;"/>
+
+**Note:** To apply **global** label options, see **Menu Display**.
+
+---
+
+### Delete
+
+**Permanently removes** selected edges from the graph.
+
+- If **only one edge** is selected, it is **deleted immediately** (useful for quick cleanup with **Backspace**)
+- If **multiple edges** are selected, a **confirmation dialog** appears:
+
+<img src="./img/deleteEdges.png" width="230px" style="display: block; margin: 0 auto; border: 2px solid grey;"/>
+
+💡 **Tip:** Use **Backspace** as a shortcut.
+💡 **Tip:** <img src="../img/rollback2.png" height="20px" style="display: inline-block; vertical-align: middle;"/> **Undo (Ctrl+Z)** restores accidental deletions.
+
+---
+
+- ⚪️ [Main](./main.md)
